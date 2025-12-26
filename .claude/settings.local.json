@@ -1,0 +1,35 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dir:*)",
+      "Bash(timeout 10 python:*)",
+      "Bash(copy:*)",
+      "Bash(find:*)",
+      "Bash(sqlite3:*)",
+      "Bash(python -c:*)",
+      "Bash(pip install:*)",
+      "Bash(python -m py_compile:*)",
+      "Bash(python:*)",
+      "Bash(del /F /Q check_twitter_integration.py debug_streamlit_twitter.py setup_twitter_env.py test_twitter_auth.py test_twitter_step_by_step.py test_app_exact.py test_streamlit_context.py test_thread_with_images.py test_debug_403.py test_exact_streamlit_flow.py QUICK_SETUP_TWITTER.md TESTING_TWITTER.md TWITTER_403_ERROR_DEBUG_PROMPT.txt TWITTER_403_FIX.md TWITTER_INTEGRATION_INSTRUCTIONS.md TWITTER_INTEGRATION_PROMPT.txt TWITTER_SETUP_GUIDE.md NBA_SCHEDULE_FETCHING_DESCRIPTION.txt env_template.txt)",
+      "Bash(echo:*)",
+      "Bash(if exist check_twitter_integration.py del check_twitter_integration.py)",
+      "Bash(if exist debug_streamlit_twitter.py del debug_streamlit_twitter.py)",
+      "Bash(if exist setup_twitter_env.py del setup_twitter_env.py)",
+      "Bash(cmd /c \"del check_twitter_integration.py debug_streamlit_twitter.py setup_twitter_env.py test_twitter_auth.py test_twitter_step_by_step.py 2>nul\")",
+      "Bash(powershell -Command:*)",
+      "Bash(run_daily_prediction.bat)",
+      "Bash(cmd /c run_daily_prediction.bat:*)",
+      "Bash(del /F /Q nul debug_streamlit_real.py test_*.py CHANGES_SUMMARY.md FINAL_TEST_INSTRUCTIONS.md RATE_LIMIT_EXPLAINED.md TWITTER_FIX_COMPLETE.md TWITTER_FIX_INSTRUCTIONS.md)",
+      "Bash(cmd /c \"del /F /Q nul debug_streamlit_real.py test_format_tweet.py test_post_tweet.py test_streamlit_flow_exact.py test_thread_exact.py test_thread_short.py test_tweet_length_simple.py test_with_streamlit.py CHANGES_SUMMARY.md FINAL_TEST_INSTRUCTIONS.md RATE_LIMIT_EXPLAINED.md TWITTER_FIX_COMPLETE.md TWITTER_FIX_INSTRUCTIONS.md 2>nul\")",
+      "Bash(ls:*)",
+      "Bash(findstr:*)",
+      "Bash(del /F /Q AUTOMATION_README.md AUTOMATION_SUMMARY.md AUTOMATION_QUICK_START.md FILES_OVERVIEW.md IMAGES_ADDED.md BET_TRACKING_README.md QUICK_SUMMARY.md)",
+      "Bash(iconv:*)",
+      "Bash(cmd /c \"dir /b logs\")",
+      "Bash(cmd /c \"type logs\\daily_predictions_202512.log | findstr /I /C:\"\"error\"\" /C:\"\"exception\"\" /C:\"\"traceback\"\" /C:\"\"failed\"\" | tail -50\")",
+      "Bash(cmd /c \"dir /b .env*\")"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

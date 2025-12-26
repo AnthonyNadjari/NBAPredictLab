@@ -1,0 +1,45 @@
+# Environment variables and secrets
+.env
+.env.local
+.streamlit/secrets.toml
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.log
+temp/
+tmp/
+
+# Database (optional - uncomment if you don't want to commit DB)
+# data/*.db
+# data/*.db-journal
+
+# Model files (optional - uncomment if models are large)
+# models/*.pkl
+
+# Test files
+test_*.py
+*_test.py
+
+# Documentation (if you want to exclude)
+# *.md
+
