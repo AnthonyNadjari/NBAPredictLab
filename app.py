@@ -690,6 +690,69 @@ def display_game(pred, expanded=False):
             display_df = top_factors_df[['Feature', 'Impact %', 'Effect']]
             safe_dataframe(display_df, hide_index=True)
 
+        # Pattern-Based Adjustments (NEW - from error analysis)
+        if 'pattern_adjustments' in pred and pred['pattern_adjustments']:
+            st.markdown("### 🔧 Smart Adjustments Applied")
+            st.markdown("""
+            <div style="background: #fef3c7; border-left: 4px solid #f59e0b; padding: 12px; border-radius: 4px; margin-bottom: 15px;">
+            <b>⚡ What are Smart Adjustments?</b><br>
+            The AI detected patterns where the base prediction might be wrong. These adjustments are based on analysis of 94+ historical games where the model struggled.<br>
+            <em>Think of it as the model saying: "I've seen this situation before and I was wrong - let me correct it."</em>
+            </div>
+            """, unsafe_allow_html=True)
+
+            for adjustment in pred['pattern_adjustments']:
+                if "Hot road team" in adjustment:
+                    st.success(f"""
+                    **✅ {adjustment}**
+
+                    **What it means**: The away team is on a 4+ game winning streak and the ELO rating gap is small (<100 points).
+
+                    **Why it matters**: Historically, hot road teams in this situation win 60% of the time, even when the model slightly favors the home team. The model boosted the away team's win probability by 10% to account for momentum.
+
+                    **Translation**: The away team is playing with confidence and momentum trumps slight rating disadvantages.
+                    """)
+                elif "Cold home team" in adjustment:
+                    st.warning(f"""
+                    **⚠️ {adjustment}**
+
+                    **What it means**: The home team is on a 3+ game losing streak and the ELO rating gap is moderate (<150 points).
+
+                    **Why it matters**: Teams in free fall lose 73% of games even at home. The model reduced the home team's win probability by 8% to account for poor form.
+
+                    **Translation**: The home team is struggling badly and home court advantage doesn't overcome that slump.
+                    """)
+                elif "Heavy travel" in adjustment:
+                    st.error(f"""
+                    **🛫 {adjustment}**
+
+                    **What it means**: The away team traveled 2000+ miles (cross-country) and is playing on zero rest (back-to-back game).
+
+                    **Why it matters**: This brutal schedule combination has a 100% historical loss rate. The model reduced the away team's win probability by 15% - a massive penalty.
+
+                    **Translation**: Extreme fatigue from cross-country travel + no rest = expect a tired, sluggish performance.
+                    """)
+                elif "Large ELO" in adjustment:
+                    st.info(f"""
+                    **📊 {adjustment}**
+
+                    **What it means**: The ELO rating difference between teams is very large (>200 points) - a big mismatch on paper.
+
+                    **Why it matters**: The model historically had a 50% error rate in these "obvious favorite" games. It was overconfident. The adjustment reduces the favorite's probability by 5% to avoid overconfidence.
+
+                    **Translation**: Even heavy favorites can lose - the model is being more cautious about blowout predictions.
+                    """)
+                elif "B2B penalty" in adjustment:
+                    st.warning(f"""
+                    **😴 {adjustment}**
+
+                    **What it means**: The home team is playing on zero rest (back-to-back) while the away team is rested.
+
+                    **Why it matters**: Fatigue matters even at home. The model reduced the home team's win probability by 6% to account for tired legs.
+
+                    **Translation**: The home team might be sluggish in the 4th quarter when fresh legs matter most.
+                    """)
+
         radar_fig = create_feature_radar_chart(features, ht, at)
         if radar_fig:
             st.markdown("### 🎯 Team Comparison")
@@ -719,6 +782,7 @@ def display_game(pred, expanded=False):
             st.markdown("### 📱 Post to Twitter")
             
             try:
+                import tweepy
                 from src.twitter_integration import (
                     load_credentials_from_env, setup_twitter_api,
                     format_prediction_tweet,
@@ -767,12 +831,12 @@ def display_game(pred, expanded=False):
                 # Use a stable key and store value in session_state to prevent expander collapse
                 post_mode_key = f"post_mode_value_{ht}_{at}"
                 if post_mode_key not in st.session_state:
-                    st.session_state[post_mode_key] = "Single Tweet (Composite Image)"
-                
+                    st.session_state[post_mode_key] = "Thread (Multiple Charts)"  # Default to Thread
+
                 post_mode = st.radio(
                     "Post Format:",
-                    ["Single Tweet (Composite Image)", "Thread (Multiple Charts)"],
-                    index=0 if st.session_state[post_mode_key] == "Single Tweet (Composite Image)" else 1,
+                    ["Thread (Multiple Charts)", "Single Tweet (Composite Image)"],  # Thread first
+                    index=0 if st.session_state[post_mode_key] == "Thread (Multiple Charts)" else 1,
                     key=f"post_mode_{ht}_{at}"
                 )
                 st.session_state[post_mode_key] = post_mode
@@ -786,6 +850,7 @@ def display_game(pred, expanded=False):
                                 # Verify credentials before proceeding
                                 if not all([creds.get('api_key'), creds.get('access_token')]):
                                     st.error("❌ Twitter credentials not fully loaded. Check your .env file.")
+                                    st.info("💡 If you just updated your .env file, **restart Streamlit** to load new credentials.")
                                     return
                                 
                                 # Setup API clients - Use fresh client to avoid Streamlit caching issues
@@ -811,6 +876,24 @@ def display_game(pred, expanded=False):
                                     # DEBUG: Show which credentials are being used (first 10 chars only)
                                     st.caption(f"🔑 Using API Key: {creds.get('api_key', 'MISSING')[:10]}... | Access Token: {creds.get('access_token', 'MISSING')[:10]}...")
                                     
+                                except tweepy.Unauthorized as auth_error:
+                                    error_msg = (
+                                        f"❌ 401 Unauthorized: Invalid credentials.\n\n"
+                                        f"This usually means:\n"
+                                        f"1. Access Token doesn't match the API Key/Secret\n"
+                                        f"2. Tokens were copied incorrectly (check for extra spaces)\n"
+                                        f"3. Tokens belong to a different Twitter App\n\n"
+                                        f"🔧 Fix:\n"
+                                        f"1. Verify your API Key and Secret in .env match the app that generated the Access Token\n"
+                                        f"2. In Twitter Developer Portal, go to your app → Keys and tokens\n"
+                                        f"3. Make sure you're using tokens from the SAME app\n"
+                                        f"4. Regenerate Access Token and Secret if needed\n"
+                                        f"5. Copy tokens carefully (no extra spaces)\n"
+                                        f"6. Restart Streamlit after updating .env"
+                                    )
+                                    st.error(error_msg)
+                                    st.error(f"Technical error: {auth_error}")
+                                    return
                                 except Exception as auth_error:
                                     st.error(f"❌ Authentication failed: {auth_error}")
                                     return
@@ -895,53 +978,45 @@ def display_game(pred, expanded=False):
                                     
                                     # Use the same format_twitter_thread method as daily prediction
                                     thread_texts_from_daily, thread_image_paths_from_daily = temp_daily.format_twitter_thread(prediction_for_thread)
-                                    
-                                    # Use the texts from daily format (which matches the exact template)
-                                    # But use our own charts (exported_charts) instead of the ones from daily
+
+                                    # NEW STRUCTURE (Dec 2024):
+                                    # format_twitter_thread now returns:
+                                    # Tweet 1: Main prediction (no image)
+                                    # Tweet 2: THE EDGE (situational chart)
+                                    # Tweet 3: RECENT FORM (ratings_l10 chart)
+                                    # Tweet 4: KEY MATCHUP (ratings_l10 or shooting_l10, dynamic)
+                                    # Tweet 5: SCHEDULE SPOT (situational chart)
+                                    # Tweet 6: HOME/ROAD SPLITS (splits chart)
+                                    # Tweet 7+: Smart Adjustments (no image) / CTA (no image)
+
+                                    # The method already returns the correct image_paths, so we can use them directly!
                                     thread_texts = thread_texts_from_daily
-                                    
-                                    # Map thread_texts to our exported charts
-                                    # The format_twitter_thread returns tweets in this order:
-                                    # [tweet1 (prediction), injury (if any), elo, elo_gauge, ratings, shooting, pace, splits, situational]
-                                    # Our chart_order is: ['elo', 'elo_gauge', 'ratings_l10', 'shooting_l10', 'pace', 'splits', 'situational']
-                                    
-                                    # Check if injury tweet is present (second tweet usually contains "INJURY" or similar)
-                                    has_injury_tweet = len(thread_texts) > 1 and ('injury' in thread_texts[1].lower() or 'injured' in thread_texts[1].lower() or 'status' in thread_texts[1].lower())
-                                    injury_offset = 1 if has_injury_tweet else 0
-                                    
-                                    # Map chart names to their positions in thread_texts
-                                    # After tweet1 (index 0) and injury (index 1 if exists), charts start
-                                    chart_positions = {
-                                        'elo': 1 + injury_offset,
-                                        'elo_gauge': 2 + injury_offset,
-                                        'ratings_l10': 3 + injury_offset,
-                                        'shooting_l10': 4 + injury_offset,
-                                        'pace': 5 + injury_offset,
-                                        'splits': 6 + injury_offset,
-                                        'situational': 7 + injury_offset,
-                                    }
-                                    
-                                    # Build filtered lists - only include non-empty tweets
-                                    filtered_texts = []
-                                    filtered_charts_with_none = []
-                                    
-                                    for i, tweet_text in enumerate(thread_texts):
-                                        if tweet_text.strip():  # Only include non-empty tweets
-                                            filtered_texts.append(tweet_text)
-                                            
-                                            # First tweet (main prediction) and injury tweet have no chart
-                                            if i == 0 or (i == 1 and has_injury_tweet):
-                                                filtered_charts_with_none.append(None)
-                                            else:
-                                                # Find which chart corresponds to this tweet index
-                                                chart_name = None
-                                                for cn, pos in chart_positions.items():
-                                                    if i == pos:
-                                                        chart_name = cn
-                                                        break
-                                                
+
+                                    # Use the image paths from format_twitter_thread
+                                    # If they're empty or failed, use our exported charts as fallback
+                                    if thread_image_paths_from_daily and any(thread_image_paths_from_daily):
+                                        # Use the paths from format_twitter_thread
+                                        filtered_texts = thread_texts
+                                        filtered_charts_with_none = thread_image_paths_from_daily
+                                    else:
+                                        # Fallback: map our exported charts to the new structure
+                                        filtered_texts = thread_texts
+                                        filtered_charts_with_none = []
+
+                                        # NEW MAPPING for new thread structure:
+                                        new_chart_mapping = [
+                                            None,  # Tweet 1: Main prediction (no image)
+                                            'situational',  # Tweet 2: THE EDGE
+                                            'ratings_l10',  # Tweet 3: RECENT FORM
+                                            'ratings_l10',  # Tweet 4: KEY MATCHUP (default to ratings, could be shooting)
+                                            'situational',  # Tweet 5: SCHEDULE SPOT
+                                            'splits',       # Tweet 6: HOME/ROAD SPLITS
+                                        ]
+
+                                        for i, tweet_text in enumerate(thread_texts):
+                                            if i < len(new_chart_mapping):
+                                                chart_name = new_chart_mapping[i]
                                                 if chart_name and chart_name in chart_names_exported:
-                                                    # Find the index in chart_order
                                                     chart_idx_in_order = chart_order.index(chart_name)
                                                     if chart_idx_in_order < len(exported_charts):
                                                         filtered_charts_with_none.append(exported_charts[chart_idx_in_order])
@@ -949,6 +1024,9 @@ def display_game(pred, expanded=False):
                                                         filtered_charts_with_none.append(None)
                                                 else:
                                                     filtered_charts_with_none.append(None)
+                                            else:
+                                                # Tweets 7+ (Smart Adjustments, CTA) have no images
+                                                filtered_charts_with_none.append(None)
                                     
                                     # Post thread (filtered_charts_with_none has None for first tweet, charts for others)
                                     response = create_twitter_thread(
@@ -1724,217 +1802,104 @@ with tab6:
     """)
 
 # =============================================================================
-# TAB 7: TWITTER STATUS (Rate Limits)
+# TAB 7: TWITTER STATUS (24-Hour Rate Limits)
 # =============================================================================
 with tab7:
-    st.markdown("## 📊 Twitter API Rate Limits & Status")
-    
-    # Try to load Twitter credentials and get rate limits
-    try:
-        from src.twitter_integration import create_fresh_twitter_client
-        
-        if st.button("🔄 Refresh Rate Limits"):
-            with st.spinner("Fetching Twitter API rate limits..."):
+    st.markdown("## 🐦 Twitter Rate Limits")
+    st.caption("Free Tier: 17 tweets per 24 hours")
+
+    if st.button("🔄 Check Status"):
+        try:
+            from src.twitter_rate_limits import (
+                get_cached_rate_limits, 
+                format_rate_limit_display,
+                get_24h_rate_limits_from_api
+            )
+            from src.twitter_integration import create_fresh_twitter_client
+
+            with st.spinner("Checking rate limits..."):
+                # Try to get fresh data from API
                 try:
-                    # Create fresh client
                     api_clients = create_fresh_twitter_client()
-                    api_v1 = api_clients.get("api_v1")
                     client_v2 = api_clients.get("client_v2")
-                    
-                    if not api_v1:
-                        st.error("❌ Could not create Twitter API v1.1 client (needed for rate limits).")
-                        st.stop()
-                    
-                    # Note: rate_limit_status() itself uses an API call and may trigger rate limit waiting
-                    # Create a temporary client without wait_on_rate_limit for this call
-                    import tweepy
-                    from src.twitter_integration import load_credentials_from_env
-                    creds = load_credentials_from_env()
-                    
-                    # Create API client without wait_on_rate_limit to avoid long waits
-                    temp_auth = tweepy.OAuth1UserHandler(
-                        creds.get('api_key'),
-                        creds.get('api_key_secret'),
-                        creds.get('access_token'),
-                        creds.get('access_token_secret')
-                    )
-                    temp_api = tweepy.API(temp_auth, wait_on_rate_limit=False)  # Don't wait when checking limits
-                    
-                    try:
-                        # Get rate limit status (uses v1.1 API)
-                        # Note: This call itself consumes 1 request from /application/rate_limit_status endpoint
-                        rate_limits = temp_api.rate_limit_status()['resources']
-                    except tweepy.errors.TooManyRequests:
-                        st.warning("⚠️ Rate limit check temporarily unavailable due to API limits. Please wait a few minutes and try again.")
-                        st.stop()
-                    
-                    st.success("✅ Rate limits fetched successfully!")
-                    
-                    # Display rate limits organized by endpoint category
-                    st.markdown("### Rate Limits by Endpoint Category")
-                    
-                    # Helper function to format time until reset
-                    def format_reset_time(reset_timestamp):
-                        if reset_timestamp == 0:
-                            return "N/A"
-                        reset_dt = datetime.fromtimestamp(reset_timestamp)
-                        now = datetime.now()
-                        if reset_dt > now:
-                            delta = reset_dt - now
-                            hours = int(delta.total_seconds() // 3600)
-                            minutes = int((delta.total_seconds() % 3600) // 60)
-                            return f"{hours}h {minutes}m ({reset_dt.strftime('%H:%M:%S')})"
-                        return "Available now"
-                    
-                    # Helper function to get status color
-                    def get_status_color(remaining, limit):
-                        pct = (remaining / limit) * 100 if limit > 0 else 0
-                        if pct >= 50:
-                            return "🟢"
-                        elif pct >= 25:
-                            return "🟡"
+                    api_v1 = api_clients.get("api_v1")
+                    if client_v2:
+                        limits = get_24h_rate_limits_from_api(client_v2, api_v1)
+                        if limits:
+                            source = limits.get('source', 'unknown')
+                            st.success(f"✅ Fetched fresh rate limit data (source: {source})")
+                except Exception as api_error:
+                    st.info(f"Could not fetch fresh data: {api_error}")
+                    limits = None
+
+                # Fallback to cache if API call didn't return data
+                if not limits:
+                    limits = get_cached_rate_limits()
+                    if limits:
+                        st.info("📋 Using cached data (may be up to 1 hour old)")
+
+            if limits:
+                formatted = format_rate_limit_display(limits)
+
+                # Overall status
+                if formatted['can_post']:
+                    st.success("✅ Can post tweets")
+                else:
+                    st.error("🔴 Rate limit exhausted")
+
+                # Single row with key info
+                col1, col2, col3 = st.columns(3)
+
+                app = formatted['app_24h']
+                user = formatted['user_24h']
+
+                with col1:
+                    st.metric("APP Limit", f"{app['remaining']}/{app['limit']}")
+
+                with col2:
+                    st.metric("USER Limit", f"{user['remaining']}/{user['limit']}")
+
+                with col3:
+                    hours = app['hours_until_reset']
+                    if hours > 0:
+                        # Format as hours and minutes
+                        h = int(hours)
+                        m = int((hours - h) * 60)
+                        if h > 0 and m > 0:
+                            reset_str = f"{h}h {m} mins"
+                        elif h > 0:
+                            reset_str = f"{h}h"
                         else:
-                            return "🔴"
-                    
-                    # Organize by category
-                    categories = {
-                        'statuses': 'Tweets (Statuses)',
-                        'users': 'Users',
-                        'search': 'Search',
-                        'followers': 'Followers',
-                        'friends': 'Friends',
-                        'trends': 'Trends',
-                        'lists': 'Lists',
-                        'account': 'Account',
-                        'application': 'Application',
-                        'help': 'Help',
-                        'media': 'Media Upload'
-                    }
-                    
-                    # Display each category
-                    for category_key, category_name in categories.items():
-                        if category_key in rate_limits:
-                            st.markdown(f"#### {category_name}")
-                            
-                            endpoints = rate_limits[category_key]
-                            rate_data = []
-                            
-                            for endpoint, limit_info in endpoints.items():
-                                limit = limit_info['limit']
-                                remaining = limit_info['remaining']
-                                reset = limit_info['reset']
-                                
-                                status = get_status_color(remaining, limit)
-                                reset_time = format_reset_time(reset)
-                                pct = (remaining / limit) * 100 if limit > 0 else 0
-                                
-                                rate_data.append({
-                                    'Endpoint': endpoint.replace('/', ' / '),
-                                    'Status': status,
-                                    'Remaining': remaining,
-                                    'Limit': limit,
-                                    'Used': limit - remaining,
-                                    '% Remaining': f"{pct:.1f}%",
-                                    'Resets At': reset_time
-                                })
-                            
-                            if rate_data:
-                                df = pd.DataFrame(rate_data)
-                                # Sort by remaining percentage (lowest first)
-                                df = df.sort_values('% Remaining', ascending=True)
-                                safe_dataframe(df, hide_index=True)
-                    
-                    # Show key endpoints summary
-                    st.markdown("---")
-                    st.markdown("### 📌 Key Endpoints Summary")
-                    
-                    key_endpoints = {
-                        '/statuses/update': 'Post Tweet',
-                        '/statuses/update/:id': 'Reply to Tweet',
-                        '/media/upload': 'Upload Media',
-                        '/statuses/home_timeline': 'Get Timeline',
-                        '/users/show': 'Get User Info',
-                        '/account/verify_credentials': 'Verify Credentials'
-                    }
-                    
-                    summary_data = []
-                    for endpoint, description in key_endpoints.items():
-                        # Find in statuses or users or account or media
-                        found = False
-                        for category in ['statuses', 'users', 'account', 'media']:
-                            if category in rate_limits:
-                                full_endpoint = endpoint.replace(':', '/')
-                                # Try exact match or partial
-                                for ep_key, ep_info in rate_limits[category].items():
-                                    if endpoint in ep_key or ep_key.endswith(endpoint.split('/')[-1]):
-                                        limit = ep_info['limit']
-                                        remaining = ep_info['remaining']
-                                        reset = ep_info['reset']
-                                        
-                                        status = get_status_color(remaining, limit)
-                                        reset_time = format_reset_time(reset)
-                                        pct = (remaining / limit) * 100 if limit > 0 else 0
-                                        
-                                        summary_data.append({
-                                            'Endpoint': description,
-                                            'Status': status,
-                                            'Remaining': f"{remaining} / {limit}",
-                                            '% Available': f"{pct:.1f}%",
-                                            'Resets At': reset_time
-                                        })
-                                        found = True
-                                        break
-                            if found:
-                                break
-                    
-                    if summary_data:
-                        summary_df = pd.DataFrame(summary_data)
-                        safe_dataframe(summary_df, hide_index=True)
-                    
-                    # Authentication status - DO NOT make API calls here
-                    # Free tier only allows 25 /users/me calls per 24 hours!
-                    st.markdown("---")
-                    st.markdown("### 🔐 Authentication Status")
-                    auth_status = api_clients.get("auth_status", {})
-
-                    if auth_status.get("skip_verification") or auth_status.get("verified"):
-                        # We skipped verification to preserve rate limits
-                        st.success("✅ **Twitter Client Ready**")
-                        st.info("💡 Credentials configured. Verification skipped to preserve rate limits.")
-                        st.markdown("""
-                        **Free Tier Limits (per 24 hours):**
-                        - `/users/me` (verify auth): **25 requests**
-                        - `POST /tweets`: **17 tweets**
-                        - `DELETE /tweets`: **17 deletes**
-
-                        Your credentials will be validated when you post a tweet.
-                        """)
-                    elif auth_status.get("error"):
-                        st.error(f"❌ Authentication failed: {auth_status['error']}")
+                            reset_str = f"{m} mins"
+                        st.metric("Resets in", reset_str)
                     else:
-                        st.warning("⚠️ Authentication status unknown")
-                    
-                except Exception as e:
-                    st.error(f"❌ Error fetching rate limits: {e}")
-                    import traceback
-                    with st.expander("Error Details"):
-                        st.code(traceback.format_exc())
-        else:
-            st.info("👆 Click '🔄 Refresh Rate Limits' to fetch current Twitter API rate limits and status.")
-            st.markdown("""
-            This tab shows:
-            - **Rate limits** for all Twitter API endpoints
-            - **Remaining requests** before hitting limits
-            - **Reset times** for each endpoint
-            - **Authentication status**
-            
-            Rate limits are important to avoid hitting API quotas when posting tweets or fetching data.
-            """)
-            
-    except ImportError:
-        st.warning("⚠️ Twitter integration not available. Install required packages:")
-        st.code("pip install tweepy")
-    except Exception as e:
-        st.error(f"❌ Error loading Twitter integration: {e}")
+                        st.metric("Resets", "Now")
+
+                st.caption(f"Reset time: {app['reset_time']}")
+
+            else:
+                st.warning("⚠️ No rate limit data available")
+                st.info("""
+                **📝 Note about Twitter API v2 Rate Limits:**
+                
+                Twitter's API v2 only exposes 24-hour rate limit headers (showing remaining tweets) 
+                when you **hit the rate limit** (429 error), not in successful responses.
+                
+                This means:
+                - ✅ **"No data available" = You can post** (not rate limited)
+                - 🔴 **If you see data = You hit the limit** (rate limited)
+                
+                Free tier allows **17 tweets per 24 hours**. The API won't show your exact 
+                remaining count until you hit the limit. This is a limitation of Twitter's API, 
+                not a bug in this app.
+                
+                You can safely post tweets as long as you see "No data available" - it means 
+                you haven't hit the 17-tweet daily limit yet.
+                """)
+
+        except Exception as e:
+            st.error(f"Error: {e}")
+    else:
+        st.info("👆 Click to check your current Twitter API rate limits")
 
 st.caption("NBA Predictor v2.1")

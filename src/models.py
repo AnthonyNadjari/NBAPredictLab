@@ -382,15 +382,16 @@ class StackedEnsembleModel:
         """
         Calculate enhanced confidence score using multiple factors:
         1. Model agreement (how much models agree)
-        2. Distance from 0.5 (decisiveness)
+        2. Distance from 0.5 (decisiveness) - REDUCED WEIGHT
         3. Prediction stability (consistency of gradient boosters)
+        4. Prediction variance - PENALIZES HIGH UNCERTAINTY
         """
         probs = list(base_predictions.values())
 
         # Factor 1: Model agreement (inverse of std)
         agreement = 1 - np.std(probs)
 
-        # Factor 2: Distance from coin flip
+        # Factor 2: Distance from coin flip (REDUCED from 0.30 to 0.15)
         distance_from_half = abs(final_prob - 0.5) * 2
 
         # Factor 3: Gradient booster agreement (XGBoost and LightGBM)
@@ -402,12 +403,18 @@ class StackedEnsembleModel:
         avg_prob = np.mean(probs)
         ensemble_calibration = 1 - abs(final_prob - avg_prob)
 
-        # Weighted combination
+        # Factor 5: Prediction variance penalty (NEW - CRITICAL FIX)
+        # When base models disagree wildly, we should be LESS confident
+        pred_variance = np.var(probs)
+        variance_penalty = 1 - (pred_variance * 4)  # Scale to 0-1 range
+
+        # Weighted combination (REBALANCED - variance gets weight)
         confidence = (
-            0.35 * agreement +
-            0.30 * distance_from_half +
-            0.20 * gb_agreement +
-            0.15 * ensemble_calibration
+            0.30 * agreement +              # Down from 0.35
+            0.15 * distance_from_half +     # Down from 0.30 (was causing overconfidence)
+            0.20 * gb_agreement +           # Same
+            0.15 * ensemble_calibration +   # Same
+            0.20 * variance_penalty         # NEW - penalize high variance
         )
 
         return np.clip(confidence, 0.0, 1.0)

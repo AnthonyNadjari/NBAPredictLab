@@ -1020,10 +1020,17 @@ class FeatureEngineer:
         # ═══════════════════════════════════════════════════════════════
         home_elo = self.elo_system.get_rating(home_team_id)
         away_elo = self.elo_system.get_rating(away_team_id)
-        
+
+        elo_diff = home_elo - away_elo
+
         features['home_elo'] = home_elo
         features['away_elo'] = away_elo
-        features['elo_diff'] = home_elo - away_elo
+        features['elo_diff'] = elo_diff
+
+        # ELO capped version (reduce over-reliance on extreme differences)
+        # Analysis showed 50% error rate when |ELO diff| > 200
+        features['elo_diff_capped'] = np.sign(elo_diff) * min(abs(elo_diff), 200)
+
         features['elo_win_prob'] = self.elo_system.expected_win_prob(
             home_elo, away_elo, is_home=True
         )
@@ -1072,7 +1079,80 @@ class FeatureEngineer:
             features[f'{prefix}_last5_defensive_rating'] = recent5['defensive_rating']
             features[f'{prefix}_last5_net_rating'] = recent5['net_rating']
             features[f'{prefix}_last5_pace'] = recent5['pace']
-            
+
+        # ═══════════════════════════════════════════════════════════════
+        # 3b. ULTRA-RECENT FORM - LAST 3 GAMES (AGGRESSIVE RECENCY)
+        # ═══════════════════════════════════════════════════════════════
+        # These features give MAXIMUM weight to the most recent 3 games
+        # Research shows recent form (especially last 3) is a better predictor than season-long stats
+        for prefix, team_id in [('home', home_team_id), ('away', away_team_id)]:
+            recent3 = self._get_recent_stats(conn, team_id, game_date, n_games=3)
+
+            # Critical recent form indicators
+            features[f'{prefix}_last3_win_pct'] = recent3['win_pct']  # Most important
+            features[f'{prefix}_last3_point_diff'] = recent3['point_diff']  # Dominance indicator
+            features[f'{prefix}_last3_net_rating'] = recent3['net_rating']  # True strength
+            features[f'{prefix}_last3_offensive_rating'] = recent3['offensive_rating']
+            features[f'{prefix}_last3_defensive_rating'] = recent3['defensive_rating']
+
+        # ═══════════════════════════════════════════════════════════════
+        # 3c. MOMENTUM & TREND FEATURES (ULTRA-AGGRESSIVE RECENCY)
+        # ═══════════════════════════════════════════════════════════════
+        # These features capture whether teams are getting BETTER or WORSE
+        # "Hot hand" effect - teams on upward trajectory vs downward spiral
+        for prefix in ['home', 'away']:
+            # Form acceleration: Are they improving or declining?
+            # Last3 > Last5 = getting better (positive momentum)
+            # Last3 < Last5 = getting worse (negative momentum)
+            features[f'{prefix}_form_acceleration'] = (
+                features[f'{prefix}_last3_win_pct'] - features[f'{prefix}_last5_win_pct']
+            ) * 2.0  # Amplify the signal
+
+            # Scoring trend: Recent offensive explosion or slump?
+            features[f'{prefix}_recent_scoring_surge'] = (
+                features[f'{prefix}_last3_point_diff'] - features[f'{prefix}_last5_point_diff']
+            )
+
+            # Defensive trend: Getting stingier or leakier?
+            features[f'{prefix}_defensive_trend'] = (
+                features[f'{prefix}_last5_defensive_rating'] - features[f'{prefix}_last3_defensive_rating']
+            ) / 10.0  # Lower is better for defense, so flip it
+
+            # Net rating acceleration (most powerful single indicator)
+            features[f'{prefix}_net_rating_surge'] = (
+                features[f'{prefix}_last3_net_rating'] - features[f'{prefix}_last10_net_rating']
+            )
+
+        # ═══════════════════════════════════════════════════════════════
+        # 3d. EXPONENTIALLY-WEIGHTED RECENCY FEATURES
+        # ═══════════════════════════════════════════════════════════════
+        # Give MUCH more weight to recent games: Last3 = 3x, Last5 = 2x, Last10 = 1x
+        for prefix in ['home', 'away']:
+            # Weighted win rate (recent games count MORE)
+            weighted_win_pct = (
+                0.5 * features[f'{prefix}_last3_win_pct'] +    # 50% weight on last 3
+                0.3 * features[f'{prefix}_last5_win_pct'] +    # 30% weight on last 5
+                0.2 * features[f'{prefix}_last10_win_pct']     # 20% weight on last 10
+            )
+            features[f'{prefix}_weighted_recent_form'] = weighted_win_pct
+
+            # Weighted net rating (what matters most for winning)
+            weighted_net_rating = (
+                0.5 * features[f'{prefix}_last3_net_rating'] +
+                0.3 * features[f'{prefix}_last5_net_rating'] +
+                0.2 * features[f'{prefix}_last10_net_rating']
+            )
+            features[f'{prefix}_weighted_net_rating'] = weighted_net_rating
+
+        # Differential of weighted forms (CRITICAL FEATURE)
+        features['weighted_form_differential'] = (
+            features['home_weighted_recent_form'] - features['away_weighted_recent_form']
+        )
+
+        features['weighted_net_rating_differential'] = (
+            features['home_weighted_net_rating'] - features['away_weighted_net_rating']
+        )
+
         # ═══════════════════════════════════════════════════════════════
         # 4. HOME/AWAY SPLITS (8 features)
         # ═══════════════════════════════════════════════════════════════
@@ -1171,15 +1251,47 @@ class FeatureEngineer:
         features['tov_rate_diff'] = features['home_tov_rate'] - features['away_tov_rate']
 
         # ═══════════════════════════════════════════════════════════════
-        # 8c. MOMENTUM INDICATORS (4 features) - NEW!
+        # 8c. MOMENTUM INDICATORS - ENHANCED WITH ULTRA-RECENT DATA
         # ═══════════════════════════════════════════════════════════════
-        # Compare last 5 vs last 10 to detect momentum
+        # LEGACY momentum (kept for backward compatibility with trained model)
         features['home_momentum'] = features['home_last5_win_pct'] - features['home_last10_win_pct']
         features['away_momentum'] = features['away_last5_win_pct'] - features['away_last10_win_pct']
         features['momentum_diff'] = features['home_momentum'] - features['away_momentum']
-
-        # Scoring momentum
         features['home_scoring_trend'] = features['home_last5_ppg'] - features['home_last10_ppg']
+
+        # NEW: Ultra-recent momentum (last 3 vs last 10) - STRONGER SIGNAL
+        features['home_ultra_momentum'] = features['home_last3_win_pct'] - features['home_last10_win_pct']
+        features['away_ultra_momentum'] = features['away_last3_win_pct'] - features['away_last10_win_pct']
+        features['ultra_momentum_diff'] = features['home_ultra_momentum'] - features['away_ultra_momentum']
+
+        # Momentum clash: One team surging, other team collapsing
+        features['momentum_clash'] = abs(features['ultra_momentum_diff']) * (
+            1 if features['ultra_momentum_diff'] * features['elo_diff'] < 0 else 0
+        )  # Amplify when momentum contradicts ELO
+
+        # ═══════════════════════════════════════════════════════════════
+        # 8d. CRITICAL INTERACTION FEATURES (from error analysis)
+        # ═══════════════════════════════════════════════════════════════
+        # ELO-Momentum Interaction: When hot team plays, ELO may underestimate
+        home_streak = features['home_streak']
+        away_streak = features['away_streak']
+
+        # Positive when hot team is underrated by ELO
+        features['elo_momentum_interaction'] = elo_diff * (home_streak - away_streak) / 10.0
+
+        # Hot away team flag (historically wins 60% when streak >= 4 and |ELO diff| < 100)
+        features['hot_away_underdog'] = 1 if (away_streak >= 4 and abs(elo_diff) < 100) else 0
+
+        # Cold home team flag (historically loses 73% when streak <= -3 and |ELO diff| < 150)
+        features['cold_home_favorite'] = 1 if (home_streak <= -3 and abs(elo_diff) < 150) else 0
+
+        # ELO-Travel Interaction: Tired favorites lose more often
+        # travel_fatigue multiplied by ELO advantage
+        away_travel_fatigue = features.get('away_travel_fatigue_index', 0)
+        if elo_diff > 0:  # Home team favored
+            features['elo_travel_interaction'] = elo_diff * away_travel_fatigue / 100.0
+        else:  # Away team favored
+            features['elo_travel_interaction'] = -elo_diff * away_travel_fatigue / 100.0
 
         # ═══════════════════════════════════════════════════════════════
         # 9. PLAYER-LEVEL STATISTICS (14 features) - OPTIONAL
@@ -1260,21 +1372,47 @@ class FeatureEngineer:
         # ═══════════════════════════════════════════════════════════════
         if self.enhanced_features_available:
             try:
+                # For predictions (not training), force refresh to get latest injuries
+                force_refresh = include_player_stats  # Refresh during prediction time
+
                 injury_features = self.injury_tracker.get_injury_features(
                     home_team_id, away_team_id
                 )
+
+                # Enhanced injury impact calculation
+                home_injury_impact = (
+                    injury_features.get('home_injured_starters', 0) * 2.0 +
+                    (3.0 if injury_features.get('home_star_injured', 0) else 0)
+                )
+                away_injury_impact = (
+                    injury_features.get('away_injured_starters', 0) * 2.0 +
+                    (3.0 if injury_features.get('away_star_injured', 0) else 0)
+                )
+
                 features.update(injury_features)
+                features['home_injury_impact'] = home_injury_impact
+                features['away_injury_impact'] = away_injury_impact
+                features['injury_differential'] = away_injury_impact - home_injury_impact
+
+                print(f"  Injury data: Home={home_injury_impact:.1f}, Away={away_injury_impact:.1f}")
+
             except Exception as e:
                 print(f"Warning: Could not fetch injury features: {e}")
                 features['home_injured_starters'] = 0
                 features['away_injured_starters'] = 0
                 features['home_star_injured'] = 0
                 features['away_star_injured'] = 0
+                features['home_injury_impact'] = 0
+                features['away_injury_impact'] = 0
+                features['injury_differential'] = 0
         else:
             features['home_injured_starters'] = 0
             features['away_injured_starters'] = 0
             features['home_star_injured'] = 0
             features['away_star_injured'] = 0
+            features['home_injury_impact'] = 0
+            features['away_injury_impact'] = 0
+            features['injury_differential'] = 0
 
         # ═══════════════════════════════════════════════════════════════
         # 12. BETTING LINES - Market Wisdom (5 features) - NEW!

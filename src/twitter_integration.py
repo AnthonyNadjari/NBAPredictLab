@@ -108,8 +108,23 @@ def create_fresh_twitter_client() -> Dict:
     """
     import os
     from dotenv import load_dotenv
+    from pathlib import Path
     
-    # Force fresh load of environment variables from .env
+    # Read .env file DIRECTLY to avoid Python environment variable caching
+    # This is critical - os.getenv() may return cached values even after load_dotenv()
+    env_file = Path(".env")
+    env_vars = {}
+    if env_file.exists():
+        with open(env_file, 'r', encoding='utf-8') as f:
+            for line in f:
+                line = line.strip()
+                if line and not line.startswith('#') and '=' in line:
+                    key, value = line.split('=', 1)
+                    # Remove quotes if present
+                    value = value.strip('"').strip("'")
+                    env_vars[key.strip()] = value
+    
+    # Force fresh load of environment variables from .env (as backup)
     load_dotenv(override=True)
     
     # Try to load from Streamlit secrets as fallback
@@ -143,25 +158,33 @@ def create_fresh_twitter_client() -> Dict:
         # Any error - just use .env
         secrets = None
     
-    # Load credentials from secrets (if available) or .env
+    # Load credentials from secrets (if available) or .env file directly (to avoid caching)
     if secrets:
-        api_key = secrets.get("TW_API_KEY") or os.getenv("TW_API_KEY")
-        api_key_secret = secrets.get("TW_API_SECRET") or os.getenv("TW_API_SECRET")
-        access_token = secrets.get("TW_ACCESS_TOKEN") or os.getenv("TW_ACCESS_TOKEN")
+        # Prefer secrets, but fall back to .env file (not os.getenv to avoid caching)
+        api_key = secrets.get("TW_API_KEY") or env_vars.get("TW_API_KEY") or os.getenv("TW_API_KEY")
+        api_key_secret = secrets.get("TW_API_SECRET") or env_vars.get("TW_API_SECRET") or os.getenv("TW_API_SECRET")
+        access_token = secrets.get("TW_ACCESS_TOKEN") or env_vars.get("TW_ACCESS_TOKEN") or os.getenv("TW_ACCESS_TOKEN")
         # Use same naming as load_credentials_from_env() - try both variants for compatibility
         access_token_secret = (
             secrets.get("TW_ACCESS_SECRET") or 
-            secrets.get("TW_ACCESS_TOKEN_SECRET") or 
+            secrets.get("TW_ACCESS_TOKEN_SECRET") or
+            env_vars.get("TW_ACCESS_SECRET") or 
+            env_vars.get("TW_ACCESS_TOKEN_SECRET") or
             os.getenv("TW_ACCESS_SECRET") or 
             os.getenv("TW_ACCESS_TOKEN_SECRET")
         )
     else:
-        # No Streamlit secrets, use .env only
-        api_key = os.getenv("TW_API_KEY")
-        api_key_secret = os.getenv("TW_API_SECRET")
-        access_token = os.getenv("TW_ACCESS_TOKEN")
+        # No Streamlit secrets, use .env file directly (not os.getenv to avoid caching)
+        api_key = env_vars.get("TW_API_KEY") or os.getenv("TW_API_KEY")
+        api_key_secret = env_vars.get("TW_API_SECRET") or os.getenv("TW_API_SECRET")
+        access_token = env_vars.get("TW_ACCESS_TOKEN") or os.getenv("TW_ACCESS_TOKEN")
         # Use same naming as load_credentials_from_env() - try both variants
-        access_token_secret = os.getenv("TW_ACCESS_SECRET") or os.getenv("TW_ACCESS_TOKEN_SECRET")
+        access_token_secret = (
+            env_vars.get("TW_ACCESS_SECRET") or 
+            env_vars.get("TW_ACCESS_TOKEN_SECRET") or
+            os.getenv("TW_ACCESS_SECRET") or 
+            os.getenv("TW_ACCESS_TOKEN_SECRET")
+        )
     
     # Validate all credentials are present
     missing = []
@@ -181,8 +204,15 @@ def create_fresh_twitter_client() -> Dict:
         error_msg += "\n2. Or configure Streamlit secrets (if using Streamlit Cloud)"
         raise ValueError(error_msg)
     
-    logger.debug(f"Creating fresh Twitter client with API Key: {api_key[:10]}...")
-    logger.debug(f"Creating fresh Twitter client with Access Token: {access_token[:10]}...")
+    # Log credentials being used (first/last few chars for debugging)
+    logger.info(f"🔑 Creating Twitter client with:")
+    logger.info(f"   API Key: {api_key[:15]}...{api_key[-5:] if len(api_key) > 20 else ''} (full length: {len(api_key)})")
+    logger.info(f"   Access Token: {access_token[:30]}...{access_token[-10:] if len(access_token) > 40 else ''} (full length: {len(access_token)})")
+    logger.info(f"   Access Token Secret: {access_token_secret[:15]}...{access_token_secret[-5:] if len(access_token_secret) > 20 else ''} (full length: {len(access_token_secret)})")
+    
+    # Validate credentials are not empty
+    if not api_key or not api_key_secret or not access_token or not access_token_secret:
+        raise ValueError(f"Missing credentials: api_key={bool(api_key)}, api_key_secret={bool(api_key_secret)}, access_token={bool(access_token)}, access_token_secret={bool(access_token_secret)}")
     
     # Create OAuth 1.0a handler first (for media upload)
     auth = tweepy.OAuth1UserHandler(
@@ -203,6 +233,13 @@ def create_fresh_twitter_client() -> Dict:
         access_token_secret=access_token_secret,
         wait_on_rate_limit=False  # Fail fast instead of auto-waiting
     )
+    
+    # Store credentials in client for later verification (for debugging)
+    try:
+        client_v2._debug_api_key = api_key
+        client_v2._debug_access_token = access_token
+    except:
+        pass  # If we can't store debug info, that's fine
     
     # IMPORTANT: Do NOT call get_me() here!
     # Free tier only allows 25 requests per 24 hours for /users/me
@@ -404,11 +441,27 @@ def format_prediction_tweet(prediction: Dict, features: Dict, max_len: int = 280
     home_net = home_ortg - home_drtg
     away_net = away_ortg - away_drtg
 
+    # Add pattern adjustments note if present (make it CLEAR what it means)
+    adjustment_note = ""
+    if 'pattern_adjustments' in prediction and prediction['pattern_adjustments']:
+        # Get first/most important adjustment
+        first_adj = prediction['pattern_adjustments'][0]
+        if "Hot road" in first_adj:
+            adjustment_note = "\n⚡ AI Override: Away team on 4+ win streak - boosted +10%"
+        elif "Cold home" in first_adj:
+            adjustment_note = "\n⚠️ AI Override: Home team on 3+ loss streak - reduced -8%"
+        elif "Heavy travel" in first_adj:
+            adjustment_note = "\n🛫 AI Override: Cross-country B2B travel - away team penalized -15%"
+        elif "Large ELO" in first_adj:
+            adjustment_note = "\n📊 AI Override: Big favorite (model was 50% wrong historically) - reduced -5%"
+        elif "B2B" in first_adj:
+            adjustment_note = "\n😴 AI Override: Home team on back-to-back - fatigue penalty -6%"
+
     # Start with compact format with full names, odds, and orange-themed emojis
     text = (
         f"🏀 {away_full} ({away_team}) @ {home_full} ({home_team})\n"
         f"💰 Odds: {away_team} {away_odds:.2f} | {home_team} {home_odds:.2f}\n\n"
-        f"🔥 Prediction: {predicted_winner} ({confidence:.0f}%)\n\n"
+        f"🔥 Prediction: {predicted_winner} ({confidence:.0f}%){adjustment_note}\n\n"
         f"📊 Last 10:\n"
         f"🟠 Off: {home_team} {home_ortg:.1f} | {away_team} {away_ortg:.1f}\n"
         f"🛡️ Def: {home_team} {home_drtg:.1f} | {away_team} {away_drtg:.1f}\n"
@@ -417,15 +470,19 @@ def format_prediction_tweet(prediction: Dict, features: Dict, max_len: int = 280
         f"🧡 Read thread for full analysis ⬇️"
     )
 
-    # If still too long, use even more compact format
+    # Fallback format should never be needed with the new compact format above
+    # But keep it just in case
     if len(text) > max_len:
         text = (
             f"🏀 {away_team} @ {home_team}\n"
-            f"🔥 {predicted_winner} {confidence:.0f}%\n\n"
-            f"L10: Off {home_team} {home_ortg:.1f}/{away_team} {away_ortg:.1f}\n"
-            f"Def {home_team} {home_drtg:.1f}/{away_team} {away_drtg:.1f}\n"
-            f"Net {home_team} {home_net:+.1f}/{away_team} {away_net:+.1f}\n\n"
-            f"🧡 Thread below ⬇️"
+            f"💰 Odds: {away_team} {away_odds:.2f} | {home_team} {home_odds:.2f}\n\n"
+            f"🔥 Prediction: {predicted_winner} ({confidence:.0f}%)\n\n"
+            f"📊 Last 10:\n"
+            f"🟠 Off: {home_team} {home_ortg:.1f} | {away_team} {away_ortg:.1f}\n"
+            f"🛡️ Def: {home_team} {home_drtg:.1f} | {away_team} {away_drtg:.1f}\n"
+            f"📈 Net: {home_team} {home_net:+.1f} | {away_team} {away_net:+.1f}\n"
+            f"🎯 3PT: {home_team} {home_3pt:.1f}% | {away_team} {away_3pt:.1f}%\n\n"
+            f"🧡 Read thread for full analysis ⬇️"
         )
 
     # Final safety check - truncate if still too long
@@ -568,14 +625,34 @@ def create_twitter_thread(
             logger.info(f"Tweet {i+1}: {text[:100]}...")
         return [{"dry_run": True, "text": t} for t in texts]
 
-    # Debug: Log client object IDs
-    logger.info(f"🔍 Thread posting with client_v2 ID: {id(api_clients.get('client_v2'))}, api_v1 ID: {id(api_clients.get('api_v1'))}")
-
-    client_v2 = api_clients.get("client_v2")
-    api_v1 = api_clients.get("api_v1")
+    # CRITICAL: Create a FRESH client right before posting to ensure we use latest credentials
+    # This bypasses any potential caching issues
+    logger.info("🔄 Creating fresh Twitter client for posting (to ensure latest credentials)...")
+    try:
+        fresh_clients = create_fresh_twitter_client()
+        client_v2 = fresh_clients.get("client_v2")
+        api_v1 = fresh_clients.get("api_v1")
+        logger.info("✅ Fresh client created successfully")
+    except Exception as e:
+        logger.warning(f"⚠️ Failed to create fresh client, using provided client: {e}")
+        # Fallback to provided client if fresh creation fails
+        client_v2 = api_clients.get("client_v2")
+        api_v1 = api_clients.get("api_v1")
 
     if not client_v2:
         raise ValueError("Twitter API client not initialized")
+    
+    # Debug: Try to get client credentials to verify what's being used
+    try:
+        # Check if client has credentials attribute (for debugging)
+        if hasattr(client_v2, '_client') and hasattr(client_v2._client, 'auth'):
+            auth = client_v2._client.auth
+            if hasattr(auth, 'access_token'):
+                logger.info(f"🔑 Client access token (first 30 chars): {auth.access_token[:30]}...")
+            if hasattr(auth, 'consumer_key'):
+                logger.info(f"🔑 Client API key (first 15 chars): {auth.consumer_key[:15]}...")
+    except Exception as debug_e:
+        logger.debug(f"Could not extract client credentials for debugging: {debug_e}")
     
     prev_tweet_id = None
     responses = []
@@ -610,41 +687,157 @@ def create_twitter_thread(
             # Log first tweet attempt for debugging
             if i == 0:
                 logger.info(f"Attempting to post first tweet in thread (text length: {len(text)})")
+                # Debug: Verify credentials in client match what we expect
+                try:
+                    if hasattr(client_v2, '_debug_api_key'):
+                        logger.info(f"🔍 Debug: Client API Key: {client_v2._debug_api_key[:15]}...")
+                        logger.info(f"🔍 Debug: Client Access Token: {client_v2._debug_access_token[:30]}...")
+                except:
+                    pass
             response = client_v2.create_tweet(**kwargs)
             tweet_id = response.data.get('id') if hasattr(response, 'data') else response.get('data', {}).get('id')
             prev_tweet_id = tweet_id
             responses.append({"success": True, "tweet_id": tweet_id, "response": response})
             logger.info(f"Successfully posted tweet {i+1}/{len(texts)}. ID: {tweet_id}")
+            
+            # Try to extract rate limit headers from response if available
+            # Note: Twitter API v2 only shows 24h limits in 429 errors, not successful responses
+            # But we can try to access response metadata if Tweepy exposes it
+            try:
+                if hasattr(response, 'response') and hasattr(response.response, 'headers'):
+                    headers = response.response.headers
+                    # Log if we find any rate limit info (unlikely for 24h limits in success)
+                    if 'x-rate-limit-remaining' in headers:
+                        logger.debug(f"15-min window remaining: {headers.get('x-rate-limit-remaining')}")
+            except:
+                pass  # Headers not accessible, which is expected
+            
             time.sleep(1)  # Small delay between thread tweets
         except tweepy.TooManyRequests as e:
-            # Try to extract rate limit reset time from response headers
-            reset_time_str = "in 15-30 minutes"
+            # Extract and cache rate limit info from headers
+            reset_time_str = "soon"
             try:
                 if hasattr(e.response, 'headers'):
-                    reset_timestamp = e.response.headers.get('x-rate-limit-reset')
-                    if reset_timestamp:
-                        from datetime import datetime, timezone
-                        reset_time = datetime.fromtimestamp(int(reset_timestamp), tz=timezone.utc)
+                    headers = e.response.headers
+
+                    # Extract 24-hour limits (the real constraint)
+                    app_limit = headers.get('x-app-limit-24hour-limit')
+                    app_remaining = headers.get('x-app-limit-24hour-remaining')
+                    app_reset = headers.get('x-app-limit-24hour-reset')
+
+                    user_limit = headers.get('x-user-limit-24hour-limit')
+                    user_remaining = headers.get('x-user-limit-24hour-remaining')
+                    user_reset = headers.get('x-user-limit-24hour-reset')
+
+                    window_limit = headers.get('x-rate-limit-limit')
+                    window_remaining = headers.get('x-rate-limit-remaining')
+                    window_reset = headers.get('x-rate-limit-reset')
+
+                    # Cache this data for the status tab
+                    import json
+                    from datetime import datetime, timezone
+                    from pathlib import Path
+
+                    cache_data = {
+                        'app_24h': {
+                            'limit': int(app_limit) if app_limit else 17,
+                            'remaining': int(app_remaining) if app_remaining else 0,
+                            'reset': int(app_reset) if app_reset else 0,
+                        },
+                        'user_24h': {
+                            'limit': int(user_limit) if user_limit else 17,
+                            'remaining': int(user_remaining) if user_remaining else 0,
+                            'reset': int(user_reset) if user_reset else 0,
+                        },
+                        'window_15min': {
+                            'limit': int(window_limit) if window_limit else 1080000,
+                            'remaining': int(window_remaining) if window_remaining else 1080000,
+                            'reset': int(window_reset) if window_reset else 0,
+                        },
+                        'timestamp': datetime.now().isoformat(),
+                        'source': 'error_response',
+                    }
+
+                    cache_file = Path("data/twitter_rate_limits_cache.json")
+                    cache_file.parent.mkdir(parents=True, exist_ok=True)
+                    with open(cache_file, 'w') as f:
+                        json.dump(cache_data, f, indent=2)
+
+                    # Format better error message based on 24h limits
+                    if app_remaining == '0' or user_remaining == '0':
+                        reset_ts = int(app_reset) if app_reset else int(user_reset)
+                        reset_time = datetime.fromtimestamp(reset_ts, tz=timezone.utc)
                         reset_local = reset_time.astimezone()
-                        reset_time_str = f"at {reset_local.strftime('%H:%M:%S')}"
+                        hours_until = (reset_time - datetime.now(timezone.utc)).total_seconds() / 3600
 
-                        # Calculate minutes until reset
-                        time_until = reset_time - datetime.now(timezone.utc)
-                        minutes_until = int(time_until.total_seconds() / 60)
-                        if minutes_until > 0:
-                            reset_time_str = f"at {reset_local.strftime('%H:%M:%S')} ({minutes_until} minutes)"
-            except:
-                pass
+                        reset_time_str = f"at {reset_local.strftime('%Y-%m-%d %H:%M:%S')} ({hours_until:.1f} hours)"
+                        error_msg = f"⚠️ 24-hour tweet limit exhausted (17 tweets/24h on Free tier). Resets {reset_time_str}."
+                    else:
+                        # Fallback to 15-min window message
+                        reset_timestamp = window_reset
+                        if reset_timestamp:
+                            reset_time = datetime.fromtimestamp(int(reset_timestamp), tz=timezone.utc)
+                            reset_local = reset_time.astimezone()
+                            minutes_until = (reset_time - datetime.now(timezone.utc)).total_seconds() / 60
+                            reset_time_str = f"at {reset_local.strftime('%H:%M:%S')} ({minutes_until:.0f} minutes)"
+                        error_msg = f"⚠️ Twitter rate limit hit on tweet {i+1}/{len(texts)}. Rate limit resets {reset_time_str}."
+            except Exception as cache_error:
+                logger.warning(f"Failed to cache rate limit info: {cache_error}")
+                error_msg = f"⚠️ Twitter rate limit hit on tweet {i+1}/{len(texts)}. Rate limit resets {reset_time_str}."
 
-            error_msg = f"⚠️ Twitter rate limit hit on tweet {i+1}/{len(texts)}. Rate limit resets {reset_time_str}."
             logger.error(error_msg)
             logger.error(f"Already posted {len(responses)} tweets successfully before rate limit.")
             raise Exception(error_msg) from e
         except tweepy.Forbidden as e:
+            # Log detailed error information for debugging
+            logger.error(f"❌ 403 Forbidden error details:")
+            logger.error(f"   Error: {e}")
+            if hasattr(e, 'response'):
+                logger.error(f"   Response status: {getattr(e.response, 'status_code', 'N/A')}")
+                if hasattr(e.response, 'json'):
+                    try:
+                        error_json = e.response.json()
+                        logger.error(f"   Error response: {error_json}")
+                    except:
+                        pass
+                if hasattr(e.response, 'text'):
+                    try:
+                        logger.error(f"   Response text: {e.response.text[:500]}")
+                    except:
+                        pass
+            
+            # Try to get more details from the exception
+            error_details = str(e)
+            if hasattr(e, 'api_codes'):
+                logger.error(f"   API codes: {e.api_codes}")
+            if hasattr(e, 'api_messages'):
+                logger.error(f"   API messages: {e.api_messages}")
+            
             error_msg = (
-                f"403 Forbidden: Your Twitter App doesn't have 'Read and write' permissions.\n"
-                f"Fix: Go to https://developer.twitter.com/ → Your App → Settings → User authentication settings\n"
-                f"Set 'App permissions' to 'Read and write', then regenerate Access Tokens."
+                f"403 Forbidden: Cannot post tweets.\n\n"
+                f"🔍 Debug Information:\n"
+                f"   Error occurred on tweet {i+1}/{len(texts)}\n"
+                f"   Error details: {error_details}\n\n"
+                f"⚠️ MOST LIKELY CAUSE: Twitter Free Tier Rate Limit\n"
+                f"   • Twitter Free tier allows only 17 tweets per 24 hours\n"
+                f"   • This limit is NOT shown in API rate limit responses\n"
+                f"   • Each tweet in a thread counts toward this limit\n"
+                f"   • Media uploads also count toward limits\n\n"
+                f"🔧 SOLUTIONS:\n"
+                f"1. ⏰ Wait 24 hours since your first tweet today\n"
+                f"2. 📊 Track your daily tweet count manually\n"
+                f"3. 💰 Upgrade to Twitter Basic tier ($100/month) for 3,000 tweets/month\n\n"
+                f"⚠️ OTHER POSSIBLE CAUSES (less likely if credentials worked before):\n"
+                f"1. ❌ API Key and Access Token are from DIFFERENT Twitter Apps\n"
+                f"2. ❌ App permissions are 'Read' only (not 'Read and write')\n"
+                f"3. ❌ Access tokens were generated BEFORE permissions were changed\n\n"
+                f"🔧 To verify credentials are correct:\n"
+                f"1. Go to: https://developer.twitter.com/en/portal/projects-and-apps\n"
+                f"2. Find your app (API Key: {api_key[:25] if 'api_key' in dir() else 'N/A'}...)\n"
+                f"3. Check 'App permissions' is 'Read and write'\n"
+                f"4. Verify all 4 credentials are from the SAME app\n\n"
+                f"💡 TIP: Run 'python test_twitter_post.py' to verify credentials work.\n"
+                f"        If that works but Streamlit doesn't, it's the rate limit!"
             )
             logger.error(error_msg)
             # Create a more informative error by modifying the message

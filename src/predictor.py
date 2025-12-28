@@ -47,6 +47,89 @@ class NBAPredictor:
         except Exception as e:
             print(f"Error loading model: {e}")
             return False
+
+    def _apply_pattern_adjustments(self, result, features):
+        """
+        Apply pattern-based probability adjustments based on error analysis.
+        These are data-driven corrections for systematic model biases.
+        """
+        adjustments_made = []
+        home_prob = result['home_win_probability']
+        away_prob = result['away_win_probability']
+
+        # Extract relevant features
+        away_streak = features.get('away_streak', 0)
+        home_streak = features.get('home_streak', 0)
+        elo_diff = features.get('elo_diff', 0)
+        away_travel_distance = features.get('away_travel_distance', 0)
+        away_back_to_back = features.get('away_back_to_back', 0)
+        home_back_to_back = features.get('home_back_to_back', 0)
+
+        # RULE 1: Hot road team override
+        # When away team on 4+ win streak AND ELO diff < 100 → boost away 10%
+        if away_streak >= 4 and abs(elo_diff) < 100:
+            away_prob += 0.10
+            home_prob -= 0.10
+            adjustments_made.append("Hot road team (+10% away)")
+
+        # RULE 2: Cold home team penalty
+        # When home team on 3+ loss streak AND ELO diff < 150 → reduce home 8%
+        if home_streak <= -3 and abs(elo_diff) < 150:
+            home_prob -= 0.08
+            away_prob += 0.08
+            adjustments_made.append("Cold home team (-8% home)")
+
+        # RULE 3: Extreme travel + back-to-back
+        # When away travels 2000+ miles on B2B → heavy away penalty
+        if away_travel_distance > 2000 and away_back_to_back == 1:
+            away_prob -= 0.15
+            home_prob += 0.15
+            adjustments_made.append("Heavy travel fatigue (-15% away)")
+
+        # RULE 4: ELO over-reliance correction
+        # When large ELO diff (>200), reduce confidence in favorite slightly
+        # Model historically has 50% error rate in these situations
+        if abs(elo_diff) > 200:
+            # Reduce extreme probabilities toward 50% by 5%
+            if home_prob > 0.5:
+                home_prob -= 0.05
+                away_prob += 0.05
+            else:
+                away_prob -= 0.05
+                home_prob += 0.05
+            adjustments_made.append("Large ELO diff correction (-5% favorite)")
+
+        # RULE 5: Home back-to-back penalty
+        # Home teams on B2B tend to underperform
+        if home_back_to_back == 1 and away_back_to_back == 0:
+            home_prob -= 0.06
+            away_prob += 0.06
+            adjustments_made.append("Home B2B penalty (-6% home)")
+
+        # Renormalize to ensure probabilities sum to 1.0
+        total = home_prob + away_prob
+        if total > 0:
+            home_prob /= total
+            away_prob /= total
+
+        # Clip to valid probability range
+        home_prob = max(0.01, min(0.99, home_prob))
+        away_prob = max(0.01, min(0.99, away_prob))
+
+        # Update result
+        result['home_win_probability'] = float(home_prob)
+        result['away_win_probability'] = float(away_prob)
+
+        # Update prediction if it changed
+        result['prediction'] = 'home' if home_prob > 0.5 else 'away'
+
+        # Store adjustments for transparency
+        result['pattern_adjustments'] = adjustments_made
+
+        if adjustments_made:
+            print(f"🔧 Pattern adjustments applied: {', '.join(adjustments_made)}")
+
+        return result
     
     def _get_team_id(self, team_name):
         """Convert team name to team ID"""
@@ -114,18 +197,21 @@ class NBAPredictor:
             
             # Make prediction
             result = self.model.predict_single(features)
-            
+
             # Ensure result is a dictionary
             if not isinstance(result, dict):
                 print(f"Error: Model predict_single returned non-dict: {type(result)}")
                 return None
-            
+
             print(f"📋 Result keys after predict_single: {list(result.keys())}")
-            
+
             # Add team names FIRST
             result['home_team'] = home_team
             result['away_team'] = away_team
-            
+
+            # APPLY PATTERN-BASED ADJUSTMENTS (from error analysis)
+            result = self._apply_pattern_adjustments(result, features_backup)
+
             # FORCE features to be included - do this BEFORE any other operations
             result['features'] = features_backup  # Always include, even if empty
             

@@ -176,13 +176,14 @@ class EmailReporter:
             home_odds = game['home_odds']
             away_odds = game['away_odds']
             
-            # Format odds - highlight the predicted winner's odds in yellow
-            if predicted == game['home_team']:
-                odds_display = f"<span style='background-color: #ffeb3b; padding: 2px 4px;'>{home_odds:.2f}</span> / {away_odds:.2f}"
-            elif predicted == game['away_team']:
-                odds_display = f"{home_odds:.2f} / <span style='background-color: #ffeb3b; padding: 2px 4px;'>{away_odds:.2f}</span>"
+            # Format odds - AWAY / HOME to match the "AWAY @ HOME" matchup order
+            # Highlight the predicted winner's odds in yellow
+            if predicted == game['away_team']:
+                odds_display = f"<span style='background-color: #ffeb3b; padding: 2px 4px;'>{away_odds:.2f}</span> / {home_odds:.2f}"
+            elif predicted == game['home_team']:
+                odds_display = f"{away_odds:.2f} / <span style='background-color: #ffeb3b; padding: 2px 4px;'>{home_odds:.2f}</span>"
             else:
-                odds_display = f"{home_odds:.2f} / {away_odds:.2f}"
+                odds_display = f"{away_odds:.2f} / {home_odds:.2f}"
             
             # Result
             if game['actual_winner']:
@@ -239,13 +240,14 @@ class EmailReporter:
             away_odds = pred['away_odds']
             confidence = pred['confidence'] * 100
             
-            # Format odds - highlight the predicted winner's odds in yellow
-            if predicted == pred['home_team']:
-                odds_display = f"<span style='background-color: #ffeb3b; padding: 2px 4px;'>{home_odds:.2f}</span> / {away_odds:.2f}"
-            elif predicted == pred['away_team']:
-                odds_display = f"{home_odds:.2f} / <span style='background-color: #ffeb3b; padding: 2px 4px;'>{away_odds:.2f}</span>"
+            # Format odds - AWAY / HOME to match the "AWAY @ HOME" matchup order
+            # Highlight the predicted winner's odds in yellow
+            if predicted == pred['away_team']:
+                odds_display = f"<span style='background-color: #ffeb3b; padding: 2px 4px;'>{away_odds:.2f}</span> / {home_odds:.2f}"
+            elif predicted == pred['home_team']:
+                odds_display = f"{away_odds:.2f} / <span style='background-color: #ffeb3b; padding: 2px 4px;'>{home_odds:.2f}</span>"
             else:
-                odds_display = f"{home_odds:.2f} / {away_odds:.2f}"
+                odds_display = f"{away_odds:.2f} / {home_odds:.2f}"
             
             # Confidence color
             if confidence >= 70:
