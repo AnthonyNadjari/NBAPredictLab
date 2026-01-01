@@ -33,7 +33,12 @@
       "Bash(cmd /c \"dir /b logs\\*.log 2>nul\")",
       "Bash(del /F /Q AXES_OF_IMPROVEMENT.md CRITICAL_FINDINGS_SUMMARY.md DEPLOYMENT_CONFIRMATION.md FIX_TWITTER_PERMISSIONS.md IMPROVEMENTS_IMPLEMENTED.md MODEL_IMPROVEMENT_REPORT.md RATE_LIMIT_FIX_SUMMARY.md RECENCY_ENHANCEMENT_SUMMARY.md SMART_ADJUSTMENTS_CLARITY_UPDATE.md THREAD_SYNC_CONFIRMATION.md TWITTER_STATUS_TAB_REPLACEMENT.md TWITTER_THREAD_OPTIMIZATION.md TWITTER_403_FIX_COMPLETE.md FIX_STREAMLIT_CACHE.md)",
       "Bash(cmd /c \"del /F /Q AXES_OF_IMPROVEMENT.md CRITICAL_FINDINGS_SUMMARY.md DEPLOYMENT_CONFIRMATION.md FIX_TWITTER_PERMISSIONS.md IMPROVEMENTS_IMPLEMENTED.md MODEL_IMPROVEMENT_REPORT.md RATE_LIMIT_FIX_SUMMARY.md RECENCY_ENHANCEMENT_SUMMARY.md SMART_ADJUSTMENTS_CLARITY_UPDATE.md THREAD_SYNC_CONFIRMATION.md TWITTER_STATUS_TAB_REPLACEMENT.md TWITTER_THREAD_OPTIMIZATION.md TWITTER_403_FIX_COMPLETE.md FIX_STREAMLIT_CACHE.md\")",
-      "Bash(cmd /c \"del /F /Q diagnose_twitter_403.py test_twitter_post.py test_thread_post.py test_media_upload.py check_rate_limits.py analyze_prediction_errors.py check_twitter_tier.py detailed_error_patterns.py diagnose_429.py get_24h_limits.py populate_rate_limit_cache.py\")"
+      "Bash(cmd /c \"del /F /Q diagnose_twitter_403.py test_twitter_post.py test_thread_post.py test_media_upload.py check_rate_limits.py analyze_prediction_errors.py check_twitter_tier.py detailed_error_patterns.py diagnose_429.py get_24h_limits.py populate_rate_limit_cache.py\")",
+      "Bash(del /F /Q test_tweet_count.py test_local_tweet_counter.py)",
+      "Bash(cmd /c \"del /F /Q test_tweet_count.py test_local_tweet_counter.py\")",
+      "Bash(cmd /c \"type data\\tweet_history.json\")",
+      "Bash(cmd /c \"if exist data\\tweet_history.json (type data\\tweet_history.json) else (echo File does not exist)\")",
+      "Bash(cmd /c \"dir /b data\\*rate*.json 2>nul\")"
     ],
     "deny": [],
     "ask": []

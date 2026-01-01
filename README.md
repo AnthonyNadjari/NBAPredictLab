@@ -86,5 +86,5 @@ python scripts/init_database.py
 
 ## Scheduling (Windows Task Scheduler)
 
-See `SCHEDULING_GUIDE.md` for setting up automatic daily runs.
+Use Windows Task Scheduler to set up automatic daily runs of `run_daily_prediction.bat`.
 

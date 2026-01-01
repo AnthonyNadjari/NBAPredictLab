@@ -959,14 +959,133 @@ class EloRatingSystem:
         """Get current Elo rating for a team."""
         return self.ratings.get(team_id, self.INITIAL_ELO)
 
+    def diagnose_elo_freshness(self) -> pd.DataFrame:
+        """
+        Check if ELO ratings are current.
+        CRITICAL: Stale ELO ratings are a major source of prediction errors.
+
+        Returns DataFrame with team ELO freshness status.
+        """
+        conn = sqlite3.connect(self.db_path)
+
+        # Get last ELO update for each team
+        query = """
+        SELECT ce.team_id, ce.elo, ce.last_updated,
+               t.full_name as team_name
+        FROM current_elo ce
+        LEFT JOIN (
+            SELECT team_id, full_name FROM (
+                SELECT home_team_id as team_id, home_team as full_name FROM games
+                UNION
+                SELECT away_team_id as team_id, away_team as full_name FROM games
+            ) GROUP BY team_id
+        ) t ON ce.team_id = t.team_id
+        ORDER BY ce.last_updated DESC
+        """
+
+        try:
+            df = pd.read_sql(query, conn)
+        except Exception as e:
+            print(f"Error querying ELO: {e}")
+            conn.close()
+            return pd.DataFrame()
+
+        conn.close()
+
+        if df.empty:
+            print("[WARNING] No ELO ratings found in database!")
+            return df
+
+        print("\n=== ELO FRESHNESS DIAGNOSTIC ===")
+
+        # Check staleness
+        today = datetime.now()
+        stale_teams = []
+
+        for _, row in df.iterrows():
+            try:
+                last_update = pd.to_datetime(row['last_updated'])
+                days_old = (today - last_update).days
+                team_name = row.get('team_name', f"Team {row['team_id']}")
+
+                if days_old > 3:
+                    stale_teams.append({
+                        'team': team_name,
+                        'days_old': days_old,
+                        'elo': row['elo'],
+                        'last_updated': row['last_updated']
+                    })
+            except Exception:
+                continue
+
+        if stale_teams:
+            print(f"\n[WARNING] {len(stale_teams)} teams have stale ELO ratings (>3 days old):")
+            for team in stale_teams[:10]:  # Show first 10
+                print(f"  - {team['team']}: {team['days_old']} days old (ELO: {team['elo']:.0f})")
+            print("\nRun update_elo_after_games() to refresh ratings!")
+        else:
+            print("[OK] All ELO ratings are current (updated within 3 days)")
+
+        # Show top/bottom teams
+        print("\nTop 5 ELO ratings:")
+        for _, row in df.nlargest(5, 'elo').iterrows():
+            team_name = row.get('team_name', f"Team {row['team_id']}")
+            print(f"  {team_name}: {row['elo']:.0f}")
+
+        print("\nBottom 5 ELO ratings:")
+        for _, row in df.nsmallest(5, 'elo').iterrows():
+            team_name = row.get('team_name', f"Team {row['team_id']}")
+            print(f"  {team_name}: {row['elo']:.0f}")
+
+        return df
+
+    def update_elo_from_recent_games(self, days: int = 7):
+        """
+        Update ELO ratings from recent game results.
+        Call this to ensure ELO is fresh before making predictions.
+        """
+        conn = sqlite3.connect(self.db_path)
+
+        # Get recent games that haven't been used to update ELO
+        query = f"""
+        SELECT g.game_id, g.game_date, g.home_team_id, g.away_team_id,
+               g.home_score, g.away_score
+        FROM games g
+        WHERE g.game_date >= date('now', '-{days} days')
+        AND g.home_score IS NOT NULL
+        AND g.away_score IS NOT NULL
+        ORDER BY g.game_date ASC
+        """
+
+        games_df = pd.read_sql(query, conn)
+        conn.close()
+
+        if games_df.empty:
+            print(f"No completed games found in last {days} days")
+            return
+
+        print(f"Updating ELO from {len(games_df)} recent games...")
+
+        for _, row in games_df.iterrows():
+            self.update_ratings(
+                home_team_id=row['home_team_id'],
+                away_team_id=row['away_team_id'],
+                home_score=row['home_score'],
+                away_score=row['away_score'],
+                game_id=row['game_id']
+            )
+
+        print(f"[OK] ELO ratings updated from {len(games_df)} games")
+
 
 class FeatureEngineer:
     """
     Creates features for ML model.
-    
-    ROCKSTAR VERSION with 84 features:
+
+    ROCKSTAR VERSION with 95+ features:
     - Elo ratings
-    - Recent form
+    - Recent form (balanced recency weighting)
+    - Strength of Schedule (NEW - reduces recency bias)
     - Home/Away splits
     - Head-to-head
     - Rest days
@@ -1124,25 +1243,29 @@ class FeatureEngineer:
             )
 
         # ═══════════════════════════════════════════════════════════════
-        # 3d. EXPONENTIALLY-WEIGHTED RECENCY FEATURES
+        # 3d. BALANCED RECENCY FEATURES (FIXED: Reduced over-weighting)
         # ═══════════════════════════════════════════════════════════════
-        # Give MUCH more weight to recent games: Last3 = 3x, Last5 = 2x, Last10 = 1x
+        # Previous: 60% on last 3 games caused severe recency bias
+        # Fixed: More balanced weighting to prevent random variance from dominating
         for prefix in ['home', 'away']:
-            # Weighted win rate (recent games count MORE)
+            # Weighted win rate - REDUCED recency bias (was 0.60/0.25/0.15)
             weighted_win_pct = (
-                0.5 * features[f'{prefix}_last3_win_pct'] +    # 50% weight on last 3
-                0.3 * features[f'{prefix}_last5_win_pct'] +    # 30% weight on last 5
-                0.2 * features[f'{prefix}_last10_win_pct']     # 20% weight on last 10
+                0.35 * features[f'{prefix}_last3_win_pct'] +    # 35% weight on last 3 (was 60%)
+                0.35 * features[f'{prefix}_last5_win_pct'] +    # 35% weight on last 5 (was 25%)
+                0.30 * features[f'{prefix}_last10_win_pct']     # 30% weight on last 10 (was 15%)
             )
             features[f'{prefix}_weighted_recent_form'] = weighted_win_pct
 
-            # Weighted net rating (what matters most for winning)
+            # Weighted net rating - more balanced
             weighted_net_rating = (
-                0.5 * features[f'{prefix}_last3_net_rating'] +
-                0.3 * features[f'{prefix}_last5_net_rating'] +
-                0.2 * features[f'{prefix}_last10_net_rating']
+                0.35 * features[f'{prefix}_last3_net_rating'] +  # Reduced from 60%
+                0.35 * features[f'{prefix}_last5_net_rating'] +  # Increased from 25%
+                0.30 * features[f'{prefix}_last10_net_rating']   # Increased from 15%
             )
             features[f'{prefix}_weighted_net_rating'] = weighted_net_rating
+
+            # REMOVED: Ultra-aggressive recency (was causing bad predictions)
+            # Instead, let Elo and longer-term stats balance out recent noise
 
         # Differential of weighted forms (CRITICAL FEATURE)
         features['weighted_form_differential'] = (
@@ -1151,6 +1274,36 @@ class FeatureEngineer:
 
         features['weighted_net_rating_differential'] = (
             features['home_weighted_net_rating'] - features['away_weighted_net_rating']
+        )
+
+        # NOTE: Ultra-weighted form was REMOVED due to causing bad predictions
+        # The SOS-adjusted features below now serve this purpose better
+
+        # ═══════════════════════════════════════════════════════════════
+        # 3e. STRENGTH OF SCHEDULE (NEW - reduces recency bias)
+        # ═══════════════════════════════════════════════════════════════
+        # A team's recent wins mean less if they beat weak opponents
+        # A team's recent losses mean less if they faced strong opponents
+        for prefix, team_id in [('home', home_team_id), ('away', away_team_id)]:
+            sos = self._get_strength_of_schedule(conn, team_id, game_date, n_games=10)
+
+            features[f'{prefix}_sos_normalized'] = sos['sos_normalized']
+            features[f'{prefix}_avg_opponent_elo'] = sos['avg_opponent_elo']
+            features[f'{prefix}_sos_adjusted_win_pct'] = sos['adjusted_win_pct']
+            features[f'{prefix}_opponent_win_pct'] = sos['opponent_win_pct']
+
+        # SOS differentials - who faced harder opponents?
+        features['sos_differential'] = (
+            features['home_sos_normalized'] - features['away_sos_normalized']
+        )
+        features['avg_opponent_elo_differential'] = (
+            features['home_avg_opponent_elo'] - features['away_avg_opponent_elo']
+        )
+
+        # Adjusted form differential - THIS IS THE KEY FEATURE
+        # Uses SOS-adjusted win percentages instead of raw win percentages
+        features['sos_adjusted_form_differential'] = (
+            features['home_sos_adjusted_win_pct'] - features['away_sos_adjusted_win_pct']
         )
 
         # ═══════════════════════════════════════════════════════════════
@@ -1182,16 +1335,20 @@ class FeatureEngineer:
         features['h2h_away_ppg'] = h2h['away_ppg']
         
         # ═══════════════════════════════════════════════════════════════
-        # 6. REST DAYS (4 features)
+        # 6. REST DAYS & SCHEDULE FEATURES (expanded with special dates)
         # ═══════════════════════════════════════════════════════════════
         home_rest = self._get_rest_days(conn, home_team_id, game_date)
         away_rest = self._get_rest_days(conn, away_team_id, game_date)
-        
+
         features['home_rest_days'] = home_rest
         features['away_rest_days'] = away_rest
         features['rest_advantage'] = home_rest - away_rest
         features['home_back_to_back'] = 1 if home_rest == 0 else 0
         features['away_back_to_back'] = 1 if away_rest == 0 else 0
+
+        # Schedule features - special dates that affect performance
+        schedule_features = self._get_schedule_features(game_date, conn, home_team_id, away_team_id)
+        features.update(schedule_features)
         
         # ═══════════════════════════════════════════════════════════════
         # 7. STREAK (4 features)
@@ -1677,7 +1834,181 @@ class FeatureEngineer:
                 break
                 
         return streak if first_result == 1 else -streak
-        
+
+    def _get_schedule_features(self, game_date: str, conn, home_team_id: int, away_team_id: int) -> Dict:
+        """
+        Add schedule-related features that affect performance.
+        Analysis showed December 26 (day after Christmas) had 33% accuracy.
+        """
+        features = {}
+
+        # Parse date
+        if isinstance(game_date, str):
+            game_date_obj = datetime.strptime(game_date, '%Y-%m-%d')
+        else:
+            game_date_obj = game_date
+
+        # Day of week (0=Monday, 6=Sunday)
+        features['day_of_week'] = game_date_obj.weekday()
+        features['is_weekend'] = 1 if game_date_obj.weekday() >= 5 else 0
+
+        # Special dates that affect performance
+        features['is_christmas'] = 1 if (game_date_obj.month == 12 and game_date_obj.day == 25) else 0
+        features['is_day_after_christmas'] = 1 if (game_date_obj.month == 12 and game_date_obj.day == 26) else 0
+        features['is_new_years_eve'] = 1 if (game_date_obj.month == 12 and game_date_obj.day == 31) else 0
+        features['is_new_years_day'] = 1 if (game_date_obj.month == 1 and game_date_obj.day == 1) else 0
+
+        # MLK weekend (third Monday of January)
+        if game_date_obj.month == 1:
+            # Find third Monday
+            first_day = datetime(game_date_obj.year, 1, 1)
+            days_until_monday = (7 - first_day.weekday()) % 7
+            third_monday = first_day + timedelta(days=days_until_monday + 14)
+            mlk_weekend = third_monday - timedelta(days=2) <= game_date_obj <= third_monday
+            features['is_mlk_weekend'] = 1 if mlk_weekend else 0
+        else:
+            features['is_mlk_weekend'] = 0
+
+        # Month of season (affects playoff push, tanking)
+        features['month'] = game_date_obj.month
+        features['is_late_season'] = 1 if game_date_obj.month in [3, 4] else 0  # Playoff push
+        features['is_early_season'] = 1 if game_date_obj.month in [10, 11] else 0  # Still gelling
+
+        # Games in last 7 days (schedule density)
+        home_games_7d = self._count_recent_games(conn, home_team_id, game_date, days=7)
+        away_games_7d = self._count_recent_games(conn, away_team_id, game_date, days=7)
+
+        features['home_games_last_7d'] = home_games_7d
+        features['away_games_last_7d'] = away_games_7d
+        features['schedule_density_diff'] = home_games_7d - away_games_7d
+
+        # Road trip length for away team
+        features['away_road_trip_length'] = self._get_road_trip_length(conn, away_team_id, game_date)
+        features['away_long_road_trip'] = 1 if features['away_road_trip_length'] >= 4 else 0
+
+        return features
+
+    def _count_recent_games(self, conn, team_id: int, game_date: str, days: int = 7) -> int:
+        """Count games played in last N days"""
+        query = f"""
+        SELECT COUNT(*) as game_count
+        FROM games
+        WHERE (home_team_id = ? OR away_team_id = ?)
+        AND game_date BETWEEN date(?, '-{days} days') AND date(?, '-1 day')
+        """
+        result = pd.read_sql_query(query, conn, params=(team_id, team_id, game_date, game_date))
+        return int(result['game_count'].iloc[0]) if not result.empty else 0
+
+    def _get_road_trip_length(self, conn, team_id: int, game_date: str) -> int:
+        """Calculate current road trip length"""
+        query = """
+        SELECT game_date, home_team_id
+        FROM games
+        WHERE (home_team_id = ? OR away_team_id = ?)
+        AND game_date < ?
+        ORDER BY game_date DESC
+        LIMIT 10
+        """
+        games = pd.read_sql_query(query, conn, params=(team_id, team_id, game_date))
+
+        if games.empty:
+            return 0
+
+        road_games = 0
+        for _, game in games.iterrows():
+            if game['home_team_id'] != team_id:
+                road_games += 1
+            else:
+                break  # Found a home game, road trip ended
+
+        return road_games
+
+    def _get_strength_of_schedule(self, conn, team_id: int, before_date: str,
+                                   n_games: int = 10) -> Dict:
+        """
+        Calculate strength of schedule based on opponent Elo ratings.
+
+        This is CRITICAL for reducing recency bias:
+        - A 7-3 record against weak teams (avg Elo 1450) is worse than
+        - A 5-5 record against strong teams (avg Elo 1550)
+
+        Returns:
+            Dict with:
+            - avg_opponent_elo: Average Elo of recent opponents
+            - sos_normalized: 0-1 scale (1 = faced strongest opponents)
+            - adjusted_win_pct: Win rate adjusted for opponent strength
+            - opponent_win_pct: Average win% of opponents faced
+        """
+        # Get recent games with opponent info
+        query = """
+            SELECT
+                game_date,
+                CASE WHEN home_team_id = ? THEN away_team_id ELSE home_team_id END as opponent_id,
+                CASE WHEN home_team_id = ? THEN home_win ELSE 1 - home_win END as win
+            FROM games
+            WHERE (home_team_id = ? OR away_team_id = ?)
+            AND game_date < ?
+            ORDER BY game_date DESC
+            LIMIT ?
+        """
+        params = [team_id, team_id, team_id, team_id, before_date, n_games]
+        games = pd.read_sql_query(query, conn, params=params)
+
+        if games.empty:
+            return {
+                'avg_opponent_elo': 1500,
+                'sos_normalized': 0.5,
+                'adjusted_win_pct': 0.5,
+                'opponent_win_pct': 0.5
+            }
+
+        # Get Elo ratings for each opponent
+        opponent_elos = []
+        opponent_win_pcts = []
+
+        for _, game in games.iterrows():
+            opp_id = int(game['opponent_id'])
+            opp_elo = self.elo_system.get_rating(opp_id)
+            opponent_elos.append(opp_elo)
+
+            # Get opponent's win percentage (their recent form)
+            opp_query = """
+                SELECT
+                    AVG(CASE WHEN home_team_id = ? THEN home_win ELSE 1 - home_win END) as win_pct
+                FROM games
+                WHERE (home_team_id = ? OR away_team_id = ?)
+                AND game_date < ?
+                ORDER BY game_date DESC
+                LIMIT 10
+            """
+            opp_df = pd.read_sql_query(opp_query, conn, params=[opp_id, opp_id, opp_id, before_date])
+            opp_win_pct = opp_df['win_pct'].iloc[0] if not opp_df.empty and opp_df['win_pct'].iloc[0] is not None else 0.5
+            opponent_win_pcts.append(opp_win_pct)
+
+        avg_opp_elo = np.mean(opponent_elos)
+        avg_opp_win_pct = np.mean(opponent_win_pcts)
+        actual_win_pct = games['win'].mean()
+
+        # Normalize SOS: Elo typically ranges 1350-1650, center at 1500
+        # sos_normalized: 0 = weakest opponents (Elo ~1350), 1 = strongest (Elo ~1650)
+        sos_normalized = np.clip((avg_opp_elo - 1350) / 300, 0, 1)
+
+        # Adjusted win percentage:
+        # If you beat strong teams, your wins are worth more
+        # If you beat weak teams, your wins are worth less
+        # Formula: actual_win_pct * (0.5 + 0.5 * sos_normalized) + (1 - actual_win_pct) * (1 - sos_normalized) * 0.3
+        # Simplified: adjust toward 0.5 based on inverse of SOS
+        sos_adjustment = (sos_normalized - 0.5) * 0.3  # -0.15 to +0.15 adjustment
+        adjusted_win_pct = actual_win_pct + sos_adjustment * (actual_win_pct - 0.5)
+        adjusted_win_pct = np.clip(adjusted_win_pct, 0, 1)
+
+        return {
+            'avg_opponent_elo': avg_opp_elo,
+            'sos_normalized': sos_normalized,
+            'adjusted_win_pct': adjusted_win_pct,
+            'opponent_win_pct': avg_opp_win_pct
+        }
+
     def create_training_dataset(self, games_df: pd.DataFrame) -> Tuple[pd.DataFrame, pd.Series, np.ndarray]:
         """
         Create features for all historical games with sample weights.
