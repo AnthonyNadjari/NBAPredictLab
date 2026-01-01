@@ -1,6 +1,6 @@
 """
 NBA Predictor - Enhanced Interface
-Full-featured: Predictions, Portfolio Tracking, Analytics, Performance
+Full-featured: Predictions, Analytics, Performance
 """
 
 import streamlit as st
@@ -21,13 +21,22 @@ from plotly.subplots import make_subplots
 project_root = Path(__file__).parent
 sys.path.insert(0, str(project_root))
 
+# Load environment variables from .env file
+try:
+    from dotenv import load_dotenv
+    load_dotenv(project_root / ".env")
+except ImportError:
+    pass  # dotenv not installed, rely on system env vars
+
 # Check for required dependencies
 try:
     from src.predictor import NBAPredictor
     from src.data_fetcher import NBADataFetcher, FeatureEngineer, EloRatingSystem
     from src.odds_scraper import generate_bookmaker_odds, odds_to_american
+    from src.real_odds_fetcher import RealOddsFetcher
     from src.model_feedback_system import ModelFeedbackSystem
     from src.injury_tracker import InjuryTracker
+    from src.prediction_warnings import generate_warnings, format_warning_for_display, PredictionWarning
     from nba_api.stats.static import teams
     DEPS_OK = True
 except ImportError as e:
@@ -396,8 +405,6 @@ if 'predictor' not in st.session_state:
     st.session_state.predictor = NBAPredictor(db_path=str(db_path), model_dir=str(models_path))
 if 'todays_predictions' not in st.session_state:
     st.session_state.todays_predictions = None
-if 'selected_bets' not in st.session_state:
-    st.session_state.selected_bets = []
 
 def get_conf_badge(conf):
     if conf >= 0.7: return "High", "conf-high"
@@ -483,133 +490,177 @@ def create_feature_radar_chart(features, home_team, away_team):
     return fig
 
 # =============================================================================
-# SIDEBAR - Compact
+# SIDEBAR - API Key Management
 # =============================================================================
+def get_api_quota(api_key: str) -> dict:
+    """Check remaining API quota for The Odds API"""
+    if not api_key:
+        return {'error': 'No API key'}
+    try:
+        import requests
+        response = requests.get(
+            "https://api.the-odds-api.com/v4/sports",
+            params={'apiKey': api_key},
+            timeout=5
+        )
+        if response.status_code == 200:
+            return {
+                'remaining': response.headers.get('x-requests-remaining', 'Unknown'),
+                'used': response.headers.get('x-requests-used', 'Unknown'),
+                'status': 'OK'
+            }
+        elif response.status_code == 401:
+            return {'error': 'Invalid API key', 'status': 'ERROR'}
+        else:
+            return {'error': f'HTTP {response.status_code}', 'status': 'ERROR'}
+    except Exception as e:
+        return {'error': str(e), 'status': 'ERROR'}
+
 with st.sidebar:
     st.markdown("### 🏀 NBA Predictor")
+    st.markdown("---")
 
-    balance_info = get_user_balance(str(db_path))
-    st.markdown(f"""
-    <div class="portfolio-card">
-        <div style="font-size: 0.8rem; opacity: 0.8;">Balance</div>
-        <div style="font-size: 1.5rem; font-weight: 800;">${balance_info['balance']:,.2f}</div>
+    # =============================================================================
+    # API KEY MANAGEMENT
+    # =============================================================================
+    st.markdown("#### 🔑 API Keys")
+
+    # Load existing API keys from environment/session
+    if 'api_keys' not in st.session_state:
+        st.session_state.api_keys = {}
+        # Load from environment
+        odds_key = os.getenv('ODDS_API_KEY', '')
+        if odds_key:
+            st.session_state.api_keys['The Odds API'] = odds_key
+
+    # Add new API key
+    with st.expander("➕ Add API Key", expanded=False):
+        api_name = st.selectbox("API Provider", ["The Odds API"], key="api_provider_select")
+        new_key = st.text_input("API Key", type="password", key="new_api_key_input")
+        if st.button("Save Key"):
+            if new_key:
+                st.session_state.api_keys[api_name] = new_key
+                # Also set in environment for current session
+                if api_name == "The Odds API":
+                    os.environ['ODDS_API_KEY'] = new_key
+                st.success(f"✅ {api_name} key saved!")
+                safe_rerun()
+            else:
+                st.warning("Please enter a key")
+
+    # Display existing keys and their quotas
+    st.markdown("#### 📊 API Quotas")
+
+    if st.session_state.api_keys:
+        for api_name, api_key in st.session_state.api_keys.items():
+            masked_key = api_key[:8] + "..." + api_key[-4:] if len(api_key) > 12 else "***"
+
+            if api_name == "The Odds API":
+                quota = get_api_quota(api_key)
+
+                if quota.get('status') == 'OK':
+                    remaining = int(quota.get('remaining', 0))
+                    used = int(quota.get('used', 0))
+                    total = remaining + used
+                    pct_remaining = (remaining / total * 100) if total > 0 else 0
+
+                    # Color based on remaining
+                    if pct_remaining > 50:
+                        color = "#22c55e"  # Green
+                    elif pct_remaining > 20:
+                        color = "#f59e0b"  # Orange
+                    else:
+                        color = "#ef4444"  # Red
+
+                    st.markdown(f"""
+                    <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; margin: 8px 0;">
+                        <div style="font-weight: 600; color: #1e293b; margin-bottom: 4px;">🎯 {api_name}</div>
+                        <div style="font-size: 0.8rem; color: #64748b;">Key: {masked_key}</div>
+                        <div style="margin-top: 8px;">
+                            <div style="display: flex; justify-content: space-between; font-size: 0.85rem;">
+                                <span style="color: {color}; font-weight: 600;">{remaining} remaining</span>
+                                <span style="color: #64748b;">{used} used</span>
+                            </div>
+                            <div style="background: #e2e8f0; border-radius: 4px; height: 8px; margin-top: 4px;">
+                                <div style="background: {color}; width: {pct_remaining}%; height: 100%; border-radius: 4px;"></div>
+                            </div>
+                            <div style="font-size: 0.75rem; color: #94a3b8; margin-top: 4px;">Resets monthly</div>
+                        </div>
+                    </div>
+                    """, unsafe_allow_html=True)
+                else:
+                    st.markdown(f"""
+                    <div style="background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 12px; margin: 8px 0;">
+                        <div style="font-weight: 600; color: #991b1b;">❌ {api_name}</div>
+                        <div style="font-size: 0.8rem; color: #dc2626;">{quota.get('error', 'Unknown error')}</div>
+                    </div>
+                    """, unsafe_allow_html=True)
+    else:
+        st.info("No API keys configured. Add one above to get real bookmaker odds.")
+
+    # Refresh quota button
+    if st.button("🔄 Refresh Quotas"):
+        safe_rerun()
+
+    st.markdown("---")
+    st.markdown("#### ℹ️ Quick Help")
+    st.markdown("""
+    <div style="font-size: 0.8rem; color: #64748b;">
+    <b>Get free API key:</b><br>
+    <a href="https://the-odds-api.com/" target="_blank">the-odds-api.com</a><br>
+    Free tier: 500 requests/month
     </div>
     """, unsafe_allow_html=True)
 
-    profit = balance_info['won'] - balance_info['lost']
-    c1, c2 = st.columns(2)
-    c1.metric("Wagered", f"${balance_info['wagered']:,.0f}")
-    c2.metric("P/L", f"${profit:+,.0f}")
+# =============================================================================
+# REAL ODDS FETCHING
+# =============================================================================
+# Use st.cache for older Streamlit versions, st.cache_data for newer
+try:
+    _cache_decorator = st.cache_data(ttl=300)
+except AttributeError:
+    _cache_decorator = st.cache(ttl=300, suppress_st_warning=True)
 
-    st.markdown("---")
-    
-    # =============================================================================
-    # HELP SECTION - Metric Definitions
-    # =============================================================================
-    with st.expander("📊 Metric Definitions", expanded=False):
-        st.markdown("""
-        **Win Probability**: The model's estimated chance (0-100%) that the home team will win this game.
+@_cache_decorator
+def get_real_or_simulated_odds(home_team, away_team, model_home_prob):
+    """
+    Try to fetch real bookmaker odds. If unavailable, simulate from model.
 
-        **Confidence Level**:
-        - **High (≥70%)**: Model strongly agrees across all base models, prediction is far from 50/50
-        - **Medium (55-69%)**: Moderate agreement, some uncertainty
-        - **Low (<55%)**: Low agreement between models, close to coin flip
+    Returns:
+        (odds_dict, is_real: bool, market_disagrees: bool)
+    """
+    try:
+        real_odds_fetcher = RealOddsFetcher()
+        real_odds = real_odds_fetcher.get_game_odds(home_team, away_team)
 
-        **Feature Impact**: Shows how much each feature changes the predicted win probability.
-        Values like 0.006 mean a 0.6% shift in win probability - small individual impacts add up.
+        if real_odds and real_odds.get('bookmakers'):
+            # Successfully got real odds
+            market_home_prob = real_odds['market_home_prob']
 
-        **Model Consensus**: Individual predictions from each base model (XGBoost, LightGBM, Random Forest, Logistic Regression).
-        When all models agree, confidence is higher.
-        """)
+            # Check if market significantly disagrees with model (>15% difference)
+            market_disagrees = abs(market_home_prob - model_home_prob) > 0.15
 
-        st.markdown("---")
-        st.markdown("### 📈 Understanding Feature Impact")
-        st.markdown("""
-        - **Impact Value**: Shows how much each feature changes the predicted win probability
-        - **Scale**: Small values (0.002-0.006 = 0.2%-0.6%) are normal - many features contribute, and their combined effect determines the prediction
-        - **Positive Values**: Favor the home team winning (green bars)
-        - **Negative Values**: Favor the away team winning (red bars)
-        - **Why Small?**: With 100+ features, each contributes a small amount. A single feature changing win probability by 1-2% is significant when combined with others
-        """)
+            # Format for compatibility with existing code
+            formatted_odds = {
+                'bookmakers': real_odds['bookmakers'],
+                'best_home': real_odds['best_home_odds'],
+                'best_away': real_odds['best_away_odds'],
+                'avg_home_odds': real_odds['avg_home_odds'],
+                'avg_away_odds': real_odds['avg_away_odds'],
+                'market_home_prob': market_home_prob,
+                'market_away_prob': real_odds['market_away_prob'],
+                'source': 'real_bookmakers'
+            }
 
-    with st.expander("📚 Feature Definitions & Categories", expanded=False):
-        st.markdown("""
-        **1. Elo Ratings**
-        - **Elo Rating**: Team strength rating (1500 = average). Higher = stronger team
-        - **Elo Difference**: Home Elo - Away Elo. Positive = home team advantage
-        - **Elo Win Probability**: Expected win probability based purely on Elo ratings
-        
-        **2. Recent Form (Last 10 Games)**
-        - **Win %**: Percentage of games won in last 10
-        - **PPG**: Points per game (offensive output)
-        - **Opp PPG**: Opponent points per game (defensive quality)
-        - **Point Diff**: Average point differential (PPG - Opp PPG)
-        - **FG% / 3P% / FT%**: Shooting percentages
-        - **Rebounds / Assists / Turnovers**: Key team stats
-        
-        **3. Recent Form (Last 5 Games)**
-        - Same metrics as Last 10, but more recent (captures current momentum)
-        
-        **4. Home/Away Splits**
-        - **Home Win %**: Team's win percentage when playing at home
-        - **Road Win %**: Team's win percentage when playing away
-        - Teams often perform differently at home vs on the road
-        
-        **5. Head-to-Head**
-        - **H2H Win %**: Historical win percentage between these teams
-        - **Last 3 Results**: Recent matchups (psychological factor)
-        - **Avg Point Diff**: Average margin in previous matchups
-        
-        **6. Situational Factors**
-        - **Rest Days**: Days since last game (affects fatigue)
-        - **Rest Advantage**: Home rest days - Away rest days
-        - **Streak**: Current win/loss streak (positive = wins, negative = losses)
-        - **Back-to-Back**: Playing on consecutive days (fatigue indicator)
-        
-        **7. Advanced Metrics**
-        - **Net Rating**: Offensive efficiency - Defensive efficiency
-        - **TOV Rate**: Turnover rate (lower is better)
-        - **Momentum**: Comparison of Last 5 vs Last 10 (improving vs declining)
-        
-        **8. Player-Level Stats** (when available)
-        - **Top Scorer PPG**: Leading scorer's points per game
-        - **Top Playmaker APG**: Leading assist man's assists per game
-        - **Active Players**: Number of active roster members
-        """)
+            return formatted_odds, True, market_disagrees
+    except Exception as e:
+        print(f"Could not fetch real odds: {e}")
 
-    st.markdown("---")
-    st.markdown("#### 🎫 Bet Slip")
+    # Fallback to simulated odds
+    simulated = generate_bookmaker_odds(model_home_prob)
+    simulated['source'] = 'simulated'
+    return simulated, False, False
 
-    if st.session_state.selected_bets:
-        combined_odds = 1.0
-        for bet in st.session_state.selected_bets:
-            combined_odds *= bet['odds']
-            st.caption(f"**{bet['team']}** @ {bet['odds']:.2f}")
-
-        if len(st.session_state.selected_bets) > 1:
-            st.markdown(f'<div class="parlay-info"><strong>PARLAY</strong> - Combined: {combined_odds:.2f}</div>', unsafe_allow_html=True)
-
-        stake = st.number_input("Stake ($)", min_value=1.0, max_value=float(balance_info['balance']), value=10.0, step=5.0)
-        st.caption(f"Potential: **${stake * combined_odds:.2f}**")
-
-        c1, c2 = st.columns(2)
-        if c1.button("Place Bet"):
-            if stake <= balance_info['balance']:
-                games_info = [{'team': b['team'], 'game': b['game'], 'odds': b['odds']} for b in st.session_state.selected_bets]
-                place_bet(str(db_path), games_info, stake, combined_odds, 'parlay' if len(st.session_state.selected_bets) > 1 else 'single')
-                st.success("Bet placed!")
-                st.session_state.selected_bets = []
-                safe_rerun()
-        if c2.button("Clear"):
-            st.session_state.selected_bets = []
-            safe_rerun()
-    else:
-        st.caption("Add bets from Today's Games")
-
-    st.markdown("---")
-    if st.button("Reset Balance"):
-        update_user_balance(str(db_path), 0, 'reset')
-        safe_rerun()
 
 # =============================================================================
 # DISPLAY GAME
@@ -621,44 +672,139 @@ def display_game(pred, expanded=False):
     conf = pred['confidence']
     conf_text, conf_class = get_conf_badge(conf)
     features = pred.get('features', {})
-    odds = generate_bookmaker_odds(pred['home_win_probability'])
 
-    st.markdown(f"""
-    <div class="game-card">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-            <div>
-                <div style="font-size: 1rem; font-weight: 600;">{at} @ {ht}</div>
-                <div style="margin-top: 0.3rem;">
-                    <span style="color: #059669; font-weight: 700;">{winner}</span>
-                    <span style="color: #64748b; margin-left: 0.5rem;">{win_prob:.1%}</span>
-                </div>
-            </div>
-            <div style="text-align: right;">
-                <span class="{conf_class}">{conf_text}</span>
-                <div style="font-size: 0.8rem; color: #64748b;">{conf:.0%}</div>
-            </div>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
+    # Try to get real odds, fallback to simulated
+    odds, is_real_odds, market_disagrees = get_real_or_simulated_odds(
+        ht, at, pred['home_win_probability']
+    )
+
+    # Extract odds values for display
+    if is_real_odds:
+        home_odds_display = odds.get('avg_home_odds', 2.0)
+        away_odds_display = odds.get('avg_away_odds', 2.0)
+    else:
+        home_odds_display = odds['bookmakers'].get('Pinnacle', {}).get('home', 2.0)
+        away_odds_display = odds['bookmakers'].get('Pinnacle', {}).get('away', 2.0)
+
+    # Get prediction quality from calibrated model
+    prediction_quality = pred.get('prediction_quality', 'medium')
+    should_predict = pred.get('should_predict', True)
+
+    # Add quality badge for close games
+    quality_badge = ""
+    if prediction_quality == "low" or not should_predict:
+        quality_badge = '<span style="background: #fef3c7; color: #92400e; padding: 2px 6px; border-radius: 8px; font-size: 0.7rem; margin-left: 0.5rem;">Close Game</span>'
+    elif prediction_quality == "high":
+        quality_badge = '<span style="background: #dcfce7; color: #166534; padding: 2px 6px; border-radius: 8px; font-size: 0.7rem; margin-left: 0.5rem;">Strong Edge</span>'
+
+    # Build HTML as single concatenated string to avoid any newline parsing issues
+    game_card_html = (
+        '<div class="game-card">'
+        '<div style="display: flex; justify-content: space-between; align-items: center;">'
+        '<div>'
+        f'<div style="font-size: 1rem; font-weight: 600;">{at} @ {ht}</div>'
+        '<div style="margin-top: 0.3rem;">'
+        f'<span style="color: #059669; font-weight: 700;">{winner}</span>'
+        f'<span style="color: #64748b; margin-left: 0.5rem;">{win_prob:.1%}</span>'
+        f'{quality_badge}'
+        '</div>'
+        '</div>'
+        '<div style="text-align: right;">'
+        f'<span class="{conf_class}">{conf_text}</span>'
+        f'<div style="font-size: 0.8rem; color: #64748b;">{conf:.0%}</div>'
+        '</div>'
+        '</div>'
+        '</div>'
+    )
+    st.markdown(game_card_html, unsafe_allow_html=True)
 
     # Add tooltip explaining "@" notation
     st.caption(f"💡 **Note**: '{at} @ {ht}' means {at} is playing at {ht}'s home stadium")
+
+    # Show odds source warning
+    if not is_real_odds:
+        st.warning("⚠️ **Simulated Odds**: No real bookmaker odds available. Showing calculated odds from model probabilities. Get free API key at https://the-odds-api.com/")
+    elif market_disagrees:
+        st.error("🚨 **Market Disagrees**: Bookmakers have significantly different odds than model prediction. Review carefully before betting!")
+
     # Note: We don't use expanded=True to prevent auto-scroll to bottom
-    with st.expander(f"📊 Details: {at} @ {ht}", expanded=False):
-        # Bet buttons
-        c1, c2 = st.columns(2)
-        home_odds = odds['bookmakers'].get('Pinnacle', {}).get('home', 2.0)
-        away_odds = odds['bookmakers'].get('Pinnacle', {}).get('away', 2.0)
+    # Include odds in expander label for quick reference
+    odds_label = f"{at} ({away_odds_display:.2f}) @ {ht} ({home_odds_display:.2f})"
+    with st.expander(f"📊 {odds_label}", expanded=False):
+        # Show Model vs Market comparison if real odds available
+        if is_real_odds and 'market_home_prob' in odds:
+            st.markdown("### 🔄 Model vs Market Comparison")
+            comp_col1, comp_col2, comp_col3 = st.columns(3)
 
-        if c1.button(f"Bet {ht} @ {home_odds:.2f}", key=f"h_{ht}_{at}"):
-            st.session_state.selected_bets.append({'team': ht, 'game': f"{at} @ {ht}", 'odds': home_odds})
-            safe_rerun()
-        if c2.button(f"Bet {at} @ {away_odds:.2f}", key=f"a_{ht}_{at}"):
-            st.session_state.selected_bets.append({'team': at, 'game': f"{at} @ {ht}", 'odds': away_odds})
-            safe_rerun()
+            model_home_prob = pred['home_win_probability']
+            market_home_prob = odds['market_home_prob']
+            diff = abs(model_home_prob - market_home_prob)
 
-        # Odds
-        st.markdown("**Odds (Top 3 Books)**")
+            with comp_col1:
+                st.metric("Model Home Win", f"{model_home_prob:.1%}")
+            with comp_col2:
+                st.metric("Market Home Win", f"{market_home_prob:.1%}")
+            with comp_col3:
+                if diff > 0.15:
+                    st.metric("Difference", f"{diff:.1%}", delta=None, delta_color="inverse")
+                    st.caption("⚠️ Large gap!")
+                else:
+                    st.metric("Difference", f"{diff:.1%}")
+
+            if market_home_prob > model_home_prob + 0.10:
+                st.info(f"📊 **Market favors {ht}** more than our model does ({market_home_prob:.1%} vs {model_home_prob:.1%})")
+            elif model_home_prob > market_home_prob + 0.10:
+                st.info(f"🤖 **Model favors {ht}** more than market does ({model_home_prob:.1%} vs {market_home_prob:.1%})")
+
+            st.markdown("---")
+
+        # ═══════════════════════════════════════════════════════════════
+        # PREDICTION WARNINGS SECTION
+        # ═══════════════════════════════════════════════════════════════
+        market_prob = odds.get('market_home_prob') if is_real_odds else None
+        warnings_list = generate_warnings(
+            model_home_prob=pred['home_win_probability'],
+            model_confidence=conf,
+            market_home_prob=market_prob,
+            home_team_elo=features.get('home_elo', 1500),
+            away_team_elo=features.get('away_elo', 1500),
+            home_recent_form=features.get('home_last10_win_pct', 0.5),
+            away_recent_form=features.get('away_last10_win_pct', 0.5),
+            home_team=ht,
+            away_team=at
+        )
+
+        if warnings_list:
+            # Show critical warnings prominently
+            critical_warnings = [w for w in warnings_list if w.level == "CRITICAL"]
+            other_warnings = [w for w in warnings_list if w.level != "CRITICAL"]
+
+            if critical_warnings:
+                st.markdown("### 🚨 Critical Warnings")
+                for warning in critical_warnings:
+                    st.markdown(format_warning_for_display(warning), unsafe_allow_html=True)
+
+            # Show other warnings inline (no nested expander - Streamlit doesn't support it)
+            if other_warnings:
+                st.markdown("### ⚠️ Additional Warnings")
+                for warning in other_warnings:
+                    st.markdown(format_warning_for_display(warning), unsafe_allow_html=True)
+
+            st.markdown("---")
+
+        # Get odds for display
+        if is_real_odds:
+            home_odds = odds.get('avg_home_odds', 2.0)
+            away_odds = odds.get('avg_away_odds', 2.0)
+        else:
+            home_odds = odds['bookmakers'].get('Pinnacle', {}).get('home', 2.0)
+            away_odds = odds['bookmakers'].get('Pinnacle', {}).get('away', 2.0)
+
+        # Odds display
+        if is_real_odds:
+            st.markdown("**📊 Real Bookmaker Odds**")
+        else:
+            st.markdown("**🤖 Simulated Odds** (from model)")
         oc1, oc2 = st.columns(2)
         with oc1:
             for book in RELIABLE_BOOKMAKERS:
@@ -1165,7 +1311,7 @@ def display_game(pred, expanded=False):
 # =============================================================================
 st.markdown("# 🏀 NBA Predictor")
 
-tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs(["Today", "Portfolio", "Analytics", "Train", "Performance", "Settings", "Twitter Status"])
+tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs(["Today", "Features Explorer", "Analytics", "Train", "Performance", "Settings", "Twitter Status"])
 
 # =============================================================================
 # TAB 1: GAMES PREDICTIONS (with date picker)
@@ -1253,25 +1399,6 @@ with tab1:
                             if len(preds) < len(games_with_dates):
                                 missing = len(games_with_dates) - len(preds)
                                 st.warning(f"⚠️ {missing} game(s) failed to generate predictions. Check console for errors.")
-                            
-                            # Email report button
-                            st.markdown("---")
-                            col_email1, col_email2 = st.columns([3, 1])
-                            with col_email1:
-                                st.markdown("**📧 Envoyer le rapport par email**")
-                            with col_email2:
-                                if st.button("📧 Envoyer Email", key="send_email_report"):
-                                    with st.spinner("Envoi du rapport par email..."):
-                                        try:
-                                            from src.email_reporter import EmailReporter
-                                            email_reporter = EmailReporter(db_path=str(db_path))
-                                            success = email_reporter.send_daily_report(test_mode=False)
-                                            if success:
-                                                st.success("✅ Email envoyé avec succès!")
-                                            else:
-                                                st.error("❌ Erreur lors de l'envoi de l'email. Vérifiez les logs.")
-                                        except Exception as e:
-                                            st.error(f"❌ Erreur: {str(e)[:100]}")
                         else:
                             st.warning("No predictions generated. Check if model is trained.")
             except Exception as e:
@@ -1286,6 +1413,27 @@ with tab1:
         avg_conf = np.mean([p['confidence'] for p in preds])
         c2.metric("Average Confidence", f"{avg_conf:.1%}")
         c3.metric("Total Games", len(preds))
+
+        # Email report button (persistent - always visible when predictions exist)
+        st.markdown("---")
+        col_email_label, col_email_btn = st.columns([3, 1])
+        with col_email_label:
+            st.markdown("**📧 Daily Email Report**")
+            st.caption("Send today's predictions + yesterday's results")
+        with col_email_btn:
+            st.write("")
+            if st.button("📧 Send Email", key="send_email_persistent"):
+                with st.spinner("Sending email report..."):
+                    try:
+                        from src.email_reporter import EmailReporter
+                        email_reporter = EmailReporter(db_path=str(db_path))
+                        success = email_reporter.send_daily_report(test_mode=False)
+                        if success:
+                            st.success("✅ Email sent successfully!")
+                        else:
+                            st.error("❌ Failed to send email. Check logs.")
+                    except Exception as e:
+                        st.error(f"❌ Error: {str(e)[:100]}")
 
         st.markdown("---")
         st.markdown("### 🏀 Game Predictions")
@@ -1307,28 +1455,315 @@ with tab1:
         st.info("👆 Click '🔄 Fetch Today's Games' above to load predictions")
 
 # =============================================================================
-# TAB 2: PORTFOLIO
+# TAB 2: FEATURES EXPLORER
 # =============================================================================
-with tab2:
-    st.markdown("## Portfolio")
-    balance_info = get_user_balance(str(db_path))
-    c1, c2, c3, c4 = st.columns(4)
-    c1.metric("Balance", f"${balance_info['balance']:,.2f}")
-    c2.metric("Wagered", f"${balance_info['wagered']:,.2f}")
-    c3.metric("Won", f"${balance_info['won']:,.2f}")
-    profit = balance_info['won'] - balance_info['lost']
-    roi = (profit / balance_info['wagered'] * 100) if balance_info['wagered'] > 0 else 0
-    c4.metric("ROI", f"{roi:+.1f}%")
+# Feature definitions with categories, descriptions, and computation details
+FEATURE_DEFINITIONS = {
+    # Elo Ratings
+    "home_elo": {
+        "category": "Elo Ratings",
+        "name": "Home Team Elo",
+        "description": "Elo rating of the home team. 1500 is average, higher is better.",
+        "computation": "Calculated using the Elo rating system: after each game, the winner gains points and the loser loses points. The amount exchanged depends on the expected outcome - beating a stronger team gives more points.",
+        "range": "Typically 1350-1650",
+        "impact": "Higher Elo = stronger team historically"
+    },
+    "away_elo": {
+        "category": "Elo Ratings",
+        "name": "Away Team Elo",
+        "description": "Elo rating of the away team.",
+        "computation": "Same as home_elo but for the away team.",
+        "range": "Typically 1350-1650",
+        "impact": "Higher Elo = stronger team historically"
+    },
+    "elo_diff": {
+        "category": "Elo Ratings",
+        "name": "Elo Difference",
+        "description": "Home Elo minus Away Elo. Positive means home team is stronger.",
+        "computation": "Simply home_elo - away_elo",
+        "range": "-300 to +300",
+        "impact": "Each 100 points ≈ 64% expected win rate for the higher-rated team"
+    },
+    "elo_win_prob": {
+        "category": "Elo Ratings",
+        "name": "Elo Win Probability",
+        "description": "Expected home win probability based purely on Elo ratings.",
+        "computation": "1 / (1 + 10^((away_elo - home_elo - home_advantage) / 400))",
+        "range": "0.0 to 1.0",
+        "impact": "Direct probability estimate from Elo system"
+    },
 
-    st.markdown("---")
-    history = get_portfolio_history(str(db_path))
-    if not history.empty:
-        for _, bet in history.iterrows():
-            games = json.loads(bet['games']) if isinstance(bet['games'], str) else bet['games']
-            icon = {'pending': '⏳', 'won': '✅', 'lost': '❌'}.get(bet['status'], '⏳')
-            st.markdown(f"{icon} **{bet['bet_type'].upper()}**: {' + '.join([g['team'] for g in games])} | ${bet['stake']:.2f} @ {bet['combined_odds']:.2f}")
+    # Strength of Schedule (NEW)
+    "home_sos_normalized": {
+        "category": "Strength of Schedule",
+        "name": "Home SOS (Normalized)",
+        "description": "Strength of schedule for home team's last 10 games. Higher = faced tougher opponents.",
+        "computation": "Average opponent Elo normalized to 0-1 scale: (avg_opp_elo - 1350) / 300",
+        "range": "0.0 to 1.0",
+        "impact": "Helps distinguish between good records vs weak teams and bad records vs strong teams"
+    },
+    "away_sos_normalized": {
+        "category": "Strength of Schedule",
+        "name": "Away SOS (Normalized)",
+        "description": "Strength of schedule for away team's last 10 games.",
+        "computation": "Same as home_sos_normalized but for away team.",
+        "range": "0.0 to 1.0",
+        "impact": "Higher = faced tougher opponents recently"
+    },
+    "home_sos_adjusted_win_pct": {
+        "category": "Strength of Schedule",
+        "name": "Home SOS-Adjusted Win %",
+        "description": "Home team's win percentage adjusted for opponent strength.",
+        "computation": "Raw win% adjusted based on SOS. Beating strong teams → higher adjusted win%. Beating weak teams → lower adjusted win%.",
+        "range": "0.0 to 1.0",
+        "impact": "More accurate representation of team quality than raw win%"
+    },
+    "away_sos_adjusted_win_pct": {
+        "category": "Strength of Schedule",
+        "name": "Away SOS-Adjusted Win %",
+        "description": "Away team's win percentage adjusted for opponent strength.",
+        "computation": "Same as home but for away team.",
+        "range": "0.0 to 1.0",
+        "impact": "Reduces recency bias from easy/hard schedules"
+    },
+    "sos_adjusted_form_differential": {
+        "category": "Strength of Schedule",
+        "name": "SOS-Adjusted Form Differential",
+        "description": "Difference in SOS-adjusted win percentages. THE KEY ANTI-RECENCY-BIAS FEATURE.",
+        "computation": "home_sos_adjusted_win_pct - away_sos_adjusted_win_pct",
+        "range": "-1.0 to 1.0",
+        "impact": "Positive = home team has better quality-adjusted form"
+    },
+
+    # Recent Form
+    "home_last10_win_pct": {
+        "category": "Recent Form",
+        "name": "Home Last 10 Win %",
+        "description": "Home team's win percentage over last 10 games.",
+        "computation": "Count of wins / 10",
+        "range": "0.0 to 1.0",
+        "impact": "Captures current momentum"
+    },
+    "away_last10_win_pct": {
+        "category": "Recent Form",
+        "name": "Away Last 10 Win %",
+        "description": "Away team's win percentage over last 10 games.",
+        "computation": "Count of wins / 10",
+        "range": "0.0 to 1.0",
+        "impact": "Captures current momentum"
+    },
+    "home_last10_ppg": {
+        "category": "Recent Form",
+        "name": "Home Last 10 PPG",
+        "description": "Home team's points per game over last 10 games.",
+        "computation": "Average of points scored in last 10 games",
+        "range": "Typically 100-130",
+        "impact": "Offensive output indicator"
+    },
+    "home_last10_net_rating": {
+        "category": "Recent Form",
+        "name": "Home Last 10 Net Rating",
+        "description": "Home team's offensive rating minus defensive rating (last 10 games).",
+        "computation": "(Points scored per 100 possessions) - (Points allowed per 100 possessions)",
+        "range": "-20 to +20",
+        "impact": "Best single measure of recent team quality"
+    },
+    "weighted_form_differential": {
+        "category": "Recent Form",
+        "name": "Weighted Form Differential",
+        "description": "Difference in weighted recent win percentages.",
+        "computation": "Uses 35% last-3, 35% last-5, 30% last-10 weighting for each team, then takes difference",
+        "range": "-1.0 to 1.0",
+        "impact": "Balances recency with stability"
+    },
+
+    # Home/Away Splits
+    "home_team_home_win_pct": {
+        "category": "Home/Away Splits",
+        "name": "Home Team's Home Win %",
+        "description": "How well the home team performs when playing at home.",
+        "computation": "Win % from last 15 home games",
+        "range": "0.0 to 1.0",
+        "impact": "Some teams have strong home court advantage"
+    },
+    "away_team_road_win_pct": {
+        "category": "Home/Away Splits",
+        "name": "Away Team's Road Win %",
+        "description": "How well the away team performs when playing on the road.",
+        "computation": "Win % from last 15 road games",
+        "range": "0.0 to 1.0",
+        "impact": "Some teams struggle on the road"
+    },
+
+    # Rest & Schedule
+    "home_rest_days": {
+        "category": "Rest & Schedule",
+        "name": "Home Rest Days",
+        "description": "Days since home team's last game.",
+        "computation": "Current date - last game date",
+        "range": "0-7+ days",
+        "impact": "More rest generally helps, but too much can cause rust"
+    },
+    "away_rest_days": {
+        "category": "Rest & Schedule",
+        "name": "Away Rest Days",
+        "description": "Days since away team's last game.",
+        "computation": "Current date - last game date",
+        "range": "0-7+ days",
+        "impact": "0 days = back-to-back (fatigue)"
+    },
+    "rest_advantage": {
+        "category": "Rest & Schedule",
+        "name": "Rest Advantage",
+        "description": "Home rest days minus away rest days.",
+        "computation": "home_rest_days - away_rest_days",
+        "range": "-5 to +5",
+        "impact": "Positive = home team more rested"
+    },
+    "home_b2b": {
+        "category": "Rest & Schedule",
+        "name": "Home Back-to-Back",
+        "description": "Is home team playing on consecutive days?",
+        "computation": "1 if last game was yesterday, 0 otherwise",
+        "range": "0 or 1",
+        "impact": "B2B typically hurts performance by 2-3%"
+    },
+
+    # Streaks
+    "home_streak": {
+        "category": "Streaks",
+        "name": "Home Team Streak",
+        "description": "Current win/loss streak for home team.",
+        "computation": "Positive = consecutive wins, Negative = consecutive losses",
+        "range": "-10 to +10",
+        "impact": "Hot streaks may indicate confidence/momentum"
+    },
+    "away_streak": {
+        "category": "Streaks",
+        "name": "Away Team Streak",
+        "description": "Current win/loss streak for away team.",
+        "computation": "Positive = consecutive wins, Negative = consecutive losses",
+        "range": "-10 to +10",
+        "impact": "Cold streaks may indicate problems"
+    },
+
+    # Head-to-Head
+    "h2h_home_win_pct": {
+        "category": "Head-to-Head",
+        "name": "H2H Home Win %",
+        "description": "Home team's historical win % against this opponent.",
+        "computation": "Wins / Total games between these teams",
+        "range": "0.0 to 1.0",
+        "impact": "Some matchups favor certain teams"
+    },
+    "h2h_total_games": {
+        "category": "Head-to-Head",
+        "name": "H2H Total Games",
+        "description": "Total games played between these teams.",
+        "computation": "Count of historical matchups",
+        "range": "0-50+",
+        "impact": "More games = more reliable H2H stats"
+    },
+}
+
+with tab2:
+    st.markdown("## 📚 Features Explorer")
+    st.markdown("Explore all the features used by the prediction model. Select a feature to learn how it's computed and why it matters.")
+
+    # Get categories
+    categories = sorted(set(f["category"] for f in FEATURE_DEFINITIONS.values()))
+
+    # Category filter
+    selected_category = st.selectbox("📂 Filter by Category", ["All Categories"] + categories)
+
+    # Filter features by category
+    if selected_category == "All Categories":
+        filtered_features = FEATURE_DEFINITIONS
     else:
-        st.info("No bets yet")
+        filtered_features = {k: v for k, v in FEATURE_DEFINITIONS.items() if v["category"] == selected_category}
+
+    # Feature dropdown
+    feature_names = {k: v["name"] for k, v in filtered_features.items()}
+    selected_feature_key = st.selectbox(
+        "🔍 Select Feature",
+        options=list(feature_names.keys()),
+        format_func=lambda x: f"{feature_names[x]} ({x})"
+    )
+
+    if selected_feature_key:
+        feature = FEATURE_DEFINITIONS[selected_feature_key]
+
+        st.markdown("---")
+
+        # Feature details card
+        st.markdown(f"""
+        <div style="background: linear-gradient(135deg, #1e3a5f 0%, #2d5a87 100%); border-radius: 12px; padding: 20px; color: white; margin-bottom: 20px;">
+            <div style="font-size: 0.8rem; opacity: 0.8; text-transform: uppercase;">{feature['category']}</div>
+            <div style="font-size: 1.5rem; font-weight: 700; margin: 8px 0;">{feature['name']}</div>
+            <div style="font-size: 0.9rem; opacity: 0.9;">{feature['description']}</div>
+        </div>
+        """, unsafe_allow_html=True)
+
+        # Details in columns
+        col1, col2 = st.columns(2)
+
+        with col1:
+            st.markdown("### 🧮 How It's Computed")
+            st.info(feature['computation'])
+
+        with col2:
+            st.markdown("### 📊 Typical Range")
+            st.info(feature['range'])
+
+        st.markdown("### 💡 Impact on Predictions")
+        st.success(feature['impact'])
+
+        # Show example values if we can compute them
+        st.markdown("---")
+        st.markdown("### 📈 Live Example")
+
+        try:
+            fe = FeatureEngineer(str(db_path))
+            # Use a sample game (Lakers vs Celtics)
+            sample_features = fe.create_features_for_game(1610612747, 1610612738)
+
+            if selected_feature_key in sample_features:
+                value = sample_features[selected_feature_key]
+
+                # Create a simple gauge visualization
+                if isinstance(value, (int, float)):
+                    st.metric(
+                        label=f"Current Value (Lakers vs Celtics example)",
+                        value=f"{value:.3f}" if isinstance(value, float) else str(value)
+                    )
+
+                    # For normalized features (0-1), show a progress bar
+                    if 'pct' in selected_feature_key or 'normalized' in selected_feature_key or 'prob' in selected_feature_key:
+                        st.progress(min(max(float(value), 0), 1))
+            else:
+                st.caption(f"Feature '{selected_feature_key}' not available in current computation")
+
+        except Exception as e:
+            st.caption(f"Could not compute example: {e}")
+
+    # Category summary at bottom
+    st.markdown("---")
+    st.markdown("### 📋 Feature Categories Summary")
+
+    cat_counts = {}
+    for f in FEATURE_DEFINITIONS.values():
+        cat = f["category"]
+        cat_counts[cat] = cat_counts.get(cat, 0) + 1
+
+    cols = st.columns(len(cat_counts))
+    for i, (cat, count) in enumerate(sorted(cat_counts.items())):
+        with cols[i % len(cols)]:
+            st.markdown(f"""
+            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; text-align: center;">
+                <div style="font-size: 1.2rem; font-weight: 700; color: #1e3a5f;">{count}</div>
+                <div style="font-size: 0.75rem; color: #64748b;">{cat}</div>
+            </div>
+            """, unsafe_allow_html=True)
 
 # =============================================================================
 # TAB 3: TEAM ANALYTICS
@@ -1810,91 +2245,103 @@ with tab7:
 
     if st.button("🔄 Check Status"):
         try:
-            from src.twitter_rate_limits import (
-                get_cached_rate_limits, 
-                format_rate_limit_display,
-                get_24h_rate_limits_from_api
-            )
-            from src.twitter_integration import create_fresh_twitter_client
+            from src.tweet_counter import get_tweet_count_24h
 
-            with st.spinner("Checking rate limits..."):
-                # Try to get fresh data from API
-                try:
-                    api_clients = create_fresh_twitter_client()
-                    client_v2 = api_clients.get("client_v2")
-                    api_v1 = api_clients.get("api_v1")
-                    if client_v2:
-                        limits = get_24h_rate_limits_from_api(client_v2, api_v1)
-                        if limits:
-                            source = limits.get('source', 'unknown')
-                            st.success(f"✅ Fetched fresh rate limit data (source: {source})")
-                except Exception as api_error:
-                    st.info(f"Could not fetch fresh data: {api_error}")
-                    limits = None
+            with st.spinner("Counting your tweets from the last 24 hours..."):
+                # Get tweet count from local log
+                tweet_count_result = get_tweet_count_24h()
 
-                # Fallback to cache if API call didn't return data
-                if not limits:
-                    limits = get_cached_rate_limits()
-                    if limits:
-                        st.info("📋 Using cached data (may be up to 1 hour old)")
+                if 'error' in tweet_count_result:
+                    st.warning(f"⚠️ Error loading tweet count: {tweet_count_result['error']}")
+                else:
+                    st.success("✅ Retrieved tweet count from local history")
 
-            if limits:
-                formatted = format_rate_limit_display(limits)
+            # Display the count prominently
+            if tweet_count_result:
+                count = tweet_count_result['count']
+                limit = tweet_count_result['limit']
+                remaining = tweet_count_result['remaining']
 
                 # Overall status
-                if formatted['can_post']:
+                if remaining > 0:
                     st.success("✅ Can post tweets")
                 else:
-                    st.error("🔴 Rate limit exhausted")
+                    st.error("🔴 Daily tweet limit reached")
 
-                # Single row with key info
+                # Main metrics
                 col1, col2, col3 = st.columns(3)
 
-                app = formatted['app_24h']
-                user = formatted['user_24h']
-
                 with col1:
-                    st.metric("APP Limit", f"{app['remaining']}/{app['limit']}")
+                    st.metric(
+                        "Tweets Posted (24h)",
+                        f"{count}",
+                        delta=f"-{count} from limit",
+                        delta_color="inverse"
+                    )
 
                 with col2:
-                    st.metric("USER Limit", f"{user['remaining']}/{user['limit']}")
+                    st.metric(
+                        "Remaining",
+                        f"{remaining}",
+                        delta=f"out of {limit}",
+                        delta_color="normal"
+                    )
 
                 with col3:
-                    hours = app['hours_until_reset']
-                    if hours > 0:
-                        # Format as hours and minutes
-                        h = int(hours)
-                        m = int((hours - h) * 60)
-                        if h > 0 and m > 0:
-                            reset_str = f"{h}h {m} mins"
-                        elif h > 0:
-                            reset_str = f"{h}h"
-                        else:
-                            reset_str = f"{m} mins"
-                        st.metric("Resets in", reset_str)
-                    else:
-                        st.metric("Resets", "Now")
+                    # Show percentage used
+                    pct_used = (count / limit * 100) if limit > 0 else 0
+                    st.metric("Usage", f"{pct_used:.1f}%")
 
-                st.caption(f"Reset time: {app['reset_time']}")
+                # Progress bar
+                st.progress(min(count / limit, 1.0) if limit > 0 else 0)
+
+                # Show recent tweets if available
+                if tweet_count_result.get('tweets'):
+                    with st.expander("📝 Recent tweets (last 24h)", expanded=False):
+                        for tweet in tweet_count_result['tweets']:
+                            posted_at = tweet.get('posted_at', '')
+                            text = tweet.get('text', '')
+                            age_hours = tweet.get('age_hours', 0)
+                            st.caption(f"**{posted_at}** ({age_hours:.1f}h ago): {text}")
+
+                # Show API rate limit info if available
+                if tweet_count_result.get('api_rate_limit'):
+                    api_limit = tweet_count_result['api_rate_limit']
+                    if api_limit.get('remaining') is not None:
+                        # Show reset time if limit exhausted
+                        if api_limit.get('remaining') == 0 and api_limit.get('reset'):
+                            from datetime import datetime, timezone
+                            reset_ts = api_limit['reset']
+                            reset_time = datetime.fromtimestamp(int(reset_ts), tz=timezone.utc)
+                            reset_local = reset_time.astimezone()
+                            hours_until = (reset_time - datetime.now(timezone.utc)).total_seconds() / 3600
+
+                            st.error(f"🔴 Twitter API says: {api_limit['limit']}/{api_limit['limit']} tweets used (LIMIT EXHAUSTED)")
+                            st.error(f"⏰ Resets at: {reset_local.strftime('%Y-%m-%d %H:%M:%S')} ({hours_until:.1f} hours from now)")
+                        else:
+                            st.info(f"🔄 API rate limit: {api_limit['remaining']}/{api_limit['limit']} remaining")
+
+                st.caption("💡 This tracks tweets posted through this app")
+                st.caption("⚠️ Note: If you posted tweets outside this app (via Twitter.com or other tools), they won't appear in the local count above, but Twitter still counts them toward your 17/24h limit.")
+
+                # Show time until next tweet is available (if at limit)
+                if remaining == 0 and tweet_count_result.get('oldest_tweet_age_hours'):
+                    hours_until_available = 24 - tweet_count_result['oldest_tweet_age_hours']
+                    if hours_until_available > 0:
+                        h = int(hours_until_available)
+                        m = int((hours_until_available - h) * 60)
+                        st.info(f"⏰ Next tweet available in: {h}h {m}m (when oldest tweet turns 24h old)")
 
             else:
-                st.warning("⚠️ No rate limit data available")
+                st.warning("⚠️ Could not retrieve tweet count")
                 st.info("""
-                **📝 Note about Twitter API v2 Rate Limits:**
-                
-                Twitter's API v2 only exposes 24-hour rate limit headers (showing remaining tweets) 
-                when you **hit the rate limit** (429 error), not in successful responses.
-                
-                This means:
-                - ✅ **"No data available" = You can post** (not rate limited)
-                - 🔴 **If you see data = You hit the limit** (rate limited)
-                
-                Free tier allows **17 tweets per 24 hours**. The API won't show your exact 
-                remaining count until you hit the limit. This is a limitation of Twitter's API, 
-                not a bug in this app.
-                
-                You can safely post tweets as long as you see "No data available" - it means 
-                you haven't hit the 17-tweet daily limit yet.
+                **📝 Note:**
+
+                This feature tracks tweets posted through this app in the last 24 hours.
+
+                Free tier allows **17 tweets per 24 hours** (excludes retweets and replies).
+
+                The counter automatically logs each tweet you post and cleans up tweets older than 48 hours.
                 """)
 
         except Exception as e:

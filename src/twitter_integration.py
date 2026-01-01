@@ -7,6 +7,7 @@ import os
 import io
 import time
 import logging
+from datetime import datetime, timezone
 from typing import List, Dict, Optional, Tuple
 from pathlib import Path
 from PIL import Image
@@ -405,23 +406,36 @@ def format_prediction_tweet(prediction: Dict, features: Dict, max_len: int = 280
     home_team = prediction.get('home_team', 'Home')
     away_team = prediction.get('away_team', 'Away')
 
-    # Get full team names
+    # Get full team names and abbreviations
     from nba_api.stats.static import teams
     all_teams = teams.get_teams()
     team_dict = {team['abbreviation']: team['full_name'] for team in all_teams}
+    # Reverse mapping: full_name -> abbreviation
+    abbrev_dict = {team['full_name']: team['abbreviation'] for team in all_teams}
 
-    home_full = team_dict.get(home_team, home_team)
-    away_full = team_dict.get(away_team, away_team)
+    # Get full names (if input is abbreviation, get full name; if already full name, use as-is)
+    home_full = team_dict.get(home_team, home_team) if len(home_team) <= 3 else home_team
+    away_full = team_dict.get(away_team, away_team) if len(away_team) <= 3 else away_team
+    
+    # Get abbreviations (if input is full name, get abbreviation; if already abbreviation, use as-is)
+    home_abbrev = abbrev_dict.get(home_team, home_team) if len(home_team) > 3 else home_team
+    away_abbrev = abbrev_dict.get(away_team, away_team) if len(away_team) > 3 else away_team
 
     # Calculate predicted winner if not present
     if 'predicted_winner' in prediction:
-        predicted_winner = prediction.get('predicted_winner', home_team)
+        predicted_winner_raw = prediction.get('predicted_winner', home_team)
+        # Convert to full name if it's an abbreviation
+        predicted_winner = team_dict.get(predicted_winner_raw, predicted_winner_raw) if len(predicted_winner_raw) <= 3 else predicted_winner_raw
     elif 'prediction' in prediction:
         # prediction['prediction'] is 'home' or 'away'
-        predicted_winner = home_team if prediction.get('prediction') == 'home' else away_team
+        predicted_winner = home_full if prediction.get('prediction') == 'home' else away_full
     else:
-        predicted_winner = home_team  # Default fallback
+        predicted_winner = home_full  # Default fallback
     confidence = prediction.get('confidence', 0) * 100
+
+    # Get prediction quality indicator (from calibrated model)
+    prediction_quality = prediction.get('prediction_quality', 'medium')
+    should_predict = prediction.get('should_predict', True)
 
     # Calculate odds for both teams
     home_win_prob = prediction.get('home_win_probability', 0.5)
@@ -457,39 +471,103 @@ def format_prediction_tweet(prediction: Dict, features: Dict, max_len: int = 280
         elif "B2B" in first_adj:
             adjustment_note = "\n😴 AI Override: Home team on back-to-back - fatigue penalty -6%"
 
-    # Start with compact format with full names, odds, and orange-themed emojis
-    text = (
-        f"🏀 {away_full} ({away_team}) @ {home_full} ({home_team})\n"
-        f"💰 Odds: {away_team} {away_odds:.2f} | {home_team} {home_odds:.2f}\n\n"
-        f"🔥 Prediction: {predicted_winner} ({confidence:.0f}%){adjustment_note}\n\n"
-        f"📊 Last 10:\n"
-        f"🟠 Off: {home_team} {home_ortg:.1f} | {away_team} {away_ortg:.1f}\n"
-        f"🛡️ Def: {home_team} {home_drtg:.1f} | {away_team} {away_drtg:.1f}\n"
-        f"📈 Net: {home_team} {home_net:+.1f} | {away_team} {away_net:+.1f}\n"
-        f"🎯 3PT: {home_team} {home_3pt:.1f}% | {away_team} {away_3pt:.1f}%\n\n"
-        f"🧡 Read thread for full analysis ⬇️"
+    # Determine which template to use based on game dynamics
+    home_rest = features.get('home_rest_days', 1)
+    away_rest = features.get('away_rest_days', 1)
+    rest_diff = abs(home_rest - away_rest)
+    def_diff = abs(home_drtg - away_drtg)
+
+    # Get win streaks if available
+    home_streak = features.get('home_last3_win_pct', 0.5) * 100
+    away_streak = features.get('away_last3_win_pct', 0.5) * 100
+
+    # Select template using hash-based rotation (6 templates)
+    import hashlib
+    template_seed = int(hashlib.md5(f"{home_team}{away_team}{datetime.now().strftime('%Y%m%d')}".encode()).hexdigest()[:8], 16)
+    template_variant = template_seed % 6
+
+    # Add quality indicator emoji
+    quality_indicator = ""
+    if prediction_quality == "high":
+        quality_indicator = "🎯"  # High confidence signal
+    elif prediction_quality == "low" or not should_predict:
+        quality_indicator = "⚠️"  # Caution - close game
+
+    # Standard header (always included) - format: "Full Name (ABBREV) @ Full Name (ABBREV)"
+    header = (
+        f"🏀 {away_full} ({away_abbrev}) @ {home_full} ({home_abbrev})\n"
+        f"💰 Odds: {away_abbrev} {away_odds:.2f} | {home_abbrev} {home_odds:.2f}\n\n"
+        f"🔥 Prediction: {predicted_winner} ({confidence:.0f}%) {quality_indicator}\n"
     )
 
-    # Fallback format should never be needed with the new compact format above
-    # But keep it just in case
-    if len(text) > max_len:
+    # Determine if prediction is for home or away team
+    is_home_pick = prediction.get('prediction') == 'home'
+    predicted_team_abbrev = home_abbrev if is_home_pick else away_abbrev
+
+    # Calculate which team has the advantage in each metric
+    rested_team = home_team if home_rest > away_rest else away_team
+    rested_team_abbrev = home_abbrev if home_rest > away_rest else away_abbrev
+    tired_team = away_team if home_rest > away_rest else home_team
+    better_def = home_team if home_drtg < away_drtg else away_team
+    better_def_abbrev = home_abbrev if home_drtg < away_drtg else away_abbrev
+    hotter_team = home_team if home_streak > away_streak else away_team
+    hotter_team_abbrev = home_abbrev if home_streak > away_streak else away_abbrev
+    hotter_streak = max(home_streak, away_streak)
+
+    # CONSISTENCY CHECK: Only use hooks where the advantage supports the predicted winner
+    # This prevents confusing tweets like "Model picks Lakers" but "Heat on fire"
+    rest_supports_pick = (rested_team_abbrev == predicted_team_abbrev)
+    defense_supports_pick = (better_def_abbrev == predicted_team_abbrev)
+    streak_supports_pick = (hotter_team_abbrev == predicted_team_abbrev)
+
+    # Template variations (hook + CTA) - ONLY use when metric supports prediction
+    hook = None  # Will use default if no consistent hook found
+
+    if rest_diff >= 2 and template_variant in [0, 1] and rest_supports_pick:
+        # Rest advantage templates - ONLY if rested team = predicted winner
+        if template_variant == 0:
+            hook = f"\n⚡ {rested_team} rested vs {tired_team} on B2B\nRest = 5pt edge"
+        else:
+            hook = f"\n😴 Fatigue factor: {tired_team} on short rest\nFresh legs win"
+    elif def_diff >= 8 and template_variant in [2, 3] and defense_supports_pick:
+        # Defense mismatch templates - ONLY if better defense = predicted winner
+        if template_variant == 2:
+            hook = f"\n🛡️ {better_def}'s elite D ({min(home_drtg, away_drtg):.0f} DRtg)\nDefense travels"
+        else:
+            hook = f"\n🔒 Defense wins: {better_def} locks down\n{abs(def_diff):.0f}pt edge"
+    elif confidence >= 70 and template_variant == 4:
+        # High confidence template - always safe (doesn't mention specific advantage)
+        hook = f"\n🎯 Model loves this spot\n{confidence:.0f}% = strong signal"
+    elif hotter_streak >= 75 and template_variant == 5 and streak_supports_pick:
+        # Hot team template - ONLY if hot team = predicted winner
+        hook = f"\n🔥 {hotter_team} scorching ({hotter_streak:.0f}% L3)\nMomentum is real"
+
+    # Default fallback templates (always consistent - reference predicted winner)
+    if hook is None:
+        if template_variant % 2 == 0:
+            hook = f"\n📊 Edge: {predicted_winner} checks boxes\nNet rating advantage"
+        else:
+            hook = f"\n💡 Sharp play: {predicted_winner}\nModel sees value"
+
+    # CTA variations
+    cta_options = ["Thread ⬇️", "Full edge ⬇️", "Why this hits ⬇️", "Breakdown ⬇️", "Analysis ⬇️", "Read on ⬇️"]
+    cta = f"\n\n{cta_options[template_variant]}"
+
+    text = header + hook + cta
+
+    # Verify it fits (should be ~220-260 chars)
+    actual_len = len(text)
+    if actual_len > 270:
+        # Ultra-compact fallback
         text = (
-            f"🏀 {away_team} @ {home_team}\n"
-            f"💰 Odds: {away_team} {away_odds:.2f} | {home_team} {home_odds:.2f}\n\n"
+            f"🏀 {away_full} ({away_abbrev}) @ {home_full} ({home_abbrev})\n"
+            f"💰 Odds: {away_abbrev} {away_odds:.2f} | {home_abbrev} {home_odds:.2f}\n\n"
             f"🔥 Prediction: {predicted_winner} ({confidence:.0f}%)\n\n"
-            f"📊 Last 10:\n"
-            f"🟠 Off: {home_team} {home_ortg:.1f} | {away_team} {away_ortg:.1f}\n"
-            f"🛡️ Def: {home_team} {home_drtg:.1f} | {away_team} {away_drtg:.1f}\n"
-            f"📈 Net: {home_team} {home_net:+.1f} | {away_team} {away_net:+.1f}\n"
-            f"🎯 3PT: {home_team} {home_3pt:.1f}% | {away_team} {away_3pt:.1f}%\n\n"
-            f"🧡 Read thread for full analysis ⬇️"
+            f"Thread ⬇️"
         )
+        actual_len = len(text)
 
-    # Final safety check - truncate if still too long
-    if len(text) > max_len:
-        text = text[:max_len-3] + "..."
-
-    logger.debug(f"Generated tweet text ({len(text)} chars): {text[:100]}...")
+    logger.debug(f"Generated tweet text ({actual_len} chars): {text[:100]}...")
     return text
 
 
@@ -578,7 +656,36 @@ def post_tweet_with_image(
 
         tweet_id = response.data.get('id') if hasattr(response, 'data') else response.get('data', {}).get('id')
         logger.info(f"✅ Posted tweet successfully. ID: {tweet_id}")
-        return {"success": True, "tweet_id": tweet_id, "response": response}
+
+        # Extract rate limit headers from response
+        rate_limit_info = None
+        try:
+            # Access the underlying response object to get headers
+            if hasattr(response, 'headers'):
+                headers = response.headers
+            elif hasattr(response, 'response') and hasattr(response.response, 'headers'):
+                headers = response.response.headers
+            else:
+                headers = {}
+
+            if headers:
+                rate_limit_info = {
+                    'remaining': headers.get('x-rate-limit-remaining'),
+                    'limit': headers.get('x-rate-limit-limit'),
+                    'reset': headers.get('x-rate-limit-reset'),
+                }
+                logger.info(f"📊 Rate limit from headers: {rate_limit_info['remaining']}/{rate_limit_info['limit']} remaining")
+        except Exception as e:
+            logger.debug(f"Could not extract rate limit headers: {e}")
+
+        # Log tweet to local counter (with rate limit info if available)
+        try:
+            from src.tweet_counter import log_tweet_posted
+            log_tweet_posted(str(tweet_id), text[:50], rate_limit_info)
+        except Exception as e:
+            logger.warning(f"Could not log tweet to local counter: {e}")
+
+        return {"success": True, "tweet_id": tweet_id, "response": response, "rate_limit_info": rate_limit_info}
     
     except tweepy.Forbidden as e:
         error_msg = (
@@ -660,6 +767,18 @@ def create_twitter_thread(
     for i, text in enumerate(texts):
         media_ids = None
         
+        # Validate text length (format should already be designed to fit)
+        text = text.strip()
+        text_len = len(text)
+        
+        # Log character count for monitoring
+        logger.info(f"📝 Tweet {i+1}/{len(texts)}: {text_len} characters")
+        
+        # Warn if somehow over limit (shouldn't happen with new format)
+        if text_len > 280:
+            logger.error(f"❌ Tweet {i+1} is {text_len} chars (over 280 limit)! Format needs adjustment.")
+            raise ValueError(f"Tweet {i+1} exceeds 280 character limit ({text_len} chars). Format must be redesigned to fit.")
+        
         # Handle images
         if image_paths:
             if isinstance(image_paths, list) and i < len(image_paths) and image_paths[i]:
@@ -699,6 +818,34 @@ def create_twitter_thread(
             prev_tweet_id = tweet_id
             responses.append({"success": True, "tweet_id": tweet_id, "response": response})
             logger.info(f"Successfully posted tweet {i+1}/{len(texts)}. ID: {tweet_id}")
+
+            # Extract rate limit headers from response
+            rate_limit_info = None
+            try:
+                # Access the underlying response object to get headers
+                if hasattr(response, 'headers'):
+                    headers = response.headers
+                elif hasattr(response, 'response') and hasattr(response.response, 'headers'):
+                    headers = response.response.headers
+                else:
+                    headers = {}
+
+                if headers:
+                    rate_limit_info = {
+                        'remaining': headers.get('x-rate-limit-remaining'),
+                        'limit': headers.get('x-rate-limit-limit'),
+                        'reset': headers.get('x-rate-limit-reset'),
+                    }
+                    logger.info(f"📊 Rate limit from headers: {rate_limit_info['remaining']}/{rate_limit_info['limit']} remaining")
+            except Exception as e:
+                logger.debug(f"Could not extract rate limit headers: {e}")
+
+            # Log tweet to local counter (with rate limit info if available)
+            try:
+                from src.tweet_counter import log_tweet_posted
+                log_tweet_posted(str(tweet_id), text[:50], rate_limit_info)
+            except Exception as e:
+                logger.warning(f"Could not log tweet to local counter: {e}")
             
             # Try to extract rate limit headers from response if available
             # Note: Twitter API v2 only shows 24h limits in 429 errors, not successful responses
@@ -787,11 +934,39 @@ def create_twitter_thread(
 
             logger.error(error_msg)
             logger.error(f"Already posted {len(responses)} tweets successfully before rate limit.")
+
+            # Update local counter with actual count from API (if we can determine it)
+            try:
+                if app_remaining == '0' or user_remaining == '0':
+                    # We hit the 17-tweet limit
+                    # Update local counter to reflect this
+                    from src.tweet_counter import log_tweet_posted
+                    actual_limit = int(app_limit) if app_limit else 17
+                    tweets_posted_today = actual_limit  # If remaining is 0, we used all
+
+                    # Save rate limit info to local counter cache
+                    rate_limit_info = {
+                        'remaining': 0,
+                        'limit': actual_limit,
+                        'reset': int(app_reset) if app_reset else int(user_reset),
+                    }
+
+                    # Import and save directly to cache
+                    from src.tweet_counter import _save_latest_rate_limit
+                    _save_latest_rate_limit(rate_limit_info)
+
+                    logger.info(f"📊 Updated local counter: {tweets_posted_today}/{actual_limit} tweets used (from 429 error)")
+            except Exception as update_error:
+                logger.warning(f"Could not update local counter from 429 error: {update_error}")
+
             raise Exception(error_msg) from e
         except tweepy.Forbidden as e:
             # Log detailed error information for debugging
             logger.error(f"❌ 403 Forbidden error details:")
             logger.error(f"   Error: {e}")
+            logger.error(f"   Tweet {i+1} text length: {len(text)} characters")
+            logger.error(f"   Tweet {i+1} text preview: {text[:150]}...")
+            
             if hasattr(e, 'response'):
                 logger.error(f"   Response status: {getattr(e.response, 'status_code', 'N/A')}")
                 if hasattr(e.response, 'json'):

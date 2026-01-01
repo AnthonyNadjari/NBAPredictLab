@@ -331,7 +331,15 @@ class EmailReporter:
             
             logger.info(f"Creating Outlook email to {len(recipients)} recipient(s)...")
             logger.info(f"Recipients: {', '.join(recipients)}")
-            
+
+            # Initialize COM for this thread (required when called from Streamlit)
+            try:
+                import pythoncom
+                pythoncom.CoInitialize()
+                logger.debug("COM initialized for thread")
+            except Exception as e:
+                logger.debug(f"COM already initialized or not needed: {e}")
+
             # Create Outlook application object
             outlook = win32com.client.Dispatch("Outlook.Application")
             
@@ -532,12 +540,29 @@ class EmailReporter:
             
             logger.info(f"✓ Email sent successfully to {', '.join(recipients)}")
             logger.info("Note: Check your Outlook 'Sent Items' folder and recipient inbox")
+
+            # Cleanup COM
+            try:
+                import pythoncom
+                pythoncom.CoUninitialize()
+                logger.debug("COM uninitialized")
+            except:
+                pass
+
             return True
-            
+
         except Exception as e:
             logger.error(f"✗ Failed to send email: {e}", exc_info=True)
             logger.error("Make sure Outlook is installed and configured on this computer")
             logger.error("Try opening Outlook manually and checking your connection")
+
+            # Cleanup COM even on error
+            try:
+                import pythoncom
+                pythoncom.CoUninitialize()
+            except:
+                pass
+
             return False
     
     def send_daily_report(self, test_mode: bool = False) -> bool:
