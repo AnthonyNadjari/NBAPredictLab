@@ -1413,6 +1413,38 @@ with tab1:
                             if len(preds) < len(games_with_dates):
                                 missing = len(games_with_dates) - len(preds)
                                 st.warning(f"⚠️ {missing} game(s) failed to generate predictions. Check console for errors.")
+
+                            # Auto-export to pending_games.json and push to GitHub
+                            with st.spinner("📤 Exporting to GitHub Pages..."):
+                                try:
+                                    from src.daily_games_exporter import DailyGamesExporter
+                                    import subprocess
+
+                                    # Export predictions to JSON
+                                    exporter = DailyGamesExporter(str(db_path))
+                                    export_success = exporter.export_games_for_publishing(date_str)
+
+                                    if export_success:
+                                        # Git commit and push
+                                        try:
+                                            subprocess.run(['git', 'add', 'docs/pending_games.json'], check=True, capture_output=True)
+                                            commit_result = subprocess.run(
+                                                ['git', 'commit', '-m', f'Auto-export predictions for {date_str}'],
+                                                capture_output=True,
+                                                text=True
+                                            )
+                                            # Only push if there was something to commit
+                                            if commit_result.returncode == 0:
+                                                subprocess.run(['git', 'push'], check=True, capture_output=True)
+                                                st.success("✅ Predictions exported and pushed to GitHub Pages!")
+                                            else:
+                                                st.info("ℹ️ Predictions exported (no changes to commit)")
+                                        except subprocess.CalledProcessError as git_error:
+                                            st.warning(f"⚠️ Predictions exported but git push failed: {git_error}")
+                                    else:
+                                        st.warning("⚠️ Failed to export predictions to GitHub Pages")
+                                except Exception as export_error:
+                                    st.warning(f"⚠️ Auto-export failed: {export_error}")
                         else:
                             st.warning("No predictions generated. Check if model is trained.")
             except Exception as e:
