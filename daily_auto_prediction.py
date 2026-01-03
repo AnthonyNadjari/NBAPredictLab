@@ -1070,8 +1070,22 @@ class DailyPredictionAutomation:
             twitter_success = self.post_to_twitter(best_prediction)
             self.logger.info("")
             
-            # Step 6: Send daily email report
-            self.logger.info("STEP 6: Sending daily email report...")
+            # Step 6: Export games for GitHub Pages
+            self.logger.info("STEP 6: Exporting games for GitHub Pages...")
+            try:
+                from src.daily_games_exporter import DailyGamesExporter
+                exporter = DailyGamesExporter(db_path=self.db_path)
+                export_success = exporter.export_games_for_publishing(target_date)
+                if export_success:
+                    self.logger.info("✓ Games exported to docs/pending_games.json")
+                else:
+                    self.logger.warning("⚠ Game export failed (non-critical)")
+            except Exception as e:
+                self.logger.warning(f"⚠ Game export error (non-critical): {e}")
+            self.logger.info("")
+
+            # Step 7: Send daily email report
+            self.logger.info("STEP 7: Sending daily email report...")
             try:
                 email_reporter = EmailReporter(db_path=self.db_path)
                 email_success = email_reporter.send_daily_report(test_mode=False)
@@ -1082,7 +1096,7 @@ class DailyPredictionAutomation:
             except Exception as e:
                 self.logger.warning(f"⚠ Email report error (non-critical): {e}")
             self.logger.info("")
-            
+
             success = twitter_success  # Twitter success determines overall success
 
             # Workflow summary
