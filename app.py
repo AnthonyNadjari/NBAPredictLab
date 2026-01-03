@@ -365,8 +365,8 @@ def save_prediction_to_db(db_path, prediction_data):
             INSERT OR REPLACE INTO predictions (
                 prediction_date, game_date, home_team, away_team,
                 predicted_winner, predicted_home_prob, predicted_away_prob,
-                confidence, features_json
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                confidence, features_json, home_odds, away_odds
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """, (
             datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
             prediction_data['game_date'],
@@ -376,7 +376,9 @@ def save_prediction_to_db(db_path, prediction_data):
             float(prediction_data['predicted_home_prob']),
             float(prediction_data['predicted_away_prob']),
             float(prediction_data['confidence']),
-            features_json
+            features_json,
+            prediction_data.get('home_odds'),
+            prediction_data.get('away_odds')
         ))
         conn.commit()
     except Exception as e:
@@ -1371,6 +1373,16 @@ with tab1:
                                     p['home_team'] = h
                                     p['away_team'] = a
                                     p['game_date'] = game_date  # Store game date in prediction
+
+                                    # Fetch odds for this game
+                                    odds, is_real_odds, _ = get_real_or_simulated_odds(h, a, p['home_win_probability'])
+                                    if is_real_odds:
+                                        home_odds = odds.get('avg_home_odds', 2.0)
+                                        away_odds = odds.get('avg_away_odds', 2.0)
+                                    else:
+                                        home_odds = odds['bookmakers'].get('Pinnacle', {}).get('home', 2.0)
+                                        away_odds = odds['bookmakers'].get('Pinnacle', {}).get('away', 2.0)
+
                                     preds.append(p)
                                     save_prediction_to_db(str(db_path), {
                                         'game_date': game_date,  # Use actual game date, not today
@@ -1379,7 +1391,9 @@ with tab1:
                                         'predicted_home_prob': p['home_win_probability'],
                                         'predicted_away_prob': p['away_win_probability'],
                                         'confidence': p['confidence'],
-                                        'features': p.get('features', {})
+                                        'features': p.get('features', {}),
+                                        'home_odds': home_odds,
+                                        'away_odds': away_odds
                                     })
                             except Exception as e:
                                 error_msg = str(e)

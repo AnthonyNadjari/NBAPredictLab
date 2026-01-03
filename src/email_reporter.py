@@ -54,7 +54,7 @@ class EmailReporter:
         
         # Get predictions with results for the specified date
         cursor.execute("""
-            SELECT 
+            SELECT
                 game_date,
                 home_team,
                 away_team,
@@ -65,20 +65,24 @@ class EmailReporter:
                 actual_winner,
                 actual_home_score,
                 actual_away_score,
-                correct
+                correct,
+                home_odds,
+                away_odds
             FROM predictions
             WHERE game_date = ?
             ORDER BY home_team, away_team
         """, (date,))
-        
+
         results = []
         for row in cursor.fetchall():
             game_date, home_team, away_team, predicted_winner, pred_home_prob, pred_away_prob, \
-            confidence, actual_winner, actual_home_score, actual_away_score, correct = row
-            
-            # Calculate odds from probabilities
-            home_odds = round(1 / pred_home_prob, 2) if pred_home_prob > 0 else 99.0
-            away_odds = round(1 / pred_away_prob, 2) if pred_away_prob > 0 else 99.0
+            confidence, actual_winner, actual_home_score, actual_away_score, correct, home_odds, away_odds = row
+
+            # Use stored odds if available, otherwise calculate from probabilities as fallback
+            if home_odds is None:
+                home_odds = round(1 / pred_home_prob, 2) if pred_home_prob > 0 else 99.0
+            if away_odds is None:
+                away_odds = round(1 / pred_away_prob, 2) if pred_away_prob > 0 else 99.0
             
             results.append({
                 'game_date': game_date,
@@ -117,26 +121,30 @@ class EmailReporter:
         
         # Get predictions for today (no results yet)
         cursor.execute("""
-            SELECT 
+            SELECT
                 game_date,
                 home_team,
                 away_team,
                 predicted_winner,
                 predicted_home_prob,
                 predicted_away_prob,
-                confidence
+                confidence,
+                home_odds,
+                away_odds
             FROM predictions
             WHERE game_date = ? AND actual_winner IS NULL
             ORDER BY confidence DESC, home_team, away_team
         """, (date,))
-        
+
         predictions = []
         for row in cursor.fetchall():
-            game_date, home_team, away_team, predicted_winner, pred_home_prob, pred_away_prob, confidence = row
-            
-            # Calculate odds from probabilities
-            home_odds = round(1 / pred_home_prob, 2) if pred_home_prob > 0 else 99.0
-            away_odds = round(1 / pred_away_prob, 2) if pred_away_prob > 0 else 99.0
+            game_date, home_team, away_team, predicted_winner, pred_home_prob, pred_away_prob, confidence, home_odds, away_odds = row
+
+            # Use stored odds if available, otherwise calculate from probabilities as fallback
+            if home_odds is None:
+                home_odds = round(1 / pred_home_prob, 2) if pred_home_prob > 0 else 99.0
+            if away_odds is None:
+                away_odds = round(1 / pred_away_prob, 2) if pred_away_prob > 0 else 99.0
             
             predictions.append({
                 'game_date': game_date,
@@ -267,8 +275,28 @@ class EmailReporter:
             """
         
         html += "</table>"
+
+        # Add publish to Twitter section
+        html += """
+        <div style='margin-top: 30px; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px;'>
+            <h3 style='color: white; margin-top: 0;'>📤 Publier sur Twitter</h3>
+            <p style='color: white; margin-bottom: 15px;'>
+                Cliquez sur le bouton pour choisir quelles prédictions publier sur Twitter :
+            </p>
+            <a href='https://YOUR_USERNAME.github.io/nba_predictor/'
+               style='display: inline-block; background: white; color: #667eea; padding: 12px 28px;
+                      text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px;
+                      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);'>
+                Ouvrir l'interface de publication →
+            </a>
+            <p style='color: rgba(255, 255, 255, 0.9); font-size: 13px; margin-top: 12px; margin-bottom: 0;'>
+                Vous pourrez sélectionner individuellement chaque match à publier
+            </p>
+        </div>
+        """
+
         return html
-    
+
     def create_email_html(self, yesterday_results: List[Dict], today_predictions: List[Dict]) -> str:
         """Create HTML email content."""
         date_str = datetime.now().strftime('%d/%m/%Y')
