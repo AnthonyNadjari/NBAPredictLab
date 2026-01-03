@@ -283,7 +283,7 @@ class EmailReporter:
             <p style='color: white; margin-bottom: 15px;'>
                 Cliquez sur le bouton pour choisir quelles prédictions publier sur Twitter :
             </p>
-            <a href='https://YOUR_USERNAME.github.io/nba_predictor/'
+            <a href='https://AnthonyNadjari.github.io/NBAPredictLab/'
                style='display: inline-block; background: white; color: #667eea; padding: 12px 28px;
                       text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px;
                       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);'>
