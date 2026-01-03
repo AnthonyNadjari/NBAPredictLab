@@ -334,15 +334,15 @@
     </div>
 
     <script>
-        // IMPORTANT: Replace this with your actual GitHub Personal Access Token
-        // Create one at: https://github.com/settings/tokens (needs 'repo' scope)
-        const GITHUB_TOKEN = 'YOUR_GITHUB_PAT_HERE';
+        // IMPORTANT: Replace this with a simple password you'll share with your friend
+        // This can be anything: a word, phrase, or random string
+        const PUBLISH_PASSWORD = 'YOUR_SECRET_PASSWORD_HERE';
 
-        // IMPORTANT: Replace with your GitHub username and repo name
-        const GITHUB_USERNAME = 'YOUR_USERNAME';
-        const GITHUB_REPO = 'nba_predictor';
+        // IMPORTANT: Replace with your Vercel app URL (see setup guide)
+        const VERCEL_APP_URL = 'https://YOUR_VERCEL_APP.vercel.app';
 
         let gamesData = null;
+        let userPassword = null;  // Will be prompted on first publish
 
         // Load games from JSON
         async function loadGames() {
@@ -465,12 +465,27 @@
             const button = document.getElementById(`btn-${gameId}`);
             const statusDiv = document.getElementById(`status-${gameId}`);
 
-            // Check if token is configured
-            if (GITHUB_TOKEN === 'YOUR_GITHUB_PAT_HERE' || GITHUB_USERNAME === 'YOUR_USERNAME') {
+            // Check if configuration is complete
+            if (VERCEL_APP_URL === 'https://YOUR_VERCEL_APP.vercel.app' || PUBLISH_PASSWORD === 'YOUR_SECRET_PASSWORD_HERE') {
                 statusDiv.className = 'status-message status-error';
-                statusDiv.innerHTML = '❌ Configuration incomplète : veuillez configurer GITHUB_TOKEN et GITHUB_USERNAME dans le code HTML';
+                statusDiv.innerHTML = '❌ Configuration incomplète : veuillez configurer VERCEL_APP_URL et PUBLISH_PASSWORD dans le code HTML';
                 statusDiv.style.display = 'block';
                 return;
+            }
+
+            // Prompt for password on first publish (stored in session)
+            if (!userPassword) {
+                userPassword = prompt('🔐 Mot de passe pour publier :');
+                if (!userPassword) {
+                    return; // User cancelled
+                }
+
+                // Verify password
+                if (userPassword !== PUBLISH_PASSWORD) {
+                    alert('❌ Mot de passe incorrect !');
+                    userPassword = null;
+                    return;
+                }
             }
 
             // Update button state
@@ -479,29 +494,28 @@
             button.textContent = '⏳ Publication en cours...';
 
             statusDiv.className = 'status-message status-info';
-            statusDiv.innerHTML = 'ℹ️ Démarrage de GitHub Actions...';
+            statusDiv.innerHTML = 'ℹ️ Démarrage de la publication...';
             statusDiv.style.display = 'block';
 
             try {
-                // Trigger GitHub Actions via repository_dispatch
-                const response = await fetch(`https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/dispatches`, {
+                // Call our Vercel serverless function
+                const publishUrl = `${VERCEL_APP_URL}/api/publish`;
+
+                const response = await fetch(publishUrl, {
                     method: 'POST',
                     headers: {
-                        'Authorization': `Bearer ${GITHUB_TOKEN}`,
-                        'Accept': 'application/vnd.github.v3+json',
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({
-                        event_type: 'publish_thread',
-                        client_payload: {
-                            game_id: gameId
-                        }
+                        game_id: gameId,
+                        password: userPassword
                     })
                 });
 
-                if (!response.ok) {
-                    const errorText = await response.text();
-                    throw new Error(`GitHub API error (${response.status}): ${errorText}`);
+                const result = await response.json();
+
+                if (!response.ok || !result.success) {
+                    throw new Error(result.error || 'Publication failed');
                 }
 
                 // Success
@@ -535,8 +549,13 @@
                 statusDiv.className = 'status-message status-error';
                 statusDiv.innerHTML = `
                     ❌ Erreur : ${error.message}<br>
-                    <small>Vérifiez que le token GitHub a les permissions 'repo' et que les secrets Twitter sont configurés.</small>
+                    <small>Vérifiez votre mot de passe et réessayez.</small>
                 `;
+
+                // Clear password on auth error
+                if (error.message.includes('password') || error.message.includes('401') || error.message.includes('403')) {
+                    userPassword = null;
+                }
             }
         }
 
