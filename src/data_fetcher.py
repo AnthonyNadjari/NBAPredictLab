@@ -1451,6 +1451,53 @@ class FeatureEngineer:
             features['elo_travel_interaction'] = -elo_diff * away_travel_fatigue / 100.0
 
         # ═══════════════════════════════════════════════════════════════
+        # 8e. NEW STREAK MOMENTUM FEATURES (from Jan 2026 error analysis)
+        # ═══════════════════════════════════════════════════════════════
+        # Analysis showed model backed teams on losing streaks that lost
+        # and faded teams on winning streaks that won
+
+        # Logarithmic streak (diminishing returns for very long streaks)
+        import math
+        features['home_streak_log'] = math.copysign(math.log1p(abs(home_streak)), home_streak)
+        features['away_streak_log'] = math.copysign(math.log1p(abs(away_streak)), away_streak)
+        features['streak_log_diff'] = features['home_streak_log'] - features['away_streak_log']
+
+        # Hot hand indicator: team on 3+ win streak AND last 3 win% > 67%
+        home_hot_hand = 1 if (home_streak >= 3 and features['home_last3_win_pct'] >= 0.67) else 0
+        away_hot_hand = 1 if (away_streak >= 3 and features['away_last3_win_pct'] >= 0.67) else 0
+        features['home_hot_hand'] = home_hot_hand
+        features['away_hot_hand'] = away_hot_hand
+        features['hot_hand_diff'] = home_hot_hand - away_hot_hand
+
+        # Cold streak indicator: team on 3+ loss streak AND last 3 win% < 33%
+        home_cold_streak = 1 if (home_streak <= -3 and features['home_last3_win_pct'] <= 0.33) else 0
+        away_cold_streak = 1 if (away_streak <= -3 and features['away_last3_win_pct'] <= 0.33) else 0
+        features['home_cold_streak'] = home_cold_streak
+        features['away_cold_streak'] = away_cold_streak
+
+        # Regression to mean indicator: very long streaks (5+) tend to end
+        features['home_regression_likely'] = 1 if abs(home_streak) >= 5 else 0
+        features['away_regression_likely'] = 1 if abs(away_streak) >= 5 else 0
+
+        # Streak-ELO conflict: When ELO says one thing but streak says another
+        # ELO favors home (diff > 0) but home is cold, or ELO favors away but away is cold
+        elo_streak_conflict = 0
+        if elo_diff > 50 and home_streak <= -2:  # ELO favors home but home is cold
+            elo_streak_conflict = -1
+        elif elo_diff < -50 and away_streak <= -2:  # ELO favors away but away is cold
+            elo_streak_conflict = 1
+        elif elo_diff > 50 and away_streak >= 3:  # ELO favors home but away is hot
+            elo_streak_conflict = -1
+        elif elo_diff < -50 and home_streak >= 3:  # ELO favors away but home is hot
+            elo_streak_conflict = 1
+        features['elo_streak_conflict'] = elo_streak_conflict
+
+        # Upset potential: Away team is hot, home team is cold, moderate ELO gap
+        features['upset_potential'] = 1 if (
+            away_hot_hand and home_cold_streak and 50 < abs(elo_diff) < 200
+        ) else 0
+
+        # ═══════════════════════════════════════════════════════════════
         # 9. PLAYER-LEVEL STATISTICS (14 features) - OPTIONAL
         # ═══════════════════════════════════════════════════════════════
         # Only fetch if explicitly enabled (slow due to API rate limiting)

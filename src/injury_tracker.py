@@ -141,56 +141,174 @@ class InjuryTracker:
     
     def _scrape_espn_injuries(self, team_abbrev: str) -> List[Dict]:
         """
-        Scrape injury data from ESPN.
-
-        Note: This is a simplified version. ESPN's structure may change.
+        Scrape injury data from CBS Sports (more reliable than ESPN JS-rendered pages).
+        Falls back to Rotowire lineups if CBS fails.
         """
-        url = f"https://www.espn.com/nba/team/injuries/_/name/{team_abbrev.lower()}"
+        injuries = []
 
+        # Try CBS Sports first (server-rendered HTML)
         try:
-            headers = {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-                'Accept-Language': 'en-US,en;q=0.5',
-            }
-            response = requests.get(url, headers=headers, timeout=10)
-            response.raise_for_status()
-            
-            soup = BeautifulSoup(response.content, 'html.parser')
-            
-            injuries = []
-            
-            # ESPN injury table structure (may need adjustment)
-            injury_rows = soup.find_all('tr', class_='Table__TR')
-            
-            for row in injury_rows:
+            injuries = self._scrape_cbs_injuries(team_abbrev)
+            if injuries:
+                return injuries
+        except Exception as e:
+            print(f"CBS scrape failed for {team_abbrev}: {e}")
+
+        # Fallback to Rotowire lineups page
+        try:
+            injuries = self._scrape_rotowire_injuries(team_abbrev)
+        except Exception as e:
+            print(f"Rotowire scrape failed for {team_abbrev}: {e}")
+
+        return injuries
+
+    def _scrape_cbs_injuries(self, team_abbrev: str) -> List[Dict]:
+        """Scrape injuries from Hashtag Basketball (reliable, regularly updated)."""
+        url = "https://hashtagbasketball.com/nba-injury-report"
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+        }
+
+        response = requests.get(url, headers=headers, timeout=10)
+        response.raise_for_status()
+
+        soup = BeautifulSoup(response.content, 'html.parser')
+        injuries = []
+
+        # Team name mapping for matching
+        team_name_map = {
+            'ATL': 'Atlanta', 'BOS': 'Boston', 'BKN': 'Brooklyn', 'CHA': 'Charlotte',
+            'CHI': 'Chicago', 'CLE': 'Cleveland', 'DAL': 'Dallas', 'DEN': 'Denver',
+            'DET': 'Detroit', 'GSW': 'Golden State', 'HOU': 'Houston', 'IND': 'Indiana',
+            'LAC': 'Clippers', 'LAL': 'Lakers', 'MEM': 'Memphis', 'MIA': 'Miami',
+            'MIL': 'Milwaukee', 'MIN': 'Minnesota', 'NOP': 'New Orleans', 'NYK': 'Knicks',
+            'OKC': 'Oklahoma', 'ORL': 'Orlando', 'PHI': 'Philadelphia', 'PHX': 'Phoenix',
+            'POR': 'Portland', 'SAC': 'Sacramento', 'SAS': 'San Antonio', 'TOR': 'Toronto',
+            'UTA': 'Utah', 'WAS': 'Washington'
+        }
+        team_search = team_name_map.get(team_abbrev, team_abbrev)
+
+        # Find injury table rows
+        tables = soup.find_all('table')
+        for table in tables:
+            rows = table.find_all('tr')
+            for row in rows:
                 cells = row.find_all('td')
                 if len(cells) >= 4:
-                    player_name = cells[0].get_text().strip()
-                    position = cells[1].get_text().strip() if len(cells) > 1 else ''
-                    injury_type = cells[2].get_text().strip() if len(cells) > 2 else ''
-                    status = cells[3].get_text().strip() if len(cells) > 3 else ''
-                    
-                    # Determine if starter (simplified - would need roster data)
-                    is_starter = False  # Would need actual roster/depth chart
-                    
-                    # Check if All-Star
+                    # Check if this row is for our team
+                    row_text = row.get_text().lower()
+                    if team_search.lower() in row_text:
+                        player_name = cells[0].get_text().strip()
+                        team = cells[1].get_text().strip() if len(cells) > 1 else ''
+                        injury_type = cells[2].get_text().strip() if len(cells) > 2 else ''
+                        status = cells[3].get_text().strip() if len(cells) > 3 else 'Out'
+
+                        is_star = any(star.lower() in player_name.lower() for star in self.all_stars)
+
+                        injuries.append({
+                            'player': player_name,
+                            'position': '',
+                            'injury': injury_type,
+                            'status': status,
+                            'is_starter': False,
+                            'is_star': is_star
+                        })
+
+        return injuries
+
+    def _scrape_rotowire_injuries(self, team_abbrev: str) -> List[Dict]:
+        """Scrape injuries from Rotowire NBA lineups page."""
+        url = "https://www.rotowire.com/basketball/nba-lineups.php"
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+        }
+
+        response = requests.get(url, headers=headers, timeout=10)
+        response.raise_for_status()
+
+        soup = BeautifulSoup(response.content, 'html.parser')
+        injuries = []
+
+        # Map team abbreviations to Rotowire URL patterns
+        team_url_map = {
+            'ATL': 'hawks', 'BOS': 'celtics', 'BKN': 'nets', 'CHA': 'hornets',
+            'CHI': 'bulls', 'CLE': 'cavaliers', 'DAL': 'mavericks', 'DEN': 'nuggets',
+            'DET': 'pistons', 'GSW': 'warriors', 'HOU': 'rockets', 'IND': 'pacers',
+            'LAC': 'clippers', 'LAL': 'lakers', 'MEM': 'grizzlies', 'MIA': 'heat',
+            'MIL': 'bucks', 'MIN': 'timberwolves', 'NOP': 'pelicans', 'NYK': 'knicks',
+            'OKC': 'thunder', 'ORL': 'magic', 'PHI': '76ers', 'PHX': 'suns',
+            'POR': 'blazers', 'SAC': 'kings', 'SAS': 'spurs', 'TOR': 'raptors',
+            'UTA': 'jazz', 'WAS': 'wizards'
+        }
+
+        team_pattern = team_url_map.get(team_abbrev, team_abbrev.lower())
+
+        # Find the team's lineup card
+        team_cards = soup.find_all('div', class_='lineup__box')
+
+        for card in team_cards:
+            # Check if this is the right team
+            team_header = card.find('a', class_='lineup__team')
+            if not team_header:
+                continue
+
+            team_link = team_header.get('href', '').lower()
+            # Match team pattern in the link
+            if team_pattern not in team_link and team_abbrev.lower() not in team_link:
+                continue
+
+            # Find all players and check for injury indicators
+            all_players = card.find_all('li', class_='lineup__player')
+
+            for player_li in all_players:
+                # Check for any injury-related classes or elements
+                player_classes = ' '.join(player_li.get('class', []))
+                injury_span = player_li.find('span', class_='lineup__inj')
+
+                # Also look for injury status in title attributes
+                title = player_li.get('title', '')
+
+                player_link = player_li.find('a')
+                if not player_link:
+                    continue
+
+                player_name = player_link.get_text().strip()
+
+                # Check if player has injury indicator
+                if injury_span or 'injured' in player_classes.lower() or 'out' in title.lower():
+                    injury_text = ''
+                    status = 'Day-To-Day'
+
+                    if injury_span:
+                        injury_text = injury_span.get('title', '') or injury_span.get_text().strip()
+                        injury_classes = ' '.join(injury_span.get('class', []))
+
+                        # Determine status
+                        if 'is-out' in injury_classes or injury_text.upper().startswith('O'):
+                            status = 'Out'
+                        elif 'is-gtd' in injury_classes or injury_text.upper().startswith('GTD'):
+                            status = 'Game-Time-Decision'
+                        elif 'is-questionable' in injury_classes or injury_text.upper().startswith('Q'):
+                            status = 'Questionable'
+                        elif 'is-doubtful' in injury_classes or injury_text.upper().startswith('D'):
+                            status = 'Doubtful'
+
                     is_star = any(star.lower() in player_name.lower() for star in self.all_stars)
-                    
+
                     injuries.append({
                         'player': player_name,
-                        'position': position,
-                        'injury': injury_type,
+                        'position': '',
+                        'injury': injury_text,
                         'status': status,
-                        'is_starter': is_starter,
+                        'is_starter': True,
                         'is_star': is_star
                     })
-            
-            return injuries
-            
-        except Exception as e:
-            print(f"Error scraping ESPN for {team_abbrev}: {e}")
-            return []
+
+            # We found the team, no need to check other cards
+            break
+
+        return injuries
     
     def _cache_injuries(self, team_id: int, team_abbrev: str, injuries: List[Dict]):
         """Save injuries to database cache."""

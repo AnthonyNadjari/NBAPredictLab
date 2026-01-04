@@ -38,7 +38,11 @@
       "Bash(cmd /c \"del /F /Q test_tweet_count.py test_local_tweet_counter.py\")",
       "Bash(cmd /c \"type data\\tweet_history.json\")",
       "Bash(cmd /c \"if exist data\\tweet_history.json (type data\\tweet_history.json) else (echo File does not exist)\")",
-      "Bash(cmd /c \"dir /b data\\*rate*.json 2>nul\")"
+      "Bash(cmd /c \"dir /b data\\*rate*.json 2>nul\")",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push)",
+      "Bash(set:*)"
     ],
     "deny": [],
     "ask": []

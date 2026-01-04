@@ -167,10 +167,12 @@ class StackedEnsembleModel:
         # Temperature calibrator for fixing overconfidence
         self.temperature_calibrator = TemperatureScaling()
 
-        # Confidence caps based on analysis showing overconfidence
-        # Model says 80%+ but achieves only 47% accuracy
-        self.max_confidence = 0.80  # Cap confidence to prevent overconfidence
-        self.min_confidence_to_predict = 0.55  # Don't trust predictions below this
+        # Confidence caps based on analysis showing severe overconfidence
+        # Analysis (Dec 28 - Jan 3): When model said 80%+, only achieved 36-60% accuracy
+        # When model said 70-80%, only achieved 25-52% accuracy
+        # ECE (Expected Calibration Error) was ~15%
+        self.max_confidence = 0.72  # Reduced from 0.80 - cap to prevent overconfidence
+        self.min_confidence_to_predict = 0.52  # Reduced - predictions below this are coin flips
         
     def train(self, X: pd.DataFrame, y: pd.Series,
               sample_weights: Optional[np.ndarray] = None,
@@ -693,17 +695,18 @@ class StackedEnsembleModel:
         else:
             # Fallback: use default temperature (no calibration) for older models
             self.temperature_calibrator = TemperatureScaling()
-            # Use a reasonable default based on analysis showing overconfidence
-            self.temperature_calibrator.temperature = 1.5  # Soften predictions
-            print(f"  Using default temperature calibrator (T=1.5 for overconfidence fix)")
+            # Use a higher default based on analysis showing severe overconfidence
+            # ECE was ~15%, Brier Score was 0.25 (random chance level)
+            self.temperature_calibrator.temperature = 2.0  # Increased from 1.5 for stronger softening
+            print(f"  Using default temperature calibrator (T=2.0 for overconfidence fix)")
 
         # Load calibration config if exists
         config_path = model_dir / "calibration_config.json"
         if config_path.exists():
             with open(config_path, 'r') as f:
                 config = json.load(f)
-                self.max_confidence = config.get('max_confidence', 0.80)
-                self.min_confidence_to_predict = config.get('min_confidence_to_predict', 0.55)
+                self.max_confidence = config.get('max_confidence', 0.72)
+                self.min_confidence_to_predict = config.get('min_confidence_to_predict', 0.52)
 
         # Load feature names
         with open(model_dir / "feature_names.json", 'r') as f:

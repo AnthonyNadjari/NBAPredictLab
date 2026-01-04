@@ -123,9 +123,9 @@ class BettingLinesFetcher:
         Note: The Odds API primarily provides moneylines (h2h).
         Spreads and totals require additional markets.
         """
-        # Get best home/away odds
-        home_ml = odds_data.get('home_odds', 2.0)
-        away_ml = odds_data.get('away_odds', 2.0)
+        # Get best home/away odds (from nested dict structure)
+        home_ml = odds_data.get('best_home_odds', {}).get('odds', 2.0)
+        away_ml = odds_data.get('best_away_odds', {}).get('odds', 2.0)
         
         # Calculate implied probability from moneyline
         home_implied = 1 / home_ml if home_ml > 0 else 0.5
