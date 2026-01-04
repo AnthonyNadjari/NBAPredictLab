@@ -966,6 +966,30 @@ def create_twitter_thread(
             logger.error(f"   Error: {e}")
             logger.error(f"   Tweet {i+1} text length: {len(text)} characters")
             logger.error(f"   Tweet {i+1} text preview: {text[:150]}...")
+            logger.error(f"   Has response attr: {hasattr(e, 'response')}")
+
+            # Try to get the API error details from the response
+            api_error_code = None
+            api_error_message = None
+            if hasattr(e, 'response'):
+                logger.error(f"   Response status code: {getattr(e.response, 'status_code', 'N/A')}")
+                try:
+                    resp_json = e.response.json()
+                    logger.error(f"   Response JSON: {resp_json}")
+                    # Twitter API v2 error format
+                    if 'detail' in resp_json:
+                        api_error_message = resp_json.get('detail')
+                    if 'errors' in resp_json:
+                        for err in resp_json.get('errors', []):
+                            logger.error(f"   API Error: {err}")
+                    if 'title' in resp_json:
+                        api_error_code = resp_json.get('title')
+                except Exception as json_err:
+                    logger.error(f"   Could not parse response JSON: {json_err}")
+                    try:
+                        logger.error(f"   Response text: {e.response.text[:500]}")
+                    except:
+                        pass
 
             # Extract rate limit headers from 403 response (Twitter may include them)
             reset_time_str = "unknown"
