@@ -966,7 +966,66 @@ def create_twitter_thread(
             logger.error(f"   Error: {e}")
             logger.error(f"   Tweet {i+1} text length: {len(text)} characters")
             logger.error(f"   Tweet {i+1} text preview: {text[:150]}...")
-            
+
+            # Extract rate limit headers from 403 response (Twitter may include them)
+            reset_time_str = "unknown"
+            hours_until_reset = None
+            rate_limit_found = False
+
+            if hasattr(e, 'response') and hasattr(e.response, 'headers'):
+                headers = e.response.headers
+                logger.error(f"   Response headers: {dict(headers)}")
+
+                # Check for 24-hour limit headers
+                app_remaining = headers.get('x-app-limit-24hour-remaining')
+                app_reset = headers.get('x-app-limit-24hour-reset')
+                user_remaining = headers.get('x-user-limit-24hour-remaining')
+                user_reset = headers.get('x-user-limit-24hour-reset')
+
+                # Also check standard rate limit headers
+                window_remaining = headers.get('x-rate-limit-remaining')
+                window_reset = headers.get('x-rate-limit-reset')
+
+                if app_reset or user_reset or window_reset:
+                    rate_limit_found = True
+                    reset_ts = int(app_reset or user_reset or window_reset or 0)
+                    if reset_ts > 0:
+                        from datetime import datetime, timezone
+                        reset_time = datetime.fromtimestamp(reset_ts, tz=timezone.utc)
+                        reset_local = reset_time.astimezone()
+                        hours_until_reset = (reset_time - datetime.now(timezone.utc)).total_seconds() / 3600
+                        reset_time_str = f"{reset_local.strftime('%Y-%m-%d %H:%M:%S')} local time ({hours_until_reset:.1f} hours from now)"
+
+                        # Cache the rate limit info
+                        try:
+                            import json
+                            from pathlib import Path
+                            cache_data = {
+                                'app_24h': {
+                                    'limit': int(headers.get('x-app-limit-24hour-limit', 17)),
+                                    'remaining': int(app_remaining) if app_remaining else 0,
+                                    'reset': reset_ts,
+                                },
+                                'user_24h': {
+                                    'limit': int(headers.get('x-user-limit-24hour-limit', 17)),
+                                    'remaining': int(user_remaining) if user_remaining else 0,
+                                    'reset': reset_ts,
+                                },
+                                'timestamp': datetime.now().isoformat(),
+                                'source': 'forbidden_error',
+                            }
+                            cache_file = Path("data/twitter_rate_limits_cache.json")
+                            cache_file.parent.mkdir(parents=True, exist_ok=True)
+                            with open(cache_file, 'w') as f:
+                                json.dump(cache_data, f, indent=2)
+                            logger.info(f"Cached rate limit info from 403 error")
+                        except Exception as cache_err:
+                            logger.warning(f"Could not cache rate limit: {cache_err}")
+
+                logger.error(f"   App 24h remaining: {app_remaining}")
+                logger.error(f"   User 24h remaining: {user_remaining}")
+                logger.error(f"   Reset time: {reset_time_str}")
+
             if hasattr(e, 'response'):
                 logger.error(f"   Response status: {getattr(e.response, 'status_code', 'N/A')}")
                 if hasattr(e.response, 'json'):
@@ -980,26 +1039,32 @@ def create_twitter_thread(
                         logger.error(f"   Response text: {e.response.text[:500]}")
                     except:
                         pass
-            
+
             # Try to get more details from the exception
             error_details = str(e)
             if hasattr(e, 'api_codes'):
                 logger.error(f"   API codes: {e.api_codes}")
             if hasattr(e, 'api_messages'):
                 logger.error(f"   API messages: {e.api_messages}")
-            
+
+            # Build error message with reset time if available
+            reset_info = ""
+            if rate_limit_found and hours_until_reset is not None:
+                reset_info = f"\n\n⏰ RATE LIMIT RESET TIME: {reset_time_str}"
+
             error_msg = (
                 f"403 Forbidden: Cannot post tweets.\n\n"
                 f"🔍 Debug Information:\n"
                 f"   Error occurred on tweet {i+1}/{len(texts)}\n"
-                f"   Error details: {error_details}\n\n"
+                f"   Error details: {error_details}"
+                f"{reset_info}\n\n"
                 f"⚠️ MOST LIKELY CAUSE: Twitter Free Tier Rate Limit\n"
                 f"   • Twitter Free tier allows only 17 tweets per 24 hours\n"
                 f"   • This limit is NOT shown in API rate limit responses\n"
                 f"   • Each tweet in a thread counts toward this limit\n"
                 f"   • Media uploads also count toward limits\n\n"
                 f"🔧 SOLUTIONS:\n"
-                f"1. ⏰ Wait 24 hours since your first tweet today\n"
+                f"1. ⏰ Wait until rate limit resets: {reset_time_str}\n"
                 f"2. 📊 Track your daily tweet count manually\n"
                 f"3. 💰 Upgrade to Twitter Basic tier ($100/month) for 3,000 tweets/month\n\n"
                 f"⚠️ OTHER POSSIBLE CAUSES (less likely if credentials worked before):\n"
