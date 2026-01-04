@@ -17,4 +17,4 @@ pillow>=9.0.0
 tenacity>=8.0.0
 praw>=7.7.0
 vaderSentiment>=3.3.2
-pywin32>=306
+# pywin32>=306  # Windows-only, install manually on Windows: pip install pywin32
