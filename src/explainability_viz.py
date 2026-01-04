@@ -1547,5 +1547,118 @@ def create_comprehensive_dashboard_charts(prediction: Dict, features: Dict, home
         )
     )
     charts['situational'] = fig_situational
-    
+
     return charts
+
+
+def create_game_visualization(prediction: Dict) -> Optional[go.Figure]:
+    """
+    Create a single unified visualization for a game prediction.
+    Used by GitHub Actions to generate Twitter thread images.
+
+    Args:
+        prediction: Dictionary containing prediction data with keys:
+            - home_team, away_team, predicted_winner
+            - predicted_home_prob, predicted_away_prob, confidence
+            - features (optional): Dict of feature values
+
+    Returns:
+        Plotly figure object or None if creation fails
+    """
+    try:
+        home_team = prediction.get('home_team', 'Home')
+        away_team = prediction.get('away_team', 'Away')
+        winner = prediction.get('predicted_winner', home_team)
+        home_prob = prediction.get('predicted_home_prob', 0.5) * 100
+        away_prob = prediction.get('predicted_away_prob', 0.5) * 100
+        confidence = prediction.get('confidence', 0.5) * 100
+        features = prediction.get('features', {})
+
+        # Create subplot figure with key metrics
+        from plotly.subplots import make_subplots
+
+        fig = make_subplots(
+            rows=2, cols=2,
+            specs=[[{"type": "indicator"}, {"type": "indicator"}],
+                   [{"type": "bar", "colspan": 2}, None]],
+            subplot_titles=["", "", "Win Probability"],
+            vertical_spacing=0.15,
+            horizontal_spacing=0.1
+        )
+
+        # Row 1, Col 1: Winner prediction gauge
+        fig.add_trace(
+            go.Indicator(
+                mode="gauge+number",
+                value=confidence,
+                number={'suffix': '%', 'font': {'size': 40}},
+                title={'text': f"🎯 {winner}", 'font': {'size': 20}},
+                gauge={
+                    'axis': {'range': [0, 100], 'tickwidth': 1},
+                    'bar': {'color': ORANGE_PRIMARY},
+                    'bgcolor': 'white',
+                    'borderwidth': 2,
+                    'bordercolor': GRAY_LIGHT,
+                    'steps': [
+                        {'range': [0, 50], 'color': GRAY_LIGHT},
+                        {'range': [50, 75], 'color': ORANGE_LIGHT},
+                        {'range': [75, 100], 'color': ORANGE_SECONDARY}
+                    ],
+                }
+            ),
+            row=1, col=1
+        )
+
+        # Row 1, Col 2: Matchup indicator
+        home_odds = prediction.get('home_odds', round(1 / max(prediction.get('predicted_home_prob', 0.5), 0.01), 2))
+        away_odds = prediction.get('away_odds', round(1 / max(prediction.get('predicted_away_prob', 0.5), 0.01), 2))
+
+        fig.add_trace(
+            go.Indicator(
+                mode="number+delta",
+                value=home_odds,
+                number={'prefix': f"{home_team}: ", 'font': {'size': 24}},
+                delta={'reference': away_odds, 'relative': False, 'prefix': f"{away_team}: "},
+                title={'text': "Odds", 'font': {'size': 18}},
+            ),
+            row=1, col=2
+        )
+
+        # Row 2: Win probability bar chart
+        fig.add_trace(
+            go.Bar(
+                x=[away_team, home_team],
+                y=[away_prob, home_prob],
+                marker_color=[ORANGE_SECONDARY, ORANGE_PRIMARY],
+                text=[f"{away_prob:.1f}%", f"{home_prob:.1f}%"],
+                textposition='outside',
+                textfont={'size': 18, 'color': 'black'}
+            ),
+            row=2, col=1
+        )
+
+        # Update layout
+        fig.update_layout(
+            title={
+                'text': f"🏀 {away_team} @ {home_team}",
+                'x': 0.5,
+                'xanchor': 'center',
+                'font': {'size': 28, 'color': ORANGE_DARK}
+            },
+            height=800,
+            width=1200,
+            plot_bgcolor='white',
+            paper_bgcolor='white',
+            showlegend=False,
+            margin=dict(l=40, r=40, t=100, b=60)
+        )
+
+        # Update y-axis for bar chart
+        fig.update_yaxes(range=[0, 100], title_text="Probability (%)", row=2, col=1)
+
+        return fig
+
+    except Exception as e:
+        import logging
+        logging.getLogger(__name__).error(f"Failed to create game visualization: {e}")
+        return None
