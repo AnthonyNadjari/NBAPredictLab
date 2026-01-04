@@ -66,21 +66,43 @@ def get_prediction_from_db(home_team: str, away_team: str, game_date: str) -> Op
         conn = sqlite3.connect('data/nba_predictor.db')
         cursor = conn.cursor()
 
-        cursor.execute("""
-            SELECT
-                game_date,
-                home_team,
-                away_team,
-                predicted_winner,
-                predicted_home_prob,
-                predicted_away_prob,
-                confidence,
-                home_odds,
-                away_odds,
-                prediction_features
-            FROM predictions
-            WHERE home_team = ? AND away_team = ? AND game_date = ?
-        """, (home_team, away_team, game_date))
+        # First check which columns exist in the table
+        cursor.execute("PRAGMA table_info(predictions)")
+        columns = {row[1] for row in cursor.fetchall()}
+        has_features = 'prediction_features' in columns
+
+        # Build query based on available columns
+        if has_features:
+            cursor.execute("""
+                SELECT
+                    game_date,
+                    home_team,
+                    away_team,
+                    predicted_winner,
+                    predicted_home_prob,
+                    predicted_away_prob,
+                    confidence,
+                    home_odds,
+                    away_odds,
+                    prediction_features
+                FROM predictions
+                WHERE home_team = ? AND away_team = ? AND game_date = ?
+            """, (home_team, away_team, game_date))
+        else:
+            cursor.execute("""
+                SELECT
+                    game_date,
+                    home_team,
+                    away_team,
+                    predicted_winner,
+                    predicted_home_prob,
+                    predicted_away_prob,
+                    confidence,
+                    home_odds,
+                    away_odds
+                FROM predictions
+                WHERE home_team = ? AND away_team = ? AND game_date = ?
+            """, (home_team, away_team, game_date))
 
         row = cursor.fetchone()
         conn.close()
@@ -89,11 +111,15 @@ def get_prediction_from_db(home_team: str, away_team: str, game_date: str) -> Op
             logger.error(f"No prediction found in database for {away_team} @ {home_team} on {game_date}")
             return None
 
-        game_date, home_team, away_team, predicted_winner, pred_home_prob, pred_away_prob, \
-        confidence, home_odds, away_odds, prediction_features = row
-
-        # Parse features JSON
-        features = json.loads(prediction_features) if prediction_features else {}
+        # Unpack based on whether features column exists
+        if has_features:
+            game_date, home_team, away_team, predicted_winner, pred_home_prob, pred_away_prob, \
+            confidence, home_odds, away_odds, prediction_features = row
+            features = json.loads(prediction_features) if prediction_features else {}
+        else:
+            game_date, home_team, away_team, predicted_winner, pred_home_prob, pred_away_prob, \
+            confidence, home_odds, away_odds = row
+            features = {}
 
         return {
             'game_date': game_date,
