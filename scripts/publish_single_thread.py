@@ -259,6 +259,18 @@ def publish_thread(game_id: str) -> bool:
 
         # Create Twitter client
         logger.info("Creating Twitter client...")
+
+        # Debug: Log environment variables for Twitter credentials
+        import os
+        tw_api_key = os.getenv('TW_API_KEY', '')
+        tw_access_token = os.getenv('TW_ACCESS_TOKEN', '')
+        logger.info(f"🔍 DEBUG - Environment variables check:")
+        logger.info(f"   TW_API_KEY present: {bool(tw_api_key)} (length: {len(tw_api_key)}, starts with: {tw_api_key[:10] if tw_api_key else 'N/A'}...)")
+        logger.info(f"   TW_ACCESS_TOKEN present: {bool(tw_access_token)} (length: {len(tw_access_token)}, starts with: {tw_access_token[:20] if tw_access_token else 'N/A'}...)")
+        logger.info(f"   TW_API_SECRET present: {bool(os.getenv('TW_API_SECRET'))}")
+        logger.info(f"   TW_ACCESS_SECRET present: {bool(os.getenv('TW_ACCESS_SECRET'))}")
+        logger.info(f"   TW_DRY_RUN value: {os.getenv('TW_DRY_RUN', 'not set')}")
+
         twitter_clients = create_fresh_twitter_client()
 
         # Post thread
