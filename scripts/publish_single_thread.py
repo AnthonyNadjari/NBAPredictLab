@@ -30,9 +30,9 @@ from src.twitter_integration import (
     create_twitter_thread,
     format_prediction_tweet
 )
-from src.explainability_viz import create_game_visualization
 from src.predictor import NBAPredictor
 from src.data_fetcher import NBADataFetcher
+from daily_auto_prediction import DailyPredictionAutomation
 
 # Setup logging
 logging.basicConfig(
@@ -139,10 +139,60 @@ def get_prediction_from_db(home_team: str, away_team: str, game_date: str) -> Op
         return None
 
 
-def format_thread_tweets(prediction: Dict) -> list:
-    """Format prediction data into Twitter thread format"""
+def format_thread_tweets_full(prediction: Dict) -> tuple:
+    """
+    Format prediction data into full Twitter thread format using DailyPredictionAutomation.
+    This matches the same rich format used by Streamlit.
+
+    Returns:
+        Tuple of (texts, image_paths) for the thread
+    """
     try:
-        # Tweet 1: Main prediction
+        # Create a temporary DailyPredictionAutomation instance to use its format_twitter_thread method
+        temp_daily = DailyPredictionAutomation(
+            db_path="data/nba_predictor.db",
+            model_dir="models",
+            dry_run=False
+        )
+
+        # Prepare prediction dict in the format expected by format_twitter_thread
+        # Need to convert from DB format to the format expected by format_twitter_thread
+        home = prediction['home_team']
+        away = prediction['away_team']
+
+        # Determine prediction direction
+        if prediction['predicted_winner'] == home:
+            pred_direction = 'home'
+        else:
+            pred_direction = 'away'
+
+        prediction_for_thread = {
+            'home_team': home,
+            'away_team': away,
+            'prediction': pred_direction,
+            'confidence': prediction['confidence'],
+            'home_win_probability': prediction['predicted_home_prob'],
+            'away_win_probability': prediction['predicted_away_prob'],
+            'features': prediction.get('features', {}),
+            'pattern_adjustments': prediction.get('pattern_adjustments', []),
+        }
+
+        # Use the same format_twitter_thread method as daily prediction
+        thread_texts, thread_image_paths = temp_daily.format_twitter_thread(prediction_for_thread)
+
+        logger.info(f"Generated full thread with {len(thread_texts)} tweets and {len([p for p in thread_image_paths if p])} images")
+
+        return thread_texts, thread_image_paths
+
+    except Exception as e:
+        logger.error(f"Failed to format full thread, falling back to simple format: {e}", exc_info=True)
+        # Fallback to simple format
+        return format_thread_tweets_simple(prediction), []
+
+
+def format_thread_tweets_simple(prediction: Dict) -> list:
+    """Simple fallback format for Twitter thread"""
+    try:
         home = prediction['home_team']
         away = prediction['away_team']
         winner = prediction['predicted_winner']
@@ -164,54 +214,11 @@ Probabilities:
 
 Odds: {away_odds:.2f} / {home_odds:.2f}"""
 
-        # Tweet 2: Key factors (if features available)
-        features = prediction.get('features', {})
-        if features:
-            key_factors = []
-
-            # Extract relevant features
-            if 'home_win_pct' in features:
-                key_factors.append(f"Home W%: {features['home_win_pct']*100:.1f}%")
-            if 'away_win_pct' in features:
-                key_factors.append(f"Away W%: {features['away_win_pct']*100:.1f}%")
-            if 'home_avg_points' in features:
-                key_factors.append(f"Home PPG: {features['home_avg_points']:.1f}")
-            if 'away_avg_points' in features:
-                key_factors.append(f"Away PPG: {features['away_avg_points']:.1f}")
-
-            if key_factors:
-                tweet2 = "📈 Key Stats:\n" + "\n".join(f"• {f}" for f in key_factors[:4])
-                return [tweet1, tweet2]
-
         return [tweet1]
 
     except Exception as e:
         logger.error(f"Failed to format thread tweets: {e}")
         return [f"🏀 {prediction['away_team']} @ {prediction['home_team']}\nPrediction: {prediction['predicted_winner']}"]
-
-
-def generate_prediction_image(prediction: Dict) -> Optional[str]:
-    """Generate visualization image for prediction"""
-    try:
-        logger.info("Generating prediction visualization...")
-
-        # Create image using existing visualization code
-        image_path = f"temp_{prediction['home_team']}_{prediction['away_team']}.png"
-
-        # Use the explainability_viz module to create image
-        fig = create_game_visualization(prediction)
-
-        if fig:
-            fig.write_image(image_path, width=1200, height=800)
-            logger.info(f"✓ Image saved to {image_path}")
-            return image_path
-        else:
-            logger.warning("No visualization generated")
-            return None
-
-    except Exception as e:
-        logger.error(f"Failed to generate image: {e}", exc_info=True)
-        return None
 
 
 def publish_thread(game_id: str) -> bool:
@@ -250,12 +257,9 @@ def publish_thread(game_id: str) -> bool:
             logger.error("Failed to get prediction from database")
             return False
 
-        # Generate image
-        image_path = generate_prediction_image(prediction)
-
-        # Format tweets
-        tweets = format_thread_tweets(prediction)
-        logger.info(f"Formatted {len(tweets)} tweets for thread")
+        # Format tweets using the full thread format (same as Streamlit)
+        tweets, image_paths = format_thread_tweets_full(prediction)
+        logger.info(f"Formatted {len(tweets)} tweets for thread with {len([p for p in image_paths if p])} images")
 
         # Create Twitter client
         logger.info("Creating Twitter client...")
@@ -278,17 +282,18 @@ def publish_thread(game_id: str) -> bool:
         responses = create_twitter_thread(
             twitter_clients,
             tweets,
-            image_paths=[image_path] if image_path else None,
+            image_paths=image_paths if image_paths else None,
             dry_run=False  # Actually post to Twitter
         )
 
         logger.info(f"✓ Thread posted successfully!")
         logger.info(f"✓ Posted {len(responses)} tweets")
 
-        # Cleanup temp image
-        if image_path and Path(image_path).exists():
-            Path(image_path).unlink()
-            logger.info(f"✓ Cleaned up temp image: {image_path}")
+        # Cleanup temp images
+        for img_path in (image_paths or []):
+            if img_path and Path(img_path).exists():
+                Path(img_path).unlink()
+                logger.info(f"✓ Cleaned up temp image: {img_path}")
 
         return True
 
