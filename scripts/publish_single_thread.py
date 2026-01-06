@@ -173,6 +173,8 @@ def format_thread_tweets_full(prediction: Dict) -> tuple:
             'confidence': prediction['confidence'],
             'home_win_probability': prediction['predicted_home_prob'],
             'away_win_probability': prediction['predicted_away_prob'],
+            'home_odds': prediction.get('home_odds'),  # Pass actual betting odds
+            'away_odds': prediction.get('away_odds'),  # Pass actual betting odds
             'features': prediction.get('features', {}),
             'pattern_adjustments': prediction.get('pattern_adjustments', []),
         }
