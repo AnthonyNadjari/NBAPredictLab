@@ -437,13 +437,18 @@ def format_prediction_tweet(prediction: Dict, features: Dict, max_len: int = 280
     prediction_quality = prediction.get('prediction_quality', 'medium')
     should_predict = prediction.get('should_predict', True)
 
-    # Calculate odds for both teams
+    # Get odds - prefer actual betting odds from prediction, fallback to calculated odds
     home_win_prob = prediction.get('home_win_probability', 0.5)
     away_win_prob = prediction.get('away_win_probability', 0.5)
 
-    # Calculate decimal odds (1 / probability)
-    home_odds = 1 / home_win_prob if home_win_prob > 0 else 99.0
-    away_odds = 1 / away_win_prob if away_win_prob > 0 else 99.0
+    # Use actual betting odds if provided, otherwise calculate from probability
+    home_odds = prediction.get('home_odds')
+    away_odds = prediction.get('away_odds')
+
+    if not home_odds or home_odds <= 0:
+        home_odds = 1 / home_win_prob if home_win_prob > 0 else 99.0
+    if not away_odds or away_odds <= 0:
+        away_odds = 1 / away_win_prob if away_win_prob > 0 else 99.0
 
     # Extract key metrics
     home_ortg = features.get('home_last10_offensive_rating', 0)
