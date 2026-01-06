@@ -1425,9 +1425,10 @@ with tab1:
                                     export_success = exporter.export_games_for_publishing(date_str)
 
                                     if export_success:
-                                        # Git commit and push
+                                        # Git commit and push (include database for GitHub Actions)
                                         try:
                                             subprocess.run(['git', 'add', 'docs/pending_games.json'], check=True, capture_output=True)
+                                            subprocess.run(['git', 'add', 'data/nba_predictor.db'], check=True, capture_output=True)
                                             commit_result = subprocess.run(
                                                 ['git', 'commit', '-m', f'Auto-export predictions for {date_str}'],
                                                 capture_output=True,
@@ -1436,7 +1437,7 @@ with tab1:
                                             # Only push if there was something to commit
                                             if commit_result.returncode == 0:
                                                 subprocess.run(['git', 'push'], check=True, capture_output=True)
-                                                st.success("✅ Predictions exported and pushed to GitHub Pages!")
+                                                st.success("✅ Predictions + database pushed to GitHub!")
                                             else:
                                                 st.info("ℹ️ Predictions exported (no changes to commit)")
                                         except subprocess.CalledProcessError as git_error:
