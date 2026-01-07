@@ -258,6 +258,8 @@ def publish_thread(game_id: str) -> bool:
         logger.info(f"Game: {game['matchup']}")
         logger.info(f"Date: {game['date']}")
         logger.info(f"Predicted winner: {game['predicted_winner']}")
+        logger.info(f"DEBUG - home_team from JSON: '{game['home_team']}'")
+        logger.info(f"DEBUG - away_team from JSON: '{game['away_team']}'")
 
         # Get full prediction from database
         prediction = get_prediction_from_db(
@@ -269,6 +271,9 @@ def publish_thread(game_id: str) -> bool:
         if not prediction:
             logger.error("Failed to get prediction from database")
             return False
+
+        # Debug: Check what we got
+        logger.info(f"DEBUG - prediction features count: {len(prediction.get('features', {}))}")
 
         # Format tweets using the full thread format (same as Streamlit)
         tweets, image_paths = format_thread_tweets_full(prediction)
