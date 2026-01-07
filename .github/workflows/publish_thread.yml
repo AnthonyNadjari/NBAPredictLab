@@ -22,6 +22,14 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+      - name: Debug - Check database features
+        run: |
+          echo "=== Checking database on GitHub Actions ==="
+          echo "Game ID: ${{ github.event.client_payload.game_id }}"
+          sqlite3 data/nba_predictor.db "SELECT home_team, away_team, game_date, length(features_json) as features_len FROM predictions WHERE game_date >= '2026-01-07' LIMIT 5;"
+          echo "=== Sample features_json (first 500 chars) ==="
+          sqlite3 data/nba_predictor.db "SELECT substr(features_json, 1, 500) FROM predictions WHERE game_date = '2026-01-07' LIMIT 1;"
+
       - name: Generate images and post thread
         env:
           TW_API_KEY: ${{ secrets.TWITTER_API_KEY }}
