@@ -1914,11 +1914,27 @@ with tab4:
         st.warning("No model found - train first!")
         st.info("💡 The model consists of multiple files. Make sure to train using the button below.")
 
-    c1, c2 = st.columns(2)
-    start_yr = c1.selectbox("Start", [2022, 2023, 2024], index=2)  # Default to 2024
-    end_yr = c2.selectbox("End", [2023, 2024, 2025], index=2)
+    st.markdown("#### Training Date Range")
+    c1, c2, c3, c4 = st.columns(4)
 
-    st.info("💡 **Tip**: Using only recent seasons (2024-2025) trains faster and focuses on current team dynamics. Older data may be less relevant due to roster changes.")
+    # Month names for display
+    months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+
+    # Start date selection
+    start_yr = c1.selectbox("Start Year", [2022, 2023, 2024, 2025], index=2)  # Default to 2024
+    start_month = c2.selectbox("Start Month", months, index=9)  # Default to October (start of season)
+
+    # End date - default to current month/year
+    current_year = datetime.now().year
+    current_month_idx = datetime.now().month - 1  # 0-indexed
+    end_yr = c3.selectbox("End Year", [2023, 2024, 2025, 2026], index=3)  # Default to 2026
+    end_month = c4.selectbox("End Month", months, index=current_month_idx)  # Default to current month
+
+    # Convert month names to numbers
+    start_month_num = months.index(start_month) + 1
+    end_month_num = months.index(end_month) + 1
+
+    st.info("💡 **Tip**: Using only recent data (e.g., Oct 2024 - today) trains faster and focuses on current team dynamics. Older data may be less relevant due to roster changes.")
 
     if st.button("🚀 Train Model"):
         st.warning("This takes 5-15 minutes...")
@@ -1938,6 +1954,18 @@ with tab4:
             log.write(f"Seasons: {seasons}")
             games = fetcher.fetch_historical_games(seasons)
             log.write(f"✅ Fetched {len(games)} games ({time.time()-t0:.0f}s)")
+
+            # Filter by date range (using month selection)
+            start_date = f"{start_yr}-{start_month_num:02d}-01"
+            # End date: last day of selected month
+            if end_month_num == 12:
+                end_date = f"{end_yr}-12-31"
+            else:
+                end_date = f"{end_yr}-{end_month_num + 1:02d}-01"  # First of next month
+
+            games_before = len(games)
+            games = games[(games['game_date'] >= start_date) & (games['game_date'] < end_date)]
+            log.write(f"📅 Filtered to {start_month} {start_yr} - {end_month} {end_yr}: {len(games)} games (was {games_before})")
             prog.progress(25)
 
             # Step 2: Elo
