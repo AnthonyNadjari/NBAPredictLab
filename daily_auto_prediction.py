@@ -466,6 +466,14 @@ class DailyPredictionAutomation:
         away = prediction['away_team']
         features = prediction.get('features', {})
 
+        # DEBUG: Log features received
+        self.logger.info(f"format_twitter_thread - features count: {len(features)}")
+        if features:
+            self.logger.info(f"  DEBUG - home_elo: {features.get('home_elo', 'MISSING')}")
+            self.logger.info(f"  DEBUG - home_last10_offensive_rating: {features.get('home_last10_offensive_rating', 'MISSING')}")
+        else:
+            self.logger.warning("  DEBUG - features dict is empty!")
+
         # Tweet 1: Main prediction (using the exact same format as Streamlit)
         tweet1 = format_prediction_tweet(prediction, features)
 

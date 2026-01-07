@@ -69,7 +69,8 @@ def get_prediction_from_db(home_team: str, away_team: str, game_date: str) -> Op
         # First check which columns exist in the table
         cursor.execute("PRAGMA table_info(predictions)")
         columns = {row[1] for row in cursor.fetchall()}
-        has_features = 'prediction_features' in columns
+        # Check for features_json column (the actual column name in the database)
+        has_features = 'features_json' in columns
 
         # Build query based on available columns
         if has_features:
@@ -84,7 +85,7 @@ def get_prediction_from_db(home_team: str, away_team: str, game_date: str) -> Op
                     confidence,
                     home_odds,
                     away_odds,
-                    prediction_features
+                    features_json
                 FROM predictions
                 WHERE home_team = ? AND away_team = ? AND game_date = ?
             """, (home_team, away_team, game_date))
@@ -114,12 +115,22 @@ def get_prediction_from_db(home_team: str, away_team: str, game_date: str) -> Op
         # Unpack based on whether features column exists
         if has_features:
             game_date, home_team, away_team, predicted_winner, pred_home_prob, pred_away_prob, \
-            confidence, home_odds, away_odds, prediction_features = row
-            features = json.loads(prediction_features) if prediction_features else {}
+            confidence, home_odds, away_odds, features_json = row
+            features = json.loads(features_json) if features_json else {}
+            logger.info(f"✓ Loaded {len(features)} features from database")
+            # Debug: Log key features to verify they're not zero
+            if features:
+                logger.info(f"   DEBUG - home_elo: {features.get('home_elo', 'MISSING')}")
+                logger.info(f"   DEBUG - away_elo: {features.get('away_elo', 'MISSING')}")
+                logger.info(f"   DEBUG - home_last10_offensive_rating: {features.get('home_last10_offensive_rating', 'MISSING')}")
+                logger.info(f"   DEBUG - away_last10_offensive_rating: {features.get('away_last10_offensive_rating', 'MISSING')}")
+            else:
+                logger.warning("   DEBUG - features_json was empty or null!")
         else:
             game_date, home_team, away_team, predicted_winner, pred_home_prob, pred_away_prob, \
             confidence, home_odds, away_odds = row
             features = {}
+            logger.warning("⚠ No features column found in database - charts will be empty")
 
         return {
             'game_date': game_date,
