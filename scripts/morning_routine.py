@@ -5,11 +5,14 @@ Morning Routine Script for NBA Predictor
 This script automates the morning tasks:
 1. Refresh game data from NBA API (fetch recent game scores)
 2. Update prediction results (match predictions to actual outcomes)
-3. Fetch today's predictions
-4. Send email report
+3. Send email report
+
+Note: Predictions are generated separately via Streamlit or the evening routine.
+      This script focuses on updating results and sending the daily email.
 
 Usage:
-    python scripts/morning_routine.py [--skip-email] [--skip-predictions]
+    python scripts/morning_routine.py [--skip-email]
+    python scripts/morning_routine.py --with-predictions  # Also generate predictions
 """
 
 import sys
@@ -261,7 +264,7 @@ def send_email_report() -> bool:
 def main():
     parser = argparse.ArgumentParser(description='NBA Predictor Morning Routine')
     parser.add_argument('--skip-email', action='store_true', help='Skip sending email')
-    parser.add_argument('--skip-predictions', action='store_true', help='Skip fetching predictions')
+    parser.add_argument('--with-predictions', action='store_true', help='Also generate today\'s predictions (usually done separately)')
     parser.add_argument('--lookback', type=int, default=7, help='Days to look back for game data (default: 7)')
     args = parser.parse_args()
 
@@ -275,22 +278,22 @@ def main():
 
     all_success = True
 
-    # Step 1: Refresh game data
+    # Step 1: Refresh game data (get yesterday's scores)
     if not refresh_game_data(lookback_days=args.lookback):
         all_success = False
 
-    # Step 2: Update prediction results
+    # Step 2: Update prediction results (verify yesterday's predictions)
     if not update_prediction_results(lookback_days=args.lookback):
         all_success = False
 
-    # Step 3: Fetch today's predictions
-    if not args.skip_predictions:
+    # Step 3 (optional): Fetch today's predictions - only if explicitly requested
+    if args.with_predictions:
         if not fetch_todays_predictions():
             all_success = False
     else:
-        logger.info("\n⏭ Skipping predictions (--skip-predictions)")
+        logger.info("\n⏭ Skipping predictions (use --with-predictions to include)")
 
-    # Step 4: Send email
+    # Step 4: Send email (includes yesterday's results + today's predictions)
     if not args.skip_email:
         if not send_email_report():
             all_success = False
