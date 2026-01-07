@@ -2,8 +2,13 @@
 REM ============================================================================
 REM Daily NBA Prediction Automation Runner
 REM ============================================================================
-REM This script activates the virtual environment and runs the prediction script
-REM Suitable for Windows Task Scheduler
+REM This script runs the complete morning routine:
+REM   1. Refresh game data from NBA API (get recent scores)
+REM   2. Update prediction results (verify yesterday's predictions)
+REM   3. Fetch today's predictions
+REM   4. Send email report
+REM
+REM Suitable for Windows Task Scheduler or manual execution
 REM ============================================================================
 
 REM Set the project directory (UPDATE THIS PATH IF NEEDED!)
@@ -27,18 +32,38 @@ REM )
 REM Create logs directory if it doesn't exist
 if not exist logs mkdir logs
 
-REM Run the prediction script
-echo Running NBA prediction automation at %date% %time%
-python daily_auto_prediction.py >> logs\scheduler.log 2>&1
+REM Run the morning routine script
+echo ============================================================
+echo NBA Predictor - Morning Routine
+echo Started at %date% %time%
+echo ============================================================
+echo.
+echo This script will:
+echo   1. Refresh game data from NBA API
+echo   2. Update prediction results
+echo   3. Fetch today's predictions
+echo   4. Send email report
+echo.
+
+python scripts/morning_routine.py >> logs\scheduler.log 2>&1
 
 REM Capture exit code
 set EXIT_CODE=%ERRORLEVEL%
 
 REM Log result
 if %EXIT_CODE% EQU 0 (
-    echo [%date% %time%] SUCCESS: Prediction script completed successfully >> logs\scheduler.log
+    echo [%date% %time%] SUCCESS: Morning routine completed successfully >> logs\scheduler.log
+    echo.
+    echo ============================================================
+    echo SUCCESS: Morning routine completed!
+    echo ============================================================
 ) else (
-    echo [%date% %time%] ERROR: Prediction script failed with exit code %EXIT_CODE% >> logs\scheduler.log
+    echo [%date% %time%] ERROR: Morning routine failed with exit code %EXIT_CODE% >> logs\scheduler.log
+    echo.
+    echo ============================================================
+    echo WARNING: Morning routine completed with errors
+    echo Check logs\scheduler.log for details
+    echo ============================================================
 )
 
 REM Exit with the script's exit code
