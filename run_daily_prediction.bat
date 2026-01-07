@@ -39,12 +39,10 @@ echo Started at %date% %time%
 echo ============================================================
 echo.
 echo This script will:
-echo   1. Refresh game data from NBA API (get yesterday's scores)
-echo   2. Update prediction results (verify yesterday's predictions)
-echo   3. Send email report
-echo.
-echo Note: Predictions should already be generated via Streamlit.
-echo       Use --with-predictions flag to also generate predictions.
+echo   1. Fetch today's predictions
+echo   2. Refresh game data from NBA API (get yesterday's scores)
+echo   3. Update prediction results (verify yesterday's predictions)
+echo   4. Send email report (today's predictions + yesterday's results)
 echo.
 
 python scripts/morning_routine.py >> logs\scheduler.log 2>&1

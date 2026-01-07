@@ -3,16 +3,13 @@
 Morning Routine Script for NBA Predictor
 =========================================
 This script automates the morning tasks:
-1. Refresh game data from NBA API (fetch recent game scores)
-2. Update prediction results (match predictions to actual outcomes)
-3. Send email report
-
-Note: Predictions are generated separately via Streamlit or the evening routine.
-      This script focuses on updating results and sending the daily email.
+1. Fetch today's predictions (generate predictions for today's games)
+2. Refresh game data from NBA API (get yesterday's scores)
+3. Update prediction results (verify yesterday's predictions)
+4. Send email report (today's predictions + yesterday's results)
 
 Usage:
-    python scripts/morning_routine.py [--skip-email]
-    python scripts/morning_routine.py --with-predictions  # Also generate predictions
+    python scripts/morning_routine.py [--skip-email] [--skip-predictions]
 """
 
 import sys
@@ -264,7 +261,7 @@ def send_email_report() -> bool:
 def main():
     parser = argparse.ArgumentParser(description='NBA Predictor Morning Routine')
     parser.add_argument('--skip-email', action='store_true', help='Skip sending email')
-    parser.add_argument('--with-predictions', action='store_true', help='Also generate today\'s predictions (usually done separately)')
+    parser.add_argument('--skip-predictions', action='store_true', help='Skip fetching today\'s predictions')
     parser.add_argument('--lookback', type=int, default=7, help='Days to look back for game data (default: 7)')
     args = parser.parse_args()
 
@@ -278,22 +275,22 @@ def main():
 
     all_success = True
 
-    # Step 1: Refresh game data (get yesterday's scores)
-    if not refresh_game_data(lookback_days=args.lookback):
-        all_success = False
-
-    # Step 2: Update prediction results (verify yesterday's predictions)
-    if not update_prediction_results(lookback_days=args.lookback):
-        all_success = False
-
-    # Step 3 (optional): Fetch today's predictions - only if explicitly requested
-    if args.with_predictions:
+    # Step 1: Fetch today's predictions
+    if not args.skip_predictions:
         if not fetch_todays_predictions():
             all_success = False
     else:
-        logger.info("\n⏭ Skipping predictions (use --with-predictions to include)")
+        logger.info("\n⏭ Skipping predictions (--skip-predictions)")
 
-    # Step 4: Send email (includes yesterday's results + today's predictions)
+    # Step 2: Refresh game data (get yesterday's scores)
+    if not refresh_game_data(lookback_days=args.lookback):
+        all_success = False
+
+    # Step 3: Update prediction results (verify yesterday's predictions)
+    if not update_prediction_results(lookback_days=args.lookback):
+        all_success = False
+
+    # Step 4: Send email (today's predictions + yesterday's results)
     if not args.skip_email:
         if not send_email_report():
             all_success = False
