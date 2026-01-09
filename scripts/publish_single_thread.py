@@ -34,6 +34,45 @@ from src.predictor import NBAPredictor
 from src.data_fetcher import NBADataFetcher
 from daily_auto_prediction import DailyPredictionAutomation
 
+# Full name to tricode mapping (reverse of TRICODE_TO_NAME)
+NAME_TO_TRICODE = {
+    'Atlanta Hawks': 'ATL',
+    'Boston Celtics': 'BOS',
+    'Brooklyn Nets': 'BKN',
+    'Charlotte Hornets': 'CHA',
+    'Chicago Bulls': 'CHI',
+    'Cleveland Cavaliers': 'CLE',
+    'Dallas Mavericks': 'DAL',
+    'Denver Nuggets': 'DEN',
+    'Detroit Pistons': 'DET',
+    'Golden State Warriors': 'GSW',
+    'Houston Rockets': 'HOU',
+    'Indiana Pacers': 'IND',
+    'LA Clippers': 'LAC',
+    'Los Angeles Lakers': 'LAL',
+    'Memphis Grizzlies': 'MEM',
+    'Miami Heat': 'MIA',
+    'Milwaukee Bucks': 'MIL',
+    'Minnesota Timberwolves': 'MIN',
+    'New Orleans Pelicans': 'NOP',
+    'New York Knicks': 'NYK',
+    'Oklahoma City Thunder': 'OKC',
+    'Orlando Magic': 'ORL',
+    'Philadelphia 76ers': 'PHI',
+    'Phoenix Suns': 'PHX',
+    'Portland Trail Blazers': 'POR',
+    'Sacramento Kings': 'SAC',
+    'San Antonio Spurs': 'SAS',
+    'Toronto Raptors': 'TOR',
+    'Utah Jazz': 'UTA',
+    'Washington Wizards': 'WAS',
+}
+
+
+def to_tricode(team: str) -> str:
+    """Convert full team name to tricode, or return as-is if already tricode."""
+    return NAME_TO_TRICODE.get(team, team)
+
 # Setup logging
 logging.basicConfig(
     level=logging.INFO,
@@ -66,6 +105,11 @@ def get_prediction_from_db(home_team: str, away_team: str, game_date: str) -> Op
         conn = sqlite3.connect('data/nba_predictor.db')
         cursor = conn.cursor()
 
+        # Convert full names to tricodes for database lookup
+        home_team_db = to_tricode(home_team)
+        away_team_db = to_tricode(away_team)
+        logger.info(f"DEBUG - DB lookup: home='{home_team_db}', away='{away_team_db}'")
+
         # First check which columns exist in the table
         cursor.execute("PRAGMA table_info(predictions)")
         columns = {row[1] for row in cursor.fetchall()}
@@ -88,7 +132,7 @@ def get_prediction_from_db(home_team: str, away_team: str, game_date: str) -> Op
                     features_json
                 FROM predictions
                 WHERE home_team = ? AND away_team = ? AND game_date = ?
-            """, (home_team, away_team, game_date))
+            """, (home_team_db, away_team_db, game_date))
         else:
             cursor.execute("""
                 SELECT
@@ -103,7 +147,7 @@ def get_prediction_from_db(home_team: str, away_team: str, game_date: str) -> Op
                     away_odds
                 FROM predictions
                 WHERE home_team = ? AND away_team = ? AND game_date = ?
-            """, (home_team, away_team, game_date))
+            """, (home_team_db, away_team_db, game_date))
 
         row = cursor.fetchone()
         conn.close()
