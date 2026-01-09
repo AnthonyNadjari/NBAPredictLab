@@ -1011,6 +1011,76 @@ class DailyPredictionAutomation:
             self.logger.error(f"✗ Failed to update predictions: {e}", exc_info=True)
             return {'error': str(e)}
 
+    def _push_to_github(self, target_date: Optional[str] = None) -> bool:
+        """
+        Push exported predictions JSON to GitHub for GitHub Pages update.
+
+        Args:
+            target_date: Date string for commit message (YYYY-MM-DD)
+
+        Returns:
+            True if push successful, False otherwise
+        """
+        import subprocess
+
+        try:
+            date_str = target_date or datetime.now().strftime('%Y-%m-%d')
+
+            # Check if there are changes to commit
+            result = subprocess.run(
+                ['git', 'status', '--porcelain', 'docs/pending_games.json'],
+                capture_output=True,
+                text=True,
+                cwd=str(PROJECT_ROOT)
+            )
+
+            if not result.stdout.strip():
+                self.logger.info("ℹ No changes to docs/pending_games.json")
+                return True  # No changes is not a failure
+
+            # Stage the file
+            subprocess.run(
+                ['git', 'add', 'docs/pending_games.json'],
+                check=True,
+                capture_output=True,
+                cwd=str(PROJECT_ROOT)
+            )
+            self.logger.debug("Staged docs/pending_games.json")
+
+            # Commit with descriptive message
+            commit_message = f"Auto-export predictions for {date_str}"
+            subprocess.run(
+                ['git', 'commit', '-m', commit_message],
+                check=True,
+                capture_output=True,
+                cwd=str(PROJECT_ROOT)
+            )
+            self.logger.debug(f"Committed: {commit_message}")
+
+            # Push to remote
+            result = subprocess.run(
+                ['git', 'push'],
+                capture_output=True,
+                text=True,
+                cwd=str(PROJECT_ROOT)
+            )
+
+            if result.returncode != 0:
+                self.logger.error(f"Git push failed: {result.stderr}")
+                return False
+
+            self.logger.info(f"✓ Pushed predictions for {date_str} to GitHub")
+            return True
+
+        except subprocess.CalledProcessError as e:
+            self.logger.error(f"Git command failed: {e}")
+            if e.stderr:
+                self.logger.error(f"  stderr: {e.stderr.decode() if isinstance(e.stderr, bytes) else e.stderr}")
+            return False
+        except Exception as e:
+            self.logger.error(f"GitHub push failed: {e}", exc_info=True)
+            return False
+
     def run(
         self,
         target_date: Optional[str] = None,
@@ -1080,6 +1150,7 @@ class DailyPredictionAutomation:
             
             # Step 6: Export games for GitHub Pages
             self.logger.info("STEP 6: Exporting games for GitHub Pages...")
+            export_success = False
             try:
                 from src.daily_games_exporter import DailyGamesExporter
                 exporter = DailyGamesExporter(db_path=self.db_path)
@@ -1092,8 +1163,23 @@ class DailyPredictionAutomation:
                 self.logger.warning(f"⚠ Game export error (non-critical): {e}")
             self.logger.info("")
 
-            # Step 7: Send daily email report
-            self.logger.info("STEP 7: Sending daily email report...")
+            # Step 7: Push to GitHub (for GitHub Pages update)
+            self.logger.info("STEP 7: Pushing to GitHub...")
+            if export_success:
+                try:
+                    push_success = self._push_to_github(target_date)
+                    if push_success:
+                        self.logger.info("✓ Changes pushed to GitHub")
+                    else:
+                        self.logger.warning("⚠ GitHub push failed (non-critical)")
+                except Exception as e:
+                    self.logger.warning(f"⚠ GitHub push error (non-critical): {e}")
+            else:
+                self.logger.info("ℹ Skipping GitHub push (no export to push)")
+            self.logger.info("")
+
+            # Step 8: Send daily email report
+            self.logger.info("STEP 8: Sending daily email report...")
             try:
                 email_reporter = EmailReporter(db_path=self.db_path)
                 email_success = email_reporter.send_daily_report(test_mode=False)
