@@ -105,10 +105,11 @@ def get_prediction_from_db(home_team: str, away_team: str, game_date: str) -> Op
         conn = sqlite3.connect('data/nba_predictor.db')
         cursor = conn.cursor()
 
-        # Convert full names to tricodes for database lookup
-        home_team_db = to_tricode(home_team)
-        away_team_db = to_tricode(away_team)
-        logger.info(f"DEBUG - DB lookup: home='{home_team_db}', away='{away_team_db}'")
+        # Try both full names (Streamlit format) and tricodes (legacy format)
+        # First try with full names as-is
+        home_team_db = home_team
+        away_team_db = away_team
+        logger.info(f"DEBUG - DB lookup (full names): home='{home_team_db}', away='{away_team_db}'")
 
         # First check which columns exist in the table
         cursor.execute("PRAGMA table_info(predictions)")
@@ -150,6 +151,33 @@ def get_prediction_from_db(home_team: str, away_team: str, game_date: str) -> Op
             """, (home_team_db, away_team_db, game_date))
 
         row = cursor.fetchone()
+
+        # If not found with full names, try with tricodes
+        if not row:
+            home_team_db = to_tricode(home_team)
+            away_team_db = to_tricode(away_team)
+            logger.info(f"DEBUG - Retrying with tricodes: home='{home_team_db}', away='{away_team_db}'")
+
+            if has_features:
+                cursor.execute("""
+                    SELECT
+                        game_date, home_team, away_team, predicted_winner,
+                        predicted_home_prob, predicted_away_prob, confidence,
+                        home_odds, away_odds, features_json
+                    FROM predictions
+                    WHERE home_team = ? AND away_team = ? AND game_date = ?
+                """, (home_team_db, away_team_db, game_date))
+            else:
+                cursor.execute("""
+                    SELECT
+                        game_date, home_team, away_team, predicted_winner,
+                        predicted_home_prob, predicted_away_prob, confidence,
+                        home_odds, away_odds
+                    FROM predictions
+                    WHERE home_team = ? AND away_team = ? AND game_date = ?
+                """, (home_team_db, away_team_db, game_date))
+            row = cursor.fetchone()
+
         conn.close()
 
         if not row:
