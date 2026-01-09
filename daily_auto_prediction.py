@@ -45,6 +45,27 @@ from src.email_reporter import EmailReporter
 import sqlite3
 import time
 import pandas as pd
+import numpy as np
+
+
+def convert_numpy_types(obj):
+    """
+    Recursively convert numpy types to native Python types for JSON serialization.
+    """
+    if isinstance(obj, np.integer):
+        return int(obj)
+    elif isinstance(obj, np.floating):
+        return float(obj)
+    elif isinstance(obj, np.ndarray):
+        return obj.tolist()
+    elif isinstance(obj, np.bool_):
+        return bool(obj)
+    elif isinstance(obj, dict):
+        return {key: convert_numpy_types(value) for key, value in obj.items()}
+    elif isinstance(obj, (list, tuple)):
+        return [convert_numpy_types(item) for item in obj]
+    else:
+        return obj
 
 
 class DailyPredictionAutomation:
@@ -405,6 +426,90 @@ class DailyPredictionAutomation:
 
         self.logger.info(f"✓ Generated {len(predictions)} prediction(s)")
         return predictions
+
+    def _save_predictions_to_db(self, predictions: List[Dict], game_date: str) -> int:
+        """
+        Save all predictions to the database (matches Streamlit save_prediction_to_db format).
+
+        Args:
+            predictions: List of prediction dictionaries from generate_predictions
+            game_date: Date string (YYYY-MM-DD)
+
+        Returns:
+            Number of predictions saved
+        """
+        saved_count = 0
+        try:
+            conn = sqlite3.connect(self.db_path)
+            cursor = conn.cursor()
+
+            for pred in predictions:
+                try:
+                    # Extract data from prediction dict
+                    home_team = pred.get('home_team', '')
+                    away_team = pred.get('away_team', '')
+                    features = pred.get('features', {})
+
+                    # Determine winner
+                    if pred.get('prediction') == 'home':
+                        predicted_winner = home_team
+                    else:
+                        predicted_winner = away_team
+
+                    # Convert features to JSON-safe format
+                    try:
+                        features_converted = convert_numpy_types(features)
+                        features_json = json.dumps(features_converted)
+                    except (TypeError, ValueError) as e:
+                        self.logger.warning(f"Error serializing features: {e}")
+                        features_json = json.dumps({})
+
+                    # Get betting odds from features if available
+                    home_odds = features.get('home_odds') or pred.get('home_odds')
+                    away_odds = features.get('away_odds') or pred.get('away_odds')
+
+                    # If no odds, calculate from probabilities
+                    home_prob = pred.get('home_win_probability', 0.5)
+                    away_prob = pred.get('away_win_probability', 0.5)
+                    if not home_odds and home_prob > 0:
+                        home_odds = round(1 / home_prob, 2)
+                    if not away_odds and away_prob > 0:
+                        away_odds = round(1 / away_prob, 2)
+
+                    # Insert or replace prediction
+                    cursor.execute("""
+                        INSERT OR REPLACE INTO predictions (
+                            prediction_date, game_date, home_team, away_team,
+                            predicted_winner, predicted_home_prob, predicted_away_prob,
+                            confidence, features_json, home_odds, away_odds
+                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    """, (
+                        datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                        game_date,
+                        home_team,
+                        away_team,
+                        predicted_winner,
+                        float(home_prob),
+                        float(away_prob),
+                        float(pred.get('confidence', 0.5)),
+                        features_json,
+                        home_odds,
+                        away_odds
+                    ))
+                    saved_count += 1
+
+                except Exception as e:
+                    self.logger.error(f"Error saving prediction for {home_team} vs {away_team}: {e}")
+                    continue
+
+            conn.commit()
+            conn.close()
+            self.logger.info(f"✓ Saved {saved_count} predictions to database")
+
+        except Exception as e:
+            self.logger.error(f"Failed to save predictions to database: {e}", exc_info=True)
+
+        return saved_count
 
     def filter_and_select_best(
         self,
@@ -1129,10 +1234,17 @@ class DailyPredictionAutomation:
 
             # Step 3: Generate predictions
             self.logger.info("STEP 3: Generating predictions...")
+            date_str = target_date or datetime.now().strftime('%Y-%m-%d')
             predictions = self.generate_predictions(games)
             if not predictions:
                 self.logger.warning("⚠ No predictions generated - workflow complete (nothing to post)")
                 return False
+            self.logger.info("")
+
+            # Step 3.5: Save predictions to database (critical for GitHub Pages publish)
+            self.logger.info("STEP 3.5: Saving predictions to database...")
+            saved_count = self._save_predictions_to_db(predictions, date_str)
+            self.logger.info(f"✓ Saved {saved_count}/{len(predictions)} predictions to database")
             self.logger.info("")
 
             # Step 4: Filter and select best prediction
