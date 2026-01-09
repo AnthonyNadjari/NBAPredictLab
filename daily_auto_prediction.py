@@ -3,17 +3,21 @@
 Daily NBA Prediction Automation Script
 
 This script runs independently of the Streamlit app and:
-1. Fetches today's NBA matches
-2. Generates predictions for all matches
-3. Filters predictions with odds > 1.3
-4. Selects the highest confidence prediction
-5. Posts to Twitter as a thread
+1. Updates previous predictions with actual results
+2. Fetches today's NBA matches
+3. Generates predictions for all matches
+4. Saves predictions to database (with features for charts)
+5. Exports to JSON for GitHub Pages publishing interface
+6. Pushes to GitHub
+7. Sends daily email report
+
+Twitter posting is triggered manually via the GitHub Pages interface.
 
 Usage:
     python daily_auto_prediction.py [--dry-run] [--verbose]
 
 Arguments:
-    --dry-run: Test mode - no actual Twitter posting
+    --dry-run: Test mode - skip external services
     --verbose: Enable debug logging
     --date YYYY-MM-DD: Override date (default: today)
 """
@@ -1247,21 +1251,8 @@ class DailyPredictionAutomation:
             self.logger.info(f"✓ Saved {saved_count}/{len(predictions)} predictions to database")
             self.logger.info("")
 
-            # Step 4: Filter and select best prediction
-            self.logger.info("STEP 4: Filtering and selecting best prediction...")
-            best_prediction = self.filter_and_select_best(predictions, min_odds=1.3)
-            if not best_prediction:
-                self.logger.info("ℹ No predictions meet criteria - workflow complete (nothing to post)")
-                return True  # Not a failure - just no qualifying predictions
-            self.logger.info("")
-
-            # Step 5: Post to Twitter
-            self.logger.info("STEP 5: Posting to Twitter...")
-            twitter_success = self.post_to_twitter(best_prediction)
-            self.logger.info("")
-            
-            # Step 6: Export games for GitHub Pages
-            self.logger.info("STEP 6: Exporting games for GitHub Pages...")
+            # Step 4: Export games for GitHub Pages
+            self.logger.info("STEP 4: Exporting games for GitHub Pages...")
             export_success = False
             try:
                 from src.daily_games_exporter import DailyGamesExporter
@@ -1275,8 +1266,8 @@ class DailyPredictionAutomation:
                 self.logger.warning(f"⚠ Game export error (non-critical): {e}")
             self.logger.info("")
 
-            # Step 7: Push to GitHub (for GitHub Pages update)
-            self.logger.info("STEP 7: Pushing to GitHub...")
+            # Step 5: Push to GitHub (for GitHub Pages update)
+            self.logger.info("STEP 5: Pushing to GitHub...")
             if export_success:
                 try:
                     push_success = self._push_to_github(target_date)
@@ -1290,8 +1281,8 @@ class DailyPredictionAutomation:
                 self.logger.info("ℹ Skipping GitHub push (no export to push)")
             self.logger.info("")
 
-            # Step 8: Send daily email report
-            self.logger.info("STEP 8: Sending daily email report...")
+            # Step 6: Send daily email report
+            self.logger.info("STEP 6: Sending daily email report...")
             try:
                 email_reporter = EmailReporter(db_path=self.db_path)
                 email_success = email_reporter.send_daily_report(test_mode=False)
@@ -1303,7 +1294,7 @@ class DailyPredictionAutomation:
                 self.logger.warning(f"⚠ Email report error (non-critical): {e}")
             self.logger.info("")
 
-            success = twitter_success  # Twitter success determines overall success
+            success = True  # Workflow success based on predictions generated
 
             # Workflow summary
             end_time = datetime.now()
