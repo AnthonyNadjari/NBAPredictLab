@@ -10,6 +10,40 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+# Tricode to full team name mapping
+TRICODE_TO_NAME = {
+    'ATL': 'Atlanta Hawks',
+    'BOS': 'Boston Celtics',
+    'BKN': 'Brooklyn Nets',
+    'CHA': 'Charlotte Hornets',
+    'CHI': 'Chicago Bulls',
+    'CLE': 'Cleveland Cavaliers',
+    'DAL': 'Dallas Mavericks',
+    'DEN': 'Denver Nuggets',
+    'DET': 'Detroit Pistons',
+    'GSW': 'Golden State Warriors',
+    'HOU': 'Houston Rockets',
+    'IND': 'Indiana Pacers',
+    'LAC': 'LA Clippers',
+    'LAL': 'Los Angeles Lakers',
+    'MEM': 'Memphis Grizzlies',
+    'MIA': 'Miami Heat',
+    'MIL': 'Milwaukee Bucks',
+    'MIN': 'Minnesota Timberwolves',
+    'NOP': 'New Orleans Pelicans',
+    'NYK': 'New York Knicks',
+    'OKC': 'Oklahoma City Thunder',
+    'ORL': 'Orlando Magic',
+    'PHI': 'Philadelphia 76ers',
+    'PHX': 'Phoenix Suns',
+    'POR': 'Portland Trail Blazers',
+    'SAC': 'Sacramento Kings',
+    'SAS': 'San Antonio Spurs',
+    'TOR': 'Toronto Raptors',
+    'UTA': 'Utah Jazz',
+    'WAS': 'Washington Wizards',
+}
+
 
 class DailyGamesExporter:
     """Export today's predictions to JSON for web publishing interface"""
@@ -22,6 +56,12 @@ class DailyGamesExporter:
             db_path: Path to SQLite database
         """
         self.db_path = db_path
+
+    def _to_full_name(self, team: str) -> str:
+        """Convert tricode to full team name, or return as-is if already full name."""
+        if team in TRICODE_TO_NAME:
+            return TRICODE_TO_NAME[team]
+        return team  # Already a full name
 
     def get_today_predictions(self, date: Optional[str] = None) -> List[Dict]:
         """
@@ -104,14 +144,19 @@ class DailyGamesExporter:
             # Format for web interface
             games_data = []
             for pred in predictions:
-                game_id = f"{pred['away_team']}_vs_{pred['home_team']}_{date}".replace(' ', '_')
+                # Convert tricodes to full names
+                home_team = self._to_full_name(pred['home_team'])
+                away_team = self._to_full_name(pred['away_team'])
+                predicted_winner = self._to_full_name(pred['predicted_winner'])
+
+                game_id = f"{away_team}_vs_{home_team}_{date}".replace(' ', '_')
 
                 games_data.append({
                     'id': game_id,
-                    'matchup': f"{pred['away_team']} @ {pred['home_team']}",
-                    'home_team': pred['home_team'],
-                    'away_team': pred['away_team'],
-                    'predicted_winner': pred['predicted_winner'],
+                    'matchup': f"{away_team} @ {home_team}",
+                    'home_team': home_team,
+                    'away_team': away_team,
+                    'predicted_winner': predicted_winner,
                     'predicted_home_prob': pred['predicted_home_prob'],
                     'predicted_away_prob': pred['predicted_away_prob'],
                     'home_odds': pred['home_odds'],
