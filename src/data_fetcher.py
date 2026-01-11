@@ -533,29 +533,37 @@ class NBADataFetcher:
                     for _, game in games_df.iterrows():
                         # Only save if game has results (not scheduled)
                         if 'home_score' in game and pd.notna(game['home_score']):
+                            # Get full team names from IDs
+                            home_team_name = self.TEAM_NAMES.get(game['home_team_id'], '')
+                            away_team_name = self.TEAM_NAMES.get(game['away_team_id'], '')
+
                             # Check if game already exists
                             cursor = conn.cursor()
                             cursor.execute("SELECT game_id FROM games WHERE game_id = ?", (game['game_id'],))
                             exists = cursor.fetchone()
 
                             if exists:
-                                # Update existing game
+                                # Update existing game (include team names in case they were missing)
                                 cursor.execute("""
                                     UPDATE games SET
-                                        home_score = ?, away_score = ?, home_win = ?
+                                        home_score = ?, away_score = ?, home_win = ?,
+                                        home_team = ?, away_team = ?
                                     WHERE game_id = ?
                                 """, (game['home_score'], game['away_score'],
                                      1 if game['home_score'] > game['away_score'] else 0,
+                                     home_team_name, away_team_name,
                                      game['game_id']))
                             else:
-                                # Insert new game
+                                # Insert new game WITH team names
                                 cursor.execute("""
                                     INSERT OR IGNORE INTO games
                                     (game_id, game_date, home_team_id, away_team_id,
+                                     home_team, away_team,
                                      home_score, away_score, home_win)
-                                    VALUES (?, ?, ?, ?, ?, ?, ?)
+                                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
                                 """, (game['game_id'], game['game_date'],
                                      game['home_team_id'], game['away_team_id'],
+                                     home_team_name, away_team_name,
                                      game['home_score'], game['away_score'],
                                      1 if game['home_score'] > game['away_score'] else 0))
 

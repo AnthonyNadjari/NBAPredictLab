@@ -198,13 +198,13 @@ class ModelFeedbackSystem:
                 today_obj = datetime.now().date()
                 if date_obj > today_obj:
                     skipped_future += 1
-                    print(f"  ⏩ Skipping {home_team} vs {away_team} on {game_date} - future game")
+                    print(f"  [SKIP] Skipping {home_team} vs {away_team} on {game_date} - future game")
                     continue
                 if date_obj == today_obj:
                     # Today's game - might not be played yet, but try anyway
-                    print(f"  ⏳ Checking today's game: {home_team} vs {away_team} (might not be finished yet)")
+                    print(f"  [TODAY] Checking today's game: {home_team} vs {away_team} (might not be finished yet)")
             except Exception as e:
-                print(f"  ⚠️ Could not parse game_date {game_date}: {e}")
+                print(f"  [WARN] Could not parse game_date {game_date}: {e}")
                 continue
             
             # First, try to get result from database
@@ -213,14 +213,14 @@ class ModelFeedbackSystem:
             if not result:
                 if use_api:
                     # Not found in DB - try NBA API (slow)
-                    print(f"  🔍 Not in DB, trying NBA API for {home_team} vs {away_team} on {game_date}...")
+                    print(f"  [API] Not in DB, trying NBA API for {home_team} vs {away_team} on {game_date}...")
                     result = self._fetch_game_result(game_date, home_team, away_team)
                     if result:
                         api_updated += 1
-                        print(f"  ✅ Found result via API: {home_team} vs {away_team} on {game_date}")
+                        print(f"  [OK] Found result via API: {home_team} vs {away_team} on {game_date}")
                     else:
                         skipped_not_found += 1
-                        print(f"  ❌ Not found in API for {game_date}")
+                        print(f"  [MISS] Not found in API for {game_date}")
                     # Rate limit API calls
                     time.sleep(0.6)
                 else:
@@ -230,12 +230,12 @@ class ModelFeedbackSystem:
                     cursor.execute('SELECT COUNT(*) FROM games WHERE game_date = ?', (game_date,))
                     games_on_date = cursor.fetchone()[0]
                     if games_on_date > 0:
-                        print(f"  ❌ No match in DB for {home_team} vs {away_team} on {game_date} ({games_on_date} games exist)")
+                        print(f"  [MISS] No match in DB for {home_team} vs {away_team} on {game_date} ({games_on_date} games exist)")
                     else:
-                        print(f"  ❌ No games in DB for {game_date}")
+                        print(f"  [MISS] No games in DB for {game_date}")
             else:
                 db_updated += 1
-                print(f"  ✅ Found in DB: {home_team} vs {away_team} on {game_date}")
+                print(f"  [OK] Found in DB: {home_team} vs {away_team} on {game_date}")
 
             if result:
                 home_score, away_score, actual_winner = result
@@ -323,32 +323,42 @@ class ModelFeedbackSystem:
     def _fetch_game_result_from_db(self, game_date: str, home_team: str, away_team: str) -> Optional[Tuple[int, int, str]]:
         """
         Try to get game result from local database first (faster than API).
-        
+
         Returns:
             (home_score, away_score, winning_team) or None if not found
         """
         try:
             cursor = self.conn.cursor()
-            
+
             # Normalize team names to handle both full names and abbreviations
             home_full, home_abbrev = self._normalize_team_name(home_team)
             away_full, away_abbrev = self._normalize_team_name(away_team)
-            
+
             # Build list of all possible team name combinations to try
             home_variants = list(set([home_team, home_full, home_abbrev, home_team.upper(), home_abbrev.upper()]))
             away_variants = list(set([away_team, away_full, away_abbrev, away_team.upper(), away_abbrev.upper()]))
-            
+
             # Also try just the city/mascot parts
             if ' ' in home_full:
                 home_variants.extend([home_full.split()[-1], home_full.split()[0]])  # "Celtics", "Boston"
             if ' ' in away_full:
                 away_variants.extend([away_full.split()[-1], away_full.split()[0]])
-            
-            # Remove empty strings
-            home_variants = [h for h in home_variants if h]
-            away_variants = [a for a in away_variants if a]
-            
-            # Try all combinations
+
+            # Special handling for "LA" vs "Los Angeles" teams
+            # "Los Angeles Clippers" -> also try "LA Clippers"
+            # "Los Angeles Lakers" -> also try "LA Lakers"
+            if 'Los Angeles' in home_full:
+                la_short = home_full.replace('Los Angeles', 'LA')
+                home_variants.append(la_short)
+            if 'Los Angeles' in away_full:
+                la_short = away_full.replace('Los Angeles', 'LA')
+                away_variants.append(la_short)
+
+            # Remove empty strings and duplicates
+            home_variants = list(set([h for h in home_variants if h]))
+            away_variants = list(set([a for a in away_variants if a]))
+
+            # Strategy 1: Try all combinations of name variants
             for h in home_variants:
                 for a in away_variants:
                     cursor.execute('''
@@ -356,68 +366,53 @@ class ModelFeedbackSystem:
                         FROM games
                         WHERE game_date = ?
                         AND home_team = ? AND away_team = ?
+                        AND home_score IS NOT NULL AND away_score IS NOT NULL
                         LIMIT 1
                     ''', (game_date, h, a))
-            
-            result = cursor.fetchone()
-            if result:
-                home_score, away_score, db_home, db_away = result
-                winner = db_home if home_score > away_score else db_away
-                # Normalize winner name to match prediction format
-                winner_full, _ = self._normalize_team_name(winner)
-                return (int(home_score), int(away_score), winner_full)
-            
-            # Strategy 2: Try with normalized names (handles full name vs abbreviation mismatch)
-            # Games table typically has abbreviations, predictions have full names
-            for pred_home, pred_away in [(home_full, away_full), (home_abbrev, away_abbrev), (home_team, away_team)]:
-                for db_home, db_away in [(home_full, away_full), (home_abbrev, away_abbrev)]:
-                    cursor.execute('''
-                        SELECT home_score, away_score, home_team, away_team
-                        FROM games
-                        WHERE game_date = ?
-                        AND ((home_team = ? AND away_team = ?) 
-                             OR (home_team = ? AND away_team = ?))
-                        LIMIT 1
-                    ''', (game_date, pred_home, pred_away, pred_away, pred_home))
-                    
+
                     result = cursor.fetchone()
                     if result:
-                        home_score, away_score, db_home_actual, db_away_actual = result
-                        # Check if scores are valid (not None)
-                        if home_score is not None and away_score is not None:
-                            winner = db_home_actual if home_score > away_score else db_away_actual
-                            # Normalize winner to full name for consistency
-                            winner_full, _ = self._normalize_team_name(winner)
-                            print(f"  [OK] Found game in DB: {home_full} vs {away_full} on {game_date}")
-                            return (int(home_score), int(away_score), winner_full)
-            
-            # Strategy 3: Try using team IDs if available in predictions
+                        home_score, away_score, db_home, db_away = result
+                        winner = db_home if home_score > away_score else db_away
+                        # Normalize winner name to match prediction format
+                        winner_full, _ = self._normalize_team_name(winner)
+                        return (int(home_score), int(away_score), winner_full)
+
+            # Strategy 2: Try using team IDs (most reliable)
             # Get team IDs from NBA API
             team_map = {t['full_name']: t['id'] for t in teams.get_teams()}
             home_id = team_map.get(home_full) or team_map.get(home_team)
             away_id = team_map.get(away_full) or team_map.get(away_team)
-            
+
             if home_id and away_id:
                 cursor.execute('''
                     SELECT home_score, away_score, home_team, away_team
                     FROM games
                     WHERE game_date = ?
-                    AND ((home_team_id = ? AND away_team_id = ?) 
-                         OR (home_team_id = ? AND away_team_id = ?))
+                    AND home_team_id = ? AND away_team_id = ?
+                    AND home_score IS NOT NULL AND away_score IS NOT NULL
                     LIMIT 1
-                ''', (game_date, home_id, away_id, away_id, home_id))
-                
+                ''', (game_date, home_id, away_id))
+
                 result = cursor.fetchone()
                 if result:
                     home_score, away_score, db_home, db_away = result
-                    if home_score is not None and away_score is not None:
-                        winner = db_home if home_score > away_score else db_away
-                        winner_full, _ = self._normalize_team_name(winner)
-                        print(f"  [OK] Found game in DB (by ID): {home_full} vs {away_full} on {game_date}")
-                        return (int(home_score), int(away_score), winner_full)
+                    winner = db_home if home_score > away_score else db_away
+                    winner_full, _ = self._normalize_team_name(winner)
+                    return (int(home_score), int(away_score), winner_full)
 
-            print(f"  [NOTFOUND] Could not find game in DB: {home_full} vs {away_full} on {game_date}")
-            print(f"     Searched with: home={home_team}/{home_full}/{home_abbrev}, away={away_team}/{away_full}/{away_abbrev}")
+            # Debug info when not found
+            cursor.execute('SELECT COUNT(*) FROM games WHERE game_date = ?', (game_date,))
+            games_on_date = cursor.fetchone()[0]
+            if games_on_date > 0:
+                # Show what games are actually in the DB for this date
+                cursor.execute('''
+                    SELECT home_team, away_team, home_team_id, away_team_id
+                    FROM games WHERE game_date = ? LIMIT 10
+                ''', (game_date,))
+                db_games = cursor.fetchall()
+                print(f"  [NOTFOUND] No match for {home_full} vs {away_full} on {game_date}")
+                print(f"     DB has {games_on_date} games. Sample: {db_games[:3]}")
             return None
         except Exception as e:
             print(f"Error checking database for game result: {e}")

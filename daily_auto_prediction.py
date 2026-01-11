@@ -23,6 +23,7 @@ Arguments:
 """
 
 import sys
+import os
 import logging
 import argparse
 from pathlib import Path
@@ -203,6 +204,27 @@ class DailyPredictionAutomation:
             self.logger.info("Initializing Daily NBA Prediction Automation")
             self.logger.info("=" * 80)
 
+            # Select best Odds API key with 50+ remaining requests
+            self.logger.info("Selecting best Odds API key...")
+            from src.odds_key_manager import get_best_odds_api_key
+            best_key = get_best_odds_api_key(min_remaining=50)
+
+            if best_key:
+                # Set as environment variable for this session
+                os.environ['ODDS_API_KEY'] = best_key
+                masked_key = best_key[:8] + "..." + best_key[-4:]
+                self.logger.info(f"[OK] Using Odds API key: {masked_key}")
+
+                # Log quota info
+                from src.odds_key_manager import OddsKeyManager
+                manager = OddsKeyManager()
+                quota = manager.get_key_quota(best_key)
+                if quota.get('status') == 'OK':
+                    self.logger.info(f"  Quota: {quota['remaining']} remaining, {quota['used']} used")
+            else:
+                self.logger.warning("[WARN] No Odds API key with 50+ remaining requests found")
+                self.logger.warning("  Odds fetching will use cached data or fail")
+
             # Initialize predictor
             self.logger.info("Loading NBA predictor model...")
             self.predictor = NBAPredictor(
@@ -210,7 +232,7 @@ class DailyPredictionAutomation:
                 model_dir=self.model_dir
             )
             self.predictor.load_model()
-            self.logger.info("✓ Predictor model loaded successfully")
+            self.logger.info("[OK] Predictor model loaded successfully")
 
             # Initialize data fetcher
             self.logger.info("Initializing data fetcher...")
@@ -227,24 +249,24 @@ class DailyPredictionAutomation:
 
                 # Check if client was created successfully
                 if not self.api_clients or not self.api_clients.get('client_v2'):
-                    self.logger.error("✗ Twitter client creation failed")
+                    self.logger.error("[ERROR] Twitter client creation failed")
                     return False
 
                 # Check auth status (verified key, not authenticated)
                 auth_status = self.api_clients.get('auth_status', {})
                 if not auth_status.get('verified', False):
-                    self.logger.error("✗ Twitter authentication failed")
+                    self.logger.error("[ERROR] Twitter authentication failed")
                     self.logger.error(f"Auth error: {auth_status.get('error', 'Unknown')}")
                     return False
 
-                self.logger.info("✓ Twitter client authenticated")
+                self.logger.info("[OK] Twitter client authenticated")
             else:
-                self.logger.info("ℹ Dry-run mode: Skipping Twitter authentication")
+                self.logger.info("[INFO] Dry-run mode: Skipping Twitter authentication")
 
             return True
 
         except Exception as e:
-            self.logger.error(f"✗ Component initialization failed: {e}", exc_info=True)
+            self.logger.error(f"[ERROR] Component initialization failed: {e}", exc_info=True)
             return False
 
     def fetch_todays_games(self, target_date: Optional[str] = None) -> List[Dict]:
@@ -288,7 +310,7 @@ class DailyPredictionAutomation:
                 conn.close()
                 
                 if not db_games.empty:
-                    self.logger.info(f"✓ Found {len(db_games)} game(s) in database for {date_str}")
+                    self.logger.info(f"[OK] Found {len(db_games)} game(s) in database for {date_str}")
                     # Convert to expected format
                     games = []
                     for _, row in db_games.iterrows():
@@ -305,7 +327,7 @@ class DailyPredictionAutomation:
                             })
                     
                     if games:
-                        self.logger.info(f"✓ Found {len(games)} scheduled game(s) for {date_str}")
+                        self.logger.info(f"[OK] Found {len(games)} scheduled game(s) for {date_str}")
                         for i, game in enumerate(games, 1):
                             self.logger.debug(
                                 f"  Game {i}: {game.get('away_team_tricode', 'N/A')} @ "
@@ -320,7 +342,7 @@ class DailyPredictionAutomation:
                     return []
 
             games = games_df.to_dict('records')
-            self.logger.info(f"✓ Found {len(games)} game(s) scheduled")
+            self.logger.info(f"[OK] Found {len(games)} game(s) scheduled")
 
             for i, game in enumerate(games, 1):
                 self.logger.debug(
@@ -331,7 +353,7 @@ class DailyPredictionAutomation:
             return games
 
         except Exception as e:
-            self.logger.error(f"✗ Failed to fetch games: {e}", exc_info=True)
+            self.logger.error(f"[ERROR] Failed to fetch games: {e}", exc_info=True)
             return []
 
     def generate_predictions(self, games: List[Dict]) -> List[Dict]:
@@ -379,7 +401,7 @@ class DailyPredictionAutomation:
 
                 # Skip if we don't have valid team identifiers
                 if home_team == 'Unknown' or away_team == 'Unknown':
-                    self.logger.warning(f"  ✗ Missing team information for game")
+                    self.logger.warning(f"  [ERROR] Missing team information for game")
                     continue
 
                 # Generate prediction
@@ -390,7 +412,7 @@ class DailyPredictionAutomation:
                 )
 
                 if not result:
-                    self.logger.warning(f"  ✗ Prediction failed for {home_team} vs {away_team}")
+                    self.logger.warning(f"  [ERROR] Prediction failed for {home_team} vs {away_team}")
                     continue
 
                 # Calculate odds for the predicted winner
@@ -414,7 +436,7 @@ class DailyPredictionAutomation:
                 predictions.append(result)
 
                 self.logger.info(
-                    f"  ✓ Prediction: {predicted_team_name} | "
+                    f"  [OK] Prediction: {predicted_team_name} | "
                     f"Confidence: {result['confidence']:.1%} | "
                     f"Win Prob: {win_probability:.1%} | "
                     f"Odds: {fair_odds:.2f}"
@@ -422,13 +444,13 @@ class DailyPredictionAutomation:
 
             except Exception as e:
                 self.logger.error(
-                    f"  ✗ Error predicting {game.get('home_team_tricode')} vs "
+                    f"  [ERROR] Error predicting {game.get('home_team_tricode')} vs "
                     f"{game.get('away_team_tricode')}: {e}",
                     exc_info=True
                 )
                 continue
 
-        self.logger.info(f"✓ Generated {len(predictions)} prediction(s)")
+        self.logger.info(f"[OK] Generated {len(predictions)} prediction(s)")
         return predictions
 
     def _save_predictions_to_db(self, predictions: List[Dict], game_date: str) -> int:
@@ -442,6 +464,11 @@ class DailyPredictionAutomation:
         Returns:
             Number of predictions saved
         """
+        # Build tricode -> full name mapping
+        from nba_api.stats.static import teams
+        all_teams = teams.get_teams()
+        tricode_to_full = {t['abbreviation']: t['full_name'] for t in all_teams}
+
         saved_count = 0
         try:
             conn = sqlite3.connect(self.db_path)
@@ -450,11 +477,16 @@ class DailyPredictionAutomation:
             for pred in predictions:
                 try:
                     # Extract data from prediction dict
-                    home_team = pred.get('home_team', '')
-                    away_team = pred.get('away_team', '')
+                    home_team_raw = pred.get('home_team', '')
+                    away_team_raw = pred.get('away_team', '')
                     features = pred.get('features', {})
 
-                    # Determine winner
+                    # Convert tricodes to full team names for database storage
+                    # This ensures consistency with email display and GitHub Pages
+                    home_team = tricode_to_full.get(home_team_raw, home_team_raw)
+                    away_team = tricode_to_full.get(away_team_raw, away_team_raw)
+
+                    # Determine winner (use full name)
                     if pred.get('prediction') == 'home':
                         predicted_winner = home_team
                     else:
@@ -468,11 +500,18 @@ class DailyPredictionAutomation:
                         self.logger.warning(f"Error serializing features: {e}")
                         features_json = json.dumps({})
 
-                    # Get betting odds from features if available
-                    home_odds = features.get('home_odds') or pred.get('home_odds')
-                    away_odds = features.get('away_odds') or pred.get('away_odds')
+                    # Get REAL betting odds from features (from Odds API via betting_lines_fetcher)
+                    # The keys are 'market_home_ml' and 'market_away_ml' from the features dict
+                    home_odds = features.get('market_home_ml')
+                    away_odds = features.get('market_away_ml')
 
-                    # If no odds, calculate from probabilities
+                    # Fallback to explicit home_odds/away_odds if set
+                    if not home_odds:
+                        home_odds = features.get('home_odds') or pred.get('home_odds')
+                    if not away_odds:
+                        away_odds = features.get('away_odds') or pred.get('away_odds')
+
+                    # If STILL no odds, calculate from probabilities as last resort
                     home_prob = pred.get('home_win_probability', 0.5)
                     away_prob = pred.get('away_win_probability', 0.5)
                     if not home_odds and home_prob > 0:
@@ -508,7 +547,7 @@ class DailyPredictionAutomation:
 
             conn.commit()
             conn.close()
-            self.logger.info(f"✓ Saved {saved_count} predictions to database")
+            self.logger.info(f"[OK] Saved {saved_count} predictions to database")
 
         except Exception as e:
             self.logger.error(f"Failed to save predictions to database: {e}", exc_info=True)
@@ -535,10 +574,10 @@ class DailyPredictionAutomation:
         # Filter by odds
         filtered = [p for p in predictions if p['odds'] > min_odds]
 
-        self.logger.info(f"✓ {len(filtered)} prediction(s) meet odds criteria")
+        self.logger.info(f"[OK] {len(filtered)} prediction(s) meet odds criteria")
 
         if not filtered:
-            self.logger.warning("⚠ No predictions meet the minimum odds threshold")
+            self.logger.warning("[WARN] No predictions meet the minimum odds threshold")
             return None
 
         # Sort by confidence (descending) and select the best
@@ -845,7 +884,7 @@ class DailyPredictionAutomation:
                     adj_tweet += "⚡ Hot Road Team (+10%)\n"
                     adj_tweet += f"{away} on 4+ win streak\n\n"
                 elif "Cold home" in adj:
-                    adj_tweet += "⚠️ Cold Home Team (-8%)\n"
+                    adj_tweet += "[WARN]️ Cold Home Team (-8%)\n"
                     adj_tweet += f"{home} on 3+ loss streak\n\n"
                 elif "Heavy travel" in adj:
                     adj_tweet += "🛫 Travel Fatigue (-15%)\n"
@@ -938,7 +977,7 @@ class DailyPredictionAutomation:
                 else:
                     image_paths.append(None)
 
-            self.logger.info(f"✓ Generated {len([p for p in image_paths if p])} chart images")
+            self.logger.info(f"[OK] Generated {len([p for p in image_paths if p])} chart images")
 
         except Exception as e:
             self.logger.warning(f"Chart generation failed: {e}")
@@ -997,7 +1036,7 @@ class DailyPredictionAutomation:
 
             if success:
                 tweet_ids = [r.get('tweet_id') for r in responses if r.get('tweet_id')]
-                self.logger.info(f"✓ Thread posted successfully! {len(tweet_ids)} tweets")
+                self.logger.info(f"[OK] Thread posted successfully! {len(tweet_ids)} tweets")
                 self.logger.info(f"First tweet ID: {tweet_ids[0] if tweet_ids else 'N/A'}")
 
                 # Save posted prediction to log
@@ -1005,14 +1044,14 @@ class DailyPredictionAutomation:
 
                 return True
             else:
-                self.logger.error("✗ Some tweets failed to post")
+                self.logger.error("[ERROR] Some tweets failed to post")
                 for i, resp in enumerate(responses, 1):
                     if not resp.get('success'):
                         self.logger.error(f"Tweet {i} error: {resp.get('error', 'Unknown')}")
                 return False
 
         except Exception as e:
-            self.logger.error(f"✗ Failed to post to Twitter: {e}", exc_info=True)
+            self.logger.error(f"[ERROR] Failed to post to Twitter: {e}", exc_info=True)
             return False
 
     def _save_posted_prediction(self, prediction: Dict, tweet_ids: List[str]):
@@ -1064,7 +1103,7 @@ class DailyPredictionAutomation:
                 self.fetcher = NBADataFetcher(self.db_path)
 
             games_fetched = self.fetcher.update_recent_games(days_back=lookback_days)
-            self.logger.info(f"  ✓ Fetched {games_fetched} games from NBA API")
+            self.logger.info(f"  [OK] Fetched {games_fetched} games from NBA API")
 
             # Step 2: Update predictions with results from database (like "Update Results" button)
             self.logger.info("  Step 2: Matching predictions with game results...")
@@ -1076,7 +1115,7 @@ class DailyPredictionAutomation:
             )
             feedback_system.close()
 
-            self.logger.info(f"  ✓ Updated {updated_predictions} predictions")
+            self.logger.info(f"  [OK] Updated {updated_predictions} predictions")
 
             # Get stats for reporting
             conn = sqlite3.connect(self.db_path)
@@ -1105,7 +1144,7 @@ class DailyPredictionAutomation:
 
             # Log summary
             if stats['predictions_updated'] > 0:
-                self.logger.info(f"✓ Prediction update complete:")
+                self.logger.info(f"[OK] Prediction update complete:")
                 self.logger.info(f"  - Correct: {stats['correct']}")
                 self.logger.info(f"  - Wrong: {stats['wrong']}")
                 self.logger.info(f"  - Still pending: {stats['pending']}")
@@ -1117,7 +1156,7 @@ class DailyPredictionAutomation:
             return stats
 
         except Exception as e:
-            self.logger.error(f"✗ Failed to update predictions: {e}", exc_info=True)
+            self.logger.error(f"[ERROR] Failed to update predictions: {e}", exc_info=True)
             return {'error': str(e)}
 
     def _push_to_github(self, target_date: Optional[str] = None) -> bool:
@@ -1144,7 +1183,7 @@ class DailyPredictionAutomation:
             )
 
             if not result.stdout.strip():
-                self.logger.info("ℹ No changes to docs/pending_games.json")
+                self.logger.info("[INFO] No changes to docs/pending_games.json")
                 return True  # No changes is not a failure
 
             # Stage the file
@@ -1178,7 +1217,7 @@ class DailyPredictionAutomation:
                 self.logger.error(f"Git push failed: {result.stderr}")
                 return False
 
-            self.logger.info(f"✓ Pushed predictions for {date_str} to GitHub")
+            self.logger.info(f"[OK] Pushed predictions for {date_str} to GitHub")
             return True
 
         except subprocess.CalledProcessError as e:
@@ -1224,7 +1263,7 @@ class DailyPredictionAutomation:
             # Step 1: Initialize components
             self.logger.info("STEP 1: Initializing components...")
             if not self.initialize_components():
-                self.logger.error("✗ Workflow aborted: Component initialization failed")
+                self.logger.error("[ERROR] Workflow aborted: Component initialization failed")
                 return False
             self.logger.info("")
 
@@ -1232,7 +1271,7 @@ class DailyPredictionAutomation:
             self.logger.info("STEP 2: Fetching today's games...")
             games = self.fetch_todays_games(target_date)
             if not games:
-                self.logger.info("ℹ No games today - workflow complete (nothing to post)")
+                self.logger.info("[INFO] No games today - workflow complete (nothing to post)")
                 return True  # Not a failure - just no games
             self.logger.info("")
 
@@ -1241,14 +1280,14 @@ class DailyPredictionAutomation:
             date_str = target_date or datetime.now().strftime('%Y-%m-%d')
             predictions = self.generate_predictions(games)
             if not predictions:
-                self.logger.warning("⚠ No predictions generated - workflow complete (nothing to post)")
+                self.logger.warning("[WARN] No predictions generated - workflow complete (nothing to post)")
                 return False
             self.logger.info("")
 
             # Step 3.5: Save predictions to database (critical for GitHub Pages publish)
             self.logger.info("STEP 3.5: Saving predictions to database...")
             saved_count = self._save_predictions_to_db(predictions, date_str)
-            self.logger.info(f"✓ Saved {saved_count}/{len(predictions)} predictions to database")
+            self.logger.info(f"[OK] Saved {saved_count}/{len(predictions)} predictions to database")
             self.logger.info("")
 
             # Step 4: Export games for GitHub Pages
@@ -1259,11 +1298,11 @@ class DailyPredictionAutomation:
                 exporter = DailyGamesExporter(db_path=self.db_path)
                 export_success = exporter.export_games_for_publishing(target_date)
                 if export_success:
-                    self.logger.info("✓ Games exported to docs/pending_games.json")
+                    self.logger.info("[OK] Games exported to docs/pending_games.json")
                 else:
-                    self.logger.warning("⚠ Game export failed (non-critical)")
+                    self.logger.warning("[WARN] Game export failed (non-critical)")
             except Exception as e:
-                self.logger.warning(f"⚠ Game export error (non-critical): {e}")
+                self.logger.warning(f"[WARN] Game export error (non-critical): {e}")
             self.logger.info("")
 
             # Step 5: Push to GitHub (for GitHub Pages update)
@@ -1272,13 +1311,13 @@ class DailyPredictionAutomation:
                 try:
                     push_success = self._push_to_github(target_date)
                     if push_success:
-                        self.logger.info("✓ Changes pushed to GitHub")
+                        self.logger.info("[OK] Changes pushed to GitHub")
                     else:
-                        self.logger.warning("⚠ GitHub push failed (non-critical)")
+                        self.logger.warning("[WARN] GitHub push failed (non-critical)")
                 except Exception as e:
-                    self.logger.warning(f"⚠ GitHub push error (non-critical): {e}")
+                    self.logger.warning(f"[WARN] GitHub push error (non-critical): {e}")
             else:
-                self.logger.info("ℹ Skipping GitHub push (no export to push)")
+                self.logger.info("[INFO] Skipping GitHub push (no export to push)")
             self.logger.info("")
 
             # Step 6: Send daily email report
@@ -1287,11 +1326,11 @@ class DailyPredictionAutomation:
                 email_reporter = EmailReporter(db_path=self.db_path)
                 email_success = email_reporter.send_daily_report(test_mode=False)
                 if email_success:
-                    self.logger.info("✓ Email report sent successfully")
+                    self.logger.info("[OK] Email report sent successfully")
                 else:
-                    self.logger.warning("⚠ Email report failed (non-critical)")
+                    self.logger.warning("[WARN] Email report failed (non-critical)")
             except Exception as e:
-                self.logger.warning(f"⚠ Email report error (non-critical): {e}")
+                self.logger.warning(f"[WARN] Email report error (non-critical): {e}")
             self.logger.info("")
 
             success = True  # Workflow success based on predictions generated
@@ -1302,15 +1341,15 @@ class DailyPredictionAutomation:
 
             self.logger.info("=" * 80)
             if success:
-                self.logger.info(f"✓ WORKFLOW COMPLETED SUCCESSFULLY in {duration:.1f}s")
+                self.logger.info(f"[OK] WORKFLOW COMPLETED SUCCESSFULLY in {duration:.1f}s")
             else:
-                self.logger.error(f"✗ WORKFLOW FAILED in {duration:.1f}s")
+                self.logger.error(f"[ERROR] WORKFLOW FAILED in {duration:.1f}s")
             self.logger.info("=" * 80)
 
             return success
 
         except Exception as e:
-            self.logger.error(f"✗ Workflow failed with unexpected error: {e}", exc_info=True)
+            self.logger.error(f"[ERROR] Workflow failed with unexpected error: {e}", exc_info=True)
             return False
 
 
