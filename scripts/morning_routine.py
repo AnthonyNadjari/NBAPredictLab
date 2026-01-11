@@ -241,8 +241,26 @@ def fetch_todays_predictions() -> bool:
                         capture_output=True, text=True, cwd=str(PROJECT_ROOT)
                     )
                     if commit_result.returncode == 0:
-                        subprocess.run(['git', 'push'], check=True, capture_output=True, cwd=str(PROJECT_ROOT))
-                        logger.info("[OK] Pushed predictions + database to GitHub")
+                        # Try to push, if it fails due to remote changes, pull and retry
+                        push_result = subprocess.run(['git', 'push'], capture_output=True, text=True, cwd=str(PROJECT_ROOT))
+                        if push_result.returncode != 0:
+                            logger.info("[INFO] Remote has changes, pulling and retrying push...")
+                            # Pull with rebase to incorporate remote changes
+                            pull_result = subprocess.run(
+                                ['git', 'pull', '--rebase', '--autostash'],
+                                capture_output=True, text=True, cwd=str(PROJECT_ROOT)
+                            )
+                            if pull_result.returncode == 0:
+                                # Retry push
+                                retry_push = subprocess.run(['git', 'push'], capture_output=True, text=True, cwd=str(PROJECT_ROOT))
+                                if retry_push.returncode == 0:
+                                    logger.info("[OK] Pushed predictions + database to GitHub (after pull)")
+                                else:
+                                    logger.warning(f"[WARN] Push failed after pull: {retry_push.stderr}")
+                            else:
+                                logger.warning(f"[WARN] Pull failed: {pull_result.stderr}")
+                        else:
+                            logger.info("[OK] Pushed predictions + database to GitHub")
                     else:
                         logger.info("[OK] No changes to commit (predictions already exported)")
                 except subprocess.CalledProcessError as git_error:
