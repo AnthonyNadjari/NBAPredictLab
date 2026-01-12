@@ -231,9 +231,32 @@ def fetch_todays_predictions() -> bool:
             if export_success:
                 logger.info("[OK] Exported predictions to pending_games.json")
 
-                # Git commit and push
+                # Git commit and push with conflict resolution
                 import subprocess
                 try:
+                    # First, check if we're in a broken rebase state and abort it
+                    rebase_check = subprocess.run(
+                        ['git', 'status'],
+                        capture_output=True, text=True, cwd=str(PROJECT_ROOT)
+                    )
+                    if 'rebase in progress' in rebase_check.stdout:
+                        logger.info("[INFO] Found stuck rebase, aborting...")
+                        subprocess.run(['git', 'rebase', '--abort'], capture_output=True, cwd=str(PROJECT_ROOT))
+
+                    # Pull remote changes first (before committing) to avoid conflicts
+                    pull_first = subprocess.run(
+                        ['git', 'pull', '--rebase', '--autostash'],
+                        capture_output=True, text=True, cwd=str(PROJECT_ROOT)
+                    )
+                    if pull_first.returncode != 0 and 'CONFLICT' in pull_first.stdout + pull_first.stderr:
+                        # Conflict during pull - abort and use simpler merge strategy
+                        logger.info("[INFO] Conflict during pull, using reset strategy...")
+                        subprocess.run(['git', 'rebase', '--abort'], capture_output=True, cwd=str(PROJECT_ROOT))
+                        subprocess.run(['git', 'stash'], capture_output=True, cwd=str(PROJECT_ROOT))
+                        subprocess.run(['git', 'pull', '--ff-only'], capture_output=True, cwd=str(PROJECT_ROOT))
+                        subprocess.run(['git', 'stash', 'pop'], capture_output=True, cwd=str(PROJECT_ROOT))
+
+                    # Now add and commit our new predictions
                     subprocess.run(['git', 'add', 'docs/pending_games.json'], check=True, capture_output=True, cwd=str(PROJECT_ROOT))
                     subprocess.run(['git', 'add', 'data/nba_predictor.db'], check=True, capture_output=True, cwd=str(PROJECT_ROOT))
                     commit_result = subprocess.run(
@@ -241,24 +264,33 @@ def fetch_todays_predictions() -> bool:
                         capture_output=True, text=True, cwd=str(PROJECT_ROOT)
                     )
                     if commit_result.returncode == 0:
-                        # Try to push, if it fails due to remote changes, pull and retry
+                        # Push - should work now since we pulled first
                         push_result = subprocess.run(['git', 'push'], capture_output=True, text=True, cwd=str(PROJECT_ROOT))
                         if push_result.returncode != 0:
-                            logger.info("[INFO] Remote has changes, pulling and retrying push...")
-                            # Pull with rebase to incorporate remote changes
+                            logger.info("[INFO] Push failed, trying pull and retry...")
+                            # Pull with strategy to prefer our changes for pending_games.json
                             pull_result = subprocess.run(
-                                ['git', 'pull', '--rebase', '--autostash'],
+                                ['git', 'pull', '--rebase', '-X', 'theirs', '--autostash'],
                                 capture_output=True, text=True, cwd=str(PROJECT_ROOT)
                             )
-                            if pull_result.returncode == 0:
-                                # Retry push
-                                retry_push = subprocess.run(['git', 'push'], capture_output=True, text=True, cwd=str(PROJECT_ROOT))
-                                if retry_push.returncode == 0:
-                                    logger.info("[OK] Pushed predictions + database to GitHub (after pull)")
-                                else:
-                                    logger.warning(f"[WARN] Push failed after pull: {retry_push.stderr}")
+                            if pull_result.returncode != 0:
+                                # Last resort: abort any rebase and force accept our version
+                                logger.info("[INFO] Rebase conflict, resolving by keeping our predictions...")
+                                subprocess.run(['git', 'rebase', '--abort'], capture_output=True, cwd=str(PROJECT_ROOT))
+                                # Re-export to ensure file is clean
+                                exporter.export_games_for_publishing(today_str)
+                                subprocess.run(['git', 'add', 'docs/pending_games.json'], capture_output=True, cwd=str(PROJECT_ROOT))
+                                subprocess.run(['git', 'add', 'data/nba_predictor.db'], capture_output=True, cwd=str(PROJECT_ROOT))
+                                subprocess.run(
+                                    ['git', 'commit', '-m', f'Auto-export predictions for {today_str}'],
+                                    capture_output=True, cwd=str(PROJECT_ROOT)
+                                )
+                            # Final push attempt
+                            retry_push = subprocess.run(['git', 'push'], capture_output=True, text=True, cwd=str(PROJECT_ROOT))
+                            if retry_push.returncode == 0:
+                                logger.info("[OK] Pushed predictions + database to GitHub")
                             else:
-                                logger.warning(f"[WARN] Pull failed: {pull_result.stderr}")
+                                logger.warning(f"[WARN] Final push failed: {retry_push.stderr}")
                         else:
                             logger.info("[OK] Pushed predictions + database to GitHub")
                     else:
