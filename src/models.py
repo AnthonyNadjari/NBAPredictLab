@@ -167,12 +167,10 @@ class StackedEnsembleModel:
         # Temperature calibrator for fixing overconfidence
         self.temperature_calibrator = TemperatureScaling()
 
-        # Confidence caps based on analysis showing severe overconfidence
-        # Analysis (Dec 28 - Jan 3): When model said 80%+, only achieved 36-60% accuracy
-        # When model said 70-80%, only achieved 25-52% accuracy
-        # ECE (Expected Calibration Error) was ~15%
-        self.max_confidence = 0.72  # Reduced from 0.80 - cap to prevent overconfidence
-        self.min_confidence_to_predict = 0.52  # Reduced - predictions below this are coin flips
+        # No confidence cap - let the model express its true confidence
+        # Temperature scaling handles calibration instead
+        self.max_confidence = 1.0  # No cap
+        self.min_confidence_to_predict = 0.52  # Predictions below this are coin flips
         
     def train(self, X: pd.DataFrame, y: pd.Series,
               sample_weights: Optional[np.ndarray] = None,
@@ -705,7 +703,7 @@ class StackedEnsembleModel:
         if config_path.exists():
             with open(config_path, 'r') as f:
                 config = json.load(f)
-                self.max_confidence = config.get('max_confidence', 0.72)
+                self.max_confidence = config.get('max_confidence', 1.0)
                 self.min_confidence_to_predict = config.get('min_confidence_to_predict', 0.52)
 
         # Load feature names
