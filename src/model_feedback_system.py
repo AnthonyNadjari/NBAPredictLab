@@ -39,6 +39,12 @@ class ModelFeedbackSystem:
             self.team_name_variations[full] = full
             self.team_name_variations[abbrev] = full
 
+            # Add common alternative names (e.g., "LA Clippers" for "Los Angeles Clippers")
+            if 'Los Angeles' in full:
+                la_short = full.replace('Los Angeles', 'LA')
+                self.team_name_variations[la_short.lower()] = full
+                self.team_name_variations[la_short] = full
+
     def _ensure_schema(self):
         """Ensure predictions table has all necessary columns"""
         cursor = self.conn.cursor()
