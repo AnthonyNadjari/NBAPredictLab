@@ -364,12 +364,14 @@
                 dateInfo.innerHTML = `<strong>Prédictions du ${date.toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</strong>`;
                 dateInfo.style.display = 'block';
 
-                if (!data.games || data.games.length === 0) {
+                // Show only today's games (not tomorrow's preview)
+                const todayGames = data.games_today || data.games || [];
+                if (todayGames.length === 0) {
                     document.getElementById('no-games').style.display = 'block';
                     return;
                 }
 
-                renderGames(data.games);
+                renderGames(todayGames);
 
             } catch (error) {
                 console.error('Error loading games:', error);
