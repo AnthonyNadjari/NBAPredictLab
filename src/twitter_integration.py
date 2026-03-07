@@ -966,6 +966,37 @@ def create_twitter_thread(
 
             raise Exception(error_msg) from e
         except tweepy.Forbidden as e:
+            # Detect Cloudflare challenge (blocks datacenter IPs e.g. GitHub Actions)
+            is_cloudflare_block = False
+            if hasattr(e, 'response') and e.response is not None:
+                resp_text = getattr(e.response, 'text', '') or ''
+                resp_headers = getattr(e.response, 'headers', None) or {}
+                if isinstance(resp_headers, dict):
+                    pass
+                else:
+                    resp_headers = dict(resp_headers) if resp_headers else {}
+                if ('Just a moment' in resp_text or '<!DOCTYPE html' in resp_text) or \
+                   resp_headers.get('Cf-Mitigated') == 'challenge' or 'cloudflare' in str(resp_headers.get('Server', '')).lower():
+                    is_cloudflare_block = True
+
+            if is_cloudflare_block:
+                cloudflare_msg = (
+                    "403 Forbidden: Request blocked by Cloudflare (in front of Twitter API).\n\n"
+                    "🔍 WHAT HAPPENED:\n"
+                    "   Twitter's API is behind Cloudflare. Requests from GitHub Actions (datacenter IPs)\n"
+                    "   are often challenged or blocked, so you get an HTML 'Just a moment...' page\n"
+                    "   instead of reaching the API. This is NOT a Twitter permissions or rate limit issue.\n\n"
+                    "🔧 SOLUTIONS:\n"
+                    "   1. ✅ Publish from your PC: Use the same 'Publish' button from your local\n"
+                    "      Streamlit app or run: python scripts/publish_single_thread.py <game_id>\n"
+                    "      Your home/office IP is not blocked by Cloudflare.\n"
+                    "   2. Retry the GitHub Action later (sometimes Cloudflare allows the request).\n"
+                    "   3. Consider triggering the publish step from a scheduled task on your machine\n"
+                    "      instead of GitHub Actions, so posting always uses your IP.\n"
+                )
+                logger.error(cloudflare_msg)
+                raise Exception(cloudflare_msg) from e
+
             # Log detailed error information for debugging
             logger.error(f"❌ 403 Forbidden error details:")
             logger.error(f"   Error: {e}")
