@@ -373,12 +373,16 @@ class ModelFeedbackSystem:
                         WHERE game_date = ?
                         AND home_team = ? AND away_team = ?
                         AND home_score IS NOT NULL AND away_score IS NOT NULL
+                        AND (home_score > 0 OR away_score > 0)
                         LIMIT 1
                     ''', (game_date, h, a))
 
                     result = cursor.fetchone()
                     if result:
                         home_score, away_score, db_home, db_away = result
+                        # Skip 0-0 (incomplete/stale row); only use real scores
+                        if (home_score or 0) == 0 and (away_score or 0) == 0:
+                            continue
                         winner = db_home if home_score > away_score else db_away
                         # Normalize winner name to match prediction format
                         winner_full, _ = self._normalize_team_name(winner)
@@ -397,15 +401,19 @@ class ModelFeedbackSystem:
                     WHERE game_date = ?
                     AND home_team_id = ? AND away_team_id = ?
                     AND home_score IS NOT NULL AND away_score IS NOT NULL
+                    AND (home_score > 0 OR away_score > 0)
                     LIMIT 1
                 ''', (game_date, home_id, away_id))
 
                 result = cursor.fetchone()
                 if result:
                     home_score, away_score, db_home, db_away = result
-                    winner = db_home if home_score > away_score else db_away
-                    winner_full, _ = self._normalize_team_name(winner)
-                    return (int(home_score), int(away_score), winner_full)
+                    if (home_score or 0) == 0 and (away_score or 0) == 0:
+                        pass  # skip 0-0, fall through to not found
+                    else:
+                        winner = db_home if home_score > away_score else db_away
+                        winner_full, _ = self._normalize_team_name(winner)
+                        return (int(home_score), int(away_score), winner_full)
 
             # Debug info when not found
             cursor.execute('SELECT COUNT(*) FROM games WHERE game_date = ?', (game_date,))
@@ -446,7 +454,7 @@ class ModelFeedbackSystem:
             home_full, home_abbrev = self._normalize_team_name(home_team)
             away_full, away_abbrev = self._normalize_team_name(away_team)
             
-            print(f"  🔍 Fetching from NBA API: {home_full} ({home_abbrev}) vs {away_full} ({away_abbrev}) on {game_date}")
+            print(f"  Fetching from NBA API: {home_full} ({home_abbrev}) vs {away_full} ({away_abbrev}) on {game_date}")
             
             # Get team IDs
             team_map = {t['full_name']: t['id'] for t in teams.get_teams()}
@@ -456,9 +464,9 @@ class ModelFeedbackSystem:
             away_id = team_map.get(away_full) or team_map_abbrev.get(away_abbrev)
             
             if not home_id or not away_id:
-                print(f"    ❌ Could not find team IDs: home={home_id}, away={away_id}")
+                print(f"    [ERROR] Could not find team IDs: home={home_id}, away={away_id}")
                 return None
-            
+
             # Use leaguegamefinder which is more reliable for historical data
             # Fetch games for the home team on this date
             time.sleep(0.6)  # Rate limit
@@ -468,11 +476,11 @@ class ModelFeedbackSystem:
                 date_to_nullable=game_date.replace('-', '/'),
                 season_type_nullable='Regular Season'
             )
-            
+
             games_df = finder.get_data_frames()[0]
-            
+
             if games_df.empty:
-                print(f"    ⚠️ No games found for {home_full} on {game_date}")
+                print(f"    [WARN] No games found for {home_full} on {game_date}")
                 # Try fetching for away team instead
                 time.sleep(0.6)
                 finder = leaguegamefinder.LeagueGameFinder(
@@ -482,45 +490,45 @@ class ModelFeedbackSystem:
                     season_type_nullable='Regular Season'
                 )
                 games_df = finder.get_data_frames()[0]
-                
+
                 if games_df.empty:
-                    print(f"    ❌ No games found for either team on {game_date}")
+                    print(f"    [ERROR] No games found for either team on {game_date}")
                     return None
-            
-            print(f"    📋 Found {len(games_df)} game entries")
-            
+
+            print(f"    Found {len(games_df)} game entries")
+
             # Find the game between these two teams
             for _, row in games_df.iterrows():
                 matchup = row.get('MATCHUP', '')  # Format: "BOS vs. NYK" or "BOS @ NYK"
                 team_abbrev = row.get('TEAM_ABBREVIATION', '')
-                
+
                 # Check if this is our game
                 # The matchup string contains both teams
                 opponent_in_matchup = (
-                    away_abbrev in matchup or 
+                    away_abbrev in matchup or
                     home_abbrev in matchup or
                     away_full.split()[-1] in matchup or  # Last word of team name
                     home_full.split()[-1] in matchup
                 )
-                
+
                 if not opponent_in_matchup:
                     continue
-                
+
                 # Get game details
                 pts = row.get('PTS')
                 wl = row.get('WL')  # 'W' or 'L'
                 plus_minus = row.get('PLUS_MINUS', 0)
-                
+
                 if pts is None or wl is None:
-                    print(f"    ⚠️ Missing data for game: {matchup}")
+                    print(f"    [WARN] Missing data for game: {matchup}")
                     continue
-                
-                print(f"    🎯 Found: {matchup} - {team_abbrev} scored {pts} ({wl})")
-                
+
+                print(f"    [OK] Found: {matchup} - {team_abbrev} scored {pts} ({wl})")
+
                 # Determine home/away from matchup
                 # "BOS vs. NYK" = BOS is home, "BOS @ NYK" = BOS is away
                 is_home = 'vs.' in matchup or 'vs' in matchup.lower()
-                
+
                 if team_abbrev == home_abbrev:
                     home_score = int(pts)
                     # Calculate away score from plus_minus
@@ -540,15 +548,15 @@ class ModelFeedbackSystem:
                     # This team's game but we're looking at opponent's stats
                     # Try to match by context
                     continue
-                
-                print(f"    🏆 Result: {home_full} {home_score} - {away_full} {away_score}, Winner: {winner}")
+
+                print(f"    Result: {home_full} {home_score} - {away_full} {away_score}, Winner: {winner}")
                 return (int(home_score), int(away_score), winner)
-            
-            print(f"    ❌ No matching game found between {home_full} and {away_full}")
+
+            print(f"    [MISS] No matching game found between {home_full} and {away_full}")
             return None
 
         except Exception as e:
-            print(f"    ❌ API Error for {home_team} vs {away_team} on {game_date}: {e}")
+            print(f"    [ERROR] API Error for {home_team} vs {away_team} on {game_date}: {e}")
             import traceback
             traceback.print_exc()
             return None

@@ -10,6 +10,24 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
+def _teams_match(pred_home: str, pred_away: str, game_home: str, game_away: str) -> bool:
+    """Return True if (pred_home, pred_away) is the same matchup as (game_home, game_away)."""
+    if not all([pred_home, pred_away, game_home, game_away]):
+        return False
+    ph, pa = pred_home.strip().lower(), pred_away.strip().lower()
+    gh, ga = game_home.strip().lower(), game_away.strip().lower()
+    if (ph == gh and pa == ga) or (ph == ga and pa == gh):
+        return True
+    # Abbrev vs full: "bos" in "boston celtics", or "celtics" in "boston celtics"
+    def pair_matches(a1, a2, b1, b2):
+        return (
+            (a1 in b1 or b1 in a1 or a1 in b2 or b2 in a1)
+            and (a2 in b1 or b1 in a2 or a2 in b2 or b2 in a2)
+        )
+    return pair_matches(ph, pa, gh, ga) or pair_matches(ph, pa, ga, gh)
+
+
 # Try to import win32com for Outlook
 try:
     import win32com.client
@@ -101,7 +119,83 @@ class EmailReporter:
             })
         
         conn.close()
-        return results
+        # Resolve missing or 0-0 scores from games table so email shows real results
+        return self._resolve_scores_from_games(results)
+    
+    def _resolve_scores_from_games(self, results: List[Dict]) -> List[Dict]:
+        """
+        For each result that has actual_winner but missing or 0-0 scores,
+        look up home_score/away_score from the games table.
+        """
+        if not results:
+            return results
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+        resolved = []
+        for game in results:
+            need_score = (
+                game.get('actual_winner')
+                and (
+                    game.get('actual_home_score') is None
+                    or game.get('actual_away_score') is None
+                    or (game.get('actual_home_score') == 0 and game.get('actual_away_score') == 0)
+                )
+            )
+            if not need_score:
+                resolved.append(game)
+                continue
+            game_date = game.get('game_date')
+            home_team = game.get('home_team') or ''
+            away_team = game.get('away_team') or ''
+            if not game_date or not home_team or not away_team:
+                resolved.append(game)
+                continue
+            # Normalize date to YYYY-MM-DD for lookup
+            if hasattr(game_date, 'strftime'):
+                game_date = game_date.strftime('%Y-%m-%d')
+            elif isinstance(game_date, str) and len(game_date) == 10:
+                pass
+            else:
+                try:
+                    game_date = datetime.strptime(str(game_date)[:10], '%Y-%m-%d').strftime('%Y-%m-%d')
+                except Exception:
+                    resolved.append(game)
+                    continue
+            cursor.execute("""
+                SELECT home_score, away_score, home_team, away_team
+                FROM games
+                WHERE game_date = ?
+                AND home_score IS NOT NULL AND away_score IS NOT NULL
+                AND (home_score > 0 OR away_score > 0)
+                AND (
+                    (home_team = ? AND away_team = ?)
+                    OR (home_team = ? AND away_team = ?)
+                )
+                LIMIT 1
+            """, (game_date, home_team, away_team, away_team, home_team))
+            row = cursor.fetchone()
+            if not row:
+                # Fallback: fetch all games that day and match by team name (handles abbrev vs full)
+                cursor.execute("""
+                    SELECT home_score, away_score, home_team, away_team
+                    FROM games
+                    WHERE game_date = ?
+                    AND home_score IS NOT NULL AND away_score IS NOT NULL
+                    AND (home_score > 0 OR away_score > 0)
+                """, (game_date,))
+                for g in cursor.fetchall():
+                    hs, aws, g_home, g_away = g
+                    if _teams_match(home_team, away_team, g_home, g_away):
+                        row = (hs, aws)
+                        break
+            if row:
+                hs, aws = (row[0], row[1]) if len(row) >= 2 else (row[0], row[1])
+                game = dict(game)
+                game['actual_home_score'] = int(hs)
+                game['actual_away_score'] = int(aws)
+            resolved.append(game)
+        conn.close()
+        return resolved
     
     def get_today_predictions(self, date: Optional[str] = None) -> List[Dict]:
         """
@@ -119,7 +213,7 @@ class EmailReporter:
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
         
-        # Get predictions for today (no results yet)
+        # Get predictions for today (regardless of whether results are in)
         cursor.execute("""
             SELECT
                 game_date,
@@ -132,7 +226,7 @@ class EmailReporter:
                 home_odds,
                 away_odds
             FROM predictions
-            WHERE game_date = ? AND actual_winner IS NULL
+            WHERE game_date = ?
             ORDER BY confidence DESC, home_team, away_team
         """, (date,))
 
@@ -193,9 +287,13 @@ class EmailReporter:
             else:
                 odds_display = f"{away_odds:.2f} / {home_odds:.2f}"
             
-            # Result
+            # Result (show score; use "—" if missing or 0-0 so we don't show wrong data)
             if game['actual_winner']:
-                result = f"{game['actual_home_score']} - {game['actual_away_score']}"
+                hs, aws = game.get('actual_home_score'), game.get('actual_away_score')
+                if hs is not None and aws is not None and (hs > 0 or aws > 0):
+                    result = f"{hs} - {aws}"
+                else:
+                    result = "—"
                 winner = game['actual_winner']
             else:
                 result = "En attente"
@@ -225,46 +323,39 @@ class EmailReporter:
         html += "</table>"
         return html
     
-    def format_today_predictions(self, predictions: List[Dict]) -> str:
-        """Format today's predictions as HTML."""
-        if not predictions:
-            return "<p><em>Aucune prédiction pour aujourd'hui.</em></p>"
-        
-        html = "<h2>🎯 Prédictions d'aujourd'hui</h2>"
-        html += "<table style='border-collapse: collapse; width: 100%;'>"
-        html += """
-        <tr style='background-color: #1e3a5f; color: white;'>
+    def _format_predictions_table(self, predictions: List[Dict], header_bg: str = '#1e3a5f') -> str:
+        """Render a predictions table (shared by today and tomorrow sections)."""
+        html = "<table style='border-collapse: collapse; width: 100%;'>"
+        html += f"""
+        <tr style='background-color: {header_bg}; color: white;'>
             <th style='padding: 6px 10px; text-align: left; border: 1px solid #ddd;'>Match</th>
-            <th style='padding: 6px 10px; text-align: center; border: 1px solid #ddd;'>Prédiction</th>
+            <th style='padding: 6px 10px; text-align: center; border: 1px solid #ddd;'>Prediction</th>
             <th style='padding: 6px 10px; text-align: center; border: 1px solid #ddd;'>Cotes</th>
             <th style='padding: 6px 10px; text-align: center; border: 1px solid #ddd;'>Confiance</th>
         </tr>
         """
-        
+
         for pred in predictions:
             matchup = f"{pred['away_team']} @ {pred['home_team']}"
             predicted = pred['predicted_winner']
             home_odds = pred['home_odds']
             away_odds = pred['away_odds']
             confidence = pred['confidence'] * 100
-            
-            # Format odds - AWAY / HOME to match the "AWAY @ HOME" matchup order
-            # Highlight the predicted winner's odds in yellow
+
             if predicted == pred['away_team']:
                 odds_display = f"<span style='background-color: #ffeb3b; padding: 2px 4px;'>{away_odds:.2f}</span> / {home_odds:.2f}"
             elif predicted == pred['home_team']:
                 odds_display = f"{away_odds:.2f} / <span style='background-color: #ffeb3b; padding: 2px 4px;'>{home_odds:.2f}</span>"
             else:
                 odds_display = f"{away_odds:.2f} / {home_odds:.2f}"
-            
-            # Confidence color
+
             if confidence >= 70:
                 conf_color = "#059669"
             elif confidence >= 60:
                 conf_color = "#d97706"
             else:
                 conf_color = "#dc2626"
-            
+
             html += f"""
             <tr>
                 <td style='padding: 4px 8px; border: 1px solid #ddd;'><strong>{matchup}</strong></td>
@@ -273,34 +364,23 @@ class EmailReporter:
                 <td style='padding: 4px 8px; text-align: center; border: 1px solid #ddd; color: {conf_color};'><strong>{confidence:.1f}%</strong></td>
             </tr>
             """
-        
+
         html += "</table>"
+        return html
 
-        # Add publish to Twitter section
-        html += """
-        <div style='margin-top: 30px; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px;'>
-            <h3 style='color: white; margin-top: 0;'>📤 Publier sur Twitter</h3>
-            <p style='color: white; margin-bottom: 15px;'>
-                Cliquez sur le bouton pour choisir quelles prédictions publier sur Twitter :
-            </p>
-            <a href='https://AnthonyNadjari.github.io/NBAPredictLab/'
-               style='display: inline-block; background: white; color: #667eea; padding: 12px 28px;
-                      text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px;
-                      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);'>
-                Ouvrir l'interface de publication →
-            </a>
-            <p style='color: rgba(255, 255, 255, 0.9); font-size: 13px; margin-top: 12px; margin-bottom: 0;'>
-                Vous pourrez sélectionner individuellement chaque match à publier
-            </p>
-        </div>
-        """
+    def format_today_predictions(self, predictions: List[Dict]) -> str:
+        """Format today's predictions as HTML."""
+        if not predictions:
+            return "<p><em>Aucune prediction pour aujourd'hui (matchs deja joues ou pas de matchs).</em></p>"
 
+        html = "<h2>🏀 Predictions d'aujourd'hui</h2>"
+        html += self._format_predictions_table(predictions, header_bg='#1e3a5f')
         return html
 
     def create_email_html(self, yesterday_results: List[Dict], today_predictions: List[Dict]) -> str:
-        """Create HTML email content."""
+        """Create HTML email content with yesterday results and today's predictions."""
         date_str = datetime.now().strftime('%d/%m/%Y')
-        
+
         html = f"""
         <!DOCTYPE html>
         <html>
@@ -318,13 +398,29 @@ class EmailReporter:
         <body>
             <div class="container">
                 <h1>🏀 Rapport NBA Predictor - {date_str}</h1>
-                
+
                 {self.format_yesterday_results(yesterday_results)}
-                
+
                 {self.format_today_predictions(today_predictions)}
-                
+
+                <div style='margin-top: 30px; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px;'>
+                    <h3 style='color: white; margin-top: 0;'>Publier sur Twitter</h3>
+                    <p style='color: white; margin-bottom: 15px;'>
+                        Cliquez sur le bouton pour choisir quelles predictions publier sur Twitter :
+                    </p>
+                    <a href='https://AnthonyNadjari.github.io/NBAPredictLab/'
+                       style='display: inline-block; background: white; color: #667eea; padding: 12px 28px;
+                              text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px;
+                              box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);'>
+                        Ouvrir l'interface de publication
+                    </a>
+                    <p style='color: rgba(255, 255, 255, 0.9); font-size: 13px; margin-top: 12px; margin-bottom: 0;'>
+                        Vous pourrez selectionner individuellement chaque match a publier
+                    </p>
+                </div>
+
                 <div class="footer">
-                    <p>Généré automatiquement par NBA Predictor</p>
+                    <p>🏀 Genere automatiquement par NBA Predictor</p>
                     <p>Date: {datetime.now().strftime('%d/%m/%Y %H:%M')}</p>
                 </div>
             </div>
@@ -378,7 +474,7 @@ class EmailReporter:
                 # Check if Outlook is online
                 try:
                     if namespace.Offline:
-                        logger.warning("⚠ Outlook is in OFFLINE mode!")
+                        logger.warning("[WARN] Outlook is in OFFLINE mode!")
                         logger.warning("   Please switch Outlook to online mode to send emails")
                     else:
                         logger.info("Outlook connection: OK (Online)")
@@ -401,18 +497,18 @@ class EmailReporter:
                     
                     if 'nadjari.anthony@gmail.com' in smtp_addr:
                         sender_account = acc
-                        logger.info(f"✓ Found target account: {sender_account.DisplayName} ({sender_account.SmtpAddress})")
+                        logger.info(f"[OK] Found target account: {sender_account.DisplayName} ({sender_account.SmtpAddress})")
                         break
                 
                 if not sender_account:
-                    logger.error("✗ CRITICAL: Could not find nadjari.anthony@gmail.com account!")
+                    logger.error("[ERROR] CRITICAL: Could not find nadjari.anthony@gmail.com account!")
                     for i in range(accounts.Count):
                         acc = accounts.Item(i + 1)
                         logger.error(f"     - {acc.DisplayName} ({acc.SmtpAddress})")
                     raise Exception("Target email account not found")
                     
             except Exception as e:
-                logger.error(f"✗ CRITICAL ERROR: {e}")
+                logger.error(f"[ERROR] CRITICAL ERROR: {e}")
                 raise Exception(f"Cannot proceed without correct sender account: {e}")
             
             # Create mail item from the SPECIFIC account's default folder
@@ -424,18 +520,18 @@ class EmailReporter:
                     account_inbox = account_delivery_store.GetDefaultFolder(6)  # 6 = olFolderInbox
                     # Create mail item in the context of this account
                     mail = account_inbox.Items.Add("IPM.Note")
-                    logger.info(f"✓ Created email in account context: {sender_account.SmtpAddress}")
+                    logger.info(f"[OK] Created email in account context: {sender_account.SmtpAddress}")
                 else:
                     # Fallback to standard method
                     mail = outlook.CreateItem(0)
                     mail.SendUsingAccount = sender_account
-                    logger.info(f"✓ Created email with SendUsingAccount: {sender_account.SmtpAddress}")
+                    logger.info(f"[OK] Created email with SendUsingAccount: {sender_account.SmtpAddress}")
             except Exception as e:
                 logger.warning(f"Could not create email in account context: {e}")
                 # Fallback: standard creation + force account
                 mail = outlook.CreateItem(0)
                 mail.SendUsingAccount = sender_account
-                logger.info(f"✓ Created email (fallback) with account: {sender_account.SmtpAddress}")
+                logger.info(f"[OK] Created email (fallback) with account: {sender_account.SmtpAddress}")
             
             # Set recipients
             for recipient in recipients:
@@ -466,27 +562,27 @@ class EmailReporter:
                     if account_store:
                         account_outbox = account_store.GetDefaultFolder(4)  # 4 = olFolderOutbox
                         # This ensures email goes to the right account's outbox
-                        logger.info(f"✓ Email will use outbox for: {sender_account.SmtpAddress}")
+                        logger.info(f"[OK] Email will use outbox for: {sender_account.SmtpAddress}")
                 except:
                     pass
                 
-                logger.info(f"✓ Final account confirmation: {sender_account.SmtpAddress}")
+                logger.info(f"[OK] Final account confirmation: {sender_account.SmtpAddress}")
                 
                 # Verify one last time
                 try:
                     if hasattr(mail, 'SendUsingAccount'):
                         set_account = mail.SendUsingAccount
                         if set_account:
-                            logger.info(f"✓ Verified SendUsingAccount is set: {set_account.SmtpAddress}")
+                            logger.info(f"[OK] Verified SendUsingAccount is set: {set_account.SmtpAddress}")
                         else:
-                            logger.warning("⚠ SendUsingAccount is None, but proceeding")
+                            logger.warning("[WARN] SendUsingAccount is None, but proceeding")
                     else:
-                        logger.warning("⚠ SendUsingAccount property not available")
+                        logger.warning("[WARN] SendUsingAccount property not available")
                 except:
-                    logger.warning("⚠ Could not verify SendUsingAccount, but proceeding")
+                    logger.warning("[WARN] Could not verify SendUsingAccount, but proceeding")
                     
             except Exception as e:
-                logger.error(f"✗ CRITICAL: Could not set account before send: {e}")
+                logger.error(f"[ERROR] CRITICAL: Could not set account before send: {e}")
                 raise Exception(f"Cannot send without correct account: {e}")
             
             # Display email first if requested (for verification)
@@ -532,10 +628,10 @@ class EmailReporter:
                             pass
                     
                     if not email_in_outbox:
-                        logger.info(f"✓ Email successfully sent (left Outbox after {i+1} second(s))")
+                        logger.info(f"[OK] Email successfully sent (left Outbox after {i+1} second(s))")
                         break
                     elif i == max_checks - 1:
-                        logger.warning("⚠ Email still in Outbox after multiple checks")
+                        logger.warning("[WARN] Email still in Outbox after multiple checks")
                         logger.warning("   This usually means Outlook is not connected to the mail server")
                         logger.warning("   Please ensure Outlook is online and connected")
                         
@@ -556,7 +652,7 @@ class EmailReporter:
                 if messages.Count > 0:
                     latest = messages.GetFirst()
                     if latest.Subject == subject:
-                        logger.info(f"✓ Email confirmed in Sent Items folder")
+                        logger.info(f"[OK] Email confirmed in Sent Items folder")
                         logger.info(f"  Sent at: {latest.SentOn}")
                         logger.info(f"  To: {latest.To}")
                     else:
@@ -566,7 +662,7 @@ class EmailReporter:
             except Exception as e:
                 logger.warning(f"Could not verify Sent Items: {e}")
             
-            logger.info(f"✓ Email sent successfully to {', '.join(recipients)}")
+            logger.info(f"[OK] Email sent successfully to {', '.join(recipients)}")
             logger.info("Note: Check your Outlook 'Sent Items' folder and recipient inbox")
 
             # Cleanup COM
@@ -580,7 +676,7 @@ class EmailReporter:
             return True
 
         except Exception as e:
-            logger.error(f"✗ Failed to send email: {e}", exc_info=True)
+            logger.error(f"[ERROR] Failed to send email: {e}", exc_info=True)
             logger.error("Make sure Outlook is installed and configured on this computer")
             logger.error("Try opening Outlook manually and checking your connection")
 
@@ -593,36 +689,49 @@ class EmailReporter:
 
             return False
     
+    def format_tomorrow_predictions(self, predictions: List[Dict]) -> str:
+        """Format tomorrow's predictions as HTML."""
+        if not predictions:
+            return ""
+
+        tomorrow_str = (datetime.now() + timedelta(days=1)).strftime('%d/%m/%Y')
+        html = f"<h2>🏀 Preview demain ({tomorrow_str})</h2>"
+        html += self._format_predictions_table(predictions, header_bg='#475569')
+        return html
+
     def send_daily_report(self, test_mode: bool = False) -> bool:
         """
-        Send daily report with yesterday's results and today's predictions.
-        
+        Send daily report with yesterday's results, today's predictions,
+        and a preview of tomorrow's predictions.
+
         Args:
             test_mode: If True, only send to first recipient with [TEST] prefix
-        
+
         Returns:
             True if sent successfully, False otherwise
         """
         try:
             logger.info("Generating daily report...")
-            
+
             # Get yesterday's results
             yesterday_results = self.get_yesterday_results()
             logger.info(f"Found {len(yesterday_results)} games from yesterday")
-            
+
             # Get today's predictions
             today_predictions = self.get_today_predictions()
             logger.info(f"Found {len(today_predictions)} predictions for today")
-            
-            # Create HTML email
-            html_content = self.create_email_html(yesterday_results, today_predictions)
-            
+
+            # Create HTML email with yesterday results and today's predictions
+            html_content = self.create_email_html(
+                yesterday_results, today_predictions
+            )
+
             # Send email
-            subject = f"Rapport NBA Predictor - {datetime.now().strftime('%d/%m/%Y')}"
+            subject = f"🏀 Rapport NBA Predictor - {datetime.now().strftime('%d/%m/%Y')}"
             recipients = self.recipients
-            
+
             return self.send_email(recipients, subject, html_content, test_mode=test_mode)
-            
+
         except Exception as e:
             logger.error(f"Failed to send daily report: {e}", exc_info=True)
             return False
