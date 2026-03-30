@@ -92,10 +92,16 @@
             font-size: 1.2em;
         }
 
+        #games-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
         .game-card {
             border: 2px solid #e5e7eb;
             padding: 25px;
-            margin: 20px 0;
+            margin: 0;
             border-radius: 12px;
             transition: all 0.3s ease;
             background: white;
@@ -274,22 +280,65 @@
             color: #dc2626;
         }
 
-        @media (max-width: 600px) {
+        @media (max-width: 768px) {
             .container {
-                padding: 20px;
+                padding: 12px;
             }
 
             h1 {
-                font-size: 1.8em;
+                font-size: 1.5em;
+            }
+
+            #games-container {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 8px;
+            }
+
+            .game-card {
+                padding: 12px;
+                margin: 0;
             }
 
             .matchup {
-                font-size: 1.2em;
+                font-size: 0.85em;
             }
 
             .game-header {
                 flex-direction: column;
                 align-items: flex-start;
+                gap: 4px;
+                margin-bottom: 8px;
+            }
+
+            .confidence-badge {
+                font-size: 0.75em;
+                padding: 3px 8px;
+            }
+
+            .game-details {
+                grid-template-columns: 1fr;
+                gap: 6px;
+                padding: 8px;
+                font-size: 0.85em;
+            }
+
+            .detail-label {
+                font-size: 0.75em;
+            }
+
+            .detail-value {
+                font-size: 0.9em;
+            }
+
+            .publish-btn {
+                padding: 10px 14px;
+                font-size: 0.85em;
+            }
+        }
+
+        @media (max-width: 374px) {
+            #games-container {
+                grid-template-columns: 1fr;
             }
         }
     </style>

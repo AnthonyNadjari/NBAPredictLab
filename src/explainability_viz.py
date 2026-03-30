@@ -18,6 +18,70 @@ ORANGE_COMPLEMENT = '#fbbf24'   # Amber/orange complement
 GRAY_NEUTRAL = '#64748b'        # Neutral gray
 GRAY_LIGHT = '#cbd5e1'          # Light gray
 
+# Style A Light theme constants
+BG_COLOR = '#fafafa'            # Light warm background
+CARD_BG = '#ffffff'             # White card
+TEXT_PRIMARY = '#1e293b'        # Dark slate for titles
+TEXT_SECONDARY = '#475569'      # Medium gray for labels
+TEXT_MUTED = '#94a3b8'          # Light gray for captions
+GRID_COLOR = '#f1f5f9'          # Very subtle grid
+ACCENT_BLUE = '#3b82f6'         # Blue for away/contrast
+BORDER_COLOR = '#e2e8f0'        # Subtle borders
+
+
+def _apply_light_theme(fig, title_text, subtitle_text='', height=675):
+    """Apply consistent Style A Light theme to any chart."""
+    title_html = f"<b>{title_text}</b>"
+    if subtitle_text:
+        title_html += f"<br><span style='font-size:13px;color:{TEXT_MUTED}'>{subtitle_text}</span>"
+
+    fig.update_layout(
+        title=dict(
+            text=title_html,
+            x=0.5, xanchor='center',
+            font=dict(size=22, color=TEXT_PRIMARY, family='Arial')
+        ),
+        paper_bgcolor=BG_COLOR,
+        plot_bgcolor=CARD_BG,
+        height=height,
+        width=1200,
+        margin=dict(l=20, r=20, t=100, b=60),
+        font=dict(family='Arial', color=TEXT_SECONDARY),
+        showlegend=True,
+        legend=dict(
+            orientation='h',
+            yanchor='bottom', y=1.02,
+            xanchor='center', x=0.5,
+            font=dict(size=13, color=TEXT_SECONDARY),
+            bgcolor='rgba(0,0,0,0)',
+        ),
+    )
+    return fig
+
+
+def _style_axes(fig, x_title='', y_title='', tick_format='', y_range=None):
+    """Apply consistent axis styling."""
+    fig.update_xaxes(
+        showgrid=False,
+        tickfont=dict(size=13, color=TEXT_SECONDARY),
+        title=dict(text=x_title, font=dict(size=12, color=TEXT_MUTED)),
+        linecolor=BORDER_COLOR,
+        linewidth=1,
+    )
+    y_kwargs = dict(
+        showgrid=True, gridcolor=GRID_COLOR, gridwidth=1,
+        tickfont=dict(size=13, color=TEXT_SECONDARY),
+        title=dict(text=y_title, font=dict(size=12, color=TEXT_MUTED)),
+        linecolor=BORDER_COLOR, linewidth=1,
+        zeroline=True, zerolinecolor=BORDER_COLOR, zerolinewidth=1,
+    )
+    if tick_format:
+        y_kwargs['tickformat'] = tick_format
+    if y_range is not None:
+        y_kwargs['range'] = y_range
+    fig.update_yaxes(**y_kwargs)
+    return fig
+
 try:
     import shap
     SHAP_AVAILABLE = True
@@ -1358,22 +1422,140 @@ def get_matchup_context(features: Dict, home_team: str, away_team: str) -> str:
     return ""
 
 
+def create_hero_prediction_chart(prediction: Dict, features: Dict, home_team: str, away_team: str) -> go.Figure:
+    """
+    Create a hero chart for Tweet 1 — eye-catching donut with clean probability display.
+    Style A Light: white/light bg, orange accents, well-aligned probabilities.
+    """
+    home_prob = prediction.get('predicted_home_prob', 0.5)
+    away_prob = prediction.get('predicted_away_prob', 0.5)
+    confidence = prediction.get('confidence', 0.5)
+    winner = prediction.get('predicted_winner', home_team)
+    is_home_winner = winner == home_team
+
+    win_prob = home_prob if is_home_winner else away_prob
+    lose_prob = 1 - win_prob
+    winner_name = home_team if is_home_winner else away_team
+    loser_name = away_team if is_home_winner else home_team
+
+    fig = go.Figure()
+
+    # Donut chart
+    fig.add_trace(go.Pie(
+        values=[win_prob, lose_prob],
+        labels=[winner_name, loser_name],
+        hole=0.68,
+        marker=dict(
+            colors=[ORANGE_PRIMARY, '#e2e8f0'],
+            line=dict(color=CARD_BG, width=4)
+        ),
+        textinfo='none',
+        hoverinfo='label+percent',
+        direction='clockwise',
+        sort=False,
+        domain=dict(x=[0.25, 0.75], y=[0.12, 0.88]),
+    ))
+
+    # Center: big probability number
+    fig.add_annotation(
+        text=f"<b>{win_prob*100:.0f}%</b>",
+        x=0.5, y=0.55, showarrow=False,
+        font=dict(size=56, color=ORANGE_PRIMARY, family='Arial Black'),
+        xref='paper', yref='paper'
+    )
+    fig.add_annotation(
+        text=f"<b>{winner_name}</b>",
+        x=0.5, y=0.44, showarrow=False,
+        font=dict(size=17, color=TEXT_PRIMARY, family='Arial'),
+        xref='paper', yref='paper'
+    )
+    fig.add_annotation(
+        text="PREDICTED WINNER",
+        x=0.5, y=0.38, showarrow=False,
+        font=dict(size=11, color=TEXT_MUTED, family='Arial'),
+        xref='paper', yref='paper'
+    )
+
+    # Bottom: clean side-by-side team probabilities
+    fig.add_annotation(
+        text=(
+            f"<b>{away_team}</b>"
+            f"<br><span style='font-size:26px;color:{ACCENT_BLUE if not is_home_winner else TEXT_MUTED}'>"
+            f"{away_prob*100:.0f}%</span>"
+        ),
+        x=0.12, y=0.06, showarrow=False, xanchor='left',
+        font=dict(size=13, color=TEXT_SECONDARY, family='Arial'),
+        xref='paper', yref='paper'
+    )
+    fig.add_annotation(
+        text=(
+            f"<b>{home_team}</b>"
+            f"<br><span style='font-size:26px;color:{ORANGE_PRIMARY if is_home_winner else TEXT_MUTED}'>"
+            f"{home_prob*100:.0f}%</span>"
+        ),
+        x=0.88, y=0.06, showarrow=False, xanchor='right',
+        font=dict(size=13, color=TEXT_SECONDARY, family='Arial'),
+        xref='paper', yref='paper'
+    )
+
+    # Confidence badge at bottom center
+    fig.add_annotation(
+        text=f"Confidence: {confidence*100:.0f}%  |  AI Stacked Ensemble",
+        x=0.5, y=-0.02, showarrow=False,
+        font=dict(size=12, color=TEXT_MUTED, family='Arial'),
+        xref='paper', yref='paper'
+    )
+
+    fig.update_layout(
+        title=dict(
+            text=f"<b>{away_team}  @  {home_team}</b>",
+            x=0.5, y=0.97, xanchor='center',
+            font=dict(size=24, color=TEXT_PRIMARY, family='Arial')
+        ),
+        paper_bgcolor=BG_COLOR,
+        plot_bgcolor=BG_COLOR,
+        height=675, width=1200,
+        margin=dict(l=40, r=40, t=70, b=50),
+        showlegend=False,
+    )
+    return fig
+
+
 def create_comprehensive_dashboard_charts(prediction: Dict, features: Dict, home_team: str, away_team: str) -> Dict[str, go.Figure]:
     """
     Create all comprehensive visualization charts for Twitter.
-    Converts ALL table data into visual charts.
-    
+    Style A Light theme: clean white bg, orange accents, modern typography.
+
     Args:
         prediction: Prediction dictionary
         features: Features dictionary
         home_team: Home team name
         away_team: Away team name
-    
+
     Returns:
         Dictionary mapping chart names to Plotly figures
     """
     charts = {}
-    
+
+    # 0. Hero prediction chart (new — for Tweet 1)
+    charts['hero'] = create_hero_prediction_chart(prediction, features, home_team, away_team)
+
+    # Bar style constants
+    bar_kwargs_home = dict(
+        marker_color=ORANGE_PRIMARY,
+        marker_line=dict(width=0),
+        marker_cornerradius=5,
+        textfont=dict(size=13, color=TEXT_PRIMARY, family='Arial'),
+        textposition='outside',
+    )
+    bar_kwargs_away = dict(
+        marker_color=ORANGE_LIGHT,
+        marker_line=dict(width=0),
+        marker_cornerradius=5,
+        textfont=dict(size=13, color=TEXT_PRIMARY, family='Arial'),
+        textposition='outside',
+    )
+
     # 1. Elo Ratings Comparison
     home_elo = features.get('home_elo', 1500)
     away_elo = features.get('away_elo', 1500)
@@ -1381,42 +1563,47 @@ def create_comprehensive_dashboard_charts(prediction: Dict, features: Dict, home
     fig_elo.add_trace(go.Bar(
         x=[away_team, home_team],
         y=[away_elo, home_elo],
-        marker_color=[ORANGE_DARK, ORANGE_PRIMARY],
+        marker_color=[ORANGE_LIGHT, ORANGE_PRIMARY],
+        marker_cornerradius=5,
         text=[f"{away_elo:.0f}", f"{home_elo:.0f}"],
-        textposition='outside'
+        textposition='outside',
+        textfont=dict(size=14, color=TEXT_PRIMARY, family='Arial Black'),
+        showlegend=False,
     ))
-    fig_elo.update_layout(
-        title="Elo Ratings",
-        yaxis_title="Elo Rating",
-        height=350,
-        plot_bgcolor='white'
-    )
+    _apply_light_theme(fig_elo, "Elo Ratings", "Power ranking based on season results", 400)
+    _style_axes(fig_elo, y_title='Rating')
     charts['elo'] = fig_elo
-    
+
     # 2. Elo Win Probability Gauge
     elo_prob = features.get('elo_win_prob', 0.5) * 100
     fig_gauge = go.Figure(go.Indicator(
         mode="gauge+number",
         value=elo_prob,
-        number={'suffix': '%'},
-        title={'text': f"{home_team} Win Probability (Elo)"},
+        number={'suffix': '%', 'font': dict(size=42, color=ORANGE_PRIMARY, family='Arial Black')},
+        title={'text': f"{home_team} Win Probability (Elo)", 'font': dict(size=16, color=TEXT_SECONDARY)},
         gauge={
-            'axis': {'range': [0, 100]},
-            'bar': {'color': ORANGE_PRIMARY},
+            'axis': {'range': [0, 100], 'tickfont': dict(size=11, color=TEXT_MUTED)},
+            'bar': {'color': ORANGE_PRIMARY, 'thickness': 0.7},
+            'bgcolor': '#f1f5f9',
+            'borderwidth': 0,
             'steps': [
-                {'range': [0, 50], 'color': "lightgray"},
-                {'range': [50, 100], 'color': "gray"}
+                {'range': [0, 50], 'color': '#f1f5f9'},
+                {'range': [50, 100], 'color': '#e2e8f0'}
             ],
             'threshold': {
-                'line': {'color': "red", 'width': 4},
-                'thickness': 0.75,
+                'line': {'color': ORANGE_DARK, 'width': 3},
+                'thickness': 0.8,
                 'value': 50
             }
         }
     ))
-    fig_gauge.update_layout(height=350, margin=dict(t=60, b=40, l=40, r=40))
+    fig_gauge.update_layout(
+        height=400, paper_bgcolor=BG_COLOR, plot_bgcolor=BG_COLOR,
+        margin=dict(t=80, b=40, l=40, r=40),
+        font=dict(family='Arial'),
+    )
     charts['elo_gauge'] = fig_gauge
-    
+
     # 3. Recent Form - Ratings (Last 10)
     fig_ratings = go.Figure()
     metrics = ['Offensive Rating', 'Defensive Rating', 'Net Rating']
@@ -1430,18 +1617,22 @@ def create_comprehensive_dashboard_charts(prediction: Dict, features: Dict, home
         features.get('away_last10_defensive_rating', 0),
         features.get('away_last10_net_rating', 0)
     ]
-    fig_ratings.add_trace(go.Bar(name=home_team, x=metrics, y=home_vals, marker_color=ORANGE_PRIMARY))
-    fig_ratings.add_trace(go.Bar(name=away_team, x=metrics, y=away_vals, marker_color=ORANGE_SECONDARY))
-    fig_ratings.update_layout(
-        title="Offensive/Defensive Ratings (Last 10)",
-        yaxis_title="Rating",
-        barmode='group',
-        height=400,
-        plot_bgcolor='white'
-    )
+    fig_ratings.add_trace(go.Bar(
+        name=home_team, x=metrics, y=home_vals,
+        text=[f"{v:.1f}" for v in home_vals],
+        **bar_kwargs_home
+    ))
+    fig_ratings.add_trace(go.Bar(
+        name=away_team, x=metrics, y=away_vals,
+        text=[f"{v:.1f}" for v in away_vals],
+        **bar_kwargs_away
+    ))
+    fig_ratings.update_layout(barmode='group', bargap=0.25, bargroupgap=0.1)
+    _apply_light_theme(fig_ratings, "Offensive / Defensive Ratings", "Last 10 games  |  Points per 100 possessions")
+    _style_axes(fig_ratings, y_title='Rating')
     charts['ratings_l10'] = fig_ratings
-    
-    # 4. Shooting & Pace (Last 10)
+
+    # 4. Shooting & Defense (Last 10)
     fig_shooting = go.Figure()
     shoot_metrics = ['3PT%', 'Opp 3PT% Allowed', 'FG%']
     home_shoot = [
@@ -1454,17 +1645,21 @@ def create_comprehensive_dashboard_charts(prediction: Dict, features: Dict, home
         features.get('away_last10_opp_fg3_pct', 0) * 100,
         features.get('away_last10_fg_pct', 0) * 100
     ]
-    fig_shooting.add_trace(go.Bar(name=home_team, x=shoot_metrics, y=home_shoot, marker_color=ORANGE_PRIMARY))
-    fig_shooting.add_trace(go.Bar(name=away_team, x=shoot_metrics, y=away_shoot, marker_color=ORANGE_SECONDARY))
-    fig_shooting.update_layout(
-        title="Shooting & Defense (Last 10)",
-        yaxis_title="Percentage (%)",
-        barmode='group',
-        height=400,
-        plot_bgcolor='white'
-    )
+    fig_shooting.add_trace(go.Bar(
+        name=home_team, x=shoot_metrics, y=home_shoot,
+        text=[f"{v:.1f}%" for v in home_shoot],
+        **bar_kwargs_home
+    ))
+    fig_shooting.add_trace(go.Bar(
+        name=away_team, x=shoot_metrics, y=away_shoot,
+        text=[f"{v:.1f}%" for v in away_shoot],
+        **bar_kwargs_away
+    ))
+    fig_shooting.update_layout(barmode='group', bargap=0.25, bargroupgap=0.1)
+    _apply_light_theme(fig_shooting, "Shooting & Defense", "Last 10 games  |  Percentage comparison")
+    _style_axes(fig_shooting, y_title='%')
     charts['shooting_l10'] = fig_shooting
-    
+
     # 5. Pace Comparison
     home_pace = features.get('home_last10_pace', 100)
     away_pace = features.get('away_last10_pace', 100)
@@ -1472,18 +1667,17 @@ def create_comprehensive_dashboard_charts(prediction: Dict, features: Dict, home
     fig_pace.add_trace(go.Bar(
         x=[away_team, home_team],
         y=[away_pace, home_pace],
-        marker_color=[ORANGE_DARK, ORANGE_PRIMARY],
+        marker_color=[ORANGE_LIGHT, ORANGE_PRIMARY],
+        marker_cornerradius=5,
         text=[f"{away_pace:.1f}", f"{home_pace:.1f}"],
-        textposition='outside'
+        textposition='outside',
+        textfont=dict(size=14, color=TEXT_PRIMARY, family='Arial Black'),
+        showlegend=False,
     ))
-    fig_pace.update_layout(
-        title="Pace (Possessions per Game) - Last 10",
-        yaxis_title="Possessions",
-        height=350,
-        plot_bgcolor='white'
-    )
+    _apply_light_theme(fig_pace, "Pace", "Possessions per game  |  Last 10", 400)
+    _style_axes(fig_pace, y_title='Possessions')
     charts['pace'] = fig_pace
-    
+
     # 6. Home/Away Splits
     fig_splits = go.Figure()
     split_metrics = ['Win %', 'PPG', 'Point Diff']
@@ -1497,56 +1691,68 @@ def create_comprehensive_dashboard_charts(prediction: Dict, features: Dict, home
         features.get('away_team_road_ppg', 0),
         features.get('away_team_road_point_diff', 0)
     ]
-    fig_splits.add_trace(go.Bar(name=f"{home_team} (Home)", x=split_metrics, y=home_split, marker_color=ORANGE_PRIMARY))
-    fig_splits.add_trace(go.Bar(name=f"{away_team} (Road)", x=split_metrics, y=away_split, marker_color=ORANGE_SECONDARY))
-    fig_splits.update_layout(
-        title="Home/Away Splits",
-        barmode='group',
-        height=400,
-        plot_bgcolor='white'
-    )
+    fig_splits.add_trace(go.Bar(
+        name=f"{home_team} (Home)", x=split_metrics, y=home_split,
+        text=[f"{v:.1f}" for v in home_split],
+        **bar_kwargs_home
+    ))
+    fig_splits.add_trace(go.Bar(
+        name=f"{away_team} (Road)", x=split_metrics, y=away_split,
+        text=[f"{v:.1f}" for v in away_split],
+        **bar_kwargs_away
+    ))
+    fig_splits.update_layout(barmode='group', bargap=0.25, bargroupgap=0.1)
+    _apply_light_theme(fig_splits, "Home / Road Splits", "Season performance by location")
+    _style_axes(fig_splits)
     charts['splits'] = fig_splits
-    
-    # 7. Situational Factors
+
+    # 7. Situational Factors (rest days as bars + streak as markers)
     home_rest = features.get('home_rest_days', 1)
     away_rest = features.get('away_rest_days', 1)
     home_streak = features.get('home_streak', 0)
     away_streak = features.get('away_streak', 0)
-    
-    fig_situational = go.Figure()
-    fig_situational.add_trace(go.Bar(
+
+    fig_sit = go.Figure()
+    fig_sit.add_trace(go.Bar(
         name="Rest Days",
         x=[away_team, home_team],
         y=[away_rest, home_rest],
-        marker_color=[ORANGE_DARK, ORANGE_PRIMARY],
+        marker_color=[ORANGE_LIGHT, ORANGE_PRIMARY],
+        marker_cornerradius=5,
         text=[f"{away_rest}d", f"{home_rest}d"],
-        textposition='outside'
+        textposition='outside',
+        textfont=dict(size=14, color=TEXT_PRIMARY, family='Arial Black'),
     ))
-    fig_situational.update_layout(
-        title="Rest Days & Streaks",
-        yaxis_title="Days / Games",
-        height=350,
-        plot_bgcolor='white'
-    )
-    # Add streak as second y-axis
-    fig_situational.add_trace(go.Scatter(
+    fig_sit.add_trace(go.Scatter(
         name="Current Streak",
         x=[away_team, home_team],
         y=[away_streak, home_streak],
-        mode='lines+markers',
+        mode='markers+text',
         yaxis='y2',
-        line=dict(color='black', width=3),
-        marker=dict(size=10)
+        marker=dict(size=16, color=ORANGE_DARK, symbol='diamond',
+                    line=dict(width=2, color=CARD_BG)),
+        text=[f"{'W' if away_streak > 0 else 'L'}{abs(away_streak)}",
+              f"{'W' if home_streak > 0 else 'L'}{abs(home_streak)}"],
+        textposition='top center',
+        textfont=dict(size=13, color=ORANGE_DARK, family='Arial Black'),
     ))
-    fig_situational.update_layout(
+    _apply_light_theme(fig_sit, "Rest & Momentum", "Days of rest + current win/loss streak", 400)
+    fig_sit.update_layout(
+        yaxis=dict(
+            title=dict(text='Days', font=dict(size=12, color=TEXT_MUTED)),
+            showgrid=True, gridcolor=GRID_COLOR,
+            tickfont=dict(size=12, color=TEXT_SECONDARY),
+        ),
         yaxis2=dict(
-            title="Streak",
-            overlaying='y',
-            side='right',
-            range=[-5, 5]
-        )
+            title=dict(text='Streak', font=dict(size=12, color=TEXT_MUTED)),
+            overlaying='y', side='right',
+            range=[-6, 6],
+            showgrid=False,
+            tickfont=dict(size=12, color=TEXT_SECONDARY),
+            zeroline=True, zerolinecolor=BORDER_COLOR,
+        ),
     )
-    charts['situational'] = fig_situational
+    charts['situational'] = fig_sit
 
     return charts
 
