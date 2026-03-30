@@ -992,7 +992,7 @@ class DailyPredictionAutomation:
         # FINAL TWEET (Tweet 9): CTA for Telegram (CRITICAL for growth!)
         cta_tweet = "💰 WANT MORE PICKS?\n\n"
         cta_tweet += "Daily NBA predictions:\n\n"
-        cta_tweet += "📈 63.5% accuracy\n"
+        cta_tweet += "📈 66.5% accuracy\n"
         cta_tweet += "🤖 AI: 165 data points\n"
         cta_tweet += "⚡ Last 3 games = 50% weight\n"
         cta_tweet += "🎯 Smart adjustments\n\n"
@@ -1000,7 +1000,7 @@ class DailyPredictionAutomation:
         cta_tweet += "✅ All daily picks\n"
         cta_tweet += "✅ Full analysis threads\n"
         cta_tweet += "✅ Live updates\n\n"
-        cta_tweet += "Link in bio 👆"
+        cta_tweet += "Link in DM 👆"
         
         # Safety check: ensure tweet fits within 280 character limit
         if len(cta_tweet) > 280:
