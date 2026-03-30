@@ -30,6 +30,8 @@ from pathlib import Path
 from datetime import datetime, timedelta
 from typing import List, Dict, Optional, Tuple
 import json
+import time
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 # Add project root to path
 PROJECT_ROOT = Path(__file__).parent
@@ -48,7 +50,6 @@ from src.betting_odds import calculate_betting_odds, get_fair_odds
 from src.model_feedback_system import ModelFeedbackSystem
 from src.email_reporter import EmailReporter
 import sqlite3
-import time
 import pandas as pd
 import numpy as np
 
@@ -356,9 +357,107 @@ class DailyPredictionAutomation:
             self.logger.error(f"[ERROR] Failed to fetch games: {e}", exc_info=True)
             return []
 
+    def _predict_single_game(self, game: Dict, index: int, total: int) -> Optional[Dict]:
+        """
+        Generate prediction for a single game (thread-safe).
+
+        Each call uses its own SQLite connection (created inside create_features_for_game)
+        and performs read-only model inference, so this is safe for concurrent execution.
+
+        Args:
+            game: Game dictionary with team info
+            index: 1-based game index (for logging)
+            total: Total number of games (for logging)
+
+        Returns:
+            Prediction dict or None on failure
+        """
+        try:
+            # Get team identifiers - preferably tricode, fallback to ID
+            home_team_tricode = game.get('home_team_tricode')
+            away_team_tricode = game.get('away_team_tricode')
+            home_team_id = game.get('home_team_id')
+            away_team_id = game.get('away_team_id')
+            game_date = game.get('game_date')
+
+            # Map team ID to tricode if tricode is missing
+            if not home_team_tricode and home_team_id:
+                for tricode, team_id in self.fetcher.TEAMS.items():
+                    if team_id == home_team_id:
+                        home_team_tricode = tricode
+                        break
+            if not away_team_tricode and away_team_id:
+                for tricode, team_id in self.fetcher.TEAMS.items():
+                    if team_id == away_team_id:
+                        away_team_tricode = tricode
+                        break
+
+            # Fallback to 'Unknown' if still missing
+            home_team = home_team_tricode or 'Unknown'
+            away_team = away_team_tricode or 'Unknown'
+
+            self.logger.info(f"[Thread] Predicting game {index}/{total}: {home_team} vs {away_team}")
+
+            # Skip if we don't have valid team identifiers
+            if home_team == 'Unknown' or away_team == 'Unknown':
+                self.logger.warning(f"  [ERROR] Missing team information for game")
+                return None
+
+            # Generate prediction (thread-safe: creates own DB connection internally)
+            result = self.predictor.predict_game(
+                home_team=home_team,
+                away_team=away_team,
+                game_date=game_date
+            )
+
+            if not result:
+                self.logger.warning(f"  [ERROR] Prediction failed for {home_team} vs {away_team}")
+                return None
+
+            # Calculate odds for the predicted winner
+            predicted_team = result['prediction']
+            if predicted_team == 'home':
+                win_probability = result['home_win_probability']
+                predicted_team_name = home_team
+            else:
+                win_probability = result['away_win_probability']
+                predicted_team_name = away_team
+
+            # Calculate fair odds (no bookmaker margin)
+            fair_odds = get_fair_odds(win_probability)
+
+            # Add calculated fields to result
+            result['predicted_team_name'] = predicted_team_name
+            result['win_probability'] = win_probability
+            result['odds'] = fair_odds
+            result['game_info'] = game
+
+            self.logger.info(
+                f"  [OK] Prediction: {predicted_team_name} | "
+                f"Confidence: {result['confidence']:.1%} | "
+                f"Win Prob: {win_probability:.1%} | "
+                f"Odds: {fair_odds:.2f}"
+            )
+
+            return result
+
+        except Exception as e:
+            self.logger.error(
+                f"  [ERROR] Error predicting {game.get('home_team_tricode')} vs "
+                f"{game.get('away_team_tricode')}: {e}",
+                exc_info=True
+            )
+            return None
+
     def generate_predictions(self, games: List[Dict]) -> List[Dict]:
         """
-        Generate predictions for all games
+        Generate predictions for all games using multi-threading.
+
+        Thread safety:
+        - create_features_for_game() creates its own SQLite connection per call
+        - Model inference (predict_single) is read-only
+        - Python's logging module is thread-safe
+        - self.fetcher.TEAMS is a read-only dict
 
         Args:
             games: List of game dictionaries
@@ -366,100 +465,59 @@ class DailyPredictionAutomation:
         Returns:
             List of prediction dictionaries with confidence and odds
         """
+        if not games:
+            return []
+
+        total = len(games)
+        # Use up to 4 workers — enough to overlap I/O waits (API calls, DB reads)
+        # without overwhelming the NBA API with too many concurrent requests
+        max_workers = min(4, total)
+
+        self.logger.info(
+            f"Generating predictions for {total} game(s) "
+            f"using {max_workers} threads..."
+        )
+
+        start_time = time.time()
         predictions = []
 
-        self.logger.info(f"Generating predictions for {len(games)} game(s)...")
+        with ThreadPoolExecutor(max_workers=max_workers) as executor:
+            # Submit all games for parallel prediction
+            future_to_game = {
+                executor.submit(self._predict_single_game, game, i, total): game
+                for i, game in enumerate(games, 1)
+            }
 
-        for i, game in enumerate(games, 1):
-            try:
-                # Get team identifiers - preferably tricode, fallback to ID
-                home_team_tricode = game.get('home_team_tricode')
-                away_team_tricode = game.get('away_team_tricode')
-                home_team_id = game.get('home_team_id')
-                away_team_id = game.get('away_team_id')
-                game_date = game.get('game_date')
+            # Collect results as they complete
+            for future in as_completed(future_to_game):
+                game = future_to_game[future]
+                try:
+                    result = future.result()
+                    if result is not None:
+                        predictions.append(result)
+                except Exception as e:
+                    self.logger.error(
+                        f"  [ERROR] Thread error for "
+                        f"{game.get('home_team_tricode')} vs "
+                        f"{game.get('away_team_tricode')}: {e}",
+                        exc_info=True
+                    )
 
-                # Map team ID to tricode if tricode is missing
-                if not home_team_tricode and home_team_id:
-                    # Reverse lookup: ID -> tricode
-                    for tricode, team_id in self.fetcher.TEAMS.items():
-                        if team_id == home_team_id:
-                            home_team_tricode = tricode
-                            break
-                if not away_team_tricode and away_team_id:
-                    # Reverse lookup: ID -> tricode
-                    for tricode, team_id in self.fetcher.TEAMS.items():
-                        if team_id == away_team_id:
-                            away_team_tricode = tricode
-                            break
-
-                # Fallback to 'Unknown' if still missing
-                home_team = home_team_tricode or 'Unknown'
-                away_team = away_team_tricode or 'Unknown'
-
-                self.logger.info(f"Predicting game {i}/{len(games)}: {home_team} vs {away_team}")
-
-                # Skip if we don't have valid team identifiers
-                if home_team == 'Unknown' or away_team == 'Unknown':
-                    self.logger.warning(f"  [ERROR] Missing team information for game")
-                    continue
-
-                # Generate prediction
-                result = self.predictor.predict_game(
-                    home_team=home_team,
-                    away_team=away_team,
-                    game_date=game_date
-                )
-
-                if not result:
-                    self.logger.warning(f"  [ERROR] Prediction failed for {home_team} vs {away_team}")
-                    continue
-
-                # Calculate odds for the predicted winner
-                predicted_team = result['prediction']
-                if predicted_team == 'home':
-                    win_probability = result['home_win_probability']
-                    predicted_team_name = home_team
-                else:
-                    win_probability = result['away_win_probability']
-                    predicted_team_name = away_team
-
-                # Calculate fair odds (no bookmaker margin)
-                fair_odds = get_fair_odds(win_probability)
-
-                # Add calculated fields to result
-                result['predicted_team_name'] = predicted_team_name
-                result['win_probability'] = win_probability
-                result['odds'] = fair_odds
-                result['game_info'] = game
-
-                predictions.append(result)
-
-                self.logger.info(
-                    f"  [OK] Prediction: {predicted_team_name} | "
-                    f"Confidence: {result['confidence']:.1%} | "
-                    f"Win Prob: {win_probability:.1%} | "
-                    f"Odds: {fair_odds:.2f}"
-                )
-
-            except Exception as e:
-                self.logger.error(
-                    f"  [ERROR] Error predicting {game.get('home_team_tricode')} vs "
-                    f"{game.get('away_team_tricode')}: {e}",
-                    exc_info=True
-                )
-                continue
-
-        self.logger.info(f"[OK] Generated {len(predictions)} prediction(s)")
+        elapsed = time.time() - start_time
+        self.logger.info(
+            f"[OK] Generated {len(predictions)} prediction(s) "
+            f"in {elapsed:.1f}s ({max_workers} threads)"
+        )
         return predictions
 
-    def _save_predictions_to_db(self, predictions: List[Dict], game_date: str) -> int:
+    def _save_predictions_to_db(self, predictions: List[Dict], game_date: str = None) -> int:
         """
         Save all predictions to the database (matches Streamlit save_prediction_to_db format).
 
         Args:
             predictions: List of prediction dictionaries from generate_predictions
-            game_date: Date string (YYYY-MM-DD)
+            game_date: Default date string (YYYY-MM-DD). Each prediction's actual
+                       game_date from game_info takes priority if available.
 
         Returns:
             Number of predictions saved
@@ -474,11 +532,32 @@ class DailyPredictionAutomation:
             conn = sqlite3.connect(self.db_path)
             cursor = conn.cursor()
 
+            # Collect all game dates being saved so we can clean up stale data
+            save_dates = set()
+            for pred in predictions:
+                d = pred.get('game_info', {}).get('game_date', game_date) or game_date
+                if d:
+                    save_dates.add(d)
+
+            # Delete OLD pending predictions for these dates (prevents duplicates)
+            # Only delete predictions that haven't been resolved yet (actual_winner IS NULL)
+            for d in save_dates:
+                cursor.execute(
+                    "DELETE FROM predictions WHERE game_date = ? AND actual_winner IS NULL",
+                    (d,)
+                )
+                deleted = cursor.rowcount
+                if deleted:
+                    self.logger.info(f"  Cleaned up {deleted} old pending predictions for {d}")
+
             for pred in predictions:
                 try:
                     # Extract data from prediction dict
                     home_team_raw = pred.get('home_team', '')
                     away_team_raw = pred.get('away_team', '')
+
+                    # Use each game's actual date (critical for tomorrow's games)
+                    pred_game_date = pred.get('game_info', {}).get('game_date', game_date) or game_date
                     features = pred.get('features', {})
 
                     # Convert tricodes to full team names for database storage
@@ -528,7 +607,7 @@ class DailyPredictionAutomation:
                         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                     """, (
                         datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-                        game_date,
+                        pred_game_date,
                         home_team,
                         away_team,
                         predicted_winner,
@@ -952,14 +1031,13 @@ class DailyPredictionAutomation:
             # Create temporary directory for chart images
             temp_dir = tempfile.mkdtemp()
 
-            # Chart mapping for new structure (skip first tweet)
-            # Fix: Ensure each tweet gets a unique chart to avoid duplicates
+            # Chart mapping: hero for tweet 1, then data charts for remaining tweets
             chart_mapping = [
-                None,  # Tweet 1: Main prediction (no image)
+                'hero',         # Tweet 1: Hero prediction donut (eye-catching opener)
                 'situational',  # Tweet 2: THE EDGE (shows streaks/rest)
                 'ratings_l10',  # Tweet 3: RECENT FORM (ratings comparison)
-                'shooting_l10',  # Tweet 4: KEY MATCHUP (use shooting chart to avoid duplicate with Tweet 3)
-                None,  # Tweet 5: SCHEDULE SPOT (no chart - similar content to Tweet 2, avoid duplicate)
+                'shooting_l10',  # Tweet 4: KEY MATCHUP (shooting chart)
+                None,  # Tweet 5: SCHEDULE SPOT (no chart - text-only)
                 'splits',       # Tweet 6: HOME/ROAD SPLITS
             ]
 

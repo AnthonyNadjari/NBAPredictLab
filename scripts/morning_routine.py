@@ -15,6 +15,7 @@ Usage:
 import sys
 import logging
 import argparse
+from concurrent.futures import ThreadPoolExecutor, TimeoutError as FuturesTimeoutError
 from pathlib import Path
 from datetime import datetime, timedelta
 
@@ -59,14 +60,25 @@ def refresh_game_data(lookback_days: int = 7) -> bool:
 
         logger.info(f"Fetching games from {start_date.strftime('%Y-%m-%d')} to {end_date.strftime('%Y-%m-%d')}...")
 
-        # Fetch games using leaguegamefinder
+        # Fetch games using leaguegamefinder (with timeout to avoid hanging forever)
         time.sleep(1)  # Rate limiting
-        games_finder = leaguegamefinder.LeagueGameFinder(
-            date_from_nullable=date_from,
-            date_to_nullable=date_to,
-            league_id_nullable='00'  # NBA
-        )
-        games_df = games_finder.get_data_frames()[0]
+        games_df = None
+        try:
+            with ThreadPoolExecutor(max_workers=1) as executor:
+                future = executor.submit(
+                    lambda: leaguegamefinder.LeagueGameFinder(
+                        date_from_nullable=date_from,
+                        date_to_nullable=date_to,
+                        league_id_nullable='00'  # NBA
+                    ).get_data_frames()[0]
+                )
+                games_df = future.result(timeout=45)
+        except FuturesTimeoutError:
+            logger.warning("[WARN] LeagueGameFinder timed out (45s), skipping game refresh for this run")
+            return True
+        except Exception as e:
+            logger.warning(f"[WARN] LeagueGameFinder failed: {e}")
+            return True
 
         if games_df.empty:
             logger.warning("No games found in date range")
@@ -105,28 +117,117 @@ def refresh_game_data(lookback_days: int = 7) -> bool:
             away_team = away_row['TEAM_NAME']
             home_score = int(home_row['PTS'])
             away_score = int(away_row['PTS'])
+            home_team_id = int(home_row['TEAM_ID'])
+            away_team_id = int(away_row['TEAM_ID'])
+            home_win = 1 if home_score > away_score else 0
 
-            # Check if game exists
-            cursor.execute("""
-                SELECT game_id, home_score, away_score FROM games
-                WHERE game_date = ? AND home_team = ? AND away_team = ?
-            """, (game_date, home_team, away_team))
+            # Extract box score stats (these come from LeagueGameFinder)
+            def safe_int(val, default=0):
+                try:
+                    return int(val) if val is not None else default
+                except (TypeError, ValueError):
+                    return default
+
+            def safe_float(val, default=0.0):
+                try:
+                    return float(val) if val is not None else default
+                except (TypeError, ValueError):
+                    return default
+
+            box_stats = {
+                'home_fgm': safe_int(home_row.get('FGM')), 'home_fga': safe_int(home_row.get('FGA')),
+                'home_fg_pct': safe_float(home_row.get('FG_PCT')),
+                'home_fg3m': safe_int(home_row.get('FG3M')), 'home_fg3a': safe_int(home_row.get('FG3A')),
+                'home_fg3_pct': safe_float(home_row.get('FG3_PCT')),
+                'home_ftm': safe_int(home_row.get('FTM')), 'home_fta': safe_int(home_row.get('FTA')),
+                'home_ft_pct': safe_float(home_row.get('FT_PCT')),
+                'home_oreb': safe_int(home_row.get('OREB')), 'home_dreb': safe_int(home_row.get('DREB')),
+                'home_reb': safe_int(home_row.get('REB')), 'home_ast': safe_int(home_row.get('AST')),
+                'home_stl': safe_int(home_row.get('STL')), 'home_blk': safe_int(home_row.get('BLK')),
+                'home_tov': safe_int(home_row.get('TOV')),
+                'away_fgm': safe_int(away_row.get('FGM')), 'away_fga': safe_int(away_row.get('FGA')),
+                'away_fg_pct': safe_float(away_row.get('FG_PCT')),
+                'away_fg3m': safe_int(away_row.get('FG3M')), 'away_fg3a': safe_int(away_row.get('FG3A')),
+                'away_fg3_pct': safe_float(away_row.get('FG3_PCT')),
+                'away_ftm': safe_int(away_row.get('FTM')), 'away_fta': safe_int(away_row.get('FTA')),
+                'away_ft_pct': safe_float(away_row.get('FT_PCT')),
+                'away_oreb': safe_int(away_row.get('OREB')), 'away_dreb': safe_int(away_row.get('DREB')),
+                'away_reb': safe_int(away_row.get('REB')), 'away_ast': safe_int(away_row.get('AST')),
+                'away_stl': safe_int(away_row.get('STL')), 'away_blk': safe_int(away_row.get('BLK')),
+                'away_tov': safe_int(away_row.get('TOV')),
+            }
+
+            # Check if game exists (by game_id first, then by date+teams)
+            cursor.execute("SELECT game_id FROM games WHERE game_id = ?", (game_id,))
             existing = cursor.fetchone()
 
-            if existing:
-                # Update if scores changed
-                if existing[1] != home_score or existing[2] != away_score:
-                    cursor.execute("""
-                        UPDATE games SET home_score = ?, away_score = ?
-                        WHERE game_id = ?
-                    """, (home_score, away_score, existing[0]))
-                    games_updated += 1
-            else:
-                # Insert new game
+            if not existing:
                 cursor.execute("""
-                    INSERT INTO games (game_date, home_team, away_team, home_score, away_score)
-                    VALUES (?, ?, ?, ?, ?)
-                """, (game_date, home_team, away_team, home_score, away_score))
+                    SELECT game_id FROM games
+                    WHERE game_date = ? AND home_team = ? AND away_team = ?
+                """, (game_date, home_team, away_team))
+                existing = cursor.fetchone()
+
+            if existing:
+                # Update existing game with scores AND box score stats
+                cursor.execute("""
+                    UPDATE games SET
+                        home_score = ?, away_score = ?, home_win = ?,
+                        home_team_id = ?, away_team_id = ?,
+                        home_fgm = ?, home_fga = ?, home_fg_pct = ?,
+                        home_fg3m = ?, home_fg3a = ?, home_fg3_pct = ?,
+                        home_ftm = ?, home_fta = ?, home_ft_pct = ?,
+                        home_oreb = ?, home_dreb = ?, home_reb = ?,
+                        home_ast = ?, home_stl = ?, home_blk = ?, home_tov = ?,
+                        away_fgm = ?, away_fga = ?, away_fg_pct = ?,
+                        away_fg3m = ?, away_fg3a = ?, away_fg3_pct = ?,
+                        away_ftm = ?, away_fta = ?, away_ft_pct = ?,
+                        away_oreb = ?, away_dreb = ?, away_reb = ?,
+                        away_ast = ?, away_stl = ?, away_blk = ?, away_tov = ?
+                    WHERE game_id = ?
+                """, (home_score, away_score, home_win,
+                      home_team_id, away_team_id,
+                      box_stats['home_fgm'], box_stats['home_fga'], box_stats['home_fg_pct'],
+                      box_stats['home_fg3m'], box_stats['home_fg3a'], box_stats['home_fg3_pct'],
+                      box_stats['home_ftm'], box_stats['home_fta'], box_stats['home_ft_pct'],
+                      box_stats['home_oreb'], box_stats['home_dreb'], box_stats['home_reb'],
+                      box_stats['home_ast'], box_stats['home_stl'], box_stats['home_blk'], box_stats['home_tov'],
+                      box_stats['away_fgm'], box_stats['away_fga'], box_stats['away_fg_pct'],
+                      box_stats['away_fg3m'], box_stats['away_fg3a'], box_stats['away_fg3_pct'],
+                      box_stats['away_ftm'], box_stats['away_fta'], box_stats['away_ft_pct'],
+                      box_stats['away_oreb'], box_stats['away_dreb'], box_stats['away_reb'],
+                      box_stats['away_ast'], box_stats['away_stl'], box_stats['away_blk'], box_stats['away_tov'],
+                      existing[0]))
+                games_updated += 1
+            else:
+                # Insert new game with full box score data
+                cursor.execute("""
+                    INSERT INTO games
+                    (game_id, game_date, home_team_id, away_team_id,
+                     home_team, away_team, home_score, away_score, home_win,
+                     home_fgm, home_fga, home_fg_pct, home_fg3m, home_fg3a, home_fg3_pct,
+                     home_ftm, home_fta, home_ft_pct,
+                     home_oreb, home_dreb, home_reb, home_ast, home_stl, home_blk, home_tov,
+                     away_fgm, away_fga, away_fg_pct, away_fg3m, away_fg3a, away_fg3_pct,
+                     away_ftm, away_fta, away_ft_pct,
+                     away_oreb, away_dreb, away_reb, away_ast, away_stl, away_blk, away_tov)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?,
+                            ?, ?, ?, ?, ?, ?, ?, ?, ?,
+                            ?, ?, ?, ?, ?, ?, ?,
+                            ?, ?, ?, ?, ?, ?, ?, ?, ?,
+                            ?, ?, ?, ?, ?, ?, ?)
+                """, (game_id, game_date, home_team_id, away_team_id,
+                      home_team, away_team, home_score, away_score, home_win,
+                      box_stats['home_fgm'], box_stats['home_fga'], box_stats['home_fg_pct'],
+                      box_stats['home_fg3m'], box_stats['home_fg3a'], box_stats['home_fg3_pct'],
+                      box_stats['home_ftm'], box_stats['home_fta'], box_stats['home_ft_pct'],
+                      box_stats['home_oreb'], box_stats['home_dreb'], box_stats['home_reb'],
+                      box_stats['home_ast'], box_stats['home_stl'], box_stats['home_blk'], box_stats['home_tov'],
+                      box_stats['away_fgm'], box_stats['away_fga'], box_stats['away_fg_pct'],
+                      box_stats['away_fg3m'], box_stats['away_fg3a'], box_stats['away_fg3_pct'],
+                      box_stats['away_ftm'], box_stats['away_fta'], box_stats['away_ft_pct'],
+                      box_stats['away_oreb'], box_stats['away_dreb'], box_stats['away_reb'],
+                      box_stats['away_ast'], box_stats['away_stl'], box_stats['away_blk'], box_stats['away_tov']))
                 games_inserted += 1
 
         conn.commit()
@@ -185,11 +286,11 @@ def update_prediction_results(lookback_days: int = 7) -> bool:
 
 def fetch_todays_predictions() -> bool:
     """
-    Fetch and generate today's predictions.
+    Fetch and generate today's AND tomorrow's predictions.
     """
     logger.info("")
     logger.info("=" * 60)
-    logger.info("STEP 1: Fetching today's predictions")
+    logger.info("STEP 1: Fetching today's and tomorrow's predictions")
     logger.info("=" * 60)
 
     try:
@@ -208,25 +309,40 @@ def fetch_todays_predictions() -> bool:
 
         # Fetch today's games
         today_str = datetime.now().strftime('%Y-%m-%d')
-        games = automation.fetch_todays_games(target_date=today_str)
-
-        if not games:
-            logger.warning("[WARN] No games today")
+        tomorrow_str = (datetime.now() + timedelta(days=1)).strftime('%Y-%m-%d')
+        
+        logger.info(f"Fetching games for today ({today_str})...")
+        games_today = automation.fetch_todays_games(target_date=today_str)
+        
+        logger.info(f"Fetching games for tomorrow ({tomorrow_str})...")
+        games_tomorrow = automation.fetch_todays_games(target_date=tomorrow_str)
+        
+        # Combine both days
+        all_games = games_today + games_tomorrow if games_today and games_tomorrow else (games_today or games_tomorrow or [])
+        
+        if not all_games:
+            logger.warning("[WARN] No games today or tomorrow")
             return True  # Not an error
 
-        # Generate predictions
-        predictions = automation.generate_predictions(games)
+        logger.info(f"Found {len(games_today) if games_today else 0} games today, {len(games_tomorrow) if games_tomorrow else 0} games tomorrow")
+        
+        # Generate predictions for all games
+        predictions = automation.generate_predictions(all_games)
 
-        # Save predictions to database
+        # Save predictions to database (for both today and tomorrow)
         if predictions:
+            # Each prediction carries its own game_date via game_info
             automation._save_predictions_to_db(predictions, today_str)
-            logger.info(f"[OK] Generated {len(predictions)} predictions for today")
+            logger.info(f"[OK] Generated {len(predictions)} predictions ({len(games_today) if games_today else 0} for today, {len(games_tomorrow) if games_tomorrow else 0} for tomorrow)")
 
-            # Export to JSON for publishing interface
+            # Export to JSON for publishing interface (both today and tomorrow in one file)
             from src.daily_games_exporter import DailyGamesExporter
             exporter = DailyGamesExporter(str(DB_PATH))
             today_str = datetime.now().strftime('%Y-%m-%d')
-            export_success = exporter.export_games_for_publishing(today_str)
+            tomorrow_str = (datetime.now() + timedelta(days=1)).strftime('%Y-%m-%d')
+
+            # Single export with today first, tomorrow second — no overwrite
+            export_success = exporter.export_today_and_tomorrow(today_str, tomorrow_str)
 
             if export_success:
                 logger.info("[OK] Exported predictions to pending_games.json")
@@ -262,6 +378,11 @@ def fetch_todays_predictions() -> bool:
                     return False
 
                 try:
+                    # Configure git for CI environment
+                    if os.environ.get('GITHUB_ACTIONS'):
+                        subprocess.run(['git', 'config', 'user.name', 'GitHub Actions Bot'], capture_output=True, cwd=str(PROJECT_ROOT))
+                        subprocess.run(['git', 'config', 'user.email', 'actions@github.com'], capture_output=True, cwd=str(PROJECT_ROOT))
+
                     # First, check if we're in a broken rebase state and abort it
                     rebase_check = subprocess.run(
                         ['git', 'status'],
