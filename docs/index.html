@@ -85,6 +85,14 @@
             border-left: 4px solid #dc2626;
         }
 
+        .schedule-box {
+            background: #fff7ed;
+            border: 1px solid #fed7aa;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+        }
+
         .no-games {
             text-align: center;
             padding: 60px 20px;
@@ -349,6 +357,20 @@
         <p class="subtitle">Publier les prédictions sur Twitter</p>
 
         <div id="date-info" class="date-info" style="display: none;"></div>
+
+        <div id="schedule-info" class="schedule-box">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+                <div>
+                    <span style="font-size: 0.85em; color: #64748b;">Scheduled run:</span>
+                    <strong id="schedule-time" style="color: #1e3a5f; margin-left: 4px;">11:00 AM ET (15:00 UTC) daily</strong>
+                </div>
+                <a href="https://github.com/AnthonyNadjari/NBAPredictLab/edit/main/.github/workflows/daily_predictions.yml"
+                   target="_blank"
+                   style="background: #f97316; color: white; padding: 6px 14px; border-radius: 6px; text-decoration: none; font-size: 0.85em; font-weight: bold; white-space: nowrap;">
+                    Modifier l'heure
+                </a>
+            </div>
+        </div>
 
         <div id="setup-notice" class="setup-notice" style="display: none;">
             <h3>⚙️ Configuration requise</h3>
@@ -617,6 +639,38 @@
 
         // Load games on page load
         loadGames();
+
+        // Fetch actual schedule from GitHub workflow YAML
+        async function loadSchedule() {
+            try {
+                const resp = await fetch('https://api.github.com/repos/AnthonyNadjari/NBAPredictLab/contents/.github/workflows/daily_predictions.yml');
+                if (!resp.ok) return;
+                const data = await resp.json();
+                const content = atob(data.content.replace(/\n/g, ''));
+                const cronMatch = content.match(/cron:\s*['"](.*?)['"]/);
+                if (cronMatch) {
+                    const cron = cronMatch[1]; // e.g. "0 15 * * *"
+                    const parts = cron.split(' ');
+                    const utcHour = parseInt(parts[1]);
+                    const utcMin = parts[0].padStart(2, '0');
+                    // Convert UTC to ET (UTC-4 EDT / UTC-5 EST)
+                    const now = new Date();
+                    const jan = new Date(now.getFullYear(), 0, 1);
+                    const jul = new Date(now.getFullYear(), 6, 1);
+                    const isDST = now.getTimezoneOffset() < Math.max(jan.getTimezoneOffset(), jul.getTimezoneOffset());
+                    const etOffset = isDST ? 4 : 5;
+                    let etHour = utcHour - etOffset;
+                    if (etHour < 0) etHour += 24;
+                    const ampm = etHour >= 12 ? 'PM' : 'AM';
+                    const h12 = etHour === 0 ? 12 : (etHour > 12 ? etHour - 12 : etHour);
+                    document.getElementById('schedule-time').textContent =
+                        `${h12}:${utcMin} ${ampm} ET (${String(utcHour).padStart(2,'0')}:${utcMin} UTC) daily`;
+                }
+            } catch (e) {
+                // Keep default text if fetch fails
+            }
+        }
+        loadSchedule();
     </script>
 </body>
 </html>
