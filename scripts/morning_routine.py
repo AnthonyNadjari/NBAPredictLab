@@ -13,6 +13,7 @@ Usage:
 """
 
 import sys
+import os
 import logging
 import argparse
 from concurrent.futures import ThreadPoolExecutor, TimeoutError as FuturesTimeoutError
