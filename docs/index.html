@@ -359,16 +359,38 @@
         <div id="date-info" class="date-info" style="display: none;"></div>
 
         <div id="schedule-info" class="schedule-box">
-            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+            <!-- Display mode -->
+            <div id="schedule-display" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
                 <div>
-                    <span style="font-size: 0.85em; color: #64748b;">Scheduled run:</span>
-                    <strong id="schedule-time" style="color: #1e3a5f; margin-left: 4px;">11:00 AM ET (15:00 UTC) daily</strong>
+                    <span style="font-size: 0.85em; color: #64748b;">Run quotidien :</span>
+                    <strong id="schedule-time" style="color: #1e3a5f; margin-left: 4px;">11:00 AM ET</strong>
+                    <span id="schedule-utc" style="font-size: 0.8em; color: #94a3b8; margin-left: 4px;">(15:00 UTC)</span>
                 </div>
-                <a href="https://github.com/AnthonyNadjari/NBAPredictLab/edit/main/.github/workflows/daily_predictions.yml"
-                   target="_blank"
-                   style="background: #f97316; color: white; padding: 6px 14px; border-radius: 6px; text-decoration: none; font-size: 0.85em; font-weight: bold; white-space: nowrap;">
-                    Modifier l'heure
-                </a>
+                <button onclick="showScheduleEditor()" style="background: #f97316; color: white; padding: 6px 14px; border-radius: 6px; border: none; cursor: pointer; font-size: 0.85em; font-weight: bold; white-space: nowrap;">
+                    Modifier
+                </button>
+            </div>
+            <!-- Edit mode -->
+            <div id="schedule-editor" style="display: none;">
+                <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                    <label style="font-size: 0.85em; color: #64748b;">Nouvelle heure (ET) :</label>
+                    <select id="schedule-hour" style="padding: 6px 10px; border: 1px solid #fed7aa; border-radius: 6px; font-size: 0.95em; background: white;">
+                    </select>
+                    <span style="font-weight: bold; color: #1e3a5f;">:</span>
+                    <select id="schedule-min" style="padding: 6px 10px; border: 1px solid #fed7aa; border-radius: 6px; font-size: 0.95em; background: white;">
+                        <option value="0">00</option>
+                        <option value="15">15</option>
+                        <option value="30">30</option>
+                        <option value="45">45</option>
+                    </select>
+                    <button id="schedule-save-btn" onclick="saveSchedule()" style="background: #f97316; color: white; padding: 6px 16px; border-radius: 6px; border: none; cursor: pointer; font-size: 0.85em; font-weight: bold;">
+                        Enregistrer
+                    </button>
+                    <button onclick="hideScheduleEditor()" style="background: #e2e8f0; color: #475569; padding: 6px 12px; border-radius: 6px; border: none; cursor: pointer; font-size: 0.85em;">
+                        Annuler
+                    </button>
+                </div>
+                <div id="schedule-status" style="margin-top: 8px; font-size: 0.85em; display: none;"></div>
             </div>
         </div>
 
@@ -640,6 +662,135 @@
         // Load games on page load
         loadGames();
 
+        // Schedule management
+        let currentUtcHour = 15;
+        let currentUtcMin = 0;
+
+        function utcToET(utcH, utcM) {
+            const now = new Date();
+            const jan = new Date(now.getFullYear(), 0, 1);
+            const jul = new Date(now.getFullYear(), 6, 1);
+            const isDST = now.getTimezoneOffset() < Math.max(jan.getTimezoneOffset(), jul.getTimezoneOffset());
+            const offset = isDST ? 4 : 5;
+            let etH = utcH - offset;
+            if (etH < 0) etH += 24;
+            return { hour: etH, min: utcM };
+        }
+
+        function etToUTC(etH, etM) {
+            const now = new Date();
+            const jan = new Date(now.getFullYear(), 0, 1);
+            const jul = new Date(now.getFullYear(), 6, 1);
+            const isDST = now.getTimezoneOffset() < Math.max(jan.getTimezoneOffset(), jul.getTimezoneOffset());
+            const offset = isDST ? 4 : 5;
+            let utcH = etH + offset;
+            if (utcH >= 24) utcH -= 24;
+            return { hour: utcH, min: etM };
+        }
+
+        function formatET(etH, etM) {
+            const ampm = etH >= 12 ? 'PM' : 'AM';
+            const h12 = etH === 0 ? 12 : (etH > 12 ? etH - 12 : etH);
+            return `${h12}:${String(etM).padStart(2, '0')} ${ampm} ET`;
+        }
+
+        function updateScheduleDisplay() {
+            const et = utcToET(currentUtcHour, currentUtcMin);
+            document.getElementById('schedule-time').textContent = formatET(et.hour, et.min);
+            document.getElementById('schedule-utc').textContent =
+                `(${String(currentUtcHour).padStart(2,'0')}:${String(currentUtcMin).padStart(2,'0')} UTC)`;
+        }
+
+        function populateHourSelector() {
+            const sel = document.getElementById('schedule-hour');
+            sel.innerHTML = '';
+            for (let h = 0; h < 24; h++) {
+                const ampm = h >= 12 ? 'PM' : 'AM';
+                const h12 = h === 0 ? 12 : (h > 12 ? h - 12 : h);
+                const opt = document.createElement('option');
+                opt.value = h;
+                opt.textContent = `${h12} ${ampm}`;
+                sel.appendChild(opt);
+            }
+        }
+
+        function showScheduleEditor() {
+            const et = utcToET(currentUtcHour, currentUtcMin);
+            populateHourSelector();
+            document.getElementById('schedule-hour').value = et.hour;
+            document.getElementById('schedule-min').value = et.min;
+            document.getElementById('schedule-display').style.display = 'none';
+            document.getElementById('schedule-editor').style.display = 'block';
+            document.getElementById('schedule-status').style.display = 'none';
+        }
+
+        function hideScheduleEditor() {
+            document.getElementById('schedule-display').style.display = 'flex';
+            document.getElementById('schedule-editor').style.display = 'none';
+        }
+
+        async function saveSchedule() {
+            const etHour = parseInt(document.getElementById('schedule-hour').value);
+            const etMin = parseInt(document.getElementById('schedule-min').value);
+            const utc = etToUTC(etHour, etMin);
+
+            const statusDiv = document.getElementById('schedule-status');
+            const saveBtn = document.getElementById('schedule-save-btn');
+
+            // Prompt password if not already set
+            if (!userPassword) {
+                userPassword = prompt('Mot de passe :');
+                if (!userPassword) return;
+                if (userPassword !== PUBLISH_PASSWORD) {
+                    alert('Mot de passe incorrect');
+                    userPassword = null;
+                    return;
+                }
+            }
+
+            saveBtn.disabled = true;
+            saveBtn.textContent = '...';
+            statusDiv.style.display = 'block';
+            statusDiv.style.color = '#2563eb';
+            statusDiv.textContent = 'Mise a jour en cours...';
+
+            try {
+                const resp = await fetch(`${VERCEL_APP_URL}/api/update-schedule`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        password: userPassword,
+                        hour: utc.hour,
+                        minute: utc.min
+                    })
+                });
+
+                const result = await resp.json();
+
+                if (!resp.ok || !result.success) {
+                    throw new Error(result.error || 'Update failed');
+                }
+
+                currentUtcHour = utc.hour;
+                currentUtcMin = utc.min;
+                updateScheduleDisplay();
+
+                statusDiv.style.color = '#059669';
+                statusDiv.textContent = 'Horaire mis a jour !';
+                setTimeout(() => hideScheduleEditor(), 1500);
+
+            } catch (err) {
+                statusDiv.style.color = '#dc2626';
+                statusDiv.textContent = 'Erreur: ' + err.message;
+                if (err.message.includes('password') || err.message.includes('401')) {
+                    userPassword = null;
+                }
+            } finally {
+                saveBtn.disabled = false;
+                saveBtn.textContent = 'Enregistrer';
+            }
+        }
+
         // Fetch actual schedule from GitHub workflow YAML
         async function loadSchedule() {
             try {
@@ -649,26 +800,12 @@
                 const content = atob(data.content.replace(/\n/g, ''));
                 const cronMatch = content.match(/cron:\s*['"](.*?)['"]/);
                 if (cronMatch) {
-                    const cron = cronMatch[1]; // e.g. "0 15 * * *"
-                    const parts = cron.split(' ');
-                    const utcHour = parseInt(parts[1]);
-                    const utcMin = parts[0].padStart(2, '0');
-                    // Convert UTC to ET (UTC-4 EDT / UTC-5 EST)
-                    const now = new Date();
-                    const jan = new Date(now.getFullYear(), 0, 1);
-                    const jul = new Date(now.getFullYear(), 6, 1);
-                    const isDST = now.getTimezoneOffset() < Math.max(jan.getTimezoneOffset(), jul.getTimezoneOffset());
-                    const etOffset = isDST ? 4 : 5;
-                    let etHour = utcHour - etOffset;
-                    if (etHour < 0) etHour += 24;
-                    const ampm = etHour >= 12 ? 'PM' : 'AM';
-                    const h12 = etHour === 0 ? 12 : (etHour > 12 ? etHour - 12 : etHour);
-                    document.getElementById('schedule-time').textContent =
-                        `${h12}:${utcMin} ${ampm} ET (${String(utcHour).padStart(2,'0')}:${utcMin} UTC) daily`;
+                    const parts = cronMatch[1].split(' ');
+                    currentUtcMin = parseInt(parts[0]);
+                    currentUtcHour = parseInt(parts[1]);
+                    updateScheduleDisplay();
                 }
-            } catch (e) {
-                // Keep default text if fetch fails
-            }
+            } catch (e) { /* keep default */ }
         }
         loadSchedule();
     </script>
