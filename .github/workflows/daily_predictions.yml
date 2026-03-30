@@ -2,7 +2,7 @@ name: Daily NBA Predictions
 
 on:
   schedule:
-    # 3pm UTC = 11am ET (handles EST; 10am ET during EDT)
+    # 3pm UTC = 4pm London (BST) / 3pm London (GMT)
     - cron: '0 15 * * *'
   workflow_dispatch:
 
