@@ -30,4 +30,5 @@ jobs:
       - name: Run daily prediction pipeline
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
         run: python scripts/morning_routine.py --skip-email
