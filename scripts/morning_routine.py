@@ -253,28 +253,17 @@ def update_prediction_results(lookback_days: int = 7) -> bool:
     logger.info("=" * 60)
 
     try:
-        from daily_auto_prediction import DailyPredictionAutomation
+        from src.model_feedback_system import ModelFeedbackSystem
 
-        automation = DailyPredictionAutomation(
-            db_path=str(DB_PATH),
-            model_dir=str(PROJECT_ROOT / 'models'),
-            dry_run=True
+        feedback_system = ModelFeedbackSystem(str(DB_PATH))
+        updated = feedback_system.update_predictions_with_results(
+            lookback_days=lookback_days,
+            use_api=False  # DB only — Step 2 already fetched game data
         )
+        feedback_system.close()
 
-        # Initialize components
-        if not automation.initialize_components():
-            logger.error("Failed to initialize automation components")
-            return False
-
-        # Update previous predictions with results
-        result = automation.check_and_update_previous_predictions(lookback_days=lookback_days)
-
-        correct = result.get('correct', 0)
-        incorrect = result.get('incorrect', 0)
-        total_updated = correct + incorrect
-
-        if total_updated > 0:
-            logger.info(f"[OK] Updated {total_updated} predictions with results ({correct} correct, {incorrect} incorrect)")
+        if updated > 0:
+            logger.info(f"[OK] Updated {updated} predictions with results")
         else:
             logger.info("[OK] No predictions to update (all already have results or no matching games)")
 

@@ -3,6 +3,8 @@ src/data_fetcher.py - REAL NBA Data Fetching
 """
 
 import time
+import random
+from concurrent.futures import ThreadPoolExecutor, TimeoutError as FuturesTimeoutError
 import pandas as pd
 import numpy as np
 from datetime import datetime, timedelta
@@ -209,18 +211,43 @@ class NBADataFetcher:
         conn.commit()
         conn.close()
         
-    def _api_call_with_retry(self, func, max_retries=3, delay=1.0):
-        """Make API call with retry logic and rate limiting."""
+    def _api_call_with_retry(self, func, max_retries=3, delay=0.5, timeout=15):
+        """
+        Make API call with retry logic, rate limiting, and timeout protection.
+        
+        Args:
+            func: Function to call (should be a lambda that returns API result)
+            max_retries: Maximum number of retry attempts (default: 3)
+            delay: Initial delay between retries in seconds (default: 0.5)
+            timeout: Timeout in seconds for each attempt (default: 15)
+        
+        Returns:
+            API result or None if all retries fail
+        """
         for attempt in range(max_retries):
             try:
-                time.sleep(delay)  # Rate limiting - REQUIRED
-                return func()
-            except Exception as e:
+                time.sleep(delay)
+                # Use ThreadPoolExecutor with timeout to prevent hanging
+                with ThreadPoolExecutor(max_workers=1) as executor:
+                    future = executor.submit(func)
+                    return future.result(timeout=timeout)
+            except (FuturesTimeoutError, Exception) as e:
+                error_msg = str(e)
+                # Check if it's a timeout or connection error
+                is_timeout = 'timeout' in error_msg.lower() or 'timed out' in error_msg.lower() or isinstance(e, FuturesTimeoutError)
+                is_connection_error = 'connection' in error_msg.lower() or 'reset' in error_msg.lower() or 'aborted' in error_msg.lower()
+                
                 if attempt < max_retries - 1:
-                    print(f"API call failed, retrying in {delay * 2}s: {e}")
-                    time.sleep(delay * 2)
+                    # Exponential backoff with jitter
+                    wait_time = delay * (2 ** attempt) + (random.random() * 0.5)
+                    if is_timeout or is_connection_error:
+                        wait_time *= 2  # Wait longer for network issues
+                    time.sleep(wait_time)
                 else:
-                    raise e
+                    # Last attempt failed - return None instead of raising
+                    print(f"API call failed after {max_retries} attempts: {error_msg[:100]}")
+                    return None
+        return None
                     
     def fetch_historical_games(self, seasons: List[str] = None) -> pd.DataFrame:
         """
@@ -386,99 +413,87 @@ class NBADataFetcher:
             target_date_db = date_str
             date_str_api = date_obj.strftime('%m/%d/%Y')
             
-            print(f"Fetching games for {date_str} (trying API format: {date_str_api})...")
+            print(f"Fetching games for {date_str}...")
 
+            # 1) Try static CDN schedule FIRST (15s timeout; avoids blocking scoreboard)
+            target_date_formatted = date_str_api + " 00:00:00"
+            try:
+                url = "https://cdn.nba.com/static/json/staticData/scheduleLeagueV2.json"
+                resp = requests.get(url, timeout=15)
+                resp.raise_for_status()
+                data = resp.json()
+                static_games = []
+                league_schedule = data.get("leagueSchedule", {})
+                if league_schedule:
+                    for date_entry in league_schedule.get("gameDates", []):
+                        if date_entry.get("gameDate") == target_date_formatted:
+                            for game in date_entry.get("games", []):
+                                ht, at = game.get("homeTeam", {}), game.get("awayTeam", {})
+                                # CDN includes score for completed games (Final / OT etc.)
+                                hs, aws = ht.get("score"), at.get("score")
+                                try:
+                                    home_score = int(hs) if hs is not None else None
+                                    away_score = int(aws) if aws is not None else None
+                                except (TypeError, ValueError):
+                                    home_score = away_score = None
+                                row = {
+                                    "game_id": game.get("gameId"), "game_date": target_date_db,
+                                    "home_team_id": ht.get("teamId"), "away_team_id": at.get("teamId"),
+                                    "home_team_tricode": ht.get("teamTricode"), "away_team_tricode": at.get("teamTricode"),
+                                    "game_status": game.get("gameStatusText", "").strip(),
+                                    "game_status_code": game.get("gameStatus"), "tipoff_et": game.get("gameTimeEst"),
+                                    "arena_name": game.get("arenaName"), "arena_city": game.get("arenaCity"),
+                                }
+                                if home_score is not None and away_score is not None:
+                                    row["home_score"] = home_score
+                                    row["away_score"] = away_score
+                                static_games.append(row)
+                            break
+                else:
+                    for g in data.get("league", {}).get("standard", []):
+                        if g.get("startDateEastern") == target_date_db:
+                            hc, ac = g.get("hTeam", {}).get("triCode"), g.get("vTeam", {}).get("triCode")
+                            static_games.append({
+                                "game_id": g.get("gameId"), "game_date": target_date_db,
+                                "home_team_id": self.TEAMS.get(hc), "away_team_id": self.TEAMS.get(ac),
+                                "home_team_tricode": hc, "away_team_tricode": ac,
+                                "game_status": g.get("gameStatusText", g.get("statusNum", "")),
+                                "tipoff_et": g.get("startTimeEastern", "TBD"),
+                            })
+                if static_games:
+                    print(f"Found {len(static_games)} games via CDN for {target_date_db}")
+                    for game in static_games:
+                        print(f"  Game: {self.TEAM_NAMES.get(game.get('away_team_id'), '?')} @ {self.TEAM_NAMES.get(game.get('home_team_id'), '?')} - {game.get('game_status', 'TBD')}")
+                    return pd.DataFrame(static_games)
+            except Exception as e:
+                print(f"CDN schedule failed: {e}")
+
+            # 2) Fallback: scoreboard API with timeout (can hang without it)
             games_header = pd.DataFrame()
             try:
-                scoreboard = self._api_call_with_retry(
-                    lambda: scoreboardv2.ScoreboardV2(game_date=date_str_api)
-                )
+                with ThreadPoolExecutor(max_workers=1) as executor:
+                    future = executor.submit(
+                        lambda: self._api_call_with_retry(
+                            lambda: scoreboardv2.ScoreboardV2(game_date=date_str_api)
+                        )
+                    )
+                    scoreboard = future.result(timeout=20)
                 games_header = scoreboard.get_data_frames()[0]
+            except FuturesTimeoutError:
+                print(f"Scoreboard timed out (20s). No games for {date_str}.")
+                return pd.DataFrame()
             except Exception as e:
-                print(f"Scoreboard API error for {date_str_api}: {e}")
+                print(f"Scoreboard error: {e}")
+                return pd.DataFrame()
 
-            # Check if we have valid games with team IDs
-            # Scoreboard may return games but without team IDs for future dates
-            has_valid_team_ids = False
-            if not games_header.empty:
-                if 'HOME_TEAM_ID' in games_header.columns and 'VISITOR_TEAM_ID' in games_header.columns:
-                    # Check if any row has non-null team IDs
-                    has_valid_team_ids = not games_header[['HOME_TEAM_ID', 'VISITOR_TEAM_ID']].isna().all().all()
-            
-            # If empty or missing team IDs, fall back to static CDN schedule
-            if games_header.empty or not has_valid_team_ids:
-                try:
-                    # Try new structure first, then fallback to old URL if needed
-                    url = "https://cdn.nba.com/static/json/staticData/scheduleLeagueV2.json"
-                    resp = requests.get(url, timeout=15)
-                    resp.raise_for_status()
-                    data = resp.json()
-                    
-                    # Convert date to match JSON format: MM/DD/YYYY 00:00:00
-                    target_date_formatted = date_str_api + " 00:00:00"
-                    
-                    static_games = []
-                    
-                    # Try new structure: leagueSchedule.gameDates
-                    league_schedule = data.get("leagueSchedule", {})
-                    if league_schedule:
-                        game_dates = league_schedule.get("gameDates", [])
-                        for date_entry in game_dates:
-                            if date_entry.get("gameDate") == target_date_formatted:
-                                games = date_entry.get("games", [])
-                                for game in games:
-                                    home_team = game.get("homeTeam", {})
-                                    away_team = game.get("awayTeam", {})
-                                    static_games.append({
-                                        "game_id": game.get("gameId"),
-                                        "game_date": target_date_db,
-                                        "home_team_id": home_team.get("teamId"),
-                                        "away_team_id": away_team.get("teamId"),
-                                        "home_team_tricode": home_team.get("teamTricode"),
-                                        "away_team_tricode": away_team.get("teamTricode"),
-                                        "game_status": game.get("gameStatusText", "").strip(),
-                                        "game_status_code": game.get("gameStatus"),
-                                        "tipoff_et": game.get("gameTimeEst"),
-                                        "arena_name": game.get("arenaName"),
-                                        "arena_city": game.get("arenaCity"),
-                                    })
-                                break
-                    else:
-                        # Fallback to old structure: league.standard
-                        for g in data.get("league", {}).get("standard", []):
-                            if g.get("startDateEastern") == target_date_db:
-                                home_code = g.get("hTeam", {}).get("triCode")
-                                away_code = g.get("vTeam", {}).get("triCode")
-                                home_id = self.TEAMS.get(home_code)
-                                away_id = self.TEAMS.get(away_code)
-                                static_games.append({
-                                    "game_id": g.get("gameId"),
-                                    "game_date": target_date_db,
-                                    "home_team_id": home_id,
-                                    "away_team_id": away_id,
-                                    "home_team_tricode": home_code,
-                                    "away_team_tricode": away_code,
-                                    "game_status": g.get("gameStatusText", g.get("statusNum", "")),
-                                    "tipoff_et": g.get("startTimeEastern", "TBD"),
-                                })
-                    
-                    if static_games:
-                        print(f"Found {len(static_games)} games via static schedule for {target_date_db}")
-                        # Print game details similar to scoreboard output
-                        for game in static_games:
-                            home_name = self.TEAM_NAMES.get(game.get('home_team_id'), 'Unknown')
-                            away_name = self.TEAM_NAMES.get(game.get('away_team_id'), 'Unknown')
-                            status = game.get('game_status', 'TBD')
-                            print(f"  Game: {away_name} @ {home_name} - {status}")
-                        return pd.DataFrame(static_games)
-                    else:
-                        print(f"No games scheduled for {target_date_db} (target format: {target_date_formatted})")
-                        return pd.DataFrame()
-                except Exception as e:
-                    print(f"Static schedule fallback failed: {e}")
-                    import traceback
-                    traceback.print_exc()
-                    return pd.DataFrame()
+            has_valid_team_ids = (
+                not games_header.empty
+                and 'HOME_TEAM_ID' in games_header.columns
+                and 'VISITOR_TEAM_ID' in games_header.columns
+                and not games_header[['HOME_TEAM_ID', 'VISITOR_TEAM_ID']].isna().all().all()
+            )
+            if not has_valid_team_ids:
+                return pd.DataFrame()
 
             # Use scoreboard data
             print(f"Found {len(games_header)} games for {target_date_db}")
@@ -503,27 +518,33 @@ class NBADataFetcher:
             traceback.print_exc()
             return pd.DataFrame()
 
-    def update_recent_games(self, days_back: int = 7) -> int:
+    def update_recent_games(self, days_back: int = 7, timeout: int = 120) -> int:
         """
         Fetch and save recent game results to database.
 
         Args:
             days_back: Number of days back to fetch games
+            timeout: Max seconds for the entire operation (default: 120)
 
         Returns:
             Number of games fetched and saved
         """
         from datetime import timedelta
+        import time as _time
 
         games_fetched = 0
         end_date = datetime.now()
         start_date = end_date - timedelta(days=days_back)
+        deadline = _time.monotonic() + timeout
 
         print(f"Updating games from {start_date.strftime('%Y-%m-%d')} to {end_date.strftime('%Y-%m-%d')}")
 
         # Fetch games for each day in the range
         current_date = start_date
         while current_date <= end_date:
+            if _time.monotonic() > deadline:
+                print(f"[WARN] update_recent_games timed out after {timeout}s, stopping early")
+                break
             date_str = current_date.strftime('%Y-%m-%d')
             try:
                 games_df = self.get_games_for_date(date_str)
@@ -609,28 +630,39 @@ class NBADataFetcher:
         return df
 
     def get_team_roster(self, team_id: int, season: str = "2024-25") -> pd.DataFrame:
-        """Get current roster for a team."""
+        """Get current roster for a team. Returns empty DataFrame if API fails."""
         try:
             roster = self._api_call_with_retry(
                 lambda: commonteamroster.CommonTeamRoster(
                     team_id=team_id,
                     season=season
-                )
+                ),
+                timeout=10,
+                max_retries=2
             )
+            if roster is None:
+                return pd.DataFrame()
             return roster.get_data_frames()[0]
         except Exception as e:
             print(f"Error fetching roster for team {team_id}: {e}")
             return pd.DataFrame()
 
     def get_player_recent_stats(self, player_id: int, n_games: int = 10) -> Dict:
-        """Get a player's recent performance stats."""
+        """
+        Get a player's recent performance stats.
+        Returns empty dict if API fails (graceful degradation).
+        """
         try:
             player_stats = self._api_call_with_retry(
                 lambda: playerdashboardbygeneralsplits.PlayerDashboardByGeneralSplits(
                     player_id=player_id,
                     season="2024-25"
-                )
+                ),
+                timeout=10  # Shorter timeout for individual player stats
             )
+
+            if player_stats is None:
+                return {}
 
             df = player_stats.get_data_frames()[0]
 
@@ -642,8 +674,12 @@ class NBADataFetcher:
                 lambda: playergamelogs.PlayerGameLogs(
                     player_id_nullable=player_id,
                     season_nullable="2024-25"
-                )
+                ),
+                timeout=10
             )
+
+            if player_games is None:
+                return {}
 
             games_df = player_games.get_data_frames()[0]
 
@@ -662,13 +698,14 @@ class NBADataFetcher:
             }
 
         except Exception as e:
-            print(f"Error fetching player stats for {player_id}: {e}")
+            # Silent failure - return empty dict to allow predictions to continue
             return {}
 
     def get_league_player_stats(self, season: str = "2024-25") -> Dict[int, Dict]:
         """
         Fetch stats for ALL players in the league in one request.
         Returns a dictionary mapping player_id -> stats dict.
+        Returns empty dict if API fails (graceful degradation).
         """
         try:
             # Check cache first (global league stats cache)
@@ -685,10 +722,19 @@ class NBADataFetcher:
                 lambda: leaguedashplayerstats.LeagueDashPlayerStats(
                     season=season,
                     per_mode_detailed='PerGame'
-                )
+                ),
+                timeout=20,  # Longer timeout for bulk fetch
+                max_retries=2  # Fewer retries for bulk operations
             )
             
+            if league_stats is None:
+                print("Failed to fetch league stats - will use cached/fallback data")
+                return {}
+            
             df = league_stats.get_data_frames()[0]
+            
+            if df.empty:
+                return {}
             
             player_stats_map = {}
             for _, row in df.iterrows():
@@ -753,9 +799,14 @@ class NBADataFetcher:
                 if pid and not self.player_cache.get_player_stats(pid):
                     missing_players.append(pid)
             
+            # Try bulk fetch if we need many players, but don't block if it fails
             if len(missing_players) > 2:
-                # Bulk fetch!
-                self.get_league_player_stats(season)
+                try:
+                    league_stats = self.get_league_player_stats(season)
+                    if not league_stats:
+                        print(f"Bulk fetch failed for team {team_id}, will use cached data only")
+                except Exception as e:
+                    print(f"Bulk fetch error (non-fatal): {e}")
             
             # Now proceed with aggregation (stats should be in cache now)
             total_ppg = 0
@@ -774,14 +825,22 @@ class NBADataFetcher:
                     # Stats should be in cache now (either from previous runs or bulk fetch)
                     player_stats = self.player_cache.get_player_stats(player_id)
 
-                    # Fallback if still missing (e.g. new player not in league dash yet?)
+                    # Skip individual fetch if bulk fetch failed - use defaults instead
+                    # This prevents the 20-40 minute delays from individual timeouts
                     if not player_stats:
-                        player_stats = self.get_player_recent_stats(player_id, n_games=5)
-                        if player_stats:
-                            self.player_cache.set_player_stats(
-                                player_id, player_name, team_id, player_stats, ttl_hours=24
-                            )
-                        time.sleep(0.6)
+                        # Only try individual fetch if we have very few missing players
+                        # and we're confident the API is working
+                        if len(missing_players) <= 2:
+                            try:
+                                player_stats = self.get_player_recent_stats(player_id, n_games=5)
+                                if player_stats:
+                                    self.player_cache.set_player_stats(
+                                        player_id, player_name, team_id, player_stats, ttl_hours=24
+                                    )
+                                time.sleep(0.3)  # Reduced delay
+                            except Exception:
+                                pass  # Skip this player if fetch fails
+                        # If no stats available, skip this player (don't use zeros)
 
                     if player_stats and player_stats.get('games_played', 0) > 0:
                         total_ppg += player_stats.get('ppg', 0)
@@ -1512,11 +1571,32 @@ class FeatureEngineer:
         if include_player_stats:
             try:
                 # Note: This uses NBA API which can be slow
-                # Get aggregated player stats for both teams
+                # Get aggregated player stats for both teams with timeout protection
                 data_fetcher = NBADataFetcher(self.db_path)
 
-                home_player_stats = data_fetcher.get_team_player_aggregated_stats(home_team_id)
-                away_player_stats = data_fetcher.get_team_player_aggregated_stats(away_team_id)
+                # Use timeout wrapper to prevent hanging
+                def get_home_stats():
+                    return data_fetcher.get_team_player_aggregated_stats(home_team_id)
+                
+                def get_away_stats():
+                    return data_fetcher.get_team_player_aggregated_stats(away_team_id)
+                
+                # Fetch with 30 second timeout per team (60 seconds total max)
+                try:
+                    with ThreadPoolExecutor(max_workers=1) as executor:
+                        home_future = executor.submit(get_home_stats)
+                        home_player_stats = home_future.result(timeout=30)
+                except FuturesTimeoutError:
+                    print(f"Timeout fetching home team player stats for team {home_team_id}")
+                    home_player_stats = {}
+                
+                try:
+                    with ThreadPoolExecutor(max_workers=1) as executor:
+                        away_future = executor.submit(get_away_stats)
+                        away_player_stats = away_future.result(timeout=30)
+                except FuturesTimeoutError:
+                    print(f"Timeout fetching away team player stats for team {away_team_id}")
+                    away_player_stats = {}
 
                 # Home team player stats
                 features['home_team_ppg_players'] = home_player_stats.get('team_ppg_from_players', 0)
@@ -1698,6 +1778,7 @@ class FeatureEngineer:
             FROM games
             WHERE (home_team_id = ? OR away_team_id = ?)
             AND game_date < ?
+            AND home_fga IS NOT NULL
             ORDER BY game_date DESC
             LIMIT ?
         """
@@ -1767,6 +1848,11 @@ class FeatureEngineer:
         Estimate possessions using the standard NBA formula.
         Formula: 0.5 * ((Team Poss Estimate) + (Opp Poss Estimate))
         """
+        # Guard against None values (games stored without box score data)
+        vals = [fga, fgm, fta, oreb, dreb, tov, opp_fga, opp_fgm, opp_fta, opp_oreb, opp_dreb, opp_tov]
+        if any(v is None for v in vals):
+            return 0
+
         # Team possessions estimate
         team_poss = fga + 0.4 * fta - 1.07 * (oreb / (oreb + opp_dreb + 1)) * (fga - fgm) + tov
 
