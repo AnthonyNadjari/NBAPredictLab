@@ -296,14 +296,14 @@ class StackedEnsembleModel:
 
         # Calibrate using the same meta-features
         self.meta_model.fit(all_meta_features, all_meta_targets)
-        print("  ✓ Meta-learner trained and calibrated")
+        print("  [OK] Meta-learner trained and calibrated")
 
         # Apply temperature scaling on top for additional calibration
         # This addresses the overconfidence problem
         print("  Fitting temperature scaling for calibration...")
         meta_probs = self.meta_model.predict_proba(all_meta_features)[:, 1]
         self.temperature_calibrator.fit(meta_probs, all_meta_targets)
-        print("  ✓ Temperature scaling calibration complete")
+        print("  [OK] Temperature scaling calibration complete")
 
         # Evaluate calibration improvement
         self._evaluate_calibration(meta_probs, all_meta_targets)
@@ -667,14 +667,53 @@ class StackedEnsembleModel:
         print(f"Model saved to {model_dir}")
         print(f"  Temperature factor: {self.temperature_calibrator.temperature:.3f}")
         
+    @staticmethod
+    def _patch_sklearn_tree_compat():
+        """
+        Temporarily patch sklearn tree dtype check to handle pickles from older versions.
+        Returns a cleanup function to restore the original.
+        """
+        try:
+            import numpy as np
+            from sklearn.tree import _tree
+            orig_check = _tree._check_node_ndarray
+
+            def patched_check(node_ndarray, expected_dtype):
+                if hasattr(node_ndarray.dtype, 'names') and node_ndarray.dtype.names is not None:
+                    if 'missing_go_to_left' not in node_ndarray.dtype.names and len(node_ndarray.dtype.names) == 7:
+                        new_dtype = np.dtype(node_ndarray.dtype.descr + [('missing_go_to_left', 'u1')])
+                        new_arr = np.zeros(node_ndarray.shape, dtype=new_dtype)
+                        for field in node_ndarray.dtype.names:
+                            new_arr[field] = node_ndarray[field]
+                        new_arr['missing_go_to_left'] = 1
+                        return orig_check(new_arr, expected_dtype)
+                return orig_check(node_ndarray, expected_dtype)
+
+            _tree._check_node_ndarray = patched_check
+            return lambda: setattr(_tree, '_check_node_ndarray', orig_check)
+        except Exception:
+            return lambda: None
+
     def load(self, model_dir: str = "models"):
         """Load all model components including temperature calibrator."""
         model_dir = Path(model_dir)
+        cleanup_patch = self._patch_sklearn_tree_compat()
 
-        # Load base models
-        for name in self.base_models.keys():
-            with open(model_dir / f"{name}_model.pkl", 'rb') as f:
-                self.base_models[name] = pickle.load(f)
+        # Load base models (handle sklearn version mismatches gracefully)
+        failed_models = []
+        for name in list(self.base_models.keys()):
+            try:
+                with open(model_dir / f"{name}_model.pkl", 'rb') as f:
+                    self.base_models[name] = pickle.load(f)
+            except Exception as e:
+                print(f"  Warning: Could not load {name} model ({e}). Will use fresh default.")
+                failed_models.append(name)
+
+        cleanup_patch()
+
+        if failed_models:
+            print(f"  {len(failed_models)} model(s) failed to load: {failed_models}")
+            print(f"  Predictions may be degraded until models are retrained.")
 
         # Load meta-model
         with open(model_dir / "meta_model.pkl", 'rb') as f:
