@@ -25,7 +25,7 @@ class OddsKeyManager:
         self._load_keys()
 
     def _load_keys(self):
-        """Load keys from file and environment"""
+        """Load keys from file and environment variables"""
         # Load from file if exists
         if self.keys_file.exists():
             try:
@@ -35,11 +35,12 @@ class OddsKeyManager:
                 print(f"Error loading keys file: {e}")
                 self.keys = {}
 
-        # Also check environment variable
-        env_key = os.getenv('ODDS_API_KEY')
-        if env_key and env_key not in self.keys.values():
-            # Add env key with default name if not already present
-            self.keys['default'] = env_key
+        # Load from environment: ODDS_API_KEY, ODDS_API_KEY_2, etc.
+        for env_name in ['ODDS_API_KEY', 'ODDS_API_KEY_2', 'ODDS_API_KEY_3']:
+            env_key = os.getenv(env_name)
+            if env_key and env_key not in self.keys.values():
+                label = env_name.lower().replace('odds_api_', '')
+                self.keys[label] = env_key
 
     def _save_keys(self):
         """Save keys to file"""
