@@ -414,6 +414,14 @@ class DailyPredictionAutomation:
                 self.logger.warning(f"  [ERROR] Prediction failed for {home_team} vs {away_team}")
                 return None
 
+            # Detect error results (predict_game exception handler returns prediction=None)
+            if result.get('prediction') is None or result.get('error'):
+                self.logger.warning(
+                    f"  [ERROR] Prediction error for {home_team} vs {away_team}: "
+                    f"{result.get('error', 'unknown')}"
+                )
+                return None
+
             # Calculate odds for the predicted winner
             predicted_team = result['prediction']
             if predicted_team == 'home':

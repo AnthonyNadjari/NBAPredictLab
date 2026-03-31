@@ -446,8 +446,8 @@ class StackedEnsembleModel:
         if not self.is_trained:
             raise ValueError("Model not trained. Call train() first.")
 
-        # Ensure correct features
-        X = X[self.feature_names].fillna(0)
+        # Ensure correct features (reindex handles missing columns gracefully)
+        X = X.reindex(columns=self.feature_names, fill_value=0).fillna(0)
         X_scaled = self.scaler.transform(X)
 
         # Get base model predictions
@@ -485,7 +485,8 @@ class StackedEnsembleModel:
         X = pd.DataFrame([features])
         predictions, probabilities, confidence = self.predict(X)
 
-        X_scaled = self.scaler.transform(X[self.feature_names].fillna(0))
+        X_aligned = X.reindex(columns=self.feature_names, fill_value=0).fillna(0)
+        X_scaled = self.scaler.transform(X_aligned)
 
         # Get base model predictions
         base_model_predictions = {}
