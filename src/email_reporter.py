@@ -429,24 +429,60 @@ class EmailReporter:
         """
         return html
     
+    def _send_email_smtp(self, recipients: List[str], subject: str, html_content: str) -> bool:
+        """
+        Send email via SMTP (Gmail). Used in CI/GitHub Actions where Outlook is not available.
+        Requires EMAIL_ADDRESS and EMAIL_APP_PASSWORD environment variables.
+        """
+        import os
+        import smtplib
+        from email.mime.text import MIMEText
+        from email.mime.multipart import MIMEMultipart
+
+        email_address = os.environ.get('EMAIL_ADDRESS')
+        email_password = os.environ.get('EMAIL_APP_PASSWORD')
+
+        if not email_address or not email_password:
+            logger.error("[ERROR] EMAIL_ADDRESS and EMAIL_APP_PASSWORD env vars required for SMTP")
+            logger.error("  Set these as GitHub Secrets for CI email support")
+            return False
+
+        try:
+            msg = MIMEMultipart('alternative')
+            msg['Subject'] = subject
+            msg['From'] = email_address
+            msg['To'] = ', '.join(recipients)
+            msg.attach(MIMEText(html_content, 'html'))
+
+            with smtplib.SMTP_SSL('smtp.gmail.com', 465) as server:
+                server.login(email_address, email_password)
+                server.sendmail(email_address, recipients, msg.as_string())
+
+            logger.info(f"[OK] Email sent via SMTP to {', '.join(recipients)}")
+            return True
+
+        except Exception as e:
+            logger.error(f"[ERROR] SMTP email failed: {e}")
+            return False
+
     def send_email(self, recipients: List[str], subject: str, html_content: str, test_mode: bool = False, display_first: bool = False) -> bool:
         """
-        Send email via Outlook using win32com (uses installed Outlook app).
-        
+        Send email via Outlook (Windows) or SMTP/Gmail (CI).
+
         Args:
             recipients: List of email addresses
             subject: Email subject
             html_content: HTML email content
             test_mode: If True, only send to first recipient
             display_first: If True, display email window before sending (for verification)
-        
+
         Returns:
             True if sent successfully, False otherwise
         """
         try:
             if not WIN32COM_AVAILABLE:
-                logger.error("win32com not available. Install with: pip install pywin32")
-                return False
+                logger.info("win32com not available, falling back to SMTP (Gmail)")
+                return self._send_email_smtp(recipients, subject, html_content)
             
             # In test mode, only send to first recipient
             if test_mode:
