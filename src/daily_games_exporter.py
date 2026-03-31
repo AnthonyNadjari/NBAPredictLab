@@ -120,9 +120,36 @@ class DailyGamesExporter:
         conn.close()
         return predictions
 
+    def _format_predictions(self, predictions: List[Dict], date: str) -> List[Dict]:
+        """Format raw prediction dicts into web-interface-ready dicts."""
+        games_data = []
+        for pred in predictions:
+            home_team = self._to_full_name(pred['home_team'])
+            away_team = self._to_full_name(pred['away_team'])
+            predicted_winner = self._to_full_name(pred['predicted_winner'])
+            game_date = pred.get('game_date', date)
+
+            game_id = f"{away_team}_vs_{home_team}_{game_date}".replace(' ', '_')
+
+            games_data.append({
+                'id': game_id,
+                'matchup': f"{away_team} @ {home_team}",
+                'home_team': home_team,
+                'away_team': away_team,
+                'predicted_winner': predicted_winner,
+                'predicted_home_prob': pred['predicted_home_prob'],
+                'predicted_away_prob': pred['predicted_away_prob'],
+                'home_odds': pred['home_odds'],
+                'away_odds': pred['away_odds'],
+                'confidence': pred['confidence'],
+                'date': game_date,
+                'published': False
+            })
+        return games_data
+
     def export_games_for_publishing(self, date: Optional[str] = None, output_path: str = 'docs/pending_games.json') -> bool:
         """
-        Export today's games to JSON for the web interface.
+        Export a single day's games to JSON for the web interface.
 
         Args:
             date: Date string (YYYY-MM-DD). If None, uses today.
@@ -137,47 +164,68 @@ class DailyGamesExporter:
 
             logger.info(f"Exporting games for {date}...")
 
-            # Get today's predictions
             predictions = self.get_today_predictions(date)
             logger.info(f"Found {len(predictions)} predictions for {date}")
 
-            # Format for web interface
-            games_data = []
-            for pred in predictions:
-                # Convert tricodes to full names
-                home_team = self._to_full_name(pred['home_team'])
-                away_team = self._to_full_name(pred['away_team'])
-                predicted_winner = self._to_full_name(pred['predicted_winner'])
+            games_data = self._format_predictions(predictions, date)
 
-                game_id = f"{away_team}_vs_{home_team}_{date}".replace(' ', '_')
-
-                games_data.append({
-                    'id': game_id,
-                    'matchup': f"{away_team} @ {home_team}",
-                    'home_team': home_team,
-                    'away_team': away_team,
-                    'predicted_winner': predicted_winner,
-                    'predicted_home_prob': pred['predicted_home_prob'],
-                    'predicted_away_prob': pred['predicted_away_prob'],
-                    'home_odds': pred['home_odds'],
-                    'away_odds': pred['away_odds'],
-                    'confidence': pred['confidence'],
-                    'date': date,
-                    'published': False  # Track if already published
-                })
-
-            # Create output data
             output_data = {
                 'date': date,
                 'generated_at': datetime.now().isoformat(),
                 'games': games_data
             }
 
-            # Save to JSON file
             with open(output_path, 'w', encoding='utf-8') as f:
                 json.dump(output_data, f, indent=2, ensure_ascii=False)
 
-            logger.info(f"✓ Exported {len(games_data)} games to {output_path}")
+            logger.info(f"[OK] Exported {len(games_data)} games to {output_path}")
+            return True
+
+        except Exception as e:
+            logger.error(f"Failed to export games: {e}", exc_info=True)
+            return False
+
+    def export_today_and_tomorrow(self, today_str: str, tomorrow_str: str,
+                                   output_path: str = 'docs/pending_games.json') -> bool:
+        """
+        Export today's AND tomorrow's predictions into a single JSON file.
+        Today's games are listed first, tomorrow's games second.
+
+        Args:
+            today_str: Today's date (YYYY-MM-DD)
+            tomorrow_str: Tomorrow's date (YYYY-MM-DD)
+            output_path: Path to save JSON file
+
+        Returns:
+            True if export successful, False otherwise
+        """
+        try:
+            logger.info(f"Exporting games for {today_str} and {tomorrow_str}...")
+
+            today_preds = self.get_today_predictions(today_str)
+            tomorrow_preds = self.get_today_predictions(tomorrow_str)
+
+            logger.info(f"Found {len(today_preds)} predictions for today, "
+                        f"{len(tomorrow_preds)} for tomorrow")
+
+            today_games = self._format_predictions(today_preds, today_str)
+            tomorrow_games = self._format_predictions(tomorrow_preds, tomorrow_str)
+
+            output_data = {
+                'date': today_str,
+                'generated_at': datetime.now().isoformat(),
+                'today': today_str,
+                'tomorrow': tomorrow_str,
+                'games': today_games + tomorrow_games,  # today first, then tomorrow
+                'games_today': today_games,
+                'games_tomorrow': tomorrow_games,
+            }
+
+            with open(output_path, 'w', encoding='utf-8') as f:
+                json.dump(output_data, f, indent=2, ensure_ascii=False)
+
+            logger.info(f"[OK] Exported {len(today_games)}+{len(tomorrow_games)} "
+                        f"games to {output_path}")
             return True
 
         except Exception as e:
@@ -199,7 +247,7 @@ if __name__ == '__main__':
     success = exporter.export_games_for_publishing(date)
 
     if success:
-        print("✓ Export completed successfully")
+        print("[OK] Export completed successfully")
     else:
-        print("✗ Export failed")
+        print("[ERROR] Export failed")
         sys.exit(1)
