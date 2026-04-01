@@ -54,6 +54,8 @@ def _apply_light_theme(fig, title_text, subtitle_text='', height=675):
             xanchor='center', x=0.5,
             font=dict(size=13, color=TEXT_SECONDARY),
             bgcolor='rgba(0,0,0,0)',
+            itemwidth=40,
+            traceorder='normal',
         ),
     )
     return fig
@@ -1433,17 +1435,34 @@ def create_hero_prediction_chart(prediction: Dict, features: Dict, home_team: st
     away_prob = prediction.get('predicted_away_prob',
                 prediction.get('away_win_probability', 0.5))
     confidence = prediction.get('confidence', 0.5)
-    winner = prediction.get('predicted_winner', home_team)
-    is_home_winner = winner == home_team
+
+    # Robustly determine the predicted winner from all possible dict formats
+    winner = prediction.get('predicted_winner')
+    if not winner:
+        pred_dir = prediction.get('prediction')
+        if pred_dir == 'home':
+            winner = home_team
+        elif pred_dir == 'away':
+            winner = away_team
+        else:
+            winner = prediction.get('predicted_team_name', home_team)
+    is_home_winner = (winner == home_team)
 
     # Get odds (support both formats)
-    home_odds = prediction.get('home_odds', 0)
-    away_odds = prediction.get('away_odds', 0)
+    home_odds = prediction.get('home_odds') or 0
+    away_odds = prediction.get('away_odds') or 0
 
     win_prob = home_prob if is_home_winner else away_prob
     lose_prob = 1 - win_prob
     winner_name = home_team if is_home_winner else away_team
     loser_name = away_team if is_home_winner else home_team
+
+    # Abbreviate long team names for the bottom labels
+    def _short(name: str) -> str:
+        parts = name.split()
+        if len(parts) >= 3:
+            return ' '.join(parts[-2:])  # e.g. "Portland Trail Blazers" → "Trail Blazers"
+        return name
 
     fig = go.Figure()
 
@@ -1460,53 +1479,55 @@ def create_hero_prediction_chart(prediction: Dict, features: Dict, home_team: st
         hoverinfo='label+percent',
         direction='clockwise',
         sort=False,
-        domain=dict(x=[0.25, 0.75], y=[0.22, 0.92]),
+        domain=dict(x=[0.25, 0.75], y=[0.28, 0.92]),
     ))
 
     # Center: big probability number
     fig.add_annotation(
         text=f"<b>{win_prob*100:.0f}%</b>",
-        x=0.5, y=0.62, showarrow=False,
+        x=0.5, y=0.65, showarrow=False,
         font=dict(size=56, color=ORANGE_PRIMARY, family='Arial Black'),
         xref='paper', yref='paper'
     )
     fig.add_annotation(
         text=f"<b>{winner_name}</b>",
-        x=0.5, y=0.52, showarrow=False,
+        x=0.5, y=0.55, showarrow=False,
         font=dict(size=17, color=TEXT_PRIMARY, family='Arial'),
         xref='paper', yref='paper'
     )
     fig.add_annotation(
         text="PREDICTED WINNER",
-        x=0.5, y=0.46, showarrow=False,
+        x=0.5, y=0.49, showarrow=False,
         font=dict(size=11, color=TEXT_MUTED, family='Arial'),
         xref='paper', yref='paper'
     )
 
     # Bottom left: away team prob + odds
-    away_odds_str = f"  (cote {away_odds:.2f})" if away_odds else ""
+    away_odds_str = f"Odds: {away_odds:.2f}" if away_odds else ""
+    away_short = _short(away_team)
     fig.add_annotation(
         text=(
-            f"<b>{away_team}</b>"
-            f"<br><span style='font-size:30px;color:{ORANGE_PRIMARY if not is_home_winner else TEXT_MUTED}'>"
+            f"<b>{away_short}</b>"
+            f"<br><span style='font-size:28px;color:{ORANGE_PRIMARY if not is_home_winner else TEXT_MUTED}'>"
             f"{away_prob*100:.0f}%</span>"
-            f"<br><span style='font-size:13px;color:{TEXT_MUTED}'>{away_odds_str}</span>"
+            f"<br><span style='font-size:15px;color:{TEXT_SECONDARY}'>{away_odds_str}</span>"
         ),
-        x=0.12, y=0.10, showarrow=False, xanchor='left',
+        x=0.15, y=0.12, showarrow=False, xanchor='center',
         font=dict(size=14, color=TEXT_SECONDARY, family='Arial'),
         xref='paper', yref='paper'
     )
 
     # Bottom right: home team prob + odds
-    home_odds_str = f"  (cote {home_odds:.2f})" if home_odds else ""
+    home_odds_str = f"Odds: {home_odds:.2f}" if home_odds else ""
+    home_short = _short(home_team)
     fig.add_annotation(
         text=(
-            f"<b>{home_team}</b>"
-            f"<br><span style='font-size:30px;color:{ORANGE_PRIMARY if is_home_winner else TEXT_MUTED}'>"
+            f"<b>{home_short}</b>"
+            f"<br><span style='font-size:28px;color:{ORANGE_PRIMARY if is_home_winner else TEXT_MUTED}'>"
             f"{home_prob*100:.0f}%</span>"
-            f"<br><span style='font-size:13px;color:{TEXT_MUTED}'>{home_odds_str}</span>"
+            f"<br><span style='font-size:15px;color:{TEXT_SECONDARY}'>{home_odds_str}</span>"
         ),
-        x=0.88, y=0.10, showarrow=False, xanchor='right',
+        x=0.85, y=0.12, showarrow=False, xanchor='center',
         font=dict(size=14, color=TEXT_SECONDARY, family='Arial'),
         xref='paper', yref='paper'
     )
@@ -1523,7 +1544,7 @@ def create_hero_prediction_chart(prediction: Dict, features: Dict, home_team: st
         title=dict(
             text=f"<b>{away_team}  @  {home_team}</b>",
             x=0.5, y=0.98, xanchor='center',
-            font=dict(size=24, color=TEXT_PRIMARY, family='Arial')
+            font=dict(size=22, color=TEXT_PRIMARY, family='Arial')
         ),
         paper_bgcolor=BG_COLOR,
         plot_bgcolor=BG_COLOR,
