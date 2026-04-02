@@ -33,28 +33,28 @@ def _apply_light_theme(fig, title_text, subtitle_text='', height=675):
     """Apply consistent Style A Light theme to any chart."""
     title_html = f"<b>{title_text}</b>"
     if subtitle_text:
-        title_html += f"<br><span style='font-size:13px;color:{TEXT_MUTED}'>{subtitle_text}</span>"
+        title_html += f"<br><span style='font-size:12px;color:{TEXT_MUTED}'>{subtitle_text}</span>"
 
     fig.update_layout(
         title=dict(
             text=title_html,
-            x=0.5, xanchor='center',
+            x=0.5, y=0.97, xanchor='center', yanchor='top',
             font=dict(size=22, color=TEXT_PRIMARY, family='Arial')
         ),
         paper_bgcolor=BG_COLOR,
         plot_bgcolor=CARD_BG,
         height=height,
         width=1200,
-        margin=dict(l=20, r=20, t=100, b=60),
+        margin=dict(l=20, r=20, t=120, b=60),
         font=dict(family='Arial', color=TEXT_SECONDARY),
         showlegend=True,
         legend=dict(
             orientation='h',
-            yanchor='bottom', y=1.02,
+            yanchor='top', y=-0.12,
             xanchor='center', x=0.5,
-            font=dict(size=13, color=TEXT_SECONDARY),
+            font=dict(size=14, color=TEXT_SECONDARY),
             bgcolor='rgba(0,0,0,0)',
-            itemwidth=40,
+            itemwidth=50,
             traceorder='normal',
         ),
     )
@@ -1457,12 +1457,27 @@ def create_hero_prediction_chart(prediction: Dict, features: Dict, home_team: st
     winner_name = home_team if is_home_winner else away_team
     loser_name = away_team if is_home_winner else home_team
 
-    # Abbreviate long team names for the bottom labels
+    # Abbreviate team names for bottom labels using common NBA nicknames
+    _NICKNAMES = {
+        'Atlanta Hawks': 'Hawks', 'Boston Celtics': 'Celtics',
+        'Brooklyn Nets': 'Nets', 'Charlotte Hornets': 'Hornets',
+        'Chicago Bulls': 'Bulls', 'Cleveland Cavaliers': 'Cavaliers',
+        'Dallas Mavericks': 'Mavericks', 'Denver Nuggets': 'Nuggets',
+        'Detroit Pistons': 'Pistons', 'Golden State Warriors': 'Warriors',
+        'Houston Rockets': 'Rockets', 'Indiana Pacers': 'Pacers',
+        'LA Clippers': 'Clippers', 'Los Angeles Clippers': 'Clippers',
+        'Los Angeles Lakers': 'Lakers', 'Memphis Grizzlies': 'Grizzlies',
+        'Miami Heat': 'Heat', 'Milwaukee Bucks': 'Bucks',
+        'Minnesota Timberwolves': 'T-Wolves', 'New Orleans Pelicans': 'Pelicans',
+        'New York Knicks': 'Knicks', 'Oklahoma City Thunder': 'Thunder',
+        'Orlando Magic': 'Magic', 'Philadelphia 76ers': '76ers',
+        'Phoenix Suns': 'Suns', 'Portland Trail Blazers': 'Trail Blazers',
+        'Sacramento Kings': 'Kings', 'San Antonio Spurs': 'Spurs',
+        'Toronto Raptors': 'Raptors', 'Utah Jazz': 'Jazz',
+        'Washington Wizards': 'Wizards',
+    }
     def _short(name: str) -> str:
-        parts = name.split()
-        if len(parts) >= 3:
-            return ' '.join(parts[-2:])  # e.g. "Portland Trail Blazers" → "Trail Blazers"
-        return name
+        return _NICKNAMES.get(name, name)
 
     fig = go.Figure()
 
