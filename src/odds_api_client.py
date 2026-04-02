@@ -48,7 +48,7 @@ class OddsAPIClient:
             List of games with odds from multiple bookmakers
         """
         if not self.api_key:
-            print("⚠️ No API key found. Get one free at https://the-odds-api.com/")
+            print("[WARN] No API key found. Get one free at https://the-odds-api.com/")
             return []
             
         url = f"{self.base_url}/sports/{self.sport}/odds"
@@ -73,52 +73,52 @@ class OddsAPIClient:
                 'used': used,
                 'timestamp': datetime.now()
             }
-            print(f"📊 API Quota: {used} used, {remaining} remaining")
+            print(f"API Quota: {used} used, {remaining} remaining")
             
             return response.json()
         except requests.exceptions.RequestException as e:
-            print(f"❌ Error fetching odds: {e}")
+            print(f"[ERROR] Error fetching odds: {e}")
             return []
-    
+
     def find_game_odds(self, home_team: str, away_team: str) -> Optional[Dict]:
         """
         Find odds for a specific matchup.
-        
+
         Args:
             home_team: Home team name (e.g., "Los Angeles Lakers")
             away_team: Away team name (e.g., "Boston Celtics")
-            
+
         Returns:
             Dict with odds from multiple bookmakers, or None if not found
         """
         games = self.get_upcoming_games_odds()
-        
+
         if not games:
-            print(f"⚠️ No upcoming games found from Odds API")
+            print(f"[WARN] No upcoming games found from Odds API")
             return None
-        
-        print(f"🔍 Searching for: {away_team} @ {home_team}")
-        print(f"📊 Found {len(games)} games from Odds API")
-        
+
+        print(f"Searching for: {away_team} @ {home_team}")
+        print(f"Found {len(games)} games from Odds API")
+
         # Try to find the game
         for game in games:
             api_home = game.get('home_team', '')
             api_away = game.get('away_team', '')
-            
+
             # Use flexible matching
             home_match = self._teams_match(home_team, api_home)
             away_match = self._teams_match(away_team, api_away)
-            
+
             if home_match and away_match:
-                print(f"✅ MATCH FOUND: {api_away} @ {api_home}")
+                print(f"[OK] MATCH FOUND: {api_away} @ {api_home}")
                 return self._parse_game_odds(game)
-            
+
             # Debug: Show close matches
             if home_match or away_match:
-                print(f"⚠️ Partial match: {api_away} @ {api_home} (home={home_match}, away={away_match})")
-        
+                print(f"[WARN] Partial match: {api_away} @ {api_home} (home={home_match}, away={away_match})")
+
         # If no match found, show available games for debugging
-        print(f"❌ No match found. Available games:")
+        print(f"[MISS] No match found. Available games:")
         for game in games[:5]:  # Show first 5
             print(f"   - {game.get('away_team')} @ {game.get('home_team')}")
                 

@@ -42,7 +42,7 @@ class RealOddsFetcher:
             List of games with odds from multiple bookmakers
         """
         if not self.api_key:
-            print("⚠️ No Odds API key found. Set ODDS_API_KEY in .env file")
+            print("[WARN] No Odds API key found. Set ODDS_API_KEY in .env file")
             print("Get free key at: https://the-odds-api.com/")
             return []
 
@@ -61,7 +61,7 @@ class RealOddsFetcher:
             # Check remaining requests
             remaining = response.headers.get('x-requests-remaining', 'Unknown')
             used = response.headers.get('x-requests-used', 'Unknown')
-            print(f"📊 Odds API Usage: {used} used, {remaining} remaining")
+            print(f"Odds API Usage: {used} used, {remaining} remaining")
 
             if response.status_code == 200:
                 games = response.json()
@@ -73,17 +73,17 @@ class RealOddsFetcher:
 
                 return games
             elif response.status_code == 401:
-                print("❌ Invalid API key. Check your ODDS_API_KEY in .env")
+                print("[ERROR] Invalid API key. Check your ODDS_API_KEY in .env")
                 return []
             elif response.status_code == 429:
-                print("❌ Rate limit exceeded. Using cached odds if available.")
+                print("[ERROR] Rate limit exceeded. Using cached odds if available.")
                 return self._load_cached_odds()
             else:
-                print(f"❌ Error fetching odds: {response.status_code}")
+                print(f"[ERROR] Error fetching odds: {response.status_code}")
                 return self._load_cached_odds()
 
         except Exception as e:
-            print(f"❌ Error fetching odds: {e}")
+            print(f"[ERROR] Error fetching odds: {e}")
             return self._load_cached_odds()
 
     def get_game_odds(self, home_team: str, away_team: str) -> Optional[Dict]:
@@ -139,7 +139,7 @@ class RealOddsFetcher:
                (away_normalized in game_away or game_away in away_normalized):
                 return self._parse_game_odds(game)
 
-        print(f"⚠️ No odds found for {away_team} @ {home_team}")
+        print(f"[WARN] No odds found for {away_team} @ {home_team}")
         return None
 
     def _parse_game_odds(self, game: Dict) -> Dict:
@@ -288,7 +288,7 @@ class FreeOddsFetcher:
         Very limited and unreliable.
         """
         # This is a placeholder - free odds sources are scarce and unreliable
-        print("⚠️ Free odds sources have very limited data")
+        print("[WARN] Free odds sources have very limited data")
         print("Recommend getting The Odds API key (free tier: 500 requests/month)")
         return None
 
@@ -310,7 +310,7 @@ if __name__ == "__main__":
     games = fetcher.get_todays_odds()
 
     if games:
-        print(f"\n✅ Found {len(games)} games with odds:")
+        print(f"\n[OK] Found {len(games)} games with odds:")
         for game in games[:3]:  # Show first 3
             print(f"\n{game.get('away_team')} @ {game.get('home_team')}")
             print(f"Start: {game.get('commence_time')}")
@@ -320,7 +320,7 @@ if __name__ == "__main__":
                 print(f"Avg odds: Home {odds['avg_home_odds']}, Away {odds['avg_away_odds']}")
                 print(f"Market prob: Home {odds['market_home_prob']:.1%}, Away {odds['market_away_prob']:.1%}")
     else:
-        print("\n❌ No odds data available")
+        print("\n[ERROR] No odds data available")
         print("\nTo use this feature:")
         print("1. Get free API key: https://the-odds-api.com/")
         print("2. Add to .env file: ODDS_API_KEY=your_key_here")
