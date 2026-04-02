@@ -127,7 +127,7 @@ class NBAPredictor:
         result['pattern_adjustments'] = adjustments_made
 
         if adjustments_made:
-            print(f"🔧 Pattern adjustments applied: {', '.join(adjustments_made)}")
+            print(f"Pattern adjustments applied: {', '.join(adjustments_made)}")
 
         return result
     
@@ -193,7 +193,7 @@ class NBAPredictor:
                 # If deepcopy fails, use regular dict copy
                 features_backup = dict(features) if features else {}
             
-            print(f"📊 Features before prediction: {len(features_backup)} features")
+            print(f"Features before prediction: {len(features_backup)} features")
             
             # Make prediction
             result = self.model.predict_single(features)
@@ -203,7 +203,7 @@ class NBAPredictor:
                 print(f"Error: Model predict_single returned non-dict: {type(result)}")
                 return None
 
-            print(f"📋 Result keys after predict_single: {list(result.keys())}")
+            print(f"Result keys after predict_single: {list(result.keys())}")
 
             # Add team names FIRST
             result['home_team'] = home_team
@@ -215,44 +215,47 @@ class NBAPredictor:
             # FORCE features to be included - do this BEFORE any other operations
             result['features'] = features_backup  # Always include, even if empty
             
-            print(f"📋 Result keys after adding features: {list(result.keys())}")
-            print(f"📋 Features count: {len(result.get('features', {}))}")
-            
+            print(f"Result keys after adding features: {list(result.keys())}")
+            print(f"Features count: {len(result.get('features', {}))}")
+
             # CRITICAL: Verify features were added
             if 'features' not in result:
-                print(f"❌ CRITICAL ERROR: Features still not in result! Force adding...")
+                print("CRITICAL ERROR: Features still not in result! Force adding...")
                 result['features'] = features_backup
             else:
                 feat_count = len(result['features']) if isinstance(result['features'], dict) else 0
-                print(f"✅ Features confirmed in result: {feat_count} features")
-            
+                print(f"Features confirmed in result: {feat_count} features")
+
             # Final verification - ensure features is always a dict
             if not isinstance(result.get('features'), dict):
-                print(f"⚠️ WARNING: Features is not a dict, fixing... Type: {type(result.get('features'))}")
+                print(f"WARNING: Features is not a dict, fixing... Type: {type(result.get('features'))}")
                 result['features'] = features_backup if isinstance(features_backup, dict) else {}
-            
+
             # Print final verification
             final_keys = list(result.keys())
             has_features = 'features' in result
             feat_type = type(result.get('features'))
             feat_len = len(result.get('features', {})) if isinstance(result.get('features'), dict) else 0
-            
-            print(f"📋 FINAL VERIFICATION:")
+
+            print(f"FINAL VERIFICATION:")
             print(f"   - Result keys: {final_keys}")
             print(f"   - Has 'features' key: {has_features}")
             print(f"   - Features type: {feat_type}")
             print(f"   - Features count: {feat_len}")
-            
+
             if not has_features:
-                print(f"❌❌❌ FEATURES MISSING FROM RESULT! This should never happen! ❌❌❌")
+                print("FEATURES MISSING FROM RESULT! This should never happen!")
                 result['features'] = features_backup
             
             return result
             
         except Exception as e:
             import traceback
-            print(f"Error making prediction: {e}")
-            print(traceback.format_exc())
+            try:
+                print(f"Error making prediction: {e}")
+                print(traceback.format_exc())
+            except UnicodeEncodeError:
+                print(f"Error making prediction: {str(e).encode('ascii', 'replace').decode()}")
             # Return a result with empty features so the UI can still display something
             return {
                 'prediction': None,

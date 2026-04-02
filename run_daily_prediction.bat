@@ -45,26 +45,34 @@ echo   3. Update prediction results (verify yesterday's predictions)
 echo   4. Send email report (today's predictions + yesterday's results)
 echo.
 
-python scripts/morning_routine.py >> logs\scheduler.log 2>&1
+REM Ensure Python can output UTF-8 (emojis in log messages)
+set PYTHONIOENCODING=utf-8
+chcp 65001 >nul 2>&1
+
+REM Run Python without redirect so you see all output in this window. Log also in logs\morning_routine_YYYYMM.log
+python scripts/morning_routine.py
 
 REM Capture exit code
 set EXIT_CODE=%ERRORLEVEL%
 
-REM Log result
 if %EXIT_CODE% EQU 0 (
-    echo [%date% %time%] SUCCESS: Morning routine completed successfully >> logs\scheduler.log
+    echo [%date% %time%] SUCCESS: Morning routine completed successfully > logs\last_run.log
     echo.
     echo ============================================================
     echo SUCCESS: Morning routine completed!
     echo ============================================================
 ) else (
-    echo [%date% %time%] ERROR: Morning routine failed with exit code %EXIT_CODE% >> logs\scheduler.log
+    echo [%date% %time%] ERROR: Morning routine failed with exit code %EXIT_CODE% > logs\last_run.log
     echo.
     echo ============================================================
     echo WARNING: Morning routine completed with errors
-    echo Check logs\scheduler.log for details
+    echo Check logs\morning_routine_*.log for details
     echo ============================================================
 )
 
-REM Exit with the script's exit code
+REM If first argument is "auto", close immediately (for Task Scheduler). Otherwise wait for key.
+if /i "%~1"=="auto" goto :done
+echo.
+pause
+:done
 exit /b %EXIT_CODE%

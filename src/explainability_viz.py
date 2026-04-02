@@ -1497,9 +1497,9 @@ def create_hero_prediction_chart(prediction: Dict, features: Dict, home_team: st
         domain=dict(x=[0.25, 0.75], y=[0.28, 0.92]),
     ))
 
-    # Center: big probability number
+    # Center: confidence number (matches the tweet text percentage)
     fig.add_annotation(
-        text=f"<b>{win_prob*100:.0f}%</b>",
+        text=f"<b>{confidence*100:.0f}%</b>",
         x=0.5, y=0.65, showarrow=False,
         font=dict(size=56, color=ORANGE_PRIMARY, family='Arial Black'),
         xref='paper', yref='paper'
@@ -1547,9 +1547,9 @@ def create_hero_prediction_chart(prediction: Dict, features: Dict, home_team: st
         xref='paper', yref='paper'
     )
 
-    # Confidence badge at bottom center
+    # Model badge at bottom center
     fig.add_annotation(
-        text=f"Confidence: {confidence*100:.0f}%  |  AI Stacked Ensemble",
+        text=f"Win Prob: {win_prob*100:.0f}%  |  AI Stacked Ensemble",
         x=0.5, y=0.01, showarrow=False,
         font=dict(size=12, color=TEXT_MUTED, family='Arial'),
         xref='paper', yref='paper'

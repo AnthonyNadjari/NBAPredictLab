@@ -50,7 +50,10 @@
       "Bash(git -C \"C:/Users/nadja/OneDrive/Bureau/code/nba_predictor\" commit -m \"Fix git push: handle rebase conflicts automatically\")",
       "Bash(git -C \"C:/Users/nadja/OneDrive/Bureau/code/nba_predictor\" log --oneline -10)",
       "Bash(git checkout:*)",
-      "Bash(git stash:*)"
+      "Bash(git stash:*)",
+      "Bash(gh run list:*)",
+      "Bash(PYTHONIOENCODING=utf-8 python:*)",
+      "mcp__Claude_Preview__preview_start"
     ],
     "deny": [],
     "ask": []
