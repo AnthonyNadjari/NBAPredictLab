@@ -1481,9 +1481,9 @@ def create_hero_prediction_chart(prediction: Dict, features: Dict, home_team: st
 
     fig = go.Figure()
 
-    # Donut chart — positioned higher to leave room for bottom info
+    # Donut ring uses confidence so it visually matches the center number
     fig.add_trace(go.Pie(
-        values=[win_prob, lose_prob],
+        values=[confidence, 1 - confidence],
         labels=[winner_name, loser_name],
         hole=0.68,
         marker=dict(
@@ -1494,62 +1494,78 @@ def create_hero_prediction_chart(prediction: Dict, features: Dict, home_team: st
         hoverinfo='label+percent',
         direction='clockwise',
         sort=False,
-        domain=dict(x=[0.25, 0.75], y=[0.28, 0.92]),
+        domain=dict(x=[0.25, 0.75], y=[0.30, 0.92]),
     ))
 
     # Center: confidence number (matches the tweet text percentage)
     fig.add_annotation(
         text=f"<b>{confidence*100:.0f}%</b>",
-        x=0.5, y=0.65, showarrow=False,
+        x=0.5, y=0.66, showarrow=False,
         font=dict(size=56, color=ORANGE_PRIMARY, family='Arial Black'),
         xref='paper', yref='paper'
     )
     fig.add_annotation(
         text=f"<b>{winner_name}</b>",
-        x=0.5, y=0.55, showarrow=False,
+        x=0.5, y=0.56, showarrow=False,
         font=dict(size=17, color=TEXT_PRIMARY, family='Arial'),
         xref='paper', yref='paper'
     )
     fig.add_annotation(
         text="PREDICTED WINNER",
-        x=0.5, y=0.49, showarrow=False,
+        x=0.5, y=0.50, showarrow=False,
         font=dict(size=11, color=TEXT_MUTED, family='Arial'),
         xref='paper', yref='paper'
     )
 
-    # Bottom left: away team prob + odds
+    # Bottom left: away team
     away_odds_str = f"Odds: {away_odds:.2f}" if away_odds else ""
     away_short = _short(away_team)
+    away_color = ORANGE_PRIMARY if not is_home_winner else TEXT_MUTED
     fig.add_annotation(
-        text=(
-            f"<b>{away_short}</b>"
-            f"<br><span style='font-size:28px;color:{ORANGE_PRIMARY if not is_home_winner else TEXT_MUTED}'>"
-            f"{away_prob*100:.0f}%</span>"
-            f"<br><span style='font-size:15px;color:{TEXT_SECONDARY}'>{away_odds_str}</span>"
-        ),
-        x=0.15, y=0.12, showarrow=False, xanchor='center',
-        font=dict(size=14, color=TEXT_SECONDARY, family='Arial'),
+        text=f"<b>{away_short}</b>",
+        x=0.15, y=0.20, showarrow=False, xanchor='center',
+        font=dict(size=18, color=TEXT_SECONDARY, family='Arial'),
+        xref='paper', yref='paper'
+    )
+    fig.add_annotation(
+        text=f"<b>{away_prob*100:.0f}%</b>",
+        x=0.15, y=0.13, showarrow=False, xanchor='center',
+        font=dict(size=32, color=away_color, family='Arial Black'),
+        xref='paper', yref='paper'
+    )
+    fig.add_annotation(
+        text=away_odds_str,
+        x=0.15, y=0.07, showarrow=False, xanchor='center',
+        font=dict(size=16, color=TEXT_SECONDARY, family='Arial'),
         xref='paper', yref='paper'
     )
 
-    # Bottom right: home team prob + odds
+    # Bottom right: home team
     home_odds_str = f"Odds: {home_odds:.2f}" if home_odds else ""
     home_short = _short(home_team)
+    home_color = ORANGE_PRIMARY if is_home_winner else TEXT_MUTED
     fig.add_annotation(
-        text=(
-            f"<b>{home_short}</b>"
-            f"<br><span style='font-size:28px;color:{ORANGE_PRIMARY if is_home_winner else TEXT_MUTED}'>"
-            f"{home_prob*100:.0f}%</span>"
-            f"<br><span style='font-size:15px;color:{TEXT_SECONDARY}'>{home_odds_str}</span>"
-        ),
-        x=0.85, y=0.12, showarrow=False, xanchor='center',
-        font=dict(size=14, color=TEXT_SECONDARY, family='Arial'),
+        text=f"<b>{home_short}</b>",
+        x=0.85, y=0.20, showarrow=False, xanchor='center',
+        font=dict(size=18, color=TEXT_SECONDARY, family='Arial'),
+        xref='paper', yref='paper'
+    )
+    fig.add_annotation(
+        text=f"<b>{home_prob*100:.0f}%</b>",
+        x=0.85, y=0.13, showarrow=False, xanchor='center',
+        font=dict(size=32, color=home_color, family='Arial Black'),
+        xref='paper', yref='paper'
+    )
+    fig.add_annotation(
+        text=home_odds_str,
+        x=0.85, y=0.07, showarrow=False, xanchor='center',
+        font=dict(size=16, color=TEXT_SECONDARY, family='Arial'),
         xref='paper', yref='paper'
     )
 
     # Model badge at bottom center
     fig.add_annotation(
-        text=f"Win Prob: {win_prob*100:.0f}%  |  AI Stacked Ensemble",
+        text="AI Stacked Ensemble",
         x=0.5, y=0.01, showarrow=False,
         font=dict(size=12, color=TEXT_MUTED, family='Arial'),
         xref='paper', yref='paper'
