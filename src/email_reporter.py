@@ -124,8 +124,13 @@ class EmailReporter:
     
     def _resolve_scores_from_games(self, results: List[Dict]) -> List[Dict]:
         """
-        For each result that has actual_winner but missing or 0-0 scores,
-        look up home_score/away_score from the games table.
+        For each result that has missing/0-0 scores OR missing actual_winner,
+        look up the games table and backfill scores + winner + correct flag.
+
+        This makes the email robust against the case where the predictions
+        table has not yet been updated (e.g. the CDN schedule returned
+        score=0 at daily update time, but real scores arrived later via the
+        NBA API path or the Streamlit "Refresh Game Data" button).
         """
         if not results:
             return results
@@ -133,15 +138,13 @@ class EmailReporter:
         cursor = conn.cursor()
         resolved = []
         for game in results:
-            need_score = (
-                game.get('actual_winner')
-                and (
-                    game.get('actual_home_score') is None
-                    or game.get('actual_away_score') is None
-                    or (game.get('actual_home_score') == 0 and game.get('actual_away_score') == 0)
-                )
+            needs_scores = (
+                game.get('actual_home_score') is None
+                or game.get('actual_away_score') is None
+                or (game.get('actual_home_score') == 0 and game.get('actual_away_score') == 0)
             )
-            if not need_score:
+            needs_winner = not game.get('actual_winner')
+            if not (needs_scores or needs_winner):
                 resolved.append(game)
                 continue
             game_date = game.get('game_date')
@@ -161,6 +164,7 @@ class EmailReporter:
                 except Exception:
                     resolved.append(game)
                     continue
+            # Exact match first (home/away or swapped)
             cursor.execute("""
                 SELECT home_score, away_score, home_team, away_team
                 FROM games
@@ -186,13 +190,34 @@ class EmailReporter:
                 for g in cursor.fetchall():
                     hs, aws, g_home, g_away = g
                     if _teams_match(home_team, away_team, g_home, g_away):
-                        row = (hs, aws)
+                        row = (hs, aws, g_home, g_away)
                         break
             if row:
-                hs, aws = (row[0], row[1]) if len(row) >= 2 else (row[0], row[1])
+                hs = int(row[0])
+                aws = int(row[1])
+                g_home = row[2] if len(row) >= 3 else home_team
+                g_away = row[3] if len(row) >= 4 else away_team
+                # Align the games-row orientation with the prediction's home/away.
+                # Same-orientation if games.home_team refers to the same team as
+                # prediction.home_team (accounting for abbrev vs full name).
+                def _same(a: str, b: str) -> bool:
+                    if not a or not b:
+                        return False
+                    al, bl = a.strip().lower(), b.strip().lower()
+                    return al == bl or al in bl or bl in al
+                same_orientation = _same(home_team, g_home) and _same(away_team, g_away)
+                if not same_orientation:
+                    # Games row is swapped: games.home_team == prediction.away_team
+                    hs, aws = aws, hs
                 game = dict(game)
-                game['actual_home_score'] = int(hs)
-                game['actual_away_score'] = int(aws)
+                game['actual_home_score'] = hs
+                game['actual_away_score'] = aws
+                home_won = hs > aws
+                if needs_winner:
+                    game['actual_winner'] = home_team if home_won else away_team
+                # Recompute `correct` if missing, using the (possibly new) winner
+                if game.get('correct') is None and game.get('predicted_winner') and game.get('actual_winner'):
+                    game['correct'] = 1 if game['predicted_winner'] == game['actual_winner'] else 0
             resolved.append(game)
         conn.close()
         return resolved
