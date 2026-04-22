@@ -52,6 +52,9 @@ class EmailReporter:
             'nadjari.anthony@gmail.com',
             'hugo.dubelloy@hotmail.com'
         ]
+        # Per-instance cache of CDN results keyed by YYYY-MM-DD so we hit the
+        # NBA CDN at most once per date when backfilling missing scores.
+        self._cdn_results_cache: Dict[str, List[Dict]] = {}
     
     def get_yesterday_results(self, date: Optional[str] = None) -> List[Dict]:
         """
@@ -192,6 +195,22 @@ class EmailReporter:
                     if _teams_match(home_team, away_team, g_home, g_away):
                         row = (hs, aws, g_home, g_away)
                         break
+            if not row:
+                # Last resort: fetch directly from NBA CDN. This handles the
+                # production case where the CI runner's games table never got
+                # populated (e.g. step 2 failed silently) — the CDN exposes
+                # completed game scores as static JSON so we can always render
+                # yesterday's results even if the local DB is missing them.
+                for cdn_game in self._fetch_cdn_results_for_date(game_date):
+                    if _teams_match(home_team, away_team,
+                                    cdn_game['home_team'], cdn_game['away_team']):
+                        row = (
+                            cdn_game['home_score'],
+                            cdn_game['away_score'],
+                            cdn_game['home_team'],
+                            cdn_game['away_team'],
+                        )
+                        break
             if row:
                 hs = int(row[0])
                 aws = int(row[1])
@@ -221,6 +240,75 @@ class EmailReporter:
             resolved.append(game)
         conn.close()
         return resolved
+
+    def _fetch_cdn_results_for_date(self, date_str: str) -> List[Dict]:
+        """
+        Fetch completed-game results directly from the NBA static CDN for a
+        given YYYY-MM-DD date. Returns a list of dicts with keys
+        `home_team`, `away_team` (full names), `home_score`, `away_score`.
+
+        Results are cached per-instance so the CDN is hit at most once per
+        date regardless of how many predictions are being backfilled.
+
+        Failures (network error, JSON error, team lookup error) are swallowed
+        so the email still renders even if the CDN is unreachable — the
+        affected game just keeps its "En attente" status.
+        """
+        if date_str in self._cdn_results_cache:
+            return self._cdn_results_cache[date_str]
+        cached: List[Dict] = []
+        try:
+            import requests  # local import to avoid hard dep at module load
+            from datetime import datetime as _dt
+            # CDN keys games by the ET calendar date formatted as 'MM/DD/YYYY 00:00:00'
+            target_formatted = _dt.strptime(date_str, '%Y-%m-%d').strftime('%m/%d/%Y') + ' 00:00:00'
+            url = 'https://cdn.nba.com/static/json/staticData/scheduleLeagueV2.json'
+            resp = requests.get(url, timeout=15)
+            resp.raise_for_status()
+            data = resp.json()
+            # Build tricode -> full name lookup lazily (nba_api is already a
+            # project dependency; fall back to raw tricode if unavailable).
+            try:
+                from nba_api.stats.static import teams as _teams
+                tricode_to_full = {t['abbreviation']: t['full_name'] for t in _teams.get_teams()}
+            except Exception:
+                tricode_to_full = {}
+            for entry in data.get('leagueSchedule', {}).get('gameDates', []):
+                if entry.get('gameDate') != target_formatted:
+                    continue
+                for g in entry.get('games', []):
+                    home = g.get('homeTeam', {}) or {}
+                    away = g.get('awayTeam', {}) or {}
+                    hs, aws = home.get('score'), away.get('score')
+                    try:
+                        hs = int(hs) if hs is not None else None
+                        aws = int(aws) if aws is not None else None
+                    except (TypeError, ValueError):
+                        hs = aws = None
+                    # Only include games with real final scores — gameStatus 3 == Final
+                    status_code = g.get('gameStatus')
+                    if hs is None or aws is None:
+                        continue
+                    if hs == 0 and aws == 0:
+                        continue
+                    if status_code is not None and status_code != 3:
+                        # Not Final yet; skip
+                        continue
+                    h_tri = home.get('teamTricode') or ''
+                    a_tri = away.get('teamTricode') or ''
+                    h_full = tricode_to_full.get(h_tri, h_tri)
+                    a_full = tricode_to_full.get(a_tri, a_tri)
+                    cached.append({
+                        'home_team': h_full,
+                        'away_team': a_full,
+                        'home_score': hs,
+                        'away_score': aws,
+                    })
+                break
+        except Exception as e:  # noqa: BLE001
+            logger.warning(f"CDN fallback fetch failed for {date_str}: {e}")
+        self._cdn_results_cache[date_str] = cached
+        return cached
     
     def get_today_predictions(self, date: Optional[str] = None) -> List[Dict]:
         """
