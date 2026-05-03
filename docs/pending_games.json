@@ -1,23 +1,9 @@
 {
-  "date": "2026-05-02",
-  "generated_at": "2026-05-02T11:26:28.206342",
-  "today": "2026-05-02",
-  "tomorrow": "2026-05-03",
+  "date": "2026-05-03",
+  "generated_at": "2026-05-03T11:15:04.721728",
+  "today": "2026-05-03",
+  "tomorrow": "2026-05-04",
   "games": [
-    {
-      "id": "Philadelphia_76ers_vs_Boston_Celtics_2026-05-02",
-      "matchup": "Philadelphia 76ers @ Boston Celtics",
-      "home_team": "Boston Celtics",
-      "away_team": "Philadelphia 76ers",
-      "predicted_winner": "Boston Celtics",
-      "predicted_home_prob": 0.8299999999999998,
-      "predicted_away_prob": 0.1700000000000001,
-      "home_odds": 1.37,
-      "away_odds": 5.88,
-      "confidence": 0.9478998563657206,
-      "date": "2026-05-02",
-      "published": false
-    },
     {
       "id": "Orlando_Magic_vs_Detroit_Pistons_2026-05-03",
       "matchup": "Orlando Magic @ Detroit Pistons",
@@ -44,27 +30,39 @@
       "away_odds": 2.86,
       "confidence": 0.8454337494819489,
       "date": "2026-05-03",
+      "published": false
+    },
+    {
+      "id": "Philadelphia_76ers_vs_New_York_Knicks_2026-05-04",
+      "matchup": "Philadelphia 76ers @ New York Knicks",
+      "home_team": "New York Knicks",
+      "away_team": "Philadelphia 76ers",
+      "predicted_winner": "New York Knicks",
+      "predicted_home_prob": 0.7,
+      "predicted_away_prob": 0.30000000000000004,
+      "home_odds": 1.37,
+      "away_odds": 3.33,
+      "confidence": 0.8458481218167955,
+      "date": "2026-05-04",
+      "published": false
+    },
+    {
+      "id": "Minnesota_Timberwolves_vs_San_Antonio_Spurs_2026-05-04",
+      "matchup": "Minnesota Timberwolves @ San Antonio Spurs",
+      "home_team": "San Antonio Spurs",
+      "away_team": "Minnesota Timberwolves",
+      "predicted_winner": "San Antonio Spurs",
+      "predicted_home_prob": 0.5913978494623656,
+      "predicted_away_prob": 0.4086021505376344,
+      "home_odds": 1.12,
+      "away_odds": 2.45,
+      "confidence": 0.8424511398982512,
+      "date": "2026-05-04",
       "published": false
     }
   ],
   "games_today": [
     {
-      "id": "Philadelphia_76ers_vs_Boston_Celtics_2026-05-02",
-      "matchup": "Philadelphia 76ers @ Boston Celtics",
-      "home_team": "Boston Celtics",
-      "away_team": "Philadelphia 76ers",
-      "predicted_winner": "Boston Celtics",
-      "predicted_home_prob": 0.8299999999999998,
-      "predicted_away_prob": 0.1700000000000001,
-      "home_odds": 1.37,
-      "away_odds": 5.88,
-      "confidence": 0.9478998563657206,
-      "date": "2026-05-02",
-      "published": false
-    }
-  ],
-  "games_tomorrow": [
-    {
       "id": "Orlando_Magic_vs_Detroit_Pistons_2026-05-03",
       "matchup": "Orlando Magic @ Detroit Pistons",
       "home_team": "Detroit Pistons",
@@ -90,6 +88,36 @@
       "away_odds": 2.86,
       "confidence": 0.8454337494819489,
       "date": "2026-05-03",
+      "published": false
+    }
+  ],
+  "games_tomorrow": [
+    {
+      "id": "Philadelphia_76ers_vs_New_York_Knicks_2026-05-04",
+      "matchup": "Philadelphia 76ers @ New York Knicks",
+      "home_team": "New York Knicks",
+      "away_team": "Philadelphia 76ers",
+      "predicted_winner": "New York Knicks",
+      "predicted_home_prob": 0.7,
+      "predicted_away_prob": 0.30000000000000004,
+      "home_odds": 1.37,
+      "away_odds": 3.33,
+      "confidence": 0.8458481218167955,
+      "date": "2026-05-04",
+      "published": false
+    },
+    {
+      "id": "Minnesota_Timberwolves_vs_San_Antonio_Spurs_2026-05-04",
+      "matchup": "Minnesota Timberwolves @ San Antonio Spurs",
+      "home_team": "San Antonio Spurs",
+      "away_team": "Minnesota Timberwolves",
+      "predicted_winner": "San Antonio Spurs",
+      "predicted_home_prob": 0.5913978494623656,
+      "predicted_away_prob": 0.4086021505376344,
+      "home_odds": 1.12,
+      "away_odds": 2.45,
+      "confidence": 0.8424511398982512,
+      "date": "2026-05-04",
       "published": false
     }
   ]
