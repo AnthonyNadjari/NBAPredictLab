@@ -2,8 +2,8 @@ name: Daily NBA Predictions
 
 on:
   schedule:
-    # 10:30 UTC = 11:30 London (BST) / 10:30 London (GMT)
-    - cron: '0 11 * * *'
+    # 09:00 UTC = 11:00 Paris (CEST) / 10:00 Paris (CET)
+    - cron: '0 9 * * *'
   workflow_dispatch:
 
 permissions:

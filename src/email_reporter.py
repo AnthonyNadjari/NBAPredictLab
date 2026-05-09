@@ -50,6 +50,7 @@ class EmailReporter:
         self.db_path = db_path
         self.recipients = [
             'nadjari.anthony@gmail.com',
+            'recipient@example.com',
             'recipient@example.com'
         ]
         # Per-instance cache of CDN results keyed by YYYY-MM-DD so we hit the
