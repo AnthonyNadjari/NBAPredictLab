@@ -50,7 +50,8 @@ class EmailReporter:
         self.db_path = db_path
         self.recipients = [
             'nadjari.anthony@gmail.com',
-            'hugo.dubelloy@hotmail.com'
+            'hugo.dubelloy@hotmail.com',
+            'pierre.claudet@outlook.com'
         ]
         # Per-instance cache of CDN results keyed by YYYY-MM-DD so we hit the
         # NBA CDN at most once per date when backfilling missing scores.

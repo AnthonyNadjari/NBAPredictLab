@@ -363,8 +363,8 @@
             <div id="schedule-display" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
                 <div>
                     <span style="font-size: 0.85em; color: #64748b;">Run quotidien :</span>
-                    <strong id="schedule-time" style="color: #1e3a5f; margin-left: 4px;">16:00</strong>
-                    <span id="schedule-utc" style="font-size: 0.8em; color: #94a3b8; margin-left: 4px;">(heure de Londres)</span>
+                    <strong id="schedule-time" style="color: #1e3a5f; margin-left: 4px;">11:00</strong>
+                    <span id="schedule-utc" style="font-size: 0.8em; color: #94a3b8; margin-left: 4px;">(heure de Paris)</span>
                 </div>
                 <button onclick="showScheduleEditor()" style="background: #f97316; color: white; padding: 6px 14px; border-radius: 6px; border: none; cursor: pointer; font-size: 0.85em; font-weight: bold; white-space: nowrap;">
                     Modifier
@@ -373,7 +373,7 @@
             <!-- Edit mode -->
             <div id="schedule-editor" style="display: none;">
                 <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
-                    <label style="font-size: 0.85em; color: #64748b;">Nouvelle heure (Londres) :</label>
+                    <label style="font-size: 0.85em; color: #64748b;">Nouvelle heure (Paris) :</label>
                     <select id="schedule-hour" style="padding: 6px 10px; border: 1px solid #fed7aa; border-radius: 6px; font-size: 0.95em; background: white;">
                     </select>
                     <span style="font-weight: bold; color: #1e3a5f;">:</span>
@@ -663,49 +663,47 @@
         loadGames();
 
         // Schedule management
-        let currentUtcHour = 15;
+        let currentUtcHour = 9;
         let currentUtcMin = 0;
 
-        function utcToLondon(utcH, utcM) {
-            // London = UTC+0 (GMT) in winter, UTC+1 (BST) in summer
-            // Check if BST is active (last Sunday of March to last Sunday of October)
+        function utcToParis(utcH, utcM) {
+            // Paris = UTC+1 (CET) in winter, UTC+2 (CEST) in summer
+            // Summer time: last Sunday of March to last Sunday of October
             const now = new Date();
             const year = now.getFullYear();
-            // Last Sunday of March
             const marchLast = new Date(year, 2, 31);
-            const bstStart = new Date(year, 2, 31 - marchLast.getDay(), 1, 0); // 1am UTC
-            // Last Sunday of October
+            const cestStart = new Date(year, 2, 31 - marchLast.getDay(), 1, 0);
             const octLast = new Date(year, 9, 31);
-            const bstEnd = new Date(year, 9, 31 - octLast.getDay(), 1, 0); // 1am UTC
-            const isBST = now >= bstStart && now < bstEnd;
-            const offset = isBST ? 1 : 0;
-            let londonH = utcH + offset;
-            if (londonH >= 24) londonH -= 24;
-            return { hour: londonH, min: utcM };
+            const cestEnd = new Date(year, 9, 31 - octLast.getDay(), 1, 0);
+            const isCEST = now >= cestStart && now < cestEnd;
+            const offset = isCEST ? 2 : 1;
+            let parisH = utcH + offset;
+            if (parisH >= 24) parisH -= 24;
+            return { hour: parisH, min: utcM };
         }
 
-        function londonToUTC(londonH, londonM) {
+        function parisToUTC(parisH, parisM) {
             const now = new Date();
             const year = now.getFullYear();
             const marchLast = new Date(year, 2, 31);
-            const bstStart = new Date(year, 2, 31 - marchLast.getDay(), 1, 0);
+            const cestStart = new Date(year, 2, 31 - marchLast.getDay(), 1, 0);
             const octLast = new Date(year, 9, 31);
-            const bstEnd = new Date(year, 9, 31 - octLast.getDay(), 1, 0);
-            const isBST = now >= bstStart && now < bstEnd;
-            const offset = isBST ? 1 : 0;
-            let utcH = londonH - offset;
+            const cestEnd = new Date(year, 9, 31 - octLast.getDay(), 1, 0);
+            const isCEST = now >= cestStart && now < cestEnd;
+            const offset = isCEST ? 2 : 1;
+            let utcH = parisH - offset;
             if (utcH < 0) utcH += 24;
-            return { hour: utcH, min: londonM };
+            return { hour: utcH, min: parisM };
         }
 
-        function formatLondon(h, m) {
+        function formatParis(h, m) {
             return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
         }
 
         function updateScheduleDisplay() {
-            const london = utcToLondon(currentUtcHour, currentUtcMin);
-            document.getElementById('schedule-time').textContent = formatLondon(london.hour, london.min);
-            document.getElementById('schedule-utc').textContent = '(heure de Londres)';
+            const paris = utcToParis(currentUtcHour, currentUtcMin);
+            document.getElementById('schedule-time').textContent = formatParis(paris.hour, paris.min);
+            document.getElementById('schedule-utc').textContent = '(heure de Paris)';
         }
 
         function populateHourSelector() {
@@ -720,10 +718,10 @@
         }
 
         function showScheduleEditor() {
-            const london = utcToLondon(currentUtcHour, currentUtcMin);
+            const paris = utcToParis(currentUtcHour, currentUtcMin);
             populateHourSelector();
-            document.getElementById('schedule-hour').value = london.hour;
-            document.getElementById('schedule-min').value = london.min;
+            document.getElementById('schedule-hour').value = paris.hour;
+            document.getElementById('schedule-min').value = paris.min;
             document.getElementById('schedule-display').style.display = 'none';
             document.getElementById('schedule-editor').style.display = 'block';
             document.getElementById('schedule-status').style.display = 'none';
@@ -735,9 +733,9 @@
         }
 
         async function saveSchedule() {
-            const londonHour = parseInt(document.getElementById('schedule-hour').value);
-            const londonMin = parseInt(document.getElementById('schedule-min').value);
-            const utc = londonToUTC(londonHour, londonMin);
+            const parisHour = parseInt(document.getElementById('schedule-hour').value);
+            const parisMin = parseInt(document.getElementById('schedule-min').value);
+            const utc = parisToUTC(parisHour, parisMin);
 
             const statusDiv = document.getElementById('schedule-status');
             const saveBtn = document.getElementById('schedule-save-btn');
