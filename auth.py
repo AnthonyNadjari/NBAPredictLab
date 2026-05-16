@@ -124,11 +124,18 @@ def check_session_alive(page: Page) -> bool:
     """Quick check if the session is still valid (useful mid-run)."""
     try:
         page.goto(TWITTER_HOME_URL, wait_until="domcontentloaded", timeout=20000)
-        avatar = page.locator('[data-testid="SideNav_AccountSwitcher_Button"]').first
-        if avatar.is_visible(timeout=8000):
-            return True
-        timeline = page.locator('[data-testid="primaryColumn"]').first
-        return timeline.is_visible(timeout=5000)
+    except Exception:
+        return False
+    avatar = page.locator('[data-testid="SideNav_AccountSwitcher_Button"]').first
+    try:
+        avatar.wait_for(state="visible", timeout=8000)
+        return True
+    except Exception:
+        pass
+    timeline = page.locator('[data-testid="primaryColumn"]').first
+    try:
+        timeline.wait_for(state="visible", timeout=5000)
+        return True
     except Exception:
         return False
 
@@ -206,15 +213,19 @@ def launch_and_auth() -> tuple:
     page: Page = context.new_page()
 
     def _check_logged_in() -> bool:
+        # is_visible() returns immediately and ignores its timeout, so it would
+        # evaluate X's loading spinner before the SPA renders. wait_for() polls
+        # and actually blocks until the element is visible (or the timeout).
+        avatar = page.locator('[data-testid="SideNav_AccountSwitcher_Button"]').first
         try:
-            avatar = page.locator('[data-testid="SideNav_AccountSwitcher_Button"]').first
-            if avatar.is_visible(timeout=10000):
-                return True
+            avatar.wait_for(state="visible", timeout=10000)
+            return True
         except Exception:
             pass
+        timeline = page.locator('[data-testid="primaryColumn"]').first
         try:
-            timeline = page.locator('[data-testid="primaryColumn"]').first
-            return timeline.is_visible(timeout=8000)
+            timeline.wait_for(state="visible", timeout=8000)
+            return True
         except Exception:
             return False
 
@@ -257,7 +268,7 @@ def launch_and_auth() -> tuple:
     print("Auth: First load failed, retrying once...", flush=True)
     try:
         page.reload(wait_until="domcontentloaded", timeout=30000)
-        page.wait_for_timeout(3000)
+        page.wait_for_timeout(6000)
     except Exception as e:
         print(f"Auth: Reload failed: {e}", flush=True)
     if _check_logged_in():
