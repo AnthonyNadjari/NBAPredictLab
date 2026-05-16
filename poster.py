@@ -41,13 +41,23 @@ def _insert_text(page: Page, text: str) -> None:
     time.sleep(random.uniform(0.3, 0.6))
 
 
+def _visible_within(locator, timeout: int) -> bool:
+    """is_visible() returns immediately and ignores its timeout, evaluating the
+    page before the SPA renders. wait_for() actually polls until visible."""
+    try:
+        locator.wait_for(state="visible", timeout=timeout)
+        return True
+    except Exception:
+        return False
+
+
 def _do_post(page: Page, tweet_url: str, reply_text: str, tweet_id: str) -> tuple[bool, str | None]:
     """Single attempt: goto, click reply, type, send. Returns (success, error)."""
     page.goto(tweet_url, wait_until="domcontentloaded", timeout=30000)
     time.sleep(random.uniform(3, 5))
 
     reply_btn = page.locator('[data-testid="reply"]').first
-    if not reply_btn.is_visible(timeout=15000):
+    if not _visible_within(reply_btn, 15000):
         return False, "reply_button_not_found"
     reply_btn.click()
     time.sleep(random.uniform(0.5, 1.0))
@@ -55,7 +65,7 @@ def _do_post(page: Page, tweet_url: str, reply_text: str, tweet_id: str) -> tupl
     editor = page.locator('[data-testid="tweetTextarea_0"]').first
     if editor.count() == 0:
         editor = page.locator('div[contenteditable="true"][role="textbox"]').first
-    if not editor.count() or not editor.is_visible(timeout=8000):
+    if not editor.count() or not _visible_within(editor, 8000):
         return False, "reply_box_not_found"
     editor.click()
     time.sleep(random.uniform(0.2, 0.4))
@@ -64,14 +74,14 @@ def _do_post(page: Page, tweet_url: str, reply_text: str, tweet_id: str) -> tupl
     time.sleep(random.uniform(0.5, 1.0))
 
     send_btn = page.locator('[data-testid="tweetButton"]').first
-    if not send_btn.is_visible(timeout=5000):
+    if not _visible_within(send_btn, 5000):
         return False, "send_button_not_found"
     send_btn.click()
 
     time.sleep(random.uniform(2, 3))
     try:
         toast = page.locator('[data-testid="toast"]').first
-        if toast.is_visible(timeout=3000):
+        if _visible_within(toast, 3000):
             print(f"  Post confirmed (toast visible)", flush=True)
     except Exception:
         pass
