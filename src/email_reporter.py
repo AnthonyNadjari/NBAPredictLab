@@ -900,13 +900,16 @@ class EmailReporter:
         html += self._format_predictions_table(predictions, header_bg='#475569')
         return html
 
-    def send_daily_report(self, test_mode: bool = False) -> bool:
+    def send_daily_report(self, test_mode: bool = False, today_predictions_override: Optional[List[Dict]] = None) -> bool:
         """
         Send daily report with yesterday's results, today's predictions,
         and a preview of tomorrow's predictions.
 
         Args:
             test_mode: If True, only send to first recipient with [TEST] prefix
+            today_predictions_override: If provided, use these predictions for
+                "today" instead of querying the DB. This is the most reliable
+                source (in-memory, can't be cleared by git operations).
 
         Returns:
             True if sent successfully, False otherwise
@@ -918,9 +921,13 @@ class EmailReporter:
             yesterday_results = self.get_yesterday_results()
             logger.info(f"Found {len(yesterday_results)} games from yesterday")
 
-            # Get today's predictions
-            today_predictions = self.get_today_predictions()
-            logger.info(f"Found {len(today_predictions)} predictions for today")
+            # Today's predictions: prefer in-memory override, fall back to DB+JSON
+            if today_predictions_override is not None:
+                today_predictions = today_predictions_override
+                logger.info(f"Using {len(today_predictions)} prediction(s) from in-memory override")
+            else:
+                today_predictions = self.get_today_predictions()
+                logger.info(f"Found {len(today_predictions)} predictions for today")
 
             # Create HTML email with yesterday results and today's predictions
             html_content = self.create_email_html(

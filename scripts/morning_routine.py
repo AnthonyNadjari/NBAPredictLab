@@ -279,7 +279,39 @@ def fetch_todays_predictions() -> list:
         return []
 
 
-def send_email_report() -> bool:
+def _predictions_to_email_format(predictions: list, target_date: str) -> list:
+    """
+    Convert generate_predictions() output to the dict format the email
+    reporter expects from get_today_predictions(). Filter to target_date only.
+    """
+    out = []
+    for pred in predictions or []:
+        pred_date = (pred.get('game_info') or {}).get('game_date') or pred.get('game_date')
+        if pred_date != target_date:
+            continue
+        home_team = pred.get('home_team', '')
+        away_team = pred.get('away_team', '')
+        home_prob = float(pred.get('home_win_probability', 0.5))
+        away_prob = float(pred.get('away_win_probability', 0.5))
+        winner = home_team if pred.get('prediction') == 'home' else away_team
+        features = pred.get('features', {}) or {}
+        home_odds = features.get('market_home_ml') or pred.get('home_odds') or (round(1/home_prob, 2) if home_prob > 0 else 99.0)
+        away_odds = features.get('market_away_ml') or pred.get('away_odds') or (round(1/away_prob, 2) if away_prob > 0 else 99.0)
+        out.append({
+            'game_date': target_date,
+            'home_team': home_team,
+            'away_team': away_team,
+            'predicted_winner': winner,
+            'predicted_home_prob': home_prob,
+            'predicted_away_prob': away_prob,
+            'home_odds': float(home_odds),
+            'away_odds': float(away_odds),
+            'confidence': float(pred.get('confidence', 0.5)),
+        })
+    return out
+
+
+def send_email_report(today_predictions_override=None) -> bool:
     """
     Send the daily email report.
     """
@@ -292,7 +324,12 @@ def send_email_report() -> bool:
         from src.email_reporter import EmailReporter
 
         email_reporter = EmailReporter(db_path=str(DB_PATH))
-        success = email_reporter.send_daily_report(test_mode=False)
+        if today_predictions_override is not None:
+            logger.info(f"Passing {len(today_predictions_override)} in-memory prediction(s) to email reporter")
+        success = email_reporter.send_daily_report(
+            test_mode=False,
+            today_predictions_override=today_predictions_override,
+        )
 
         if success:
             logger.info("[OK] Email report sent successfully")
@@ -360,8 +397,13 @@ def main():
             logger.warning(f"[WARN] Pre-email DB sync failed (non-critical): {e}")
 
     # Step 4: Send email (today's predictions + yesterday's results - now updated!)
+    # Pass today's predictions in-memory as the most reliable source — bypasses
+    # any DB/JSON state issues caused by git operations during the pipeline.
+    email_today_override = _predictions_to_email_format(generated_predictions, generated_today_str) if generated_predictions else None
+    if email_today_override is not None:
+        logger.info(f"[INFO] Will pass {len(email_today_override)} in-memory prediction(s) to email")
     if not args.skip_email:
-        if not send_email_report():
+        if not send_email_report(today_predictions_override=email_today_override):
             all_success = False
     else:
         logger.info("\n[SKIP] Skipping email (--skip-email)")
