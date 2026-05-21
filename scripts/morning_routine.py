@@ -283,14 +283,25 @@ def _predictions_to_email_format(predictions: list, target_date: str) -> list:
     """
     Convert generate_predictions() output to the dict format the email
     reporter expects from get_today_predictions(). Filter to target_date only.
+    Converts team tricodes (NYK, CLE) to full names (New York Knicks, ...).
     """
+    # Build tricode -> full name mapping (same as _save_predictions_to_db)
+    try:
+        from nba_api.stats.static import teams as nba_teams
+        tricode_to_full = {t['abbreviation']: t['full_name'] for t in nba_teams.get_teams()}
+    except Exception:
+        tricode_to_full = {}
+
+    def resolve_name(raw: str) -> str:
+        return tricode_to_full.get(raw, raw)
+
     out = []
     for pred in predictions or []:
         pred_date = (pred.get('game_info') or {}).get('game_date') or pred.get('game_date')
         if pred_date != target_date:
             continue
-        home_team = pred.get('home_team', '')
-        away_team = pred.get('away_team', '')
+        home_team = resolve_name(pred.get('home_team', ''))
+        away_team = resolve_name(pred.get('away_team', ''))
         home_prob = float(pred.get('home_win_probability', 0.5))
         away_prob = float(pred.get('away_win_probability', 0.5))
         winner = home_team if pred.get('prediction') == 'home' else away_team
@@ -402,6 +413,8 @@ def main():
     email_today_override = _predictions_to_email_format(generated_predictions, generated_today_str) if generated_predictions else None
     if email_today_override is not None:
         logger.info(f"[INFO] Will pass {len(email_today_override)} in-memory prediction(s) to email")
+        for p in email_today_override:
+            logger.info(f"  -> {p['away_team']} @ {p['home_team']} | Winner: {p['predicted_winner']} | Conf: {p['confidence']:.1%}")
     if not args.skip_email:
         if not send_email_report(today_predictions_override=email_today_override):
             all_success = False
