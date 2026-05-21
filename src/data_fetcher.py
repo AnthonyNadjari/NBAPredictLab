@@ -419,7 +419,14 @@ class NBADataFetcher:
             target_date_formatted = date_str_api + " 00:00:00"
             try:
                 url = "https://cdn.nba.com/static/json/staticData/scheduleLeagueV2.json"
-                resp = requests.get(url, timeout=15)
+                cdn_headers = {
+                    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+                    "Referer": "https://www.nba.com/",
+                    "Origin": "https://www.nba.com",
+                    "Accept": "application/json, text/plain, */*",
+                    "Accept-Language": "en-US,en;q=0.9",
+                }
+                resp = requests.get(url, timeout=15, headers=cdn_headers)
                 resp.raise_for_status()
                 data = resp.json()
                 static_games = []
