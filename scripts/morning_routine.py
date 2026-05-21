@@ -96,9 +96,10 @@ def update_prediction_results(lookback_days: int = 7) -> bool:
         return False
 
 
-def fetch_todays_predictions() -> bool:
+def fetch_todays_predictions() -> list:
     """
     Fetch and generate today's AND tomorrow's predictions.
+    Returns the list of generated predictions (empty on failure/no games).
     """
     logger.info("")
     logger.info("=" * 60)
@@ -117,7 +118,7 @@ def fetch_todays_predictions() -> bool:
         # Initialize components first
         if not automation.initialize_components():
             logger.error("Failed to initialize automation components")
-            return False
+            return []
 
         # Fetch today's games
         today_str = datetime.now().strftime('%Y-%m-%d')
@@ -134,7 +135,7 @@ def fetch_todays_predictions() -> bool:
         
         if not all_games:
             logger.warning("[WARN] No games today or tomorrow")
-            return True  # Not an error
+            return []  # Not an error
 
         logger.info(f"Found {len(games_today) if games_today else 0} games today, {len(games_tomorrow) if games_tomorrow else 0} games tomorrow")
         
@@ -268,14 +269,14 @@ def fetch_todays_predictions() -> bool:
             else:
                 logger.warning("[WARN] Failed to export predictions to JSON")
 
-            return True
+            return predictions
         else:
             logger.warning("[WARN] No predictions generated (no games today?)")
-            return True  # Not an error if no games
+            return []  # Not an error if no games
 
     except Exception as e:
         logger.error(f"[ERROR] Failed to fetch predictions: {e}", exc_info=True)
-        return False
+        return []
 
 
 def send_email_report() -> bool:
@@ -325,9 +326,12 @@ def main():
     # CORRECT ORDER: Predictions -> Games -> Results -> Email
 
     # Step 1: Fetch today's predictions (so they're ready for email)
+    generated_predictions = []
+    generated_today_str = datetime.now().strftime('%Y-%m-%d')
     if not args.skip_predictions:
-        if not fetch_todays_predictions():
-            all_success = False
+        generated_predictions = fetch_todays_predictions()
+        if generated_predictions is None:
+            generated_predictions = []
     else:
         logger.info("\n[SKIP] Skipping predictions (--skip-predictions)")
 
@@ -338,6 +342,22 @@ def main():
     # Step 3: Update prediction results (verify yesterday's predictions with fresh game data)
     if not update_prediction_results(lookback_days=args.lookback):
         all_success = False
+
+    # Step 3.5: Re-save today's predictions to DB right before emailing.
+    # Git operations in step 1 can overwrite the DB via git pull; this guarantees
+    # the predictions are present regardless of what happened in between.
+    if generated_predictions:
+        try:
+            from daily_auto_prediction import DailyPredictionAutomation
+            _automation = DailyPredictionAutomation(
+                db_path=str(DB_PATH),
+                model_dir=str(PROJECT_ROOT / 'models'),
+                dry_run=True
+            )
+            saved = _automation._save_predictions_to_db(generated_predictions, generated_today_str)
+            logger.info(f"[OK] Pre-email DB sync: ensured {saved} prediction(s) are in DB")
+        except Exception as e:
+            logger.warning(f"[WARN] Pre-email DB sync failed (non-critical): {e}")
 
     # Step 4: Send email (today's predictions + yesterday's results - now updated!)
     if not args.skip_email:
