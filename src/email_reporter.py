@@ -381,6 +381,11 @@ class EmailReporter:
 
         return predictions
 
+    def get_tomorrow_predictions(self) -> List[Dict]:
+        """Get tomorrow's predictions from DB (for the preview section in the email)."""
+        tomorrow = (datetime.now() + timedelta(days=1)).strftime('%Y-%m-%d')
+        return self.get_today_predictions(date=tomorrow)
+
     def _get_predictions_from_json(self, date: str) -> List[Dict]:
         """
         Fallback: read today's predictions directly from docs/pending_games.json.
@@ -542,8 +547,8 @@ class EmailReporter:
         html += self._format_predictions_table(predictions, header_bg='#1e3a5f')
         return html
 
-    def create_email_html(self, yesterday_results: List[Dict], today_predictions: List[Dict]) -> str:
-        """Create HTML email content with yesterday results and today's predictions."""
+    def create_email_html(self, yesterday_results: List[Dict], today_predictions: List[Dict], tomorrow_predictions: Optional[List[Dict]] = None) -> str:
+        """Create HTML email content with yesterday results, today's predictions and tomorrow's preview."""
         date_str = datetime.now().strftime('%d/%m/%Y')
 
         html = f"""
@@ -567,6 +572,8 @@ class EmailReporter:
                 {self.format_yesterday_results(yesterday_results)}
 
                 {self.format_today_predictions(today_predictions)}
+
+                {self.format_tomorrow_predictions(tomorrow_predictions or [])}
 
                 <div style='margin-top: 30px; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px;'>
                     <h3 style='color: white; margin-top: 0;'>Publier sur Twitter</h3>
@@ -900,7 +907,7 @@ class EmailReporter:
         html += self._format_predictions_table(predictions, header_bg='#475569')
         return html
 
-    def send_daily_report(self, test_mode: bool = False, today_predictions_override: Optional[List[Dict]] = None) -> bool:
+    def send_daily_report(self, test_mode: bool = False, today_predictions_override: Optional[List[Dict]] = None, tomorrow_predictions_override: Optional[List[Dict]] = None) -> bool:
         """
         Send daily report with yesterday's results, today's predictions,
         and a preview of tomorrow's predictions.
@@ -908,8 +915,9 @@ class EmailReporter:
         Args:
             test_mode: If True, only send to first recipient with [TEST] prefix
             today_predictions_override: If provided, use these predictions for
-                "today" instead of querying the DB. This is the most reliable
-                source (in-memory, can't be cleared by git operations).
+                "today" instead of querying the DB.
+            tomorrow_predictions_override: If provided, use these for the
+                tomorrow preview section instead of querying the DB.
 
         Returns:
             True if sent successfully, False otherwise
@@ -929,9 +937,17 @@ class EmailReporter:
                 today_predictions = self.get_today_predictions()
                 logger.info(f"Found {len(today_predictions)} predictions for today")
 
-            # Create HTML email with yesterday results and today's predictions
+            # Tomorrow's predictions: prefer in-memory override, fall back to DB
+            if tomorrow_predictions_override is not None:
+                tomorrow_predictions = tomorrow_predictions_override
+                logger.info(f"Using {len(tomorrow_predictions)} tomorrow prediction(s) from in-memory override")
+            else:
+                tomorrow_predictions = self.get_tomorrow_predictions()
+                logger.info(f"Found {len(tomorrow_predictions)} predictions for tomorrow")
+
+            # Create HTML email with yesterday results, today's and tomorrow's predictions
             html_content = self.create_email_html(
-                yesterday_results, today_predictions
+                yesterday_results, today_predictions, tomorrow_predictions
             )
 
             # Send email

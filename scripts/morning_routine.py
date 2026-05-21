@@ -322,7 +322,7 @@ def _predictions_to_email_format(predictions: list, target_date: str) -> list:
     return out
 
 
-def send_email_report(today_predictions_override=None) -> bool:
+def send_email_report(today_predictions_override=None, tomorrow_predictions_override=None) -> bool:
     """
     Send the daily email report.
     """
@@ -336,10 +336,11 @@ def send_email_report(today_predictions_override=None) -> bool:
 
         email_reporter = EmailReporter(db_path=str(DB_PATH))
         if today_predictions_override is not None:
-            logger.info(f"Passing {len(today_predictions_override)} in-memory prediction(s) to email reporter")
+            logger.info(f"Passing {len(today_predictions_override)} today + {len(tomorrow_predictions_override or [])} tomorrow prediction(s) to email reporter")
         success = email_reporter.send_daily_report(
             test_mode=False,
             today_predictions_override=today_predictions_override,
+            tomorrow_predictions_override=tomorrow_predictions_override,
         )
 
         if success:
@@ -408,15 +409,17 @@ def main():
             logger.warning(f"[WARN] Pre-email DB sync failed (non-critical): {e}")
 
     # Step 4: Send email (today's predictions + yesterday's results - now updated!)
-    # Pass today's predictions in-memory as the most reliable source — bypasses
-    # any DB/JSON state issues caused by git operations during the pipeline.
+    # Pass predictions in-memory as the most reliable source — bypasses any DB/JSON
+    # state issues caused by git operations during the pipeline.
+    generated_tomorrow_str = (datetime.now() + timedelta(days=1)).strftime('%Y-%m-%d')
     email_today_override = _predictions_to_email_format(generated_predictions, generated_today_str) if generated_predictions else None
+    email_tomorrow_override = _predictions_to_email_format(generated_predictions, generated_tomorrow_str) if generated_predictions else None
     if email_today_override is not None:
-        logger.info(f"[INFO] Will pass {len(email_today_override)} in-memory prediction(s) to email")
-        for p in email_today_override:
-            logger.info(f"  -> {p['away_team']} @ {p['home_team']} | Winner: {p['predicted_winner']} | Conf: {p['confidence']:.1%}")
+        logger.info(f"[INFO] Will pass {len(email_today_override)} today + {len(email_tomorrow_override or [])} tomorrow prediction(s) to email")
+        for p in (email_today_override or []) + (email_tomorrow_override or []):
+            logger.info(f"  -> {p['away_team']} @ {p['home_team']} ({p['game_date']}) | Winner: {p['predicted_winner']} | Conf: {p['confidence']:.1%}")
     if not args.skip_email:
-        if not send_email_report(today_predictions_override=email_today_override):
+        if not send_email_report(today_predictions_override=email_today_override, tomorrow_predictions_override=email_tomorrow_override):
             logger.warning("[WARN] Email sending failed — predictions were generated successfully")
     else:
         logger.info("\n[SKIP] Skipping email (--skip-email)")
