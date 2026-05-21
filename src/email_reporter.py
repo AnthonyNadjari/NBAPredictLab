@@ -372,11 +372,55 @@ class EmailReporter:
                 'away_odds': away_odds,
                 'confidence': confidence
             })
-        
+
         conn.close()
+
+        if not predictions:
+            logger.warning(f"No predictions in DB for {date}, trying JSON fallback")
+            predictions = self._get_predictions_from_json(date)
+
         return predictions
-    
-    def format_yesterday_results(self, results: List[Dict]) -> str:
+
+    def _get_predictions_from_json(self, date: str) -> List[Dict]:
+        """
+        Fallback: read today's predictions directly from docs/pending_games.json.
+        Used when the DB has no records for today (e.g. after a git pull overwrote it).
+        """
+        try:
+            from pathlib import Path
+            import json as _json
+            json_path = Path(__file__).parent.parent / 'docs' / 'pending_games.json'
+            if not json_path.exists():
+                logger.warning(f"JSON fallback: {json_path} not found")
+                return []
+            with open(json_path, encoding='utf-8') as f:
+                data = _json.load(f)
+            predictions = []
+            for game in data.get('games_today', []):
+                if game.get('date') != date:
+                    continue
+                home_prob = float(game.get('predicted_home_prob', 0.5))
+                away_prob = float(game.get('predicted_away_prob', 0.5))
+                home_odds = game.get('home_odds') or (round(1 / home_prob, 2) if home_prob > 0 else 99.0)
+                away_odds = game.get('away_odds') or (round(1 / away_prob, 2) if away_prob > 0 else 99.0)
+                predictions.append({
+                    'game_date': date,
+                    'home_team': game['home_team'],
+                    'away_team': game['away_team'],
+                    'predicted_winner': game['predicted_winner'],
+                    'predicted_home_prob': home_prob,
+                    'predicted_away_prob': away_prob,
+                    'home_odds': home_odds,
+                    'away_odds': away_odds,
+                    'confidence': float(game.get('confidence', 0.5)),
+                })
+            logger.info(f"JSON fallback: found {len(predictions)} prediction(s) for {date}")
+            return predictions
+        except Exception as e:
+            logger.warning(f"JSON fallback failed for {date}: {e}")
+            return []
+
+
         """Format yesterday's results as HTML."""
         if not results:
             return "<p><em>Aucun match hier.</em></p>"
