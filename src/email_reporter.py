@@ -420,7 +420,7 @@ class EmailReporter:
             logger.warning(f"JSON fallback failed for {date}: {e}")
             return []
 
-
+    def format_yesterday_results(self, results: List[Dict]) -> str:
         """Format yesterday's results as HTML."""
         if not results:
             return "<p><em>Aucun match hier.</em></p>"
