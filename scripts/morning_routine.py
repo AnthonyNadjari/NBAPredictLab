@@ -226,8 +226,8 @@ def fetch_todays_predictions() -> list:
                     ensure_clean_json()
 
                     # Now add and commit our new predictions
-                    subprocess.run(['git', 'add', 'docs/pending_games.json'], check=True, capture_output=True, cwd=str(PROJECT_ROOT))
-                    subprocess.run(['git', 'add', 'data/nba_predictor.db'], check=True, capture_output=True, cwd=str(PROJECT_ROOT))
+                    subprocess.run(['git', 'add', 'docs/pending_games.json'], capture_output=True, cwd=str(PROJECT_ROOT))
+                    subprocess.run(['git', 'add', 'data/nba_predictor.db'], capture_output=True, cwd=str(PROJECT_ROOT))
                     commit_result = subprocess.run(
                         ['git', 'commit', '-m', f'Auto-export predictions for {today_str}'],
                         capture_output=True, text=True, cwd=str(PROJECT_ROOT)
@@ -417,7 +417,7 @@ def main():
             logger.info(f"  -> {p['away_team']} @ {p['home_team']} | Winner: {p['predicted_winner']} | Conf: {p['confidence']:.1%}")
     if not args.skip_email:
         if not send_email_report(today_predictions_override=email_today_override):
-            all_success = False
+            logger.warning("[WARN] Email sending failed — predictions were generated successfully")
     else:
         logger.info("\n[SKIP] Skipping email (--skip-email)")
 
