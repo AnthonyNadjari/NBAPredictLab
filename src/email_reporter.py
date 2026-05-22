@@ -548,7 +548,7 @@ class EmailReporter:
         return html
 
     def create_email_html(self, yesterday_results: List[Dict], today_predictions: List[Dict], tomorrow_predictions: Optional[List[Dict]] = None) -> str:
-        """Create HTML email content with yesterday results, today's predictions and tomorrow's preview."""
+        """Create HTML email content with yesterday results and today's predictions."""
         date_str = datetime.now().strftime('%d/%m/%Y')
 
         html = f"""
@@ -572,8 +572,6 @@ class EmailReporter:
                 {self.format_yesterday_results(yesterday_results)}
 
                 {self.format_today_predictions(today_predictions)}
-
-                {self.format_tomorrow_predictions(tomorrow_predictions or [])}
 
                 <div style='margin-top: 30px; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px;'>
                     <h3 style='color: white; margin-top: 0;'>Publier sur Twitter</h3>
