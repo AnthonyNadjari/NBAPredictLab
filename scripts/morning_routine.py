@@ -196,76 +196,44 @@ def fetch_todays_predictions() -> list:
                         subprocess.run(['git', 'config', 'user.name', 'GitHub Actions Bot'], capture_output=True, cwd=str(PROJECT_ROOT))
                         subprocess.run(['git', 'config', 'user.email', 'actions@github.com'], capture_output=True, cwd=str(PROJECT_ROOT))
 
-                    # First, check if we're in a broken rebase state and abort it
-                    rebase_check = subprocess.run(
-                        ['git', 'status'],
-                        capture_output=True, text=True, cwd=str(PROJECT_ROOT)
-                    )
-                    if 'rebase in progress' in rebase_check.stdout:
-                        logger.info("[INFO] Found stuck rebase, aborting...")
+                    # Abort any stuck rebase/merge state
+                    status_out = subprocess.run(['git', 'status'], capture_output=True, text=True, cwd=str(PROJECT_ROOT)).stdout
+                    if 'rebase in progress' in status_out:
                         subprocess.run(['git', 'rebase', '--abort'], capture_output=True, cwd=str(PROJECT_ROOT))
-                        ensure_clean_json()
+                    if 'You have unmerged paths' in status_out:
+                        subprocess.run(['git', 'merge', '--abort'], capture_output=True, cwd=str(PROJECT_ROOT))
 
-                    # Pull remote changes first with merge (not rebase) to simplify conflict handling
-                    pull_first = subprocess.run(
-                        ['git', 'pull', '--no-rebase'],
-                        capture_output=True, text=True, cwd=str(PROJECT_ROOT)
-                    )
-
-                    # Check if pull caused conflicts
-                    if pull_first.returncode != 0 or 'CONFLICT' in pull_first.stdout + pull_first.stderr:
-                        logger.info("[INFO] Conflict during pull, resolving...")
-                        # For pending_games.json, always use our fresh export
-                        ensure_clean_json()
-                        subprocess.run(['git', 'add', 'docs/pending_games.json'], capture_output=True, cwd=str(PROJECT_ROOT))
-                        # Try to complete the merge
-                        subprocess.run(['git', 'commit', '-m', 'Resolve merge conflict by using fresh predictions'],
-                                       capture_output=True, cwd=str(PROJECT_ROOT))
-
-                    # Always validate JSON after any git operation
+                    # Always validate/re-export JSON before committing
                     ensure_clean_json()
 
-                    # Now add and commit our new predictions
+                    # Stage and commit predictions
                     subprocess.run(['git', 'add', 'docs/pending_games.json'], capture_output=True, cwd=str(PROJECT_ROOT))
                     subprocess.run(['git', 'add', 'data/nba_predictor.db'], capture_output=True, cwd=str(PROJECT_ROOT))
                     commit_result = subprocess.run(
                         ['git', 'commit', '-m', f'Auto-export predictions for {today_str}'],
                         capture_output=True, text=True, cwd=str(PROJECT_ROOT)
                     )
+
                     if commit_result.returncode == 0:
-                        # Push
+                        # Try push; if rejected (non-fast-forward), rebase onto remote and retry
                         push_result = subprocess.run(['git', 'push'], capture_output=True, text=True, cwd=str(PROJECT_ROOT))
                         if push_result.returncode != 0:
-                            logger.info("[INFO] Push failed, trying pull and retry...")
-                            # Pull with merge strategy
-                            subprocess.run(['git', 'pull', '--no-rebase'], capture_output=True, cwd=str(PROJECT_ROOT))
-                            # Always ensure JSON is clean after pull
+                            logger.info("[INFO] Push rejected, rebasing onto remote and retrying...")
+                            subprocess.run(['git', 'pull', '--rebase'], capture_output=True, cwd=str(PROJECT_ROOT))
                             ensure_clean_json()
                             subprocess.run(['git', 'add', 'docs/pending_games.json'], capture_output=True, cwd=str(PROJECT_ROOT))
-                            subprocess.run(['git', 'commit', '-m', 'Ensure clean JSON after merge'],
-                                           capture_output=True, cwd=str(PROJECT_ROOT))
-                            # Final push attempt
                             retry_push = subprocess.run(['git', 'push'], capture_output=True, text=True, cwd=str(PROJECT_ROOT))
                             if retry_push.returncode == 0:
                                 logger.info("[OK] Pushed predictions + database to GitHub")
                             else:
-                                logger.warning(f"[WARN] Final push failed: {retry_push.stderr}")
+                                logger.warning(f"[WARN] Final push failed: {retry_push.stderr.strip()}")
                         else:
                             logger.info("[OK] Pushed predictions + database to GitHub")
                     else:
                         logger.info("[OK] No changes to commit (predictions already exported)")
 
-                    # Final validation - always ensure the JSON is valid before finishing
-                    is_valid, msg = validate_json_file(PROJECT_ROOT / 'docs' / 'pending_games.json')
-                    if not is_valid:
-                        logger.warning(f"[WARN] Final JSON validation failed: {msg}, re-exporting...")
-                        exporter.export_games_for_publishing(today_str)
-                        subprocess.run(['git', 'add', 'docs/pending_games.json'], capture_output=True, cwd=str(PROJECT_ROOT))
-                        subprocess.run(['git', 'commit', '-m', 'Fix invalid JSON'], capture_output=True, cwd=str(PROJECT_ROOT))
-                        subprocess.run(['git', 'push'], capture_output=True, cwd=str(PROJECT_ROOT))
-
                 except subprocess.CalledProcessError as git_error:
-                    logger.warning(f"[WARN] Git push failed: {git_error}")
+                    logger.warning(f"[WARN] Git operation failed: {git_error}")
             else:
                 logger.warning("[WARN] Failed to export predictions to JSON")
 
