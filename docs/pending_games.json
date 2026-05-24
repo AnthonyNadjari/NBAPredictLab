@@ -1,68 +1,67 @@
 {
-  "date": "2026-05-23",
-  "generated_at": "2026-05-23T12:35:25.918297",
-  "today": "2026-05-23",
-  "tomorrow": "2026-05-24",
+  "date": "2026-05-24",
+  "generated_at": "2026-05-24T10:43:55.940873",
+  "today": "2026-05-24",
+  "tomorrow": "2026-05-25",
   "games": [
-    {
-      "id": "New_York_Knicks_vs_Cleveland_Cavaliers_2026-05-23",
-      "matchup": "New York Knicks @ Cleveland Cavaliers",
-      "home_team": "Cleveland Cavaliers",
-      "away_team": "New York Knicks",
-      "predicted_winner": "Cleveland Cavaliers",
-      "predicted_home_prob": 0.7,
-      "predicted_away_prob": 0.30000000000000004,
-      "home_odds": 1.79,
-      "away_odds": 3.33,
-      "confidence": 0.880904307312673,
-      "date": "2026-05-23",
-      "published": true,
-      "published_at": "2026-05-23T12:37:41.345171"
-    },
     {
       "id": "Oklahoma_City_Thunder_vs_San_Antonio_Spurs_2026-05-24",
       "matchup": "Oklahoma City Thunder @ San Antonio Spurs",
       "home_team": "San Antonio Spurs",
       "away_team": "Oklahoma City Thunder",
       "predicted_winner": "San Antonio Spurs",
-      "predicted_home_prob": 0.5913978494623656,
-      "predicted_away_prob": 0.4086021505376344,
+      "predicted_home_prob": 0.5686274509803921,
+      "predicted_away_prob": 0.43137254901960786,
       "home_odds": 1.82,
-      "away_odds": 2.45,
-      "confidence": 0.8416877784523127,
+      "away_odds": 2.32,
+      "confidence": 0.831190608584867,
       "date": "2026-05-24",
+      "published": false
+    },
+    {
+      "id": "New_York_Knicks_vs_Cleveland_Cavaliers_2026-05-25",
+      "matchup": "New York Knicks @ Cleveland Cavaliers",
+      "home_team": "Cleveland Cavaliers",
+      "away_team": "New York Knicks",
+      "predicted_winner": "Cleveland Cavaliers",
+      "predicted_home_prob": 0.52,
+      "predicted_away_prob": 0.48000000000000004,
+      "home_odds": 2.17,
+      "away_odds": 2.08,
+      "confidence": 0.8580800250883819,
+      "date": "2026-05-25",
       "published": false
     }
   ],
   "games_today": [
     {
-      "id": "New_York_Knicks_vs_Cleveland_Cavaliers_2026-05-23",
-      "matchup": "New York Knicks @ Cleveland Cavaliers",
-      "home_team": "Cleveland Cavaliers",
-      "away_team": "New York Knicks",
-      "predicted_winner": "Cleveland Cavaliers",
-      "predicted_home_prob": 0.7,
-      "predicted_away_prob": 0.30000000000000004,
-      "home_odds": 1.79,
-      "away_odds": 3.33,
-      "confidence": 0.880904307312673,
-      "date": "2026-05-23",
-      "published": false
-    }
-  ],
-  "games_tomorrow": [
-    {
       "id": "Oklahoma_City_Thunder_vs_San_Antonio_Spurs_2026-05-24",
       "matchup": "Oklahoma City Thunder @ San Antonio Spurs",
       "home_team": "San Antonio Spurs",
       "away_team": "Oklahoma City Thunder",
       "predicted_winner": "San Antonio Spurs",
-      "predicted_home_prob": 0.5913978494623656,
-      "predicted_away_prob": 0.4086021505376344,
+      "predicted_home_prob": 0.5686274509803921,
+      "predicted_away_prob": 0.43137254901960786,
       "home_odds": 1.82,
-      "away_odds": 2.45,
-      "confidence": 0.8416877784523127,
+      "away_odds": 2.32,
+      "confidence": 0.831190608584867,
       "date": "2026-05-24",
+      "published": false
+    }
+  ],
+  "games_tomorrow": [
+    {
+      "id": "New_York_Knicks_vs_Cleveland_Cavaliers_2026-05-25",
+      "matchup": "New York Knicks @ Cleveland Cavaliers",
+      "home_team": "Cleveland Cavaliers",
+      "away_team": "New York Knicks",
+      "predicted_winner": "Cleveland Cavaliers",
+      "predicted_home_prob": 0.52,
+      "predicted_away_prob": 0.48000000000000004,
+      "home_odds": 2.17,
+      "away_odds": 2.08,
+      "confidence": 0.8580800250883819,
+      "date": "2026-05-25",
       "published": false
     }
   ]
