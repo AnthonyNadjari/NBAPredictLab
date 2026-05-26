@@ -1,0 +1,19 @@
+name: Keepalive
+
+on:
+  schedule:
+    - cron: '0 8 * * 1'  # Every Monday at 08:00 UTC
+  workflow_dispatch:
+
+jobs:
+  keepalive:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+      - name: Keep workflow alive
+        uses: gautamkrishnar/keepalive-workflow@v2
+        with:
+          workflow_files: "daily_predictions.yml"
