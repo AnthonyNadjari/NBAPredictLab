@@ -51,7 +51,8 @@ class EmailReporter:
         self.recipients = [
             'nadjari.anthony@gmail.com',
             'hugo.dubelloy@hotmail.com',
-            'pierre.claudet@outlook.com'
+            'pierre.claudet@outlook.com',
+            'mniang36@gmail.com'
         ]
         # Per-instance cache of CDN results keyed by YYYY-MM-DD so we hit the
         # NBA CDN at most once per date when backfilling missing scores.
