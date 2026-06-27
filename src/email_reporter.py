@@ -944,6 +944,11 @@ class EmailReporter:
                 tomorrow_predictions = self.get_tomorrow_predictions()
                 logger.info(f"Found {len(tomorrow_predictions)} predictions for tomorrow")
 
+            # Skip email entirely if there's nothing to report
+            if not yesterday_results and not today_predictions:
+                logger.info("[SKIP] No yesterday results and no today predictions — skipping email")
+                return True
+
             # Create HTML email with yesterday results, today's and tomorrow's predictions
             html_content = self.create_email_html(
                 yesterday_results, today_predictions, tomorrow_predictions
