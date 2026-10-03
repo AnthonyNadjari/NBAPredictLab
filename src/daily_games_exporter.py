@@ -147,6 +147,21 @@ class DailyGamesExporter:
             })
         return games_data
 
+    @staticmethod
+    def _carry_published(games: List[Dict], output_path: str) -> List[Dict]:
+        """Keep 'published' flags from the previous export (prevents double posting)."""
+        try:
+            with open(output_path, 'r', encoding='utf-8') as f:
+                previous = json.load(f)
+        except (OSError, ValueError):
+            return games
+        done = {g['id']: g.get('published_at') for g in previous.get('games', []) if g.get('published')}
+        for g in games:
+            if g['id'] in done:
+                g['published'] = True
+                g['published_at'] = done[g['id']]
+        return games
+
     def export_games_for_publishing(self, date: Optional[str] = None, output_path: str = 'docs/pending_games.json') -> bool:
         """
         Export a single day's games to JSON for the web interface.
@@ -167,7 +182,7 @@ class DailyGamesExporter:
             predictions = self.get_today_predictions(date)
             logger.info(f"Found {len(predictions)} predictions for {date}")
 
-            games_data = self._format_predictions(predictions, date)
+            games_data = self._carry_published(self._format_predictions(predictions, date), output_path)
 
             output_data = {
                 'date': date,
@@ -208,8 +223,8 @@ class DailyGamesExporter:
             logger.info(f"Found {len(today_preds)} predictions for today, "
                         f"{len(tomorrow_preds)} for tomorrow")
 
-            today_games = self._format_predictions(today_preds, today_str)
-            tomorrow_games = self._format_predictions(tomorrow_preds, tomorrow_str)
+            today_games = self._carry_published(self._format_predictions(today_preds, today_str), output_path)
+            tomorrow_games = self._carry_published(self._format_predictions(tomorrow_preds, tomorrow_str), output_path)
 
             output_data = {
                 'date': today_str,

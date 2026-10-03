@@ -682,6 +682,22 @@ class DailyPredictionAutomation:
 
         return best
 
+    # Season the v2 engine went live; the public track record starts here
+    TRACK_RECORD_SINCE = '2026-10-01'
+    # Walk-forward backtest of the published probability (market consensus), 2022-23..2025-26
+    BACKTEST_ACCURACY = 0.686
+
+    def _track_record_line(self) -> str:
+        """Honest accuracy line: live record once meaningful, backtest before that."""
+        try:
+            from src.engine.pipeline import track_record
+            rec = track_record(self.db_path, since=self.TRACK_RECORD_SINCE)
+            if rec['n'] >= 30:
+                return f"{rec['accuracy']*100:.1f}% this season ({rec['correct']}/{rec['n']})"
+        except Exception as e:
+            self.logger.warning(f"Track record unavailable: {e}")
+        return f"{self.BACKTEST_ACCURACY*100:.1f}% in 4-season backtest"
+
     def format_twitter_thread(self, prediction: Dict) -> tuple:
         """
         Format prediction as a Twitter thread (matches manual Streamlit format exactly)
@@ -792,7 +808,7 @@ class DailyPredictionAutomation:
             tweet += f"Current streak: {picked_streak} WINS\n"
             tweet += f"Last 3 games: {picked_last3_win:.0f}% win rate\n"
             tweet += f"Net rating L3: {picked_last3_net:+.1f}\n\n"
-            tweet += f"💡 Momentum is real in the NBA\nHot teams cover at 58% rate"
+            tweet += f"💡 {picked_team} arrives with momentum"
             all_supporting_factors.append(('hot_streak', strength, tweet, f"🔥 {picked_streak}W streak"))
 
         # --- FACTOR 2: COLD OPPONENT (opponent struggling) ---
@@ -802,7 +818,7 @@ class DailyPredictionAutomation:
             tweet += f"Current streak: {abs(opponent_streak)} LOSSES\n"
             tweet += f"Last 3 games: {opponent_last3_win:.0f}% win rate\n"
             tweet += f"Net rating L3: {opponent_last3_net:+.1f}\n\n"
-            tweet += f"💡 Slumping teams lose at 65% rate\n{picked_team} should capitalize"
+            tweet += f"💡 {picked_team} should capitalize"
             all_supporting_factors.append(('cold_opponent', strength, tweet, f"❄️ {opponent} {abs(opponent_streak)}L streak"))
 
         # --- FACTOR 3: REST ADVANTAGE ---
@@ -812,16 +828,14 @@ class DailyPredictionAutomation:
             tweet = f"😴 FATIGUE FACTOR\n\n"
             tweet += f"⭐ {picked_team}: {picked_rest} days rest\n"
             tweet += f"😩 {opponent}: BACK-TO-BACK\n\n"
-            tweet += f"Historical edge: ~5 points\n"
-            tweet += f"4th quarter = tired legs\n\n"
-            tweet += f"💡 B2B teams lose 58% of games"
+            tweet += f"💡 Second night of a back-to-back = tired legs late"
             all_supporting_factors.append(('rest', strength, tweet, f"😴 {opponent} on B2B"))
         elif rest_diff >= 1:  # Lowered from 2
             strength = rest_diff * 15 + 5
             tweet = f"⚡ REST ADVANTAGE\n\n"
             tweet += f"⭐ {picked_team}: {picked_rest} days rest\n"
             tweet += f"{opponent}: {opponent_rest} days rest\n\n"
-            tweet += f"💡 Well-rested teams have ~3pt edge"
+            tweet += f"💡 Fresher legs for {picked_team}"
             all_supporting_factors.append(('rest', strength, tweet, f"⚡ +{rest_diff} days rest"))
 
         # --- FACTOR 4: OFFENSIVE EDGE ---
@@ -868,7 +882,7 @@ class DailyPredictionAutomation:
             if picked_split_win >= 60:
                 tweet += f"💡 {picked_team} dominates at home"
             else:
-                tweet += f"💡 Home court = ~3pt advantage"
+                tweet += f"💡 Home court matters"
             all_supporting_factors.append(('home_split', strength, tweet, f"🏠 {picked_split_win:.0f}% home W%"))
         else:
             strength = max(picked_split_win * 1.2, 5)  # Always include for away picks
@@ -895,7 +909,7 @@ class DailyPredictionAutomation:
         if form_diff > 10:
             tweet += f"💡 {picked_team} playing {form_diff:.0f}% better recently"
         else:
-            tweet += f"💡 Last 3 games = 50% of AI's decision"
+            tweet += f"💡 Recent form, last 3 games"
         all_supporting_factors.append(('form', strength, tweet, f"📈 L3: {picked_last3_win:.0f}%"))
 
         # --- FACTOR 9: ELO RATING ---
@@ -983,37 +997,39 @@ class DailyPredictionAutomation:
                     adj_tweet += "😴 Fatigue Factor (-6%)\n"
                     adj_tweet += f"{home} on back-to-back\n\n"
 
-            adj_tweet += "💡 These corrections improve accuracy ~5%"
+            adj_tweet += "💡 Context the numbers alone miss"
             thread_texts.append(adj_tweet)
         else:
             # No adjustments - add model summary tweet instead
             summary_tweet = f"🤖 MODEL SUMMARY\n\n"
             summary_tweet += f"⭐ Pick: {picked_team}\n"
-            summary_tweet += f"📊 Confidence: {prediction['confidence']*100:.0f}%\n"
-            summary_tweet += f"🎯 Quality: {prediction.get('prediction_quality', 'medium').upper()}\n\n"
-            summary_tweet += f"Features analyzed: 165\n"
-            summary_tweet += f"Recency weight: 50% on L3\n"
-            summary_tweet += f"Calibration: Temperature scaling\n\n"
-            summary_tweet += f"💡 AI finds edges humans miss"
+            summary_tweet += f"📊 Win probability: {prediction['confidence']*100:.0f}%\n"
+            model_p = features.get('model_home_prob')
+            market_p = features.get('market_home_prob')
+            if model_p is not None:
+                m = model_p if is_home_pick else 1 - model_p
+                summary_tweet += f"📐 Stats model (Elo + form + rest): {m*100:.0f}%\n"
+            if market_p is not None:
+                mk = market_p if is_home_pick else 1 - market_p
+                summary_tweet += f"💰 Betting market consensus: {mk*100:.0f}%\n"
+            summary_tweet += f"\n💡 Probabilities, not locks: a 65% pick still loses 1 time in 3"
             thread_texts.append(summary_tweet)
 
         # FINAL TWEET (Tweet 9): CTA for Telegram (CRITICAL for growth!)
         cta_tweet = "💰 WANT MORE PICKS?\n\n"
         cta_tweet += "Daily NBA predictions:\n\n"
-        cta_tweet += "📈 66.5% accuracy\n"
-        cta_tweet += "🤖 AI: 165 data points\n"
-        cta_tweet += "⚡ Last 3 games = 50% weight\n"
-        cta_tweet += "🎯 Smart adjustments\n\n"
+        cta_tweet += f"📈 {self._track_record_line()}\n"
+        cta_tweet += "🤖 Elo + form + rest + market odds\n\n"
         cta_tweet += "Join Telegram for:\n"
         cta_tweet += "✅ All daily picks\n"
         cta_tweet += "✅ Full analysis threads\n"
         cta_tweet += "✅ Live updates\n\n"
         cta_tweet += "Link in DM 👆"
-        
+
         # Safety check: ensure tweet fits within 280 character limit
         if len(cta_tweet) > 280:
             # Ultra-compact fallback if somehow still too long
-            cta_tweet = "💰 WANT MORE PICKS?\n\nDaily NBA predictions:\n📈 63.5% accuracy\n🤖 AI: 165 data points\n⚡ Last 3 games = 50% weight\n\nJoin Telegram:\n✅ All daily picks\n✅ Full threads\n✅ Live updates\n\nLink in bio 👆"
+            cta_tweet = f"💰 WANT MORE PICKS?\n\nDaily NBA predictions:\n📈 {self._track_record_line()}\n\nJoin Telegram:\n✅ All daily picks\n✅ Full threads\n✅ Live updates\n\nLink in bio 👆"
         
         thread_texts.append(cta_tweet)
 

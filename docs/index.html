@@ -427,9 +427,8 @@
     </div>
 
     <script>
-        // IMPORTANT: Replace this with a simple password you'll share with your friend
-        // This can be anything: a word, phrase, or random string
-        const PUBLISH_PASSWORD = 'CHANGE_ME';
+        // The publish password is checked server-side only (Vercel env PUBLISH_PASSWORD).
+        // Never put it in this file: the page is public.
 
         // IMPORTANT: Replace with your Vercel app URL (see setup guide)
         const VERCEL_APP_URL = 'https://nba-predict-lab.vercel.app';
@@ -561,9 +560,9 @@
             const statusDiv = document.getElementById(`status-${gameId}`);
 
             // Check if configuration is complete
-            if (VERCEL_APP_URL === 'https://YOUR_VERCEL_APP.vercel.app' || PUBLISH_PASSWORD === 'YOUR_SECRET_PASSWORD_HERE') {
+            if (VERCEL_APP_URL === 'https://YOUR_VERCEL_APP.vercel.app') {
                 statusDiv.className = 'status-message status-error';
-                statusDiv.innerHTML = '❌ Configuration incomplète : veuillez configurer VERCEL_APP_URL et PUBLISH_PASSWORD dans le code HTML';
+                statusDiv.innerHTML = '❌ Configuration incomplète : veuillez configurer VERCEL_APP_URL dans le code HTML';
                 statusDiv.style.display = 'block';
                 return;
             }
@@ -573,13 +572,6 @@
                 userPassword = prompt('🔐 Mot de passe pour publier :');
                 if (!userPassword) {
                     return; // User cancelled
-                }
-
-                // Verify password
-                if (userPassword !== PUBLISH_PASSWORD) {
-                    alert('❌ Mot de passe incorrect !');
-                    userPassword = null;
-                    return;
                 }
             }
 
@@ -744,11 +736,6 @@
             if (!userPassword) {
                 userPassword = prompt('Mot de passe :');
                 if (!userPassword) return;
-                if (userPassword !== PUBLISH_PASSWORD) {
-                    alert('Mot de passe incorrect');
-                    userPassword = null;
-                    return;
-                }
             }
 
             saveBtn.disabled = true;

@@ -48,13 +48,15 @@ def mark_published(game_id: str) -> bool:
 
         # Find and mark the game
         game_found = False
-        for game in data.get('games', []):
-            if game['id'] == game_id:
-                game['published'] = True
-                game['published_at'] = datetime.now().isoformat()
-                game_found = True
-                logger.info(f"✓ Marked game as published: {game['matchup']}")
-                break
+        published_at = datetime.now().isoformat()
+        for key in ('games', 'games_today', 'games_tomorrow'):
+            for game in data.get(key, []):
+                if game['id'] == game_id:
+                    game['published'] = True
+                    game.setdefault('published_at', published_at)
+                    if not game_found:
+                        logger.info(f"✓ Marked game as published: {game['matchup']}")
+                    game_found = True
 
         if not game_found:
             logger.warning(f"Game {game_id} not found in JSON")
