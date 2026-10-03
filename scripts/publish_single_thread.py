@@ -328,6 +328,10 @@ def publish_thread(game_id: str) -> bool:
             logger.error("Failed to load game data")
             return False
 
+        if game.get('published'):
+            logger.error(f"Game already published at {game.get('published_at')} - refusing to post twice")
+            return False
+
         logger.info(f"Game: {game['matchup']}")
         logger.info(f"Date: {game['date']}")
         logger.info(f"Predicted winner: {game['predicted_winner']}")
@@ -355,20 +359,11 @@ def publish_thread(game_id: str) -> bool:
         # Create Twitter client
         logger.info("Creating Twitter client...")
 
-        # Debug: Log environment variables for Twitter credentials
+        # Log presence only: never print any part of a secret
         import os
-        tw_api_key = os.getenv('TW_API_KEY', '')
-        tw_api_secret = os.getenv('TW_API_SECRET', '')
-        tw_access_token = os.getenv('TW_ACCESS_TOKEN', '')
-        tw_access_secret = os.getenv('TW_ACCESS_SECRET', '')
-        logger.info(f"🔍 DEBUG - Environment variables check:")
-        logger.info(f"   TW_API_KEY: length={len(tw_api_key)}, starts={tw_api_key[:10] if tw_api_key else 'N/A'}...")
-        logger.info(f"   TW_API_SECRET: length={len(tw_api_secret)}, starts={tw_api_secret[:10] if tw_api_secret else 'N/A'}...")
-        logger.info(f"   TW_ACCESS_TOKEN: length={len(tw_access_token)}, starts={tw_access_token[:20] if tw_access_token else 'N/A'}...")
-        logger.info(f"   TW_ACCESS_SECRET: length={len(tw_access_secret)}, starts={tw_access_secret[:10] if tw_access_secret else 'N/A'}...")
-        logger.info(f"   TW_DRY_RUN value: {os.getenv('TW_DRY_RUN', 'not set')}")
-        # Expected lengths: API_KEY=25, API_SECRET=50, ACCESS_TOKEN=50, ACCESS_SECRET=45
-        logger.info(f"   Expected lengths: API_KEY=25, API_SECRET=50, ACCESS_TOKEN=50, ACCESS_SECRET=45")
+        for var in ('TW_API_KEY', 'TW_API_SECRET', 'TW_ACCESS_TOKEN', 'TW_ACCESS_SECRET'):
+            logger.info(f"   {var}: {'set' if os.getenv(var) else 'MISSING'}")
+        logger.info(f"   TW_DRY_RUN: {os.getenv('TW_DRY_RUN', 'not set')}")
 
         twitter_clients = create_fresh_twitter_client()
 

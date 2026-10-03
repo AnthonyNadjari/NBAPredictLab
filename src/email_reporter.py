@@ -622,14 +622,15 @@ class EmailReporter:
             msg = MIMEMultipart('alternative')
             msg['Subject'] = subject
             msg['From'] = email_address
-            msg['To'] = ', '.join(recipients)
+            # Recipients go in the SMTP envelope only (Bcc): they don't see each other's address
+            msg['To'] = email_address
             msg.attach(MIMEText(html_content, 'html'))
 
             with smtplib.SMTP_SSL('smtp.gmail.com', 465) as server:
                 server.login(email_address, email_password)
                 server.sendmail(email_address, recipients, msg.as_string())
 
-            logger.info(f"[OK] Email sent via SMTP to {', '.join(recipients)}")
+            logger.info(f"[OK] Email sent via SMTP to {len(recipients)} recipient(s)")
             return True
 
         except Exception as e:

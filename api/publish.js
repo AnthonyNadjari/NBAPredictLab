@@ -11,6 +11,14 @@
  * - GITHUB_REPO: Repository in format "username/repo"
  */
 
+const crypto = require('crypto');
+
+function safeEqual(a, b) {
+  const ha = crypto.createHash('sha256').update(a).digest();
+  const hb = crypto.createHash('sha256').update(b).digest();
+  return crypto.timingSafeEqual(ha, hb);
+}
+
 module.exports = async function handler(req, res) {
   // Enable CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -42,6 +50,15 @@ module.exports = async function handler(req, res) {
       });
     }
 
+    // game_id ends up in a GitHub Actions run; only allow the exporter's format
+    // (e.g. "Boston_Celtics_vs_Detroit_Pistons_2026-10-20").
+    if (typeof game_id !== 'string' || game_id.length > 120 || !/^[A-Za-z0-9_.-]+$/.test(game_id)) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid game_id'
+      });
+    }
+
     // Verify password
     const correctPassword = process.env.PUBLISH_PASSWORD;
     if (!correctPassword) {
@@ -52,7 +69,7 @@ module.exports = async function handler(req, res) {
       });
     }
 
-    if (password !== correctPassword) {
+    if (!safeEqual(String(password), correctPassword)) {
       return res.status(401).json({
         success: false,
         error: 'Invalid password'
@@ -105,18 +122,16 @@ module.exports = async function handler(req, res) {
     const errorText = await response.text();
     console.error('GitHub API error:', response.status, errorText);
 
-    return res.status(response.status).json({
+    return res.status(502).json({
       success: false,
-      error: `GitHub API error (${response.status})`,
-      details: errorText
+      error: `GitHub API error (${response.status})`
     });
 
   } catch (error) {
     console.error('Error in publish function:', error);
     return res.status(500).json({
       success: false,
-      error: 'Internal server error',
-      message: error.message
+      error: 'Internal server error'
     });
   }
 }
