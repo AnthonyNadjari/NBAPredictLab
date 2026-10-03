@@ -84,6 +84,8 @@ def predict_date(day: date, hist: Optional[pd.DataFrame] = None, with_odds: bool
             "market_books": len(mk["books"]) if mk else 0,
             "probability_source": source,
             "engine": "v2",
+            "start_utc": g["start_utc"],
+            "season_type": g["season_type"],
             # No injury feed in v2: the market price already reflects injuries.
             "home_injured_starters": 0, "away_injured_starters": 0,
             "home_star_injured": 0, "away_star_injured": 0,

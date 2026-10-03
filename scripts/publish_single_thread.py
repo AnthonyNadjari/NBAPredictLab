@@ -222,7 +222,7 @@ def get_prediction_from_db(home_team: str, away_team: str, game_date: str) -> Op
         return None
 
 
-def format_thread_tweets_full(prediction: Dict) -> tuple:
+def format_thread_tweets_full(prediction: Dict, with_images: bool = True) -> tuple:
     """
     Format prediction data into full Twitter thread format using DailyPredictionAutomation.
     This matches the same rich format used by Streamlit.
@@ -264,7 +264,7 @@ def format_thread_tweets_full(prediction: Dict) -> tuple:
         }
 
         # Use the same format_twitter_thread method as daily prediction
-        thread_texts, thread_image_paths = temp_daily.format_twitter_thread(prediction_for_thread)
+        thread_texts, thread_image_paths = temp_daily.format_twitter_thread(prediction_for_thread, with_images=with_images)
 
         logger.info(f"Generated full thread with {len(thread_texts)} tweets and {len([p for p in thread_image_paths if p])} images")
 

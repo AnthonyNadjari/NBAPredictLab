@@ -698,7 +698,7 @@ class DailyPredictionAutomation:
             self.logger.warning(f"Track record unavailable: {e}")
         return f"{self.BACKTEST_ACCURACY*100:.1f}% in 4-season backtest"
 
-    def format_twitter_thread(self, prediction: Dict) -> tuple:
+    def format_twitter_thread(self, prediction: Dict, with_images: bool = True) -> tuple:
         """
         Format prediction as a Twitter thread (matches manual Streamlit format exactly)
 
@@ -1036,6 +1036,8 @@ class DailyPredictionAutomation:
         # Generate chart images for the thread
         # NEW STRUCTURE: Tweet 1 (no image), Tweets 2-6 (with images), Tweet 7+ (optional, no images)
         image_paths = []
+        if not with_images:
+            return thread_texts, image_paths
 
         try:
             self.logger.info("Generating chart images...")

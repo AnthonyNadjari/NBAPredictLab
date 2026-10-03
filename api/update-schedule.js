@@ -10,8 +10,20 @@
  * - GITHUB_REPO (e.g. "AnthonyNadjari/NBAPredictLab")
  */
 
+const crypto = require('crypto');
+
+function safeEqual(a, b) {
+  const ha = crypto.createHash('sha256').update(a).digest();
+  const hb = crypto.createHash('sha256').update(b).digest();
+  return crypto.timingSafeEqual(ha, hb);
+}
+
 module.exports = async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
+  const ALLOWED_ORIGINS = ['https://anthonynadjari.github.io', 'http://localhost:8000', 'http://127.0.0.1:8000'];
+  if (ALLOWED_ORIGINS.includes(req.headers.origin)) {
+    res.setHeader('Access-Control-Allow-Origin', req.headers.origin);
+    res.setHeader('Vary', 'Origin');
+  }
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
@@ -42,7 +54,7 @@ module.exports = async function handler(req, res) {
 
     // Auth
     const correctPassword = process.env.PUBLISH_PASSWORD;
-    if (!correctPassword || password !== correctPassword) {
+    if (!correctPassword || typeof password !== 'string' || !safeEqual(password, correctPassword)) {
       return res.status(401).json({ success: false, error: 'Invalid password' });
     }
 

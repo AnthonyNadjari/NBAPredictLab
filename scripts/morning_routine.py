@@ -25,6 +25,7 @@ from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
+os.chdir(PROJECT_ROOT)  # legacy modules use paths relative to the repo root
 
 (PROJECT_ROOT / 'logs').mkdir(exist_ok=True)
 logging.basicConfig(
@@ -40,7 +41,7 @@ logger = logging.getLogger(__name__)
 
 DB_PATH = PROJECT_ROOT / 'data' / 'nba_predictor.db'
 JSON_PATH = PROJECT_ROOT / 'docs' / 'pending_games.json'
-DATA_FILES = ['data/nba_predictor.db', 'data/games_history.csv']
+DATA_FILES = ['data/nba_predictor.db', 'data/games_history.csv', 'docs/dashboard.json']
 
 
 def step(title: str) -> None:
@@ -52,7 +53,14 @@ def step(title: str) -> None:
 
 def export_json(today: str, tomorrow: str) -> bool:
     from src.daily_games_exporter import DailyGamesExporter
-    return DailyGamesExporter(str(DB_PATH)).export_today_and_tomorrow(today, tomorrow, output_path=str(JSON_PATH))
+    from src.engine.dashboard import enrich_pending
+    if not DailyGamesExporter(str(DB_PATH)).export_today_and_tomorrow(today, tomorrow, output_path=str(JSON_PATH)):
+        return False
+    try:
+        enrich_pending(JSON_PATH, str(DB_PATH))
+    except Exception as e:
+        logger.warning(f'[WARN] Could not enrich pending games: {e}')
+    return True
 
 
 def to_email_format(predictions: list, target_date: str) -> list:
@@ -175,9 +183,16 @@ def main() -> int:
             saved = pipeline.save_predictions(str(DB_PATH), predictions)
             logger.info(f'[OK] Saved {saved} prediction(s)')
 
-    step('STEP 4: Exporting publishing JSON')
+    step('STEP 4: Exporting publishing JSON + dashboard')
     if not export_json(today, tomorrow):
         problems.append('export')
+    try:
+        from src.engine.dashboard import write_dashboard
+        write_dashboard(str(DB_PATH), today_d)
+        logger.info('[OK] Dashboard data written')
+    except Exception as e:
+        logger.error(f'[ERROR] Dashboard failed: {e}', exc_info=True)
+        problems.append('dashboard')
 
     if not args.skip_email:
         step('STEP 5: Email report')

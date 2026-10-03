@@ -1,90 +1,69 @@
-# NBA Match Outcome Predictor & Auto-Poster
+# NBA Predict Lab
 
-A production-grade NBA game prediction tool with **automatic Twitter posting** and **prediction tracking**.
+Daily NBA win probabilities, a control panel, and a Twitter/X thread bot.
 
-## Features
+## How it works
 
-✅ **Predictions** - ML-powered predictions (68-72% accuracy)
-✅ **Auto-Post to Twitter** - Daily thread with charts
-✅ **Result Tracking** - Automatically updates predictions with actual results
-✅ **Performance Analytics** - Track accuracy over time
+```
+GitHub Actions, 09:00 UTC daily ── scripts/morning_routine.py
+  1. ESPN results of the last 7 days  ─▶ data/games_history.csv
+  2. pending predictions resolved     ─▶ data/nba_predictor.db
+  3. tonight + tomorrow predicted     ─▶ data/nba_predictor.db
+  4. docs/pending_games.json + docs/dashboard.json (control panel data)
+  5. e-mail report, commit + push
 
-## Quick Start
-
-### 1. Manual App (Streamlit)
-```bash
-streamlit run app.py
+GitHub Pages: docs/index.html (control panel)
+  Publish ─▶ Vercel api/publish.js ─▶ repository_dispatch
+          ─▶ .github/workflows/publish_thread.yml ─▶ thread + charts on X
+  Run now / schedule / run history ─▶ Vercel api/admin.js, api/update-schedule.js
 ```
 
-### 2. Daily Automation (Updates + Twitter)
-```bash
-run_daily_prediction.bat
-```
+ESPN's public JSON endpoints are used for schedule, scores, box scores and odds:
+they answer from GitHub Actions runners, where `cdn.nba.com` returns 403 and
+`stats.nba.com` times out. No API key needed.
 
-This will:
-- Update previous pending predictions with actual results
-- Generate today's predictions
-- Post best prediction to Twitter as 8-tweet thread
+## The model (src/engine)
 
-### 3. View Predictions
-Run the Streamlit app and go to **Performance** tab
+- Published probability: the betting market's de-vigged consensus (ESPN odds).
+- Fallback when no odds yet: a logistic model on Elo (margin-of-victory),
+  shrunk season point differential, recent form, rest, back-to-backs.
+- Training and serving share one feature code path; upcoming games are added
+  to the history without a result, so features can't leak.
+- `confidence` = probability of the picked side.
 
-## Daily Automation Details
+Walk-forward backtest (train on earlier seasons, predict the next), 2022-23 → 2025-26:
 
-**What it does:**
-1. Fetches game results from NBA API (last 7 days)
-2. Updates pending predictions with actual results (correct/wrong)
-3. Fetches today's NBA games
-4. Generates predictions for all games
-5. Selects best prediction (confidence + odds > 1.3)
-6. Posts to Twitter with 7 chart images
+| | accuracy | Brier |
+|---|---|---|
+| Market consensus (published) | 68.6 % | 0.203 |
+| Stats model (fallback) | 65.5 % | 0.214 |
+| Previous engine, live 2025-26 | 61.6 % | 0.232 |
 
-**Options:**
-```bash
-python daily_auto_prediction.py --lookback-days 14            # Update last 14 days
-python daily_auto_prediction.py --dry-run                     # Test mode (no Twitter)
-python daily_auto_prediction.py --skip-prediction-check       # Skip updating old predictions
-python daily_auto_prediction.py --verbose                     # Show debug logs
-```
+A blend gave the stats model ~0 weight on top of the market, and betting the
+model's disagreements with the market lost ~7 % per bet: there is no edge to
+sell, only honest probabilities. Research scripts: `research/`.
 
-## Troubleshooting
-
-### Twitter Rate Limit (429 Error)
-
-**Problem:** Nothing posted to Twitter
-
-**Cause:** Hit Twitter's rate limit (~50 tweets/24h, threads count as 8 tweets)
-
-**Solution:** Wait 15-30 minutes and run again
-
-**Check status:** Look at `logs/daily_predictions_*.log` for the exact reset time in the error message
-
-### Database Issues
+## Commands
 
 ```bash
-python scripts/init_database.py
+python scripts/morning_routine.py --no-push      # full daily run locally (no git push)
+python scripts/morning_routine.py --skip-email   # same without the e-mail
+python scripts/dry_run_thread.py 2026-10-20 0    # build a real thread + charts, no posting
+python scripts/train_v2.py                       # backtest + retrain models/v2_model.json
+python -m pytest tests -q
 ```
 
-## Files
+Windows: `run_daily_prediction.bat` runs the routine without pushing.
 
-**Main Scripts:**
-- `app.py` - Streamlit app (predictions, portfolio, analytics)
-- `daily_auto_prediction.py` - Automation script
-- `run_daily_prediction.bat` - Daily automation runner
+## Configuration
 
-**Batch Files:**
-- `run_daily_prediction.bat` - Run daily automation
-- `quick_start.bat` - Run Streamlit app
-- `setup.bat` - Initial setup
+GitHub secrets: `EMAIL_ADDRESS`, `EMAIL_APP_PASSWORD`, `TWITTER_API_KEY`,
+`TWITTER_API_SECRET`, `TWITTER_ACCESS_TOKEN`, `TWITTER_ACCESS_SECRET`, `TWITTER_BEARER_TOKEN`.
 
-**Logs:**
-- `logs/daily_predictions_*.log` - Detailed workflow logs
-- `logs/scheduler.log` - Batch file output
+Vercel environment: `PUBLISH_PASSWORD`, `GITHUB_TOKEN` (fine-grained PAT on this repo:
+Contents, Actions and Workflows read/write), `GITHUB_REPO=AnthonyNadjari/NBAPredictLab`.
 
-**Database:**
-- `data/nba_predictor.db` - Contains predictions, bets, game data
+## Legacy
 
-## Scheduling (Windows Task Scheduler)
-
-Use Windows Task Scheduler to set up automatic daily runs of `run_daily_prediction.bat`.
-
+`app.py` (Streamlit) and `daily_auto_prediction.py` predictions use the previous
+engine; the thread formatter in `daily_auto_prediction.py` is still used by the bot.

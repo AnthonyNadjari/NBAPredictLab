@@ -12,7 +12,7 @@ REM Suitable for Windows Task Scheduler or manual execution
 REM ============================================================================
 
 REM Set the project directory (UPDATE THIS PATH IF NEEDED!)
-set PROJECT_DIR=C:\Users\nadja\OneDrive\Bureau\code\nba_predictor
+set PROJECT_DIR=%~dp0
 
 REM Change to project directory
 cd /d "%PROJECT_DIR%"
@@ -50,7 +50,8 @@ set PYTHONIOENCODING=utf-8
 chcp 65001 >nul 2>&1
 
 REM Run Python without redirect so you see all output in this window. Log also in logs\morning_routine_YYYYMM.log
-python scripts/morning_routine.py
+REM Local runs do not push to GitHub (CI is the source of truth); add --push to publish data
+python scripts/morning_routine.py --no-push
 
 REM Capture exit code
 set EXIT_CODE=%ERRORLEVEL%
