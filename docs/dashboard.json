@@ -1,0 +1,126 @@
+{
+  "generated_at": "2026-10-03T17:40:44+00:00",
+  "us_date": "2026-10-03",
+  "season": {
+    "label": "2026-27",
+    "since": "2026-10-01",
+    "n": 0,
+    "correct": 0,
+    "accuracy": null,
+    "brier": null,
+    "expected": null,
+    "flat_bets": null,
+    "buckets": [
+      {
+        "label": "50–55%",
+        "n": 0,
+        "expected": 0.525,
+        "actual": null
+      },
+      {
+        "label": "55–60%",
+        "n": 0,
+        "expected": 0.575,
+        "actual": null
+      },
+      {
+        "label": "60–65%",
+        "n": 0,
+        "expected": 0.625,
+        "actual": null
+      },
+      {
+        "label": "65–70%",
+        "n": 0,
+        "expected": 0.675,
+        "actual": null
+      },
+      {
+        "label": "70–80%",
+        "n": 0,
+        "expected": 0.75,
+        "actual": null
+      },
+      {
+        "label": "80–100%",
+        "n": 0,
+        "expected": 0.9,
+        "actual": null
+      }
+    ],
+    "daily": []
+  },
+  "previous_season": {
+    "label": "2025-26 (ancien moteur)",
+    "n": 926,
+    "correct": 570,
+    "accuracy": 0.6155507559395248,
+    "brier": 0.23220661427845044,
+    "expected": 0.6228581626075417,
+    "buckets": [
+      {
+        "label": "50–55%",
+        "n": 267,
+        "expected": 0.5194654447128207,
+        "actual": 0.5318352059925093
+      },
+      {
+        "label": "55–60%",
+        "n": 186,
+        "expected": 0.5699255070026937,
+        "actual": 0.5860215053763441
+      },
+      {
+        "label": "60–65%",
+        "n": 137,
+        "expected": 0.6253009094033443,
+        "actual": 0.6058394160583942
+      },
+      {
+        "label": "65–70%",
+        "n": 127,
+        "expected": 0.6638316962571642,
+        "actual": 0.6771653543307087
+      },
+      {
+        "label": "70–80%",
+        "n": 143,
+        "expected": 0.7265975675901288,
+        "actual": 0.6853146853146853
+      },
+      {
+        "label": "80–100%",
+        "n": 66,
+        "expected": 0.8816202781129241,
+        "actual": 0.7878787878787878
+      }
+    ]
+  },
+  "recent": [],
+  "data": {
+    "games_in_history": 10218,
+    "last_game_date": "2026-06-13",
+    "model_trained_at": "2026-10-03T17:23:27Z",
+    "model_seasons": [
+      "2019-20",
+      "2020-21",
+      "2021-22",
+      "2022-23",
+      "2023-24",
+      "2024-25",
+      "2025-26"
+    ]
+  },
+  "backtest": {
+    "seasons": "2022-23 → 2025-26",
+    "market_accuracy": 0.686,
+    "market_brier": 0.203,
+    "model_accuracy": 0.655,
+    "model_brier": 0.214
+  },
+  "next_slate": {
+    "date": "2026-10-20",
+    "games": 3,
+    "first_tipoff_utc": "2026-10-20T19:00:00+00:00"
+  }
+}
