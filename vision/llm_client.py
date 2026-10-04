@@ -5,6 +5,7 @@ With LLM API key: uses Groq for AI-generated replies. Handles 429 with backoff.
 """
 from __future__ import annotations
 import json
+import os
 import random
 import re
 import time
@@ -115,8 +116,9 @@ def call_llm(tweet_text: str, tweet_author: str = ""):
         }
 
     model = get_llm_model()
-    print(f"    LLM: calling Groq ({model})...", flush=True)
-    url = "https://api.groq.com/openai/v1/chat/completions"
+    print(f"    LLM: calling {model}...", flush=True)
+    # Any OpenAI-compatible endpoint (Groq by default; e.g. http://localhost:11434/v1 for Ollama tests)
+    url = os.getenv("LLM_BASE_URL", "https://api.groq.com/openai/v1").rstrip("/") + "/chat/completions"
     headers = {
         "Authorization": f"Bearer {api_key}",
         "Content-Type": "application/json",

@@ -25,6 +25,14 @@ which `actions/checkout` wipes). Before this fix the refreshed session was saved
 inside the checkout and deleted on every run, so each run fell back to cookies
 exported in March until X invalidated them (May 2026).
 
+## Checking reply quality before going live
+```bash
+LLM_API_KEY=<groq key> python vision/tools/reply_lab.py          # sample tweets, nothing posted
+LLM_API_KEY=<groq key> python vision/tools/reply_lab.py my.txt   # your own tweets, "@author: text" per line
+```
+Prints the facts given to the model, its decision, and whether the validator would let it through.
+`LLM_BASE_URL` points it at any OpenAI-compatible endpoint (e.g. a local Ollama for plumbing tests).
+
 ## Settings
 Repo variables: `LLM_MODEL` (Groq model for writing), `BOT_PROFILE_USERNAME`.
 Secrets: `LLM_API_KEY` (Groq), `TWITTER_COOKIES_JSON` (backup cookies), `DISCORD_WEBHOOK_URL` (optional).
