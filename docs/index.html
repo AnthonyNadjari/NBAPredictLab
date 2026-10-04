@@ -721,9 +721,12 @@ function followersSVG(stats, runs) {
 function delta(pts, days) {
   if (pts.length < 2) return null;
   const last = pts[pts.length - 1];
-  const target = new Date(new Date(last.date + 'T00:00:00Z') - days * 864e5).toISOString().slice(0, 10);
+  const day = d => new Date(d + 'T00:00:00Z');
+  const target = new Date(day(last.date) - days * 864e5).toISOString().slice(0, 10);
   const base = [...pts].reverse().find(p => p.date <= target);
-  return base ? last.followers - base.followers : null;
+  // no reading close to the start of the window (e.g. a gap of months): no fake "7-day" change
+  if (!base || (day(target) - day(base.date)) / 864e5 > Math.max(2, days * 0.3)) return null;
+  return last.followers - base.followers;
 }
 
 function renderAccount() {
@@ -755,17 +758,18 @@ function renderAccount() {
     <div class="scoreline" style="justify-content:space-between">
       <div class="scoreline"><div class="big">${last ? last.followers : '–'}</div>
         <div><div class="hint" style="margin:0">followers${last ? ` au ${longDay(last.date)}` : ''}</div>
-        <div style="font:500 15px var(--mono)">${sign(d7)} sur 7 j · ${sign(d30)} sur 30 j</div></div></div>
+        <div style="font:500 15px var(--mono)">${d7 != null || d30 != null ? `${sign(d7)} sur 7 j · ${sign(d30)} sur 30 j`
+          : stats.length > 1 ? `${sign(last.followers - stats[stats.length - 2].followers)} depuis le relevé du ${longDay(stats[stats.length - 2].date)}` : ''}</div></div></div>
     </div>
     <div style="margin-top:12px">${followersSVG(state.vstats || [], runs)}</div>
   </div>
 
   <div class="cols" style="margin-top:12px">
     <div class="panel"><h3>Connexion au compte</h3>
-      <p class="hint">Deux accès distincts : l'API officielle (threads + relevé quotidien des followers) et le navigateur du bot de réponses sur ton PC.</p>
+      <p class="hint">Deux accès distincts : l'API officielle (threads + relevé quotidien des followers) et la session navigateur du bot de réponses (sur GitHub).</p>
       <div class="runs"><div style="display:flex;gap:8px;align-items:center;padding:6px 0">${apiState}</div>
       <div style="display:flex;gap:8px;align-items:center;padding:6px 0">${botState}</div></div>
-      ${needsKey ? `<p class="warn" style="margin:8px 0 0">Ajoute la clé Groq comme secret <code>LLM_API_KEY</code> du dépôt (Settings → Secrets → Actions).</p>` : ''}
+      ${needsKey ? `<p class="warn" style="margin:8px 0 0">Colle ta clé Groq dans « Clé du modèle (Groq) » ci-dessous.</p>` : ''}
       ${needsLogin ? `<p class="warn" style="margin:8px 0 0">Le bot n'est pas connecté à X : colle tes cookies ci-dessous.</p>` : ''}
       <div class="row" style="margin-top:12px"><button class="btn" type="button" id="xCheck">Tester la connexion X</button></div>
       <div class="msg" id="xMsg"></div>

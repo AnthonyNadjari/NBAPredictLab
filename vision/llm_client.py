@@ -14,7 +14,7 @@ import requests
 from config import get_llm_api_key, get_llm_model, LLM_TIMEOUT_SECONDS, LLM_RETRY_MAX, TZ
 
 # Used when the configured Groq model is retired or misspelled
-FALLBACK_MODEL = "llama-3.3-70b-versatile"
+FALLBACK_MODEL = "openai/gpt-oss-20b"
 
 # Template replies when no LLM key — no API, no credentials
 TEMPLATE_REPLIES = [
@@ -149,8 +149,10 @@ def call_llm(tweet_text: str, tweet_author: str = ""):
                         {"role": "system", "content": SYSTEM_PROMPT},
                         {"role": "user", "content": user_content},
                     ],
-                    "max_tokens": 300,
+                    # reasoning models spend tokens thinking before the JSON: keep it short
+                    "max_tokens": 1200,
                     "temperature": 0.5,
+                    **({"reasoning_effort": "low"} if "gpt-oss" in model else {}),
                     "response_format": {"type": "json_object"},
                 },
                 timeout=LLM_TIMEOUT_SECONDS,

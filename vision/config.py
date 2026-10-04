@@ -298,4 +298,5 @@ def get_llm_model() -> str:
     creds = _load_credentials()
     if creds and isinstance(creds.get("llm_model"), str):
         return creds["llm_model"].strip()
-    return "llama-3.1-8b-instant"
+    # Groq model list (Oct 2026): GPT OSS 120B / 20B, Qwen. The Llama models were retired.
+    return "openai/gpt-oss-120b"
