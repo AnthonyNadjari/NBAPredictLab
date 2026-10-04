@@ -11,7 +11,11 @@ concurrency:
 
 jobs:
   publish:
-    runs-on: ubuntu-24.04
+    # RUNNER repo variable: 'self-hosted' (home PC, free) or unset (GitHub-hosted, needs Actions billing)
+    runs-on: ${{ vars.RUNNER || 'ubuntu-24.04' }}
+    defaults:
+      run:
+        shell: bash
     timeout-minutes: 20
     permissions:
       contents: write
@@ -35,8 +39,8 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
-          cache: pip
+          python-version: '3.11'
+          cache: ${{ vars.RUNNER != 'self-hosted' && 'pip' || '' }}
 
       - name: Install dependencies
         run: |
