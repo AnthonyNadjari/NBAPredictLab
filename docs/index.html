@@ -755,9 +755,21 @@ function renderAccount() {
       <div class="runs"><div style="display:flex;gap:8px;align-items:center;padding:6px 0">${apiState}</div>
       <div style="display:flex;gap:8px;align-items:center;padding:6px 0">${botState}</div></div>
       ${needsKey ? `<p class="warn" style="margin:8px 0 0">Ajoute la clé Groq comme secret <code>LLM_API_KEY</code> du dépôt (Settings → Secrets → Actions).</p>` : ''}
-      ${needsLogin ? `<p class="warn" style="margin:8px 0 0">Pour reconnecter le bot : sur le PC du runner, lance <code>python vision/tools/connect_x.py</code> et connecte-toi dans la fenêtre qui s'ouvre.</p>` : ''}
+      ${needsLogin ? `<p class="warn" style="margin:8px 0 0">Le bot n'est pas connecté à X : colle tes cookies ci-dessous.</p>` : ''}
       <div class="row" style="margin-top:12px"><button class="btn" type="button" id="xCheck">Tester la connexion X</button></div>
       <div class="msg" id="xMsg"></div>
+      <details style="margin-top:14px"><summary style="cursor:pointer;font-weight:600">Connecter le bot de réponses à X</summary>
+        <p class="hint" style="margin:8px 0">Sur un navigateur connecté au compte @NBAPredictLab, ouvre x.com, puis l'extension <b>Cookie-Editor</b> → <b>Export</b> → <b>JSON</b>, et colle le résultat ici. Ou colle juste <code>auth_token=…; ct0=…</code>. Les cookies sont chiffrés avant d'être stockés comme secret GitHub, et personne ne peut les relire.</p>
+        <textarea id="cookiesIn" rows="4" style="width:100%;border:1px solid var(--line);border-radius:8px;padding:8px;background:var(--wash);font:12px var(--mono)" placeholder='[{"name":"auth_token",...}] ou auth_token=...; ct0=...'></textarea>
+        <div class="row" style="margin-top:8px"><button class="btn primary" type="button" id="cookiesSave">Enregistrer les cookies</button></div>
+        <div class="msg" id="cookiesMsg"></div>
+      </details>
+      <details style="margin-top:10px"><summary style="cursor:pointer;font-weight:600">Clé du modèle (Groq)</summary>
+        <p class="hint" style="margin:8px 0">Clé gratuite sur console.groq.com → API Keys. Sans elle le bot ne répond pas (il ne poste jamais de réponses génériques).</p>
+        <div class="row"><input type="password" id="groqIn" placeholder="gsk_…" autocomplete="off" style="flex:1;min-width:200px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--wash)">
+          <button class="btn" type="button" id="groqSave">Enregistrer</button></div>
+        <div class="msg" id="groqMsg"></div>
+      </details>
     </div>
     <div class="panel"><h3>Bot de réponses</h3>
       <p class="hint">${week.length} session${week.length > 1 ? 's' : ''} et ${weekReplies} réponses sur 7 jours${lastOkRun && lastOkRun.top_skips ? ` · principaux rejets : ${Object.keys(lastOkRun.top_skips).slice(0, 3).map(esc).join(', ')}` : ''}.</p>
@@ -795,6 +807,15 @@ function renderAccount() {
     try { await api('admin', { action: 'x_check' }); msg('#xMsg', 'ok', 'Vérification lancée. Résultat ici dans 1 à 2 minutes.'); }
     catch (err) { msg('#xMsg', 'err', err.message); }
   });
+  const saveSecret = (name, inputId, msgId, okText) => needPw(async () => {
+    const value = $(inputId).value;
+    if (!value.trim()) return;
+    try { await api('admin', { action: 'set_secret', name, value }); $(inputId).value = ''; msg(msgId, 'ok', okText); }
+    catch (err) { msg(msgId, 'err', err.message); }
+  });
+  $('#cookiesSave').onclick = saveSecret('TWITTER_COOKIES_JSON', '#cookiesIn', '#cookiesMsg',
+    'Cookies enregistrés. Lance un « Essai à blanc » pour vérifier la connexion.');
+  $('#groqSave').onclick = saveSecret('LLM_API_KEY', '#groqIn', '#groqMsg', 'Clé enregistrée.');
   const draft = JSON.parse(JSON.stringify(sched));
   draft.schedules = draft.schedules || [];
   $('#vTimes').addEventListener('change', e => { const i = e.target.dataset.i; if (i != null) draft.schedules[i].enabled = e.target.checked; });

@@ -222,6 +222,21 @@ def launch_and_auth() -> tuple:
         save_session_state(context)
         return pw, None, context, page
 
+    # Session saved by the previous run (decrypted from the Actions cache on GitHub runners)
+    if STATE_FILE.is_file():
+        try:
+            saved = json.loads(STATE_FILE.read_text(encoding="utf-8")).get("cookies", [])
+            if saved:
+                print(f"Auth: Restoring {len(saved)} cookies from the previous session...", flush=True)
+                context.add_cookies(saved)
+                _goto_home()
+                if is_logged_in(page, 15000):
+                    print(f"Auth: Session valid via saved state ({logged_in_handle(page) or '?'}).", flush=True)
+                    save_session_state(context)
+                    return pw, None, context, page
+        except Exception as e:
+            print(f"Auth: saved state unusable ({e})", flush=True)
+
     cookies = parse_cookies(get_twitter_cookies_json())
     reason = "session_invalid"
     if not cookies:

@@ -1,5 +1,8 @@
 {
   "name": "nba-predictor-api",
   "version": "1.0.0",
-  "dependencies": {}
+  "private": true,
+  "dependencies": {
+    "libsodium-wrappers": "^0.7.15"
+  }
 }

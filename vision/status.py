@@ -19,7 +19,9 @@ def _load() -> list:
 
 
 def record_run(entry: dict) -> None:
-    entry = {"at": datetime.now(TZ).isoformat(timespec="seconds"), "dry_run": DRY_RUN, **entry}
+    import os
+    entry = {"at": datetime.now(TZ).isoformat(timespec="seconds"), "dry_run": DRY_RUN,
+             "slot": os.getenv("NBAVISION_SLOT") or None, **entry}
     runs = _load() + [entry]
     RUNS_FILE.parent.mkdir(parents=True, exist_ok=True)
     RUNS_FILE.write_text(json.dumps(runs[-KEEP_RUNS:], indent=1, ensure_ascii=False), encoding="utf-8")
