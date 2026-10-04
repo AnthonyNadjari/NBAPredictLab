@@ -13,6 +13,7 @@ Example:
 """
 
 import sys
+import time
 import json
 import logging
 import sqlite3
@@ -24,15 +25,8 @@ from typing import Dict, Optional
 PROJECT_ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
-# Import project modules
-from src.twitter_integration import (
-    create_fresh_twitter_client,
-    create_twitter_thread,
-    format_prediction_tweet
-)
-from src.predictor import NBAPredictor
-from src.data_fetcher import NBADataFetcher
-from daily_auto_prediction import DailyPredictionAutomation
+# Legacy modules (xgboost, plotly...) are imported lazily: only the fallback formatter needs them.
+from src.twitter_integration import create_fresh_twitter_client, _upload_media
 
 # Full name to tricode mapping (reverse of TRICODE_TO_NAME)
 NAME_TO_TRICODE = {
@@ -87,7 +81,7 @@ def load_game_from_json(game_id: str) -> Optional[Dict]:
         with open('docs/pending_games.json', 'r', encoding='utf-8') as f:
             data = json.load(f)
 
-        for game in data.get('games', []):
+        for game in data.get('games', []) + data.get('specials', []):
             if game['id'] == game_id:
                 return game
 
@@ -232,6 +226,7 @@ def format_thread_tweets_full(prediction: Dict, with_images: bool = True) -> tup
     """
     try:
         # Create a temporary DailyPredictionAutomation instance to use its format_twitter_thread method
+        from daily_auto_prediction import DailyPredictionAutomation
         temp_daily = DailyPredictionAutomation(
             db_path="data/nba_predictor.db",
             model_dir="models",
@@ -307,89 +302,118 @@ Odds: {away_odds:.2f} / {home_odds:.2f}"""
         return [f"🏀 {prediction['away_team']} @ {prediction['home_team']}\nPrediction: {prediction['predicted_winner']}"]
 
 
+def build_posts(game: Dict, prediction: Optional[Dict]) -> list:
+    """[{text, card}] from the thread factory (or the pre-built weekly recap)."""
+    if game.get('type') == 'weekly':
+        return game['thread']
+    from src.social.thread import build_thread, record_line
+    return build_thread(prediction, record_line('data/nba_predictor.db', since='2026-10-01'))['tweets']
+
+
+def apply_text_overrides(posts: list) -> list:
+    """Texts edited in the control panel arrive as THREAD_TEXTS_JSON (one string per tweet).
+
+    An empty string removes that tweet (and its card)."""
+    import os
+    raw = os.getenv('THREAD_TEXTS_JSON', '').strip()
+    if not raw:
+        return posts
+    texts = json.loads(raw)
+    if not isinstance(texts, list) or len(texts) != len(posts) or not all(isinstance(t, str) for t in texts):
+        raise ValueError('THREAD_TEXTS_JSON must be a list of strings, one per tweet')
+    out = []
+    for post, text in zip(posts, texts):
+        text = text.strip()
+        if not text:
+            continue
+        if len(text) > 280:
+            raise ValueError(f'Edited tweet over 280 characters: {text[:40]}...')
+        out.append({**post, 'text': text})
+    if not out:
+        raise ValueError('All tweets were removed')
+    logger.info(f"Using {len(out)} edited tweet text(s) from the control panel")
+    return out
+
+
+def post_thread(posts: list, image_paths: list, dry_run: bool) -> list:
+    """Post tweet by tweet; returns posted tweet ids (stops at the first failure)."""
+    if dry_run:
+        for i, p in enumerate(posts):
+            logger.info(f"[DRY RUN] tweet {i + 1}/{len(posts)} ({len(p['text'])} chars, "
+                        f"image={bool(image_paths[i])}): {p['text']!r}")
+        return [f"dry{i}" for i in range(len(posts))]
+    clients = create_fresh_twitter_client()
+    client_v2, api_v1 = clients.get('client_v2'), clients.get('api_v1')
+    if not client_v2:
+        raise RuntimeError(f"Twitter client unavailable: {clients.get('auth_status')}")
+    ids, prev = [], None
+    for i, p in enumerate(posts):
+        kwargs = {'text': p['text']}
+        if image_paths[i] and api_v1:
+            media_id = _upload_media(api_v1, image_paths[i])
+            if media_id:
+                kwargs['media_ids'] = [media_id]
+            else:
+                logger.warning(f"Image upload failed for tweet {i + 1}: posting text only")
+        if prev:
+            kwargs['in_reply_to_tweet_id'] = prev
+        try:
+            resp = client_v2.create_tweet(**kwargs)
+        except Exception as e:
+            logger.error(f"Tweet {i + 1}/{len(posts)} failed: {e}")
+            break
+        prev = (resp.data or {}).get('id')
+        ids.append(prev)
+        logger.info(f"Posted tweet {i + 1}/{len(posts)}: {prev}")
+        time.sleep(1.5)
+    return ids
+
+
 def publish_thread(game_id: str) -> bool:
-    """
-    Publish a Twitter thread for a specific game.
-
-    Args:
-        game_id: Game identifier (e.g., "LAL_vs_BOS_2026-01-03")
-
-    Returns:
-        True if successful, False otherwise
-    """
-    try:
-        logger.info(f"=" * 60)
-        logger.info(f"Publishing thread for game: {game_id}")
-        logger.info(f"=" * 60)
-
-        # Load game from JSON
-        game = load_game_from_json(game_id)
-        if not game:
-            logger.error("Failed to load game data")
-            return False
-
-        if game.get('published'):
-            logger.error(f"Game already published at {game.get('published_at')} - refusing to post twice")
-            return False
-
-        logger.info(f"Game: {game['matchup']}")
-        logger.info(f"Date: {game['date']}")
-        logger.info(f"Predicted winner: {game['predicted_winner']}")
-        logger.info(f"DEBUG - home_team from JSON: '{game['home_team']}'")
-        logger.info(f"DEBUG - away_team from JSON: '{game['away_team']}'")
-
-        # Get full prediction from database
-        prediction = get_prediction_from_db(
-            game['home_team'],
-            game['away_team'],
-            game['date']
-        )
-
-        if not prediction:
-            logger.error("Failed to get prediction from database")
-            return False
-
-        # Debug: Check what we got
-        logger.info(f"DEBUG - prediction features count: {len(prediction.get('features', {}))}")
-
-        # Format tweets using the full thread format (same as Streamlit)
-        tweets, image_paths = format_thread_tweets_full(prediction)
-        logger.info(f"Formatted {len(tweets)} tweets for thread with {len([p for p in image_paths if p])} images")
-
-        # Create Twitter client
-        logger.info("Creating Twitter client...")
-
-        # Log presence only: never print any part of a secret
-        import os
-        for var in ('TW_API_KEY', 'TW_API_SECRET', 'TW_ACCESS_TOKEN', 'TW_ACCESS_SECRET'):
-            logger.info(f"   {var}: {'set' if os.getenv(var) else 'MISSING'}")
-        logger.info(f"   TW_DRY_RUN: {os.getenv('TW_DRY_RUN', 'not set')}")
-
-        twitter_clients = create_fresh_twitter_client()
-
-        # Post thread
-        logger.info("Posting thread to Twitter...")
-        responses = create_twitter_thread(
-            twitter_clients,
-            tweets,
-            image_paths=image_paths if image_paths else None,
-            dry_run=False  # Actually post to Twitter
-        )
-
-        logger.info(f"✓ Thread posted successfully!")
-        logger.info(f"✓ Posted {len(responses)} tweets")
-
-        # Cleanup temp images
-        for img_path in (image_paths or []):
-            if img_path and Path(img_path).exists():
-                Path(img_path).unlink()
-                logger.info(f"✓ Cleaned up temp image: {img_path}")
-
-        return True
-
-    except Exception as e:
-        logger.error(f"Failed to publish thread: {e}", exc_info=True)
+    """Publish the thread for one game (or a special post such as the weekly recap)."""
+    import os
+    game = load_game_from_json(game_id)
+    if not game:
         return False
+    if game.get('published'):
+        logger.error(f"Already published at {game.get('published_at')} - refusing to post twice")
+        return False
+    logger.info(f"Publishing: {game.get('matchup') or game.get('title') or game_id}")
+
+    prediction = None
+    if game.get('type') != 'weekly':
+        prediction = get_prediction_from_db(game['home_team'], game['away_team'], game['date'])
+        if not prediction:
+            logger.error("No prediction in the database for this game")
+            return False
+
+    try:
+        posts = apply_text_overrides(build_posts(game, prediction))
+        from src.social.render import render_cards
+        image_paths = render_cards([p.get('card') for p in posts])
+    except ValueError:
+        raise
+    except Exception as e:
+        logger.error(f"Thread factory failed ({e}); falling back to the legacy format", exc_info=True)
+        texts, imgs = format_thread_tweets_full(prediction)
+        posts = [{'text': t} for t in texts]
+        image_paths = [(imgs[i] if imgs and i < len(imgs) else None) for i in range(len(texts))]
+
+    logger.info(f"{len(posts)} tweets, {sum(1 for p in image_paths if p)} images")
+    for var in ('TW_API_KEY', 'TW_API_SECRET', 'TW_ACCESS_TOKEN', 'TW_ACCESS_SECRET'):
+        logger.info(f"   {var}: {'set' if os.getenv(var) else 'MISSING'}")
+    dry = os.getenv('TW_DRY_RUN', 'false').lower() in ('1', 'true', 'yes')
+    ids = post_thread(posts, image_paths, dry)
+
+    result = {'posted': len(ids), 'total': len(posts), 'first_id': ids[0] if ids else None}
+    Path(os.getenv('THREAD_RESULT_FILE', 'thread_result.json')).write_text(json.dumps(result))
+    if not ids:
+        logger.error("Nothing was posted")
+        return False
+    if len(ids) < len(posts):
+        # The opener is live: report success so the game is marked published and nobody re-posts it.
+        logger.warning(f"Partial thread: {len(ids)}/{len(posts)} tweets posted")
+    return True
 
 
 def main():

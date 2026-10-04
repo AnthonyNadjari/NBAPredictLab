@@ -59,7 +59,8 @@ def export_json(today: str, tomorrow: str) -> bool:
     if not DailyGamesExporter(str(DB_PATH)).export_today_and_tomorrow(today, tomorrow, output_path=str(JSON_PATH)):
         return False
     try:
-        enrich_pending(JSON_PATH, str(DB_PATH))
+        from src.engine.history import espn_today
+        enrich_pending(JSON_PATH, str(DB_PATH), today=espn_today())
     except Exception as e:
         logger.warning(f'[WARN] Could not enrich pending games: {e}')
     return True

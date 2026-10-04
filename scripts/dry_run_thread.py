@@ -2,8 +2,8 @@
 """End-to-end dry run of the bot on a real slate, without posting.
 
 Predicts a US date with the v2 engine into a temporary copy of the DB,
-exports the publishing JSON, then builds the Twitter thread + chart images
-exactly as publish_single_thread.py does. Checks every tweet fits 280 chars.
+exports the publishing JSON, then builds the thread + card images with the
+same factory publish_single_thread.py uses. Checks every tweet fits 280 chars.
 
 Usage: python scripts/dry_run_thread.py 2026-10-20 [game_index]
 """
@@ -44,8 +44,11 @@ def main():
     real_connect = sqlite3.connect
     sqlite3.connect = lambda p, *a, **k: real_connect(str(db) if 'nba_predictor.db' in str(p) else p, *a, **k)
     import scripts.publish_single_thread as pub
+    from src.social.render import render_cards
     prediction = pub.get_prediction_from_db(game['home_team'], game['away_team'], game['date'])
-    texts, images = pub.format_thread_tweets_full(prediction)
+    posts = pub.build_posts(game, prediction)
+    texts = [p['text'] for p in posts]
+    images = render_cards([p.get('card') for p in posts], out_dir=str(tmp / 'cards'))
 
     ok = True
     for i, t in enumerate(texts):

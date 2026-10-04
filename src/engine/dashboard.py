@@ -117,40 +117,56 @@ def _code(name: str) -> str:
         return name
 
 
-def enrich_pending(json_path: Path, db_path: str, thread_preview: bool = True) -> int:
-    """Add tipoff, model/market split and the thread text preview to each exported game."""
+def enrich_pending(json_path: Path, db_path: str, thread_preview: bool = True,
+                   today: Optional[date] = None) -> int:
+    """Add tipoff, model/market split and the exact thread (texts + card data) to each game,
+    plus special posts (weekly recap) under 'specials'."""
+    from src.social.thread import build_thread, record_line
     data = json.loads(json_path.read_text(encoding="utf-8"))
+    previous_specials = {}
+    try:
+        previous_specials = {s_["id"]: s_ for s_ in json.loads(json_path.read_text(encoding="utf-8")).get("specials", [])}
+    except Exception:
+        pass
     conn = sqlite3.connect(db_path)
-    formatter = None
-    if thread_preview:
-        try:
-            import scripts.publish_single_thread as pub
-            formatter = pub
-        except Exception as e:  # preview is optional
-            log.warning("Thread preview disabled: %s", e)
-    done = 0
-    previews = {}
+    conn.row_factory = sqlite3.Row
+    rec = record_line(db_path, since=SEASON_START)
+    threads, done = {}, 0
     for key in ("games", "games_today", "games_tomorrow"):
         for g in data.get(key, []):
-            row = conn.execute("SELECT features_json FROM predictions WHERE game_date = ? AND home_team = ? "
-                               "AND away_team = ?", (g["date"], g["home_team"], g["away_team"])).fetchone()
-            f = json.loads(row[0]) if row and row[0] else {}
+            row = conn.execute("SELECT * FROM predictions WHERE game_date = ? AND home_team = ? AND away_team = ?",
+                               (g["date"], g["home_team"], g["away_team"])).fetchone()
+            f = json.loads(row["features_json"]) if row and row["features_json"] else {}
             g["home_code"], g["away_code"] = _code(g["home_team"]), _code(g["away_team"])
             g["start_utc"] = f.get("start_utc")
             g["model_home_prob"] = f.get("model_home_prob")
             g["market_home_prob"] = f.get("market_home_prob")
             g["probability_source"] = f.get("probability_source")
             g["market_books"] = f.get("market_books")
-            if formatter and g["id"] not in previews:
+            g["key_out"] = {"home": f.get("home_key_out", []), "away": f.get("away_key_out", [])}
+            if thread_preview and row is not None and g["id"] not in threads:
                 try:
-                    pred = formatter.get_prediction_from_db(g["home_team"], g["away_team"], g["date"])
-                    previews[g["id"]] = formatter.format_thread_tweets_full(pred, with_images=False)[0] if pred else None
-                except Exception as e:
-                    log.warning("Preview failed for %s: %s", g["id"], e)
-                    previews[g["id"]] = None
-            g["thread_preview"] = previews.get(g["id"])
+                    threads[g["id"]] = build_thread({**dict(row), "features": f}, rec)["tweets"]
+                except Exception as e:  # preview is optional
+                    log.warning("Thread preview failed for %s: %s", g["id"], e)
+                    threads[g["id"]] = None
+            g["thread"] = threads.get(g["id"])
+            g.pop("thread_preview", None)
             done += 1
     conn.close()
+
+    specials = []
+    try:
+        from src.social.weekly import build_weekly
+        weekly = build_weekly(db_path, today or date.today(), SEASON_START)
+        if weekly:
+            prev = previous_specials.get(weekly["id"], {})
+            if prev.get("published"):
+                weekly.update({k: prev[k] for k in ("published", "published_at", "tweet_url") if k in prev})
+            specials.append(weekly)
+    except Exception as e:
+        log.warning("Weekly recap failed: %s", e)
+    data["specials"] = specials
     json_path.write_text(json.dumps(data, indent=2, ensure_ascii=False), encoding="utf-8")
     return done
 

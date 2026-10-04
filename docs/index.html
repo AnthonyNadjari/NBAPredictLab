@@ -194,7 +194,10 @@ dialog::backdrop { background: rgba(8, 12, 20, .55); }
 .dlg-head h3 { margin: 0; font: 800 20px var(--display); text-transform: uppercase; }
 .dlg-body { padding: 14px 18px; overflow: auto; }
 .dlg-foot { display: flex; justify-content: flex-end; gap: 8px; padding: 12px 18px; border-top: 1px solid var(--line); }
-.tweet { border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; margin-bottom: 10px; white-space: pre-wrap; font-size: 14px; }
+.tweet { border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; margin-bottom: 10px; font-size: 14px; }
+.tw-edit { width: 100%; border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; background: var(--wash); font: 14px/1.45 var(--sans); resize: vertical; }
+.cardwrap { position: relative; width: 100%; aspect-ratio: 16 / 9; overflow: hidden; border-radius: 8px; margin-top: 8px; background: #0E1726; }
+.cardwrap iframe { position: absolute; left: 0; top: 0; width: 1200px; height: 675px; border: 0; transform-origin: 0 0; transform: scale(var(--s, .4)); pointer-events: none; }
 .tweet .n { display: flex; justify-content: space-between; font: 12px var(--mono); color: var(--muted); margin-bottom: 4px; }
 .tweet .n .over { color: var(--loss); }
 
@@ -406,7 +409,8 @@ function gameCard(g) {
     ${disagree ? `<div class="warn">Le modèle stats et le marché ne choisissent pas la même équipe.</div>` : ''}
     <div class="g-actions">
       <button class="btn small" type="button" data-act="preview">Aperçu du thread</button>
-      <button class="btn small primary" type="button" data-act="publish" ${g.published || launched ? 'disabled' : ''}>${g.published ? 'Déjà publié' : 'Publier'}</button>
+      ${g.published && g.tweet_url ? `<a class="btn small" href="${esc(g.tweet_url)}" target="_blank" rel="noopener">Voir sur X</a>`
+        : `<button class="btn small primary" type="button" data-act="publish" ${g.published || launched ? 'disabled' : ''}>${g.published ? 'Déjà publié' : 'Publier'}</button>`}
     </div>
   </article>`;
 }
@@ -415,15 +419,25 @@ function renderSlate() {
   const el = $('#slate');
   if (!state.games) { el.innerHTML = `<div class="empty"><h3>Chargement…</h3></div>`; return; }
   const all = state.games.games || [];
+  const specials = (state.games.specials || []).map(sp => `
+    <article class="game ${sp.published ? 'published' : ''}" data-id="${esc(sp.id)}">
+      <div class="g-top"><div>Post spécial</div>${sp.published ? '<span class="chip pub">Publié</span>' : '<span class="chip">À publier</span>'}</div>
+      <div style="font:800 22px var(--display);text-transform:uppercase">${esc(sp.matchup || sp.title)}</div>
+      <div class="hint" style="margin:0">${esc(((sp.thread || [])[0] || {}).text ? sp.thread[0].text.split(String.fromCharCode(10))[2] || '' : '')}</div>
+      <div class="g-actions"><button class="btn small" type="button" data-act="preview">Aperçu</button>
+        ${sp.published && sp.tweet_url ? `<a class="btn small" href="${esc(sp.tweet_url)}" target="_blank" rel="noopener">Voir sur X</a>`
+          : `<button class="btn small primary" type="button" data-act="publish" ${sp.published ? 'disabled' : ''}>${sp.published ? 'Déjà publié' : 'Publier'}</button>`}</div>
+    </article>`).join('');
+  const specialsBlock = specials ? `<div class="day-head"><h2>Posts du jour</h2></div><div class="grid">${specials}</div>` : '';
   if (!all.length) {
     const ns = state.dash?.next_slate;
-    el.innerHTML = `<div class="empty"><h3>Pas de match ce soir ni demain</h3>
+    el.innerHTML = specialsBlock + `<div class="empty"><h3>Pas de match ce soir ni demain</h3>
       <p>${ns ? `Prochaine soirée : ${longDay(ns.date)}, ${ns.games} match${ns.games > 1 ? 's' : ''}. Les prédictions arrivent le matin même vers 11 h.` : 'Les prédictions apparaissent ici chaque matin dès qu’il y a des matchs.'}</p></div>`;
     return;
   }
   const byDate = {};
   for (const g of all) (byDate[g.date] ||= []).push(g);
-  el.innerHTML = Object.keys(byDate).sort().map((d, i) => {
+  el.innerHTML = specialsBlock + Object.keys(byDate).sort().map((d, i) => {
     const list = byDate[d].sort((x, y) => (x.start_utc || '').localeCompare(y.start_utc || ''));
     const label = d === state.games.today ? 'Ce soir' : d === state.games.tomorrow ? 'Demain soir' : longDay(d);
     return `<div class="day-head"><h2>${label}</h2><span class="count">${longDay(d)} (date US) · ${list.length} match${list.length > 1 ? 's' : ''} · heures de Paris</span></div>
@@ -431,24 +445,51 @@ function renderSlate() {
   }).join('');
 }
 
-function findGame(id) { return (state.games?.games || []).find(g => g.id === id); }
+function findGame(id) { return [...(state.games?.games || []), ...(state.games?.specials || [])].find(g => g.id === id); }
+
+function threadOf(g) {
+  if (Array.isArray(g.thread) && g.thread.length) return g.thread;
+  return (g.thread_preview || []).map(t => ({ text: t, card: null }));
+}
+function cardSrc(card) {
+  const b64 = btoa(unescape(encodeURIComponent(JSON.stringify(card)))).replace(/\+/g, '-').replace(/\//g, '_');
+  return `cards/card.html#${b64}`;
+}
+function fitCards(root) {
+  root.querySelectorAll('.cardwrap').forEach(w => w.style.setProperty('--s', w.clientWidth / 1200));
+}
 
 function openThread(g, publishMode) {
-  const tw = g.thread_preview || [];
+  const tw = threadOf(g);
   $('#threadTitle').textContent = publishMode ? 'Publier ce thread ?' : 'Aperçu du thread';
-  $('#threadBody').innerHTML = tw.length ? tw.map((t, i) => `<div class="tweet"><div class="n"><span>Tweet ${i + 1}/${tw.length}</span><span class="${t.length > 280 ? 'over' : ''}">${t.length}/280</span></div>${esc(t)}</div>`).join('')
-    + `<p style="color:var(--muted);font-size:13px;margin:4px 0 0">Les graphiques sont générés au moment de la publication.</p>`
+  $('#threadBody').innerHTML = tw.length ? tw.map((t, i) => `
+    <div class="tweet">
+      <div class="n"><span>Tweet ${i + 1}/${tw.length}</span><span class="cnt" data-i="${i}">${t.text.length}/280</span></div>
+      <textarea class="tw-edit" data-i="${i}" rows="${Math.min(9, t.text.split('\n').length + 1)}" ${g.published ? 'readonly' : ''}>${esc(t.text)}</textarea>
+      ${t.card ? `<div class="cardwrap"><iframe src="${cardSrc(t.card)}" title="Image du tweet ${i + 1}" loading="lazy" tabindex="-1"></iframe></div>` : ''}
+    </div>`).join('')
+    + `<p style="color:var(--muted);font-size:13px;margin:4px 0 0">Tu peux modifier chaque tweet avant de publier. Vider un tweet le retire du thread. Les images sont exactement celles qui seront postées.</p>`
     : `<p>Aperçu indisponible pour ce match. Le thread sera généré à la publication.</p>`;
-  $('#threadFoot').innerHTML = publishMode
-    ? `<button class="btn" type="button" data-close>Annuler</button><button class="btn primary" type="button" id="confirmPublish">Publier sur X</button>`
-    : `<button class="btn" type="button" data-close>Fermer</button>${g.published ? '' : `<button class="btn primary" type="button" id="toPublish">Publier</button>`}`;
+  const body = $('#threadBody');
+  body.querySelectorAll('.tw-edit').forEach(ta => ta.addEventListener('input', () => {
+    const c = body.querySelector(`.cnt[data-i="${ta.dataset.i}"]`);
+    c.textContent = `${ta.value.length}/280`;
+    c.classList.toggle('over', ta.value.length > 280);
+  }));
+  $('#threadFoot').innerHTML = g.published
+    ? `${g.tweet_url ? `<a class="btn" href="${esc(g.tweet_url)}" target="_blank" rel="noopener">Voir sur X</a>` : ''}<button class="btn" type="button" data-close>Fermer</button>`
+    : `<button class="btn" type="button" data-close>Annuler</button><button class="btn primary" type="button" id="confirmPublish">Publier sur X</button>`;
   const dlg = $('#threadDlg');
   dlg.showModal();
-  $('#toPublish')?.addEventListener('click', () => { dlg.close(); startPublish(g); });
+  requestAnimationFrame(() => fitCards(body));
   $('#confirmPublish')?.addEventListener('click', async e => {
+    if (!state.pw) { dlg.close(); openLock(() => openThread(g, true)); return; }
+    const edited = [...body.querySelectorAll('.tw-edit')].map(ta => ta.value);
+    if (edited.some(t => t.length > 280)) { toast('Un tweet dépasse 280 caractères.'); return; }
+    const changed = edited.some((t, i) => t !== tw[i].text);
     e.target.disabled = true; e.target.textContent = 'Envoi…';
     try {
-      await api('publish', { game_id: g.id });
+      await api('publish', changed ? { game_id: g.id, texts: edited } : { game_id: g.id });
       state.launched.add(g.id);
       try { localStorage.setItem('pl_launched', JSON.stringify([...state.launched].slice(-60))); } catch (err) {}
       dlg.close(); renderSlate();
@@ -459,6 +500,7 @@ function openThread(g, publishMode) {
     }
   });
 }
+window.addEventListener('resize', () => { const d = $('#threadDlg'); if (d.open) fitCards(d); });
 
 function startPublish(g) {
   if (!state.pw) { openLock(() => openThread(g, true)); return; }

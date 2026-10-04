@@ -44,7 +44,7 @@ module.exports = async function handler(req, res) {
 
   try {
     // Parse request body
-    const { game_id, password } = req.body;
+    const { game_id, password, texts } = req.body;
 
     // Validate required fields
     if (!game_id || !password) {
@@ -61,6 +61,14 @@ module.exports = async function handler(req, res) {
         success: false,
         error: 'Invalid game_id'
       });
+    }
+
+    // Optional tweet texts edited in the control panel ('' removes a tweet)
+    if (texts !== undefined && texts !== null) {
+      if (!Array.isArray(texts) || texts.length === 0 || texts.length > 10
+          || !texts.every(t => typeof t === 'string' && t.length <= 280)) {
+        return res.status(400).json({ success: false, error: 'Invalid texts: up to 10 strings of 280 characters' });
+      }
     }
 
     // Verify password
@@ -107,6 +115,7 @@ module.exports = async function handler(req, res) {
         event_type: 'publish_thread',
         client_payload: {
           game_id: game_id,
+          ...(Array.isArray(texts) ? { texts } : {}),
           triggered_by: 'web_interface',
           timestamp: new Date().toISOString()
         }

@@ -226,7 +226,13 @@ class DailyGamesExporter:
             today_games = self._carry_published(self._format_predictions(today_preds, today_str), output_path)
             tomorrow_games = self._carry_published(self._format_predictions(tomorrow_preds, tomorrow_str), output_path)
 
+            try:
+                with open(output_path, 'r', encoding='utf-8') as f:
+                    previous_specials = json.load(f).get('specials', [])
+            except (OSError, ValueError):
+                previous_specials = []
             output_data = {
+                'specials': previous_specials,  # weekly recap etc. (refreshed by enrich_pending)
                 'date': today_str,
                 'generated_at': datetime.now().isoformat(),
                 'today': today_str,

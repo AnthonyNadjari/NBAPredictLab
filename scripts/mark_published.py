@@ -49,11 +49,21 @@ def mark_published(game_id: str) -> bool:
         # Find and mark the game
         game_found = False
         published_at = datetime.now().isoformat()
-        for key in ('games', 'games_today', 'games_tomorrow'):
+        # Link to the thread, written by publish_single_thread.py
+        tweet_url = None
+        try:
+            res = json.loads(Path('thread_result.json').read_text())
+            if res.get('first_id'):
+                tweet_url = f"https://x.com/NBAPredictLab/status/{res['first_id']}"
+        except (OSError, ValueError):
+            pass
+        for key in ('games', 'games_today', 'games_tomorrow', 'specials'):
             for game in data.get(key, []):
                 if game['id'] == game_id:
                     game['published'] = True
                     game.setdefault('published_at', published_at)
+                    if tweet_url:
+                        game.setdefault('tweet_url', tweet_url)
                     if not game_found:
                         logger.info(f"✓ Marked game as published: {game['matchup']}")
                     game_found = True

@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1200">
+<title>PredictLab card</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800;900&family=IBM+Plex+Mono:wght@500&family=IBM+Plex+Sans:wght@500;600&display=swap" rel="stylesheet">
+<!--
+  One template for every image the bot posts (and for the control panel preview).
+  Data comes from the URL hash (#base64url JSON) or window.__CARD__.
+  Types: match | edge | recap. Size: 1200x675 (X's 16:9).
+-->
+<style>
+  :root {
+    --bg: #0E1726; --panel: #162235; --ink: #F2F5F9; --muted: #8C9BB0; --line: #26344B;
+    --ball: #F07431; --win: #3DBA84; --loss: #EE6A5F;
+    --display: 'Big Shoulders Display', 'Arial Narrow', sans-serif;
+    --sans: 'IBM Plex Sans', Arial, sans-serif; --mono: 'IBM Plex Mono', monospace;
+  }
+  * { box-sizing: border-box; margin: 0; }
+  html, body { width: 1200px; height: 675px; background: var(--bg); overflow: hidden; }
+  body { color: var(--ink); font-family: var(--sans); -webkit-font-smoothing: antialiased; }
+  #card { position: relative; width: 1200px; height: 675px; padding: 46px 56px 40px; display: flex; flex-direction: column; }
+  .top { display: flex; justify-content: space-between; align-items: baseline; font: 500 19px var(--mono); color: var(--muted); letter-spacing: .4px; }
+  .brand { font: 800 26px var(--display); letter-spacing: 1px; color: var(--ink); text-transform: uppercase; }
+  .brand b { color: var(--ball); font-weight: 800; }
+  .stripe { position: absolute; left: 0; top: 0; bottom: 0; width: 10px; }
+  .stripe i { display: block; height: 50%; }
+
+  /* match */
+  .teams { display: grid; grid-template-columns: 1fr 120px 1fr; align-items: center; margin-top: 34px; }
+  .team { display: flex; align-items: center; gap: 22px; }
+  .team.home { flex-direction: row-reverse; text-align: right; }
+  .team img { width: 132px; height: 132px; object-fit: contain; filter: drop-shadow(0 4px 14px rgba(0,0,0,.35)); }
+  .tname { font: 900 54px/0.95 var(--display); text-transform: uppercase; letter-spacing: .5px; }
+  .tsub { font: 500 19px var(--mono); color: var(--muted); margin-top: 8px; }
+  .vs { text-align: center; font: 800 34px var(--display); color: var(--muted); }
+  .bar { display: flex; height: 92px; border-radius: 12px; overflow: hidden; margin-top: 40px; position: relative; }
+  .bar > div { display: flex; align-items: center; }
+  .bar .a { padding-left: 22px; } .bar .h { justify-content: flex-end; padding-right: 22px; }
+  .bar span { font: 900 64px var(--display); color: #fff; text-shadow: 0 2px 6px rgba(0,0,0,.35); }
+  .bar .lose span { opacity: .78; font-size: 46px; }
+  .bar .mid { position: absolute; left: 50%; top: 0; bottom: 0; width: 4px; margin-left: -2px; background: var(--bg); }
+  .pick { display: flex; justify-content: space-between; align-items: flex-end; margin-top: auto; }
+  .pick .lab { font: 500 18px var(--mono); color: var(--muted); letter-spacing: .5px; text-transform: uppercase; }
+  .pick .who { font: 900 58px/1 var(--display); text-transform: uppercase; margin-top: 6px; }
+  .pick .who em { font-style: normal; color: var(--ball); }
+  .pick .meta { text-align: right; font: 500 21px/1.55 var(--mono); color: var(--muted); }
+  .pick .meta b { color: var(--ink); font-weight: 500; }
+
+  /* edge */
+  .eyebrow { font: 500 19px var(--mono); color: var(--ball); letter-spacing: 1px; text-transform: uppercase; margin-top: 30px; }
+  .title { font: 900 76px/0.95 var(--display); text-transform: uppercase; margin-top: 10px; letter-spacing: .5px; }
+  .sub { font: 500 30px/1.35 var(--sans); color: var(--ink); opacity: .86; margin-top: 18px; max-width: 1040px; }
+  .rows { margin-top: auto; display: flex; flex-direction: column; gap: 22px; }
+  .row { display: grid; grid-template-columns: 230px 1fr; align-items: center; gap: 20px; }
+  .row .k { font: 600 21px var(--sans); color: var(--muted); }
+  .pair { display: flex; flex-direction: column; gap: 8px; }
+  .pbar { display: flex; align-items: center; gap: 14px; }
+  .pbar .fill { height: 30px; border-radius: 6px; min-width: 8px; }
+  .pbar .v { font: 600 22px var(--mono); white-space: nowrap; }
+  .pbar .t { font: 800 22px var(--display); width: 64px; color: var(--muted); }
+  .pbar.win .t { color: var(--ink); }
+
+  .duel { margin-top: auto; display: flex; flex-direction: column; gap: 18px; }
+  .drow .k { font: 500 18px var(--mono); color: var(--muted); text-transform: uppercase; letter-spacing: .6px; margin-bottom: 8px; }
+  .dpair { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .dv { border-radius: 12px; padding: 14px 22px; display: flex; justify-content: space-between; align-items: baseline; }
+  .dv .t { font: 800 30px var(--display); letter-spacing: .5px; }
+  .dv .n { font: 900 64px/1 var(--display); }
+  .dv.lose { background: var(--panel) !important; color: var(--muted); }
+  .tape { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-top: 30px; }
+  .tape div { background: var(--panel); border-radius: 10px; padding: 12px 16px; }
+  .tape .k { font: 500 15px var(--mono); color: var(--muted); text-transform: uppercase; letter-spacing: .5px; }
+  .tape .v { font: 800 30px var(--display); margin-top: 4px; display: flex; justify-content: space-between; }
+  .tape .v span:first-child { color: color-mix(in srgb, var(--ac) 55%, #fff); } .tape .v span:last-child { color: color-mix(in srgb, var(--hc) 55%, #fff); }
+
+  /* recap */
+  .big { font: 900 190px/0.85 var(--display); letter-spacing: 2px; margin-top: 26px; }
+  .big i { font-style: normal; color: var(--muted); padding: 0 10px; }
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-top: auto; }
+  .stat { background: var(--panel); border-radius: 12px; padding: 18px 22px; }
+  .stat .k { font: 500 17px var(--mono); color: var(--muted); text-transform: uppercase; letter-spacing: .5px; }
+  .stat .v { font: 800 44px var(--display); margin-top: 6px; }
+  .stat .v small { font: 500 18px var(--mono); color: var(--muted); margin-left: 6px; }
+</style>
+</head>
+<body>
+<div id="card"></div>
+<script>
+const TEAMS = {
+  ATL: ['Hawks', '#E03A3E', 'atl', 'Atlanta'], BOS: ['Celtics', '#007A33', 'bos', 'Boston'],
+  BKN: ['Nets', '#3B3B3B', 'bkn', 'Brooklyn'], CHA: ['Hornets', '#1D1160', 'cha', 'Charlotte'],
+  CHI: ['Bulls', '#CE1141', 'chi', 'Chicago'], CLE: ['Cavaliers', '#860038', 'cle', 'Cleveland'],
+  DAL: ['Mavericks', '#00538C', 'dal', 'Dallas'], DEN: ['Nuggets', '#0E2240', 'den', 'Denver'],
+  DET: ['Pistons', '#C8102E', 'det', 'Detroit'], GSW: ['Warriors', '#1D428A', 'gs', 'Golden State'],
+  HOU: ['Rockets', '#CE1141', 'hou', 'Houston'], IND: ['Pacers', '#002D62', 'ind', 'Indiana'],
+  LAC: ['Clippers', '#C8102E', 'lac', 'LA'], LAL: ['Lakers', '#552583', 'lal', 'Los Angeles'],
+  MEM: ['Grizzlies', '#5D76A9', 'mem', 'Memphis'], MIA: ['Heat', '#98002E', 'mia', 'Miami'],
+  MIL: ['Bucks', '#00471B', 'mil', 'Milwaukee'], MIN: ['Timberwolves', '#236192', 'min', 'Minnesota'],
+  NOP: ['Pelicans', '#0C2340', 'no', 'New Orleans'], NYK: ['Knicks', '#F58426', 'ny', 'New York'],
+  OKC: ['Thunder', '#007AC1', 'okc', 'Oklahoma City'], ORL: ['Magic', '#0077C0', 'orl', 'Orlando'],
+  PHI: ['76ers', '#006BB6', 'phi', 'Philadelphia'], PHX: ['Suns', '#1D1160', 'phx', 'Phoenix'],
+  POR: ['Trail Blazers', '#E03A3E', 'por', 'Portland'], SAC: ['Kings', '#5A2D81', 'sac', 'Sacramento'],
+  SAS: ['Spurs', '#6E7378', 'sa', 'San Antonio'], TOR: ['Raptors', '#CE1141', 'tor', 'Toronto'],
+  UTA: ['Jazz', '#002B5C', 'utah', 'Utah'], WAS: ['Wizards', '#002B5C', 'wsh', 'Washington'],
+};
+const ALT = { ATL: '#C1D32F', CHI: '#4B4B4B', HOU: '#4B4B4B', TOR: '#4B4B4B', DET: '#1D42BA', LAC: '#1D428A',
+  POR: '#4B4B4B', MIN: '#78BE20', NOP: '#B4975A', UTA: '#F9A01B', WAS: '#E31837', CHA: '#00788C', PHX: '#E56020',
+  DEN: '#FEC524', IND: '#FDBB30', BKN: '#707271', SAS: '#C4CED4', MIA: '#F9A01B', CLE: '#FDBB30', DAL: '#B8C4CA',
+  MEM: '#12173F', OKC: '#EF3B24', ORL: '#C4CED4', GSW: '#FFC72C', BOS: '#BA9653', LAL: '#FDB927', MIL: '#EEE1C6',
+  NYK: '#006BB6', PHI: '#ED174C', SAC: '#63727A' };
+
+function dist(a, b) {
+  const p = h => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16));
+  const [x, y] = [p(a), p(b)];
+  return Math.hypot(x[0] - y[0], x[1] - y[1], x[2] - y[2]);
+}
+function colors(away, home) {
+  let ca = (TEAMS[away] || [, '#888'])[1], ch = (TEAMS[home] || [, '#555'])[1];
+  if (dist(ca, ch) < 110) ca = ALT[away] || '#7A8699';
+  // keep both readable on the navy background
+  if (dist(ch, '#0E1726') < 60) ch = ALT[home] || ch;
+  if (dist(ca, '#0E1726') < 60) ca = ALT[away] || ca;
+  return [ca, ch];
+}
+const logo = c => `https://a.espncdn.com/i/teamlogos/nba/500/${(TEAMS[c] || [, , c.toLowerCase()])[2]}.png`;
+const esc = s => String(s ?? '').replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
+const brand = d => `<div class="brand">Predict<b>Lab</b></div>`;
+
+function match(d) {
+  const [ca, ch] = colors(d.away, d.home);
+  const pa = d.away_prob, ph = 1 - d.away_prob, pickHome = ph >= .5;
+  const name = c => (TEAMS[c] || [c])[0];
+  return `
+    <div class="stripe"><i style="background:${ca}"></i><i style="background:${ch}"></i></div>
+    <div class="top"><span>${esc(d.when)}</span>${brand()}</div>
+    <div class="teams">
+      <div class="team"><img src="${logo(d.away)}" alt=""><div><div class="tname">${esc(name(d.away))}</div><div class="tsub">${esc(d.away_sub || 'away')}</div></div></div>
+      <div class="vs">AT</div>
+      <div class="team home"><img src="${logo(d.home)}" alt=""><div><div class="tname">${esc(name(d.home))}</div><div class="tsub">${esc(d.home_sub || 'home')}</div></div></div>
+    </div>
+    <div class="bar">
+      <div class="a ${pickHome ? 'lose' : ''}" style="flex-basis:${(pa * 100).toFixed(1)}%;background:${ca}"><span>${Math.round(pa * 100)}%</span></div>
+      <div class="h ${pickHome ? '' : 'lose'}" style="flex-basis:${(ph * 100).toFixed(1)}%;background:${ch}"><span>${Math.round(ph * 100)}%</span></div>
+      <div class="mid"></div>
+    </div>
+    ${(d.tape || []).length ? `<div class="tape" style="--ac:${ca};--hc:${ch}">${d.tape.slice(0, 4).map(t =>
+      `<div><div class="k">${esc(t.label)}</div><div class="v"><span>${esc(t.away)}</span><span>${esc(t.home)}</span></div></div>`).join('')}</div>` : ''}
+    <div class="pick">
+      <div><div class="lab">Our pick</div><div class="who">${esc(d.pick_name)} <em>${Math.round(Math.max(pa, ph) * 100)}%</em></div></div>
+      <div class="meta">${d.odds ? `Odds <b>${esc(d.odds)}</b><br>` : ''}${esc(d.source || '')}</div>
+    </div>`;
+}
+
+function edge(d) {
+  const [ca, ch] = colors(d.away, d.home);
+  const col = { [d.away]: ca, [d.home]: ch };
+  const rows = (d.rows || []).slice(0, 2).map(r => {
+    const a = +r.a.value, b = +r.b.value;
+    const aWins = r.lower_is_better ? a <= b : a >= b;
+    const box = (x, win) => `<div class="dv ${win ? '' : 'lose'}" style="background:${col[x.team] || '#444'}">
+      <span class="t">${esc(x.team)}</span><span class="n">${esc(x.label)}</span></div>`;
+    return `<div class="drow"><div class="k">${esc(r.label)}</div><div class="dpair">${box(r.a, aWins)}${box(r.b, !aWins)}</div></div>`;
+  }).join('');
+  return `
+    <div class="stripe"><i style="background:${ca}"></i><i style="background:${ch}"></i></div>
+    <div class="top"><span>${esc(d.matchup)}</span>${brand()}</div>
+    <div class="eyebrow">${esc(d.eyebrow || '')}</div>
+    <div class="title">${esc(d.title)}</div>
+    ${d.sub ? `<div class="sub">${esc(d.sub)}</div>` : ''}
+    <div class="duel">${rows}</div>`;
+}
+
+function recap(d) {
+  const stat = (k, v, small) => `<div class="stat"><div class="k">${esc(k)}</div><div class="v">${esc(v)}${small ? `<small>${esc(small)}</small>` : ''}</div></div>`;
+  return `
+    <div class="top"><span>${esc(d.period)}</span>${brand()}</div>
+    <div class="eyebrow">${esc(d.eyebrow || 'Weekly record')}</div>
+    <div class="big">${d.wins}<i>–</i>${d.losses}</div>
+    <div class="stats">
+      ${stat('Hit rate', d.hit_rate, d.expected ? `exp. ${d.expected}` : '')}
+      ${stat('Season', d.season || '–')}
+      ${stat(d.best_label || 'Best call', d.best || '–')}
+    </div>`;
+}
+
+function decode() {
+  if (window.__CARD__) return window.__CARD__;
+  const h = location.hash.slice(1);
+  if (!h) return null;
+  const b64 = h.replace(/-/g, '+').replace(/_/g, '/');
+  return JSON.parse(decodeURIComponent(escape(atob(b64))));
+}
+
+(async () => {
+  const d = decode();
+  const el = document.getElementById('card');
+  if (!d) { el.innerHTML = '<div class="title">No data</div>'; return; }
+  el.innerHTML = d.type === 'match' ? match(d) : d.type === 'recap' ? recap(d) : edge(d);
+  await document.fonts.ready;
+  await Promise.all([...document.images].map(i => i.complete ? 1 : new Promise(r => { i.onload = i.onerror = r; })));
+  window.__READY__ = true;
+})();
+</script>
+</body>
+</html>
