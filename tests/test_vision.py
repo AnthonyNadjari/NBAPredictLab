@@ -80,3 +80,64 @@ def test_x_account_record_followers(tmp_path):
     x_account.record_followers(13, 5, path=p)  # same day: overwritten
     data = json.loads(p.read_text())
     assert len(data) == 2 and data[-1]["followers"] == 13
+
+
+class _Resp:
+    def __init__(self, payload, status=200, text=""):
+        self._p, self.status_code, self.text, self.headers = payload, status, text, {}
+
+    def json(self):
+        return self._p
+
+    def raise_for_status(self):
+        if self.status_code >= 400:
+            import requests
+            raise requests.HTTPError(response=self)
+
+
+def _llm_reply(obj):
+    return _Resp({"choices": [{"message": {"content": json.dumps(obj)}}]})
+
+
+def test_llm_client_injects_facts_and_rejects_invented_ones(monkeypatch):
+    import llm_client
+    import nba_context
+    monkeypatch.setenv("LLM_API_KEY", "k")
+    monkeypatch.setattr(nba_context, "facts_for", lambda t: ["New York Knicks are 2-0 in the 2026-27 regular season"])
+    monkeypatch.setattr(nba_context, "today_line", lambda: "Today is 2026-10-25.")
+    sent = {}
+
+    def fake_post(url, headers=None, json=None, timeout=None):
+        sent["body"] = json
+        return _llm_reply({"decision": "REPLY", "reason": "agree", "response": "2-0 and rolling.",
+                           "fact_used": "New York Knicks are 2-0 in the 2026-27 regular season"})
+    monkeypatch.setattr(llm_client.requests, "post", fake_post)
+    r = llm_client.call_llm("Knicks look good", "fan")
+    assert r["decision"] == "REPLY" and r["context_used"]
+    user_msg = sent["body"]["messages"][1]["content"]
+    assert "VERIFIED FACTS" in user_msg and "2-0 in the 2026-27" in user_msg
+    assert sent["body"]["response_format"] == {"type": "json_object"}
+
+    monkeypatch.setattr(llm_client.requests, "post", lambda *a, **k: _llm_reply(
+        {"decision": "REPLY", "reason": "x", "response": "They are 10-0.", "fact_used": "Knicks are 10-0"}))
+    r = llm_client.call_llm("Knicks look good", "fan")
+    assert r["decision"] == "SKIP" and r["reason"] == "unverified_fact"
+
+
+def test_llm_client_falls_back_when_model_is_gone(monkeypatch):
+    import llm_client
+    import nba_context
+    monkeypatch.setenv("LLM_API_KEY", "k")
+    monkeypatch.setenv("LLM_MODEL", "retired-model")
+    monkeypatch.setattr(nba_context, "facts_for", lambda t: [])
+    monkeypatch.setattr(nba_context, "today_line", lambda: "Today.")
+    models = []
+
+    def fake_post(url, headers=None, json=None, timeout=None):
+        models.append(json["model"])
+        if json["model"] == "retired-model":
+            return _Resp({}, status=404, text='{"error":{"message":"The model `retired-model` does not exist"}}')
+        return _llm_reply({"decision": "SKIP", "reason": "nothing_to_add", "response": ""})
+    monkeypatch.setattr(llm_client.requests, "post", fake_post)
+    r = llm_client.call_llm("NBA tonight", "fan")
+    assert models == ["retired-model", llm_client.FALLBACK_MODEL] and r["decision"] == "SKIP"
