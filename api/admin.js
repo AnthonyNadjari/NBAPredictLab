@@ -8,7 +8,7 @@
  *   action "x_check" -> run the read-only X connection check
  *   action "vision_run" { dry_run, max_replies } -> start a reply-bot session
  *   action "vision_schedule" { schedule } -> save docs/vision/schedule.json
- *   action "set_secret" { name, value } -> store TWITTER_COOKIES_JSON or LLM_API_KEY as a repo secret
+ *   action "set_secret" { name, value } -> store TWITTER_COOKIES_JSON, LLM_API_KEY or BROWSER_PROXY as a repo secret
  *
  * Environment (same as publish.js): PUBLISH_PASSWORD, GITHUB_TOKEN, GITHUB_REPO
  */
@@ -189,12 +189,15 @@ module.exports = async function handler(req, res) {
     if (action === 'set_secret') {
       const name = req.body.name;
       let value = req.body.value;
-      if (!['TWITTER_COOKIES_JSON', 'LLM_API_KEY'].includes(name) || typeof value !== 'string' || !value.trim()
+      if (!['TWITTER_COOKIES_JSON', 'LLM_API_KEY', 'BROWSER_PROXY'].includes(name) || typeof value !== 'string' || !value.trim()
           || value.length > 20000) {
         return res.status(400).json({ success: false, error: 'Invalid secret' });
       }
       try {
         value = name === 'TWITTER_COOKIES_JSON' ? normalizeCookies(value) : value.trim();
+        if (name === 'BROWSER_PROXY' && !/^(https?|socks5):\/\/[^\s]+:\d+$/.test(value.includes('://') ? value : `http://${value}`)) {
+          throw new Error('format attendu : http://utilisateur:motdepasse@hote:port');
+        }
       } catch (e) {
         return res.status(400).json({ success: false, error: `Cookies invalides : ${e.message}` });
       }

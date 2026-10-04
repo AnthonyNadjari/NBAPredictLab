@@ -99,6 +99,7 @@ jobs:
         working-directory: vision
         env:
           TWITTER_COOKIES_JSON: ${{ secrets.TWITTER_COOKIES_JSON }}
+          BROWSER_PROXY: ${{ secrets.BROWSER_PROXY }}
           LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
           LLM_MODEL: ${{ vars.LLM_MODEL }}
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}

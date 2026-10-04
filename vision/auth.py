@@ -149,6 +149,33 @@ def _real_user_agent(pw, channel: str | None) -> str:
         return BROWSER_USER_AGENT
 
 
+def _proxy_settings() -> dict | None:
+    """BROWSER_PROXY=http://user:pass@host:port (or socks5://...) -> Playwright proxy dict."""
+    from urllib.parse import unquote, urlsplit
+    raw = os.getenv("BROWSER_PROXY", "").strip()
+    if not raw:
+        return None
+    u = urlsplit(raw if "://" in raw else "http://" + raw)
+    out = {"server": f"{u.scheme}://{u.hostname}:{u.port}"}
+    if u.username:
+        out["username"] = unquote(u.username)
+    if u.password:
+        out["password"] = unquote(u.password)
+    return out
+
+
+def _wait_past_challenge(page: Page, seconds: int = 30) -> None:
+    """Cloudflare's interstitial ("Just a moment...") often clears itself on a clean IP."""
+    for _ in range(seconds):
+        try:
+            title = page.title()
+        except Exception:
+            return
+        if "just a moment" not in title.lower():
+            return
+        page.wait_for_timeout(1000)
+
+
 def open_profile(pw, headless: bool = True) -> BrowserContext:
     """Persistent browser profile shared by every run on this machine (and by tools/connect_x.py)."""
     channel = _chrome_channel()
@@ -160,6 +187,13 @@ def open_profile(pw, headless: bool = True) -> BrowserContext:
     )
     if headless:
         kwargs["user_agent"] = _real_user_agent(pw, channel)
+    proxy = _proxy_settings()
+    if proxy:
+        # Datacenter IPs (GitHub runners) get Cloudflare's "verify you are human" on x.com:
+        # go out through a residential IP, with the matching time zone.
+        kwargs["proxy"] = proxy
+        kwargs["timezone_id"] = os.getenv("BROWSER_TIMEZONE", "Europe/Paris")
+        print(f"Auth: browsing through proxy {proxy['server']}", flush=True)
     try:
         return pw.chromium.launch_persistent_context(str(PROFILE_DIR), channel=channel, **kwargs)
     except Exception as e:
@@ -211,7 +245,8 @@ def launch_and_auth() -> tuple:
 
     def _goto_home():
         try:
-            page.goto(TWITTER_HOME_URL, wait_until="domcontentloaded", timeout=30000)
+            page.goto(TWITTER_HOME_URL, wait_until="domcontentloaded", timeout=45000)
+            _wait_past_challenge(page)
         except Exception as e:
             print(f"Auth: Navigation failed: {e}", flush=True)
 
