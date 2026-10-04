@@ -215,8 +215,14 @@ module.exports = async function handler(req, res) {
         method: 'PUT',
         body: JSON.stringify({ encrypted_value: sodium.to_base64(sealed, sodium.base64_variants.ORIGINAL), key_id }),
       });
-      if (put.status === 201 || put.status === 204) return res.status(200).json({ success: true });
-      return res.status(502).json({ success: false, error: `GitHub API error (${put.status}): token needs Secrets write access` });
+      if (put.status !== 201 && put.status !== 204) {
+        return res.status(502).json({ success: false, error: `GitHub API error (${put.status}): token needs Secrets write access` });
+      }
+      // The reply bot runs on the IONOS server: relay the secrets to it, sealed (vision_secrets.yml)
+      await gh(`/repos/${repo}/actions/workflows/vision_secrets.yml/dispatches`, token, {
+        method: 'POST', body: JSON.stringify({ ref: 'main' }),
+      });
+      return res.status(200).json({ success: true });
     }
 
     return res.status(400).json({ success: false, error: 'Unknown action' });
