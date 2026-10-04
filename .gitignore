@@ -48,3 +48,7 @@ temp_*.png  # Temporary prediction images for Twitter
 
 # Research downloads (re-create with research/fetch_*.py)
 research/data/
+
+# Runtime Twitter rate-limit dumps (may contain token prefixes)
+logs/rate_limits*.json
+data/twitter_rate_limits_cache.json

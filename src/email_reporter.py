@@ -48,12 +48,10 @@ class EmailReporter:
             db_path: Path to SQLite database
         """
         self.db_path = db_path
-        self.recipients = [
-            'nadjari.anthony@gmail.com',
-            'recipient@example.com',
-            'recipient@example.com',
-            'recipient@example.com'
-        ]
+        # Recipients come from the EMAIL_RECIPIENTS secret (comma-separated): the repo is public.
+        import os
+        raw = os.environ.get('EMAIL_RECIPIENTS') or os.environ.get('EMAIL_ADDRESS') or ''
+        self.recipients = [r.strip() for r in raw.split(',') if r.strip()]
         # Per-instance cache of CDN results keyed by YYYY-MM-DD so we hit the
         # NBA CDN at most once per date when backfilling missing scores.
         self._cdn_results_cache: Dict[str, List[Dict]] = {}

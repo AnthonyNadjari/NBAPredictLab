@@ -44,6 +44,7 @@ jobs:
         env:
           EMAIL_ADDRESS: ${{ secrets.EMAIL_ADDRESS }}
           EMAIL_APP_PASSWORD: ${{ secrets.EMAIL_APP_PASSWORD }}
+          EMAIL_RECIPIENTS: ${{ secrets.EMAIL_RECIPIENTS }}
           # read-only X call: account check + daily follower count
           TW_API_KEY: ${{ secrets.TWITTER_API_KEY }}
           TW_API_SECRET: ${{ secrets.TWITTER_API_SECRET }}
