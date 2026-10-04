@@ -2,6 +2,7 @@
 NBAVision Engine — Scrape bot profile for follower/following count and update daily stats.
 Run at the beginning of each run; one value per day (overwritten if same day).
 """
+from __future__ import annotations
 import json
 import re
 from datetime import datetime

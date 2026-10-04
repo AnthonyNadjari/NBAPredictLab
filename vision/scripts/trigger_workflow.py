@@ -8,6 +8,7 @@ Set GITHUB_TOKEN or GH_TOKEN in the environment, then run:
 
 Optional: GITHUB_REPO=owner/repo (default: AnthonyNadjari/NBAVisionEngine)
 """
+from __future__ import annotations
 import os
 import sys
 import urllib.request

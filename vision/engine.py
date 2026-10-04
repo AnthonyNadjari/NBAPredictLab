@@ -2,6 +2,7 @@
 NBAVision Engine — Orchestration: scrape -> filter -> score -> LLM -> validate -> post.
 Batches LLM calls concurrently for speed.
 """
+from __future__ import annotations
 import os
 import random
 import time
@@ -193,7 +194,9 @@ def run_session(page, context, *, browser, playwright_instance):
             response = response[:180].strip()
             reply_preview = (response[:60] + "...") if len(response) > 60 else response
             print(f"  @{author}: Reply ({len(response)} chars): {reply_preview!r}", flush=True)
-            valid, fail_reason = validate_reply(response, session_replies, tweet_text=tweet.get("text") or "")
+            # names/numbers from the verified facts count as "in context" for the validator
+            context_text = "\n".join([tweet.get("text") or ""] + list(llm_result.get("facts") or []))
+            valid, fail_reason = validate_reply(response, session_replies, tweet_text=context_text)
             if not valid:
                 total_skipped += 1
                 skip_reasons[fail_reason or "validation"] = skip_reasons.get(fail_reason or "validation", 0) + 1
@@ -223,7 +226,12 @@ def run_session(page, context, *, browser, playwright_instance):
             session_replies.append(response)
             replies_posted.append({
                 "tweet_url": tweet_url,
+                "author": author,
+                "tweet_text": (tweet.get("text") or "")[:280],
+                "tweet_likes": tweet.get("likes") or 0,
                 "reply_text": response,
+                "context_used": bool(llm_result.get("context_used")),
+                "dry_run": DRY_RUN,
                 "posted_at": datetime.now(TZ).isoformat(),
             })
             response_lengths.append(len(response))

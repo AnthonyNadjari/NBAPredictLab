@@ -3,6 +3,7 @@ NBAVision Engine — Scraping Twitter via Playwright DOM (Spec Section 4).
 Uses multiple browser tabs to scrape keywords in parallel batches,
 cutting total scrape time by ~60%.
 """
+from __future__ import annotations
 import random
 import re
 import time
@@ -117,8 +118,7 @@ def extract_tweets_from_page(page: Page) -> list[dict]:
 
 def _scrape_single_tab(page: Page, keyword: str) -> list[dict]:
     """Navigate one tab to a keyword search, scroll, extract."""
-    query = quote_plus(keyword)
-    url = TWITTER_SEARCH_BASE.format(query=query)
+    url = search_url(keyword)
     try:
         page.goto(url, wait_until="domcontentloaded", timeout=30000)
     except Exception as e:
@@ -166,8 +166,7 @@ def _scrape_batch_parallel(context: BrowserContext, main_page: Page, keywords: l
 
     # Navigate all tabs (fast — goto returns quickly with domcontentloaded)
     for i, (pg, kw) in enumerate(zip(pages, keywords)):
-        query = quote_plus(kw)
-        url = TWITTER_SEARCH_BASE.format(query=query)
+        url = search_url(kw)
         try:
             pg.goto(url, wait_until="domcontentloaded", timeout=30000)
         except Exception as e:
@@ -202,6 +201,21 @@ def _scrape_batch_parallel(context: BrowserContext, main_page: Page, keywords: l
     return results
 
 
+def search_url(keyword: str) -> str:
+    """Live search URL. Watchlist queries (from:...) skip the min_faves filter: we want them fresh."""
+    from config import SEARCH_SUFFIX
+    q = keyword if keyword.startswith("(from:") else keyword + SEARCH_SUFFIX
+    return TWITTER_SEARCH_BASE.format(query=quote_plus(q))
+
+
+def _watchlist_queries(cycle_index: int) -> list[str]:
+    from config import WATCHLIST_ACCOUNTS, WATCHLIST_QUERIES_PER_CYCLE
+    n = WATCHLIST_QUERIES_PER_CYCLE
+    chunk = max(1, -(-len(WATCHLIST_ACCOUNTS) // n))
+    groups = [WATCHLIST_ACCOUNTS[i:i + chunk] for i in range(0, len(WATCHLIST_ACCOUNTS), chunk)]
+    return ["(" + " OR ".join(f"from:{a}" for a in g) + ")" for g in groups]
+
+
 def _select_keywords(cycle_index: int) -> list[str]:
     sample_size = min(KEYWORDS_PER_CYCLE, len(KEYWORDS))
 
@@ -217,7 +231,7 @@ def _select_keywords(cycle_index: int) -> list[str]:
 
     result = selected_hp + selected_other
     random.shuffle(result)
-    return result
+    return _watchlist_queries(cycle_index) + result
 
 
 def scrape_all_keywords(page: Page, context: BrowserContext, cycle_index: int = 0) -> list[dict]:

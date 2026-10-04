@@ -1,6 +1,7 @@
 """
 NBAVision Engine — Scoring des tweets (Spec Section 6).
 """
+from __future__ import annotations
 import math
 from filter_tweets import minutes_since_post
 from config import TOP_N_SCORED
@@ -28,6 +29,10 @@ def compute_score(tweet: dict) -> float:
         + 0.25 * freshness_score
         + 0.05 * text_quality
     )
+    # Big accounts: an early reply sits near the top of a thread that thousands read
+    from config import WATCHLIST_ACCOUNTS, WATCHLIST_SCORE_BONUS, EARLY_REPLY_MINUTES
+    if (tweet.get("username") or "").lower() in {a.lower() for a in WATCHLIST_ACCOUNTS}:
+        score += WATCHLIST_SCORE_BONUS * (2.0 if minutes <= EARLY_REPLY_MINUTES else 1.0)
     return score
 
 

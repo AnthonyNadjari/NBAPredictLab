@@ -1,0 +1,48 @@
+name: X Connection Check
+
+# Read-only: verifies the posting credentials and records the follower count.
+# Triggered from the control panel ("Tester la connexion X").
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: x-check
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - run: pip install -q tweepy
+      - name: Check account
+        id: check
+        env:
+          TW_API_KEY: ${{ secrets.TWITTER_API_KEY }}
+          TW_API_SECRET: ${{ secrets.TWITTER_API_SECRET }}
+          TW_ACCESS_TOKEN: ${{ secrets.TWITTER_ACCESS_TOKEN }}
+          TW_ACCESS_SECRET: ${{ secrets.TWITTER_ACCESS_SECRET }}
+        run: python -m src.x_account --save /tmp/x_result.json
+      - name: Push status
+        if: always()
+        run: |
+          [ -f /tmp/x_result.json ] || exit 0
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          for i in 1 2 3; do
+            git fetch -q origin main && git reset -q --hard origin/main
+            python -m src.x_account --apply /tmp/x_result.json
+            git add docs/x_status.json docs/vision/stats.json
+            git diff --cached --quiet && exit 0
+            git commit -q -m "X account check"
+            git push -q origin HEAD:main && exit 0
+            sleep 5
+          done
+          exit 1

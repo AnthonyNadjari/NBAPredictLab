@@ -12,6 +12,7 @@ Secrets and variables → Actions → TWITTER_COOKIES_JSON (New/Update secret).
 Do not commit cookies.txt or the output to the repo.
 """
 
+from __future__ import annotations
 import json
 import sys
 from pathlib import Path

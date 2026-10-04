@@ -2,6 +2,7 @@
 NBAVision Engine — Posting replies (Spec Section 10).
 Uses Playwright insert_text for instant text entry (works in headless).
 """
+from __future__ import annotations
 import random
 import time
 from pathlib import Path
