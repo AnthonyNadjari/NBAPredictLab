@@ -164,15 +164,31 @@ def _proxy_settings() -> dict | None:
     return out
 
 
-def _wait_past_challenge(page: Page, seconds: int = 30) -> None:
-    """Cloudflare's interstitial ("Just a moment...") often clears itself on a clean IP."""
+def _wait_past_challenge(page: Page, seconds: int = 40) -> None:
+    """Cloudflare's interstitial ("Just a moment..." / "verify you are human") in front of x.com.
+
+    A real (headed) Chrome usually clears it by itself; if the Turnstile checkbox shows,
+    click it once, like a person would.
+    """
+    clicked = False
     for _ in range(seconds):
         try:
-            title = page.title()
+            title = page.title().lower()
         except Exception:
             return
-        if "just a moment" not in title.lower():
+        if "just a moment" not in title and "security" not in title:
             return
+        if not clicked:
+            for frame in page.frames:
+                if "challenges.cloudflare.com" in (frame.url or ""):
+                    try:
+                        box = frame.locator("input[type=checkbox], label, body").first
+                        box.click(timeout=3000)
+                        clicked = True
+                        print("Auth: clicked the Cloudflare check", flush=True)
+                    except Exception:
+                        pass
+                    break
         page.wait_for_timeout(1000)
 
 
@@ -234,7 +250,8 @@ def launch_and_auth() -> tuple:
     _ensure_logs_dir()
     pw = sync_playwright().start()
     try:
-        context = open_profile(pw, headless=True)
+        # Headed Chrome (on a virtual display in CI) passes Cloudflare far more often than headless
+        context = open_profile(pw, headless=os.getenv("BROWSER_HEADLESS", "1") != "0")
     except Exception as e:
         print(f"Auth: Failed to launch browser: {e}", flush=True)
         print(traceback.format_exc(), flush=True)

@@ -109,8 +109,10 @@ jobs:
           NBAVISION_RUN_ID: ${{ github.run_id }}
           NBAVISION_SLOT: ${{ steps.gate.outputs.slot }}
           NBAVISION_LOGIN_CHECK: ${{ github.event.inputs.login_check || 'false' }}
+          BROWSER_HEADLESS: "0"
         run: |
-          python main.py 2>&1 | tee logs/run_output.log
+          # real Chrome window on a virtual display: x.com's Cloudflare check rejects headless browsers
+          xvfb-run -a --server-args="-screen 0 1280x800x24" python main.py 2>&1 | tee logs/run_output.log
           exit ${PIPESTATUS[0]}
 
       - name: Encrypt X session
