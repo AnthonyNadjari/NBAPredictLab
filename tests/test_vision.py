@@ -14,15 +14,24 @@ def _state_dir(tmp_path, monkeypatch):
     monkeypatch.setenv("NBAVISION_STATE_DIR", str(tmp_path / "state"))
 
 
-def test_schedule_gate_fires_once_in_window():
+def test_schedule_gate_window():
     import config
     from tools.schedule_gate import due_slot
     sched = {"schedules": [{"time": "23:00", "enabled": True}, {"time": "01:00", "enabled": False}]}
     tz = config.TZ
     assert due_slot(datetime(2026, 10, 21, 23, 5, tzinfo=tz), sched)
     assert due_slot(datetime(2026, 10, 21, 22, 59, tzinfo=tz), sched) is None
-    assert due_slot(datetime(2026, 10, 21, 23, 15, tzinfo=tz), sched) is None
+    assert due_slot(datetime(2026, 10, 21, 23, 40, tzinfo=tz), sched)  # GitHub cron runs late
+    assert due_slot(datetime(2026, 10, 21, 23, 46, tzinfo=tz), sched) is None
     assert due_slot(datetime(2026, 10, 22, 1, 5, tzinfo=tz), sched) is None  # disabled slot
+
+
+def test_schedule_gate_runs_each_slot_once(tmp_path, monkeypatch):
+    from tools import schedule_gate
+    runs = tmp_path / "runs.json"
+    runs.write_text(json.dumps([{"slot": "2026-10-21T23:00:00+02:00"}]))
+    monkeypatch.setattr(schedule_gate, "RUNS_FILE", runs)
+    assert "2026-10-21T23:00:00+02:00" in schedule_gate.done_slots()
 
 
 def test_merge_status_keeps_both_sides(tmp_path, monkeypatch):
