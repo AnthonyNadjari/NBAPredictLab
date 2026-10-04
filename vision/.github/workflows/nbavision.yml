@@ -1,0 +1,133 @@
+# NBAVision Engine — GitHub Actions
+# Self-hosted runner (home PC) for IP consistency with cookie export.
+# Required: TWITTER_COOKIES_JSON. Optional: LLM_API_KEY, LLM_MODEL, DISCORD_WEBHOOK_URL.
+# Schedule: times in docs/schedule.json are UTC+1.
+
+name: NBAVision Engine
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Dry run (scrape + LLM but do not post)"
+        required: false
+        default: "false"
+        type: choice
+        options:
+          - "false"
+          - "true"
+
+jobs:
+  run:
+    runs-on: self-hosted
+    timeout-minutes: 180
+    permissions:
+      contents: write
+    env:
+      PYTHONIOENCODING: utf-8
+      PYTHONUTF8: "1"
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check required secrets
+        run: |
+          if [ -z "${{ secrets.TWITTER_COOKIES_JSON }}" ]; then
+            echo "::error::Missing secret TWITTER_COOKIES_JSON. Add it in repo Settings -> Secrets and variables -> Actions."
+            exit 1
+          fi
+          echo "Secrets OK. LLM_API_KEY optional (uses templates if not set)."
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Cache pip dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/pip
+            ~/AppData/Local/pip/Cache
+          key: pip-${{ runner.os }}-${{ hashFiles('requirements.txt') }}
+          restore-keys: |
+            pip-${{ runner.os }}-
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Install Playwright Chromium
+        run: playwright install --with-deps chromium
+
+      - name: Validate cookies
+        env:
+          TWITTER_COOKIES_JSON: ${{ secrets.TWITTER_COOKIES_JSON }}
+        run: |
+          python -c "
+          import json, time
+          from config import get_twitter_cookies_json
+          from auth import validate_cookie_expiry, parse_cookies
+          raw = get_twitter_cookies_json()
+          cookies = parse_cookies(raw)
+          print(f'Loaded {len(cookies)} cookies')
+          warnings = validate_cookie_expiry(cookies)
+          for w in warnings:
+              print(f'  {w}')
+          if not warnings:
+              print('  All critical cookies look fresh')
+          expired = [w for w in warnings if w.startswith('EXPIRED')]
+          missing = [w for w in warnings if w.startswith('MISSING')]
+          if expired or missing:
+              print('::warning::Critical cookies are expired or missing. Run will likely fail.')
+          "
+
+      - name: Run NBAVision Engine
+        env:
+          TWITTER_COOKIES_JSON: ${{ secrets.TWITTER_COOKIES_JSON }}
+          LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
+          LLM_MODEL: ${{ vars.LLM_MODEL || 'llama-3.1-8b-instant' }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          BOT_PROFILE_USERNAME: ${{ vars.BOT_PROFILE_USERNAME || '' }}
+          DRY_RUN: ${{ github.event.inputs.dry_run || 'false' }}
+          NBAVISION_RUN_ID: ${{ github.run_id }}
+        run: |
+          python main.py 2>&1 | tee logs/run_output.log
+          exit ${PIPESTATUS[0]}
+
+      - name: Upload logs and screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: session-logs-${{ github.run_id }}
+          path: |
+            logs/*.json
+            logs/*.png
+            logs/*.log
+          if-no-files-found: ignore
+
+      - name: Push run logs and stats to repo
+        if: always()
+        run: |
+          COMMIT_MSG=""
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git pull --rebase origin ${{ github.ref_name }} 2>/dev/null || true
+          if ls logs/*.json 1>/dev/null 2>&1; then
+            mkdir -p run_logs/${{ github.run_id }}
+            cp logs/*.json run_logs/${{ github.run_id }}/
+            if [ -f logs/run_output.log ]; then
+              cp logs/run_output.log run_logs/${{ github.run_id }}/
+            fi
+            git add run_logs/
+            COMMIT_MSG="Run logs: ${{ github.run_id }}"
+          fi
+          if [ -f docs/stats.json ]; then
+            git add docs/stats.json
+            if [ -n "$COMMIT_MSG" ]; then COMMIT_MSG="$COMMIT_MSG, stats"; else COMMIT_MSG="Stats: ${{ github.run_id }}"; fi
+          fi
+          git diff --staged --quiet || (git commit -m "$COMMIT_MSG" && git push)
