@@ -14,7 +14,7 @@ git fetch -q origin main && git reset -q --hard origin/main || { echo "git sync 
 source "$BASE/venv/bin/activate"
 set -a; . "$BASE/.env"; set +a
 export NBAVISION_STATE_DIR=$BASE/state
-export NBAVISION_BROWSER_CHANNEL=""        # bundled Chromium
+export NBAVISION_BROWSER_CHANNEL=chromium   # full Chromium in new headless mode (less detectable than the headless shell)
 export PYTHONIOENCODING=utf-8
 
 MODE=$(python vision/tools/server_request.py)   # none | session | dry | login  (+ max replies)
