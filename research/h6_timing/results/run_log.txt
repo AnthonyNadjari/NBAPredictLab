@@ -1,0 +1,255 @@
+=== ESPN intraday-history / injury probe ===
+{
+ "events_probed": 40,
+ "provider_feeds_probed": 319,
+ "feeds_with_movement_points": 0,
+ "events_with_injuries_listed": 40,
+ "events_with_any_injury_note_dated_on_or_before_game": 0,
+ "events_with_pickcenter": 23,
+ "latest_injury_note_dates": [
+  "2026-07",
+  "2026-09",
+  "2026-10"
+ ]
+}
+
+=== Injury-report timeline (2025-26 regular season, every 4th game day) ===
+games: 258 (evening tips: 231); report versions parsed: 838
+per evening game: 3.94 players with game-day status uncertainty (85 player-minutes); still Questionable in the last pre-tip report: 0.01
+at the bot's 09:00 UTC run: 86.6% of evening games have >= 1 unresolved status; 2.95 players / 64 player-minutes per game still to resolve
+evening games (tip 23:00-03:59 UTC): status uncertainty still unresolved, by UTC time of the report
+  utc  n_games  teams_not_submitted  pending_players  pending_minutes  games_with_pending  share_of_09utc_pending
+09:00      231                0.266            2.952           63.961               0.866                   1.000
+12:00       76                0.250            3.987           87.090               0.921                   1.000
+13:00      155                0.274            2.445           52.621               0.839                   1.000
+14:00       76                0.250            3.921           86.041               0.921                   0.988
+15:00      231                0.266            2.961           64.319               0.857                   1.006
+16:00      231                0.260            2.983           64.241               0.861                   1.004
+16:30       62                0.250            3.903           89.319               0.952                   0.892
+17:00      231                0.221            2.654           56.981               0.831                   0.891
+17:30      155                0.216            2.806           64.673               0.877                   0.832
+18:00      231                0.128            2.260           50.035               0.805                   0.782
+18:30      155                0.110            2.490           57.881               0.826                   0.744
+19:00      231                0.084            2.087           46.327               0.779                   0.724
+19:30       93                0.081            1.978           44.538               0.796                   0.709
+20:00      231                0.045            1.792           40.473               0.749                   0.633
+21:00      231                0.013            1.654           37.647               0.706                   0.589
+21:30       62                0.000            2.177           50.989               0.790                   0.509
+22:00      231                0.017            1.424           32.749               0.645                   0.512
+22:30      155                0.019            1.374           32.894               0.606                   0.423
+23:00      208                0.010            0.976           23.599               0.486                   0.368
+23:30      128                0.016            0.883           22.261               0.461                   0.299
+00:00      152                0.000            0.658           15.900               0.329                   0.259
+00:30       82                0.000            0.671           16.647               0.329                   0.212
+01:00       77                0.000            0.571           13.793               0.286                   0.206
+01:30       46                0.000            0.283            7.170               0.152                   0.087
+02:00       34                0.000            0.059            1.864               0.059                   0.029
+
+=== A. Coverage: matched Kalshi x ESPN games ===
+    season  season_type  games
+0  2024-25            3     80
+1  2024-25            5      6
+2  2025-26            2   1229
+3  2025-26            3     81
+4  2025-26            5      6
+
+=== A. Share of games with a valid Kalshi quote (spread <= 10c) ===
+              share with valid quote
+k_prev_utc09                   0.910
+k_utc09                        0.982
+k_utc17                        0.989
+k_utc21                        0.929
+k_h24                          0.986
+k_h12                          0.972
+k_h4                           1.000
+k_h1                           1.000
+k_close                        1.000
+
+=== B. Validation: Kalshi vs ESPN on the same games ===
+                            price     n  logloss    brier  accuracy
+0         Kalshi pre-tip (T-1min)  1402  0.57988  0.19904   0.68688
+1          ESPN close (main book)  1402  0.58051  0.19908   0.68260
+2  ESPN open (same games, subset)  1401  0.58930  0.20283   0.67523
+3    Kalshi pre-tip (same subset)  1401  0.58009  0.19914   0.68665
+Kalshi close - ESPN close log-loss: -0.00063 [-0.00218, +0.00086]; corr(logit) 0.998; mean |diff| 0.97 pts
+vs ESPN close power-de-vigged: +0.00000 [-0.00152, +0.00157] | games with |Kalshi-ESPN| > 15 pts (possible in-play contamination): 0
+
+=== B2. Which Kalshi snapshot does ESPN's open / close resemble most? (n=1004) ===
+   kalshi_snapshot  espn_open_mean_abs_diff_pts  espn_close_mean_abs_diff_pts
+0    D-1 09:00 UTC                        3.588                         4.332
+1            T-48h                        4.175                         5.060
+2            T-36h                        3.378                         4.118
+3            T-24h                        2.463                         3.149
+4            T-18h                        2.479                         2.737
+5            T-12h                        2.689                         2.655
+6             T-9h                        2.887                         2.488
+7             T-6h                        3.196                         2.136
+8             T-4h                        3.412                         1.803
+9             T-3h                        3.485                         1.730
+10            T-2h                        3.528                         1.680
+11            T-1h                        3.625                         1.368
+12          T-0.5h                        3.680                         1.134
+13         T-0.25h                        3.721                         1.022
+14          T-1min                        3.771                         0.971
+
+=== C. Horizon curve: Kalshi price h hours before scheduled tip (lower log-loss = better) ===
+             panel       snapshot     n  logloss   brier  accuracy  d_ll_vs_close   ci_lo   ci_hi  flip_vs_close
+0   all with quote  D-1 09:00 UTC  1276   0.5898  0.2032    0.6783         0.0131  0.0059  0.0203         0.0752
+1   all with quote          T-48h  1050   0.5933  0.2042    0.6795         0.0197  0.0099  0.0292         0.0781
+2   all with quote          T-36h  1311   0.5876  0.2022    0.6773         0.0108  0.0035  0.0182         0.0717
+3   all with quote          T-24h  1383   0.5882  0.2024    0.6779         0.0086  0.0032  0.0140         0.0557
+4   all with quote          T-18h  1397   0.5858  0.2015    0.6790         0.0062  0.0015  0.0107         0.0458
+5   all with quote          T-12h  1363   0.5820  0.1998    0.6764         0.0052  0.0009  0.0097         0.0448
+6   all with quote           T-9h  1395   0.5845  0.2009    0.6753         0.0041 -0.0002  0.0082         0.0452
+7   all with quote           T-6h  1397   0.5843  0.2009    0.6754         0.0037  0.0001  0.0072         0.0344
+8   all with quote           T-4h  1402   0.5815  0.1998    0.6790         0.0016 -0.0012  0.0041         0.0264
+9   all with quote           T-3h  1402   0.5815  0.1999    0.6772         0.0016 -0.0010  0.0042         0.0207
+10  all with quote           T-2h  1402   0.5814  0.1998    0.6776         0.0015 -0.0010  0.0039         0.0221
+11  all with quote           T-1h  1402   0.5803  0.1993    0.6797         0.0004 -0.0014  0.0020         0.0143
+12  all with quote         T-0.5h  1402   0.5803  0.1992    0.6815         0.0005 -0.0007  0.0016         0.0071
+13  all with quote        T-0.25h  1402   0.5797  0.1990    0.6833        -0.0002 -0.0009  0.0005         0.0050
+14  all with quote         T-1min  1402   0.5799  0.1990    0.6869         0.0000  0.0000  0.0000         0.0000
+15  balanced <=24h          T-24h  1338   0.5873  0.2020    0.6786         0.0085  0.0026  0.0140         0.0575
+16  balanced <=24h          T-18h  1338   0.5850  0.2010    0.6805         0.0061  0.0016  0.0105         0.0471
+17  balanced <=24h          T-12h  1338   0.5841  0.2007    0.6756         0.0053  0.0009  0.0095         0.0448
+18  balanced <=24h           T-9h  1338   0.5830  0.2002    0.6779         0.0041 -0.0001  0.0081         0.0463
+19  balanced <=24h           T-6h  1338   0.5825  0.2000    0.6768         0.0037  0.0001  0.0071         0.0359
+20  balanced <=24h           T-4h  1338   0.5804  0.1993    0.6801         0.0016 -0.0012  0.0042         0.0277
+21  balanced <=24h           T-3h  1338   0.5805  0.1994    0.6783         0.0017 -0.0011  0.0042         0.0217
+22  balanced <=24h           T-2h  1338   0.5802  0.1992    0.6786         0.0014 -0.0012  0.0038         0.0232
+23  balanced <=24h           T-1h  1338   0.5791  0.1987    0.6809         0.0002 -0.0015  0.0020         0.0149
+24  balanced <=24h         T-0.5h  1338   0.5791  0.1986    0.6827         0.0003 -0.0008  0.0015         0.0075
+25  balanced <=24h        T-0.25h  1338   0.5785  0.1984    0.6846        -0.0003 -0.0011  0.0004         0.0052
+26  balanced <=24h         T-1min  1338   0.5788  0.1985    0.6883         0.0000  0.0000  0.0000         0.0000
+
+=== C. Horizon curve by season (balanced panel) ===
+    season snapshot     n  logloss   brier  accuracy
+0  2024-25    T-24h    37   0.6565  0.2337    0.5946
+1  2024-25    T-12h    37   0.6612  0.2356    0.5946
+2  2024-25     T-4h    37   0.6624  0.2360    0.5946
+3  2024-25     T-1h    37   0.6653  0.2370    0.5946
+4  2024-25   T-1min    37   0.6701  0.2389    0.5946
+5  2025-26    T-24h  1301   0.5854  0.2011    0.6810
+6  2025-26    T-12h  1301   0.5819  0.1997    0.6779
+7  2025-26     T-4h  1301   0.5780  0.1982    0.6826
+8  2025-26     T-1h  1301   0.5766  0.1976    0.6833
+9  2025-26   T-1min  1301   0.5762  0.1973    0.6910
+
+=== D. Publish policies (n=1377 games; delta vs 09:00 UTC; negative = better; lead 30 min) ===
+                                                                 policy     n  logloss   brier  accuracy  d_ll_vs_09   ci_lo   ci_hi  bonf_lo  bonf_hi  d_brier_vs_09  d_acc_vs_09_pts  picks_changed_vs_09  flips_later_pick_right  net_correct_picks_per_1230  share_games_price_changed  share_of_max_gain
+0                             D-1 09:00 UTC (tomorrow's games, current)  1269   0.5905  0.2035    0.6773      0.0059 -0.0005  0.0115  -0.0033   0.0151         0.0025          -0.1970               0.0591                  0.4800                     -2.9078                        NaN            -0.9825
+1                                     09:00 UTC only (current main run)  1377   0.5866  0.2019    0.6761      0.0000  0.0000  0.0000   0.0000   0.0000         0.0000           0.0000               0.0000                     NaN                      0.0000                     0.0000            -0.0000
+2                                                           09 + 12 UTC  1377   0.5868  0.2019    0.6743      0.0002 -0.0006  0.0010  -0.0010   0.0015         0.0001          -0.1816               0.0051                  0.4286                     -0.8932                     0.6442            -0.0393
+3                                                           09 + 15 UTC  1377   0.5856  0.2014    0.6750     -0.0010 -0.0026  0.0005  -0.0034   0.0014        -0.0004          -0.1089               0.0160                  0.4091                     -3.5730                     0.8243             0.1716
+4                                                           09 + 17 UTC  1377   0.5844  0.2010    0.6786     -0.0022 -0.0042 -0.0001  -0.0053   0.0010        -0.0009           0.2542               0.0174                  0.5417                      1.7865                     0.8548             0.3635
+5                                                           09 + 18 UTC  1377   0.5839  0.2007    0.6790     -0.0027 -0.0051 -0.0002  -0.0065   0.0011        -0.0011           0.2905               0.0189                  0.5385                      1.7865                     0.8635             0.4541
+6                                                           09 + 19 UTC  1377   0.5839  0.2007    0.6779     -0.0027 -0.0056  0.0002  -0.0071   0.0017        -0.0011           0.1816               0.0276                  0.5263                      1.7865                     0.8867             0.4543
+7                                                           09 + 20 UTC  1377   0.5821  0.2001    0.6794     -0.0045 -0.0077 -0.0011  -0.0095   0.0006        -0.0018           0.3268               0.0312                  0.5581                      4.4662                     0.8794             0.7478
+8                                         09 + 21 UTC (current refresh)  1377   0.5818  0.1999    0.6794     -0.0048 -0.0080 -0.0013  -0.0100   0.0004        -0.0019           0.3268               0.0349                  0.5625                      5.3595                     0.8533             0.8032
+9                                                           09 + 22 UTC  1377   0.5818  0.2000    0.6768     -0.0048 -0.0082 -0.0010  -0.0102   0.0006        -0.0019           0.0726               0.0334                  0.5217                      1.7865                     0.8264             0.7972
+10                                                          09 + 23 UTC  1377   0.5825  0.2002    0.6776     -0.0040 -0.0076 -0.0004  -0.0096   0.0015        -0.0017           0.1452               0.0320                  0.5227                      1.7865                     0.7451             0.6766
+11                                                     09 + 17 + 22 UTC  1377   0.5818  0.2000    0.6779     -0.0048 -0.0082 -0.0010  -0.0103   0.0008        -0.0018           0.1816               0.0385                  0.5283                      2.6797                     0.9085             0.7973
+12                                                     09 + 21 + 23 UTC  1377   0.5812  0.1997    0.6794     -0.0054 -0.0091 -0.0015  -0.0112   0.0004        -0.0022           0.3268               0.0385                  0.5472                      4.4662                     0.8642             0.8989
+13                                                09 + 18 + 22 + 00 UTC  1377   0.5810  0.1996    0.6797     -0.0055 -0.0092 -0.0015  -0.0116   0.0005        -0.0022           0.3631               0.0399                  0.5455                      4.4662                     0.9085             0.9269
+14  hourly 09..02 UTC (each game: last whole hour >= 30 min before tip)  1377   0.5814  0.1997    0.6797     -0.0052 -0.0092 -0.0010  -0.0115   0.0011        -0.0021           0.3631               0.0450                  0.5484                      5.3595                     0.9237             0.8696
+15                                    per game T-1h (staggered threads)  1377   0.5812  0.1997    0.6790     -0.0054 -0.0092 -0.0013  -0.0116   0.0008        -0.0022           0.2905               0.0465                  0.5312                      3.5730                        NaN             0.8997
+16                                 per game T-30min (staggered threads)  1377   0.5812  0.1996    0.6808     -0.0054 -0.0096 -0.0009  -0.0120   0.0012        -0.0023           0.4720               0.0465                  0.5469                      5.3595                        NaN             0.9012
+17                        pre-tip T-1min (upper bound, not publishable)  1377   0.5806  0.1993    0.6863     -0.0060 -0.0104 -0.0013  -0.0130   0.0010        -0.0025           1.0167               0.0479                  0.6061                     12.5054                        NaN             1.0000
+
+=== D. Policies by season ===
+     season     policy     n  logloss   brier  accuracy  d_ll_vs_09
+0   2024-25  09:00 UTC    62   0.6878  0.2479    0.5968      0.0000
+1   2024-25  09+17 UTC    62   0.6839  0.2460    0.5968     -0.0039
+2   2024-25  09+21 UTC    62   0.6847  0.2462    0.5968     -0.0031
+3   2024-25  09+22 UTC    62   0.6842  0.2462    0.5968     -0.0036
+4   2024-25     hourly    62   0.6855  0.2466    0.5968     -0.0023
+5   2024-25    T-30min    62   0.6863  0.2470    0.5968     -0.0014
+6   2024-25     T-1min    62   0.6809  0.2447    0.5968     -0.0069
+7   2025-26  09:00 UTC  1315   0.5818  0.1997    0.6798      0.0000
+8   2025-26  09+17 UTC  1315   0.5797  0.1988    0.6825     -0.0021
+9   2025-26  09+21 UTC  1315   0.5769  0.1977    0.6833     -0.0049
+10  2025-26  09+22 UTC  1315   0.5770  0.1978    0.6806     -0.0048
+11  2025-26     hourly  1315   0.5765  0.1975    0.6837     -0.0053
+12  2025-26    T-30min  1315   0.5762  0.1974    0.6848     -0.0056
+13  2025-26     T-1min  1315   0.5759  0.1972    0.6905     -0.0059
+
+Scheduled tip-off hour (UTC), share of games:
+17:00    0.011
+18:00    0.007
+19:00    0.020
+20:00    0.025
+21:00    0.004
+22:00    0.033
+23:00    0.147
+00:00    0.328
+01:00    0.206
+02:00    0.129
+03:00    0.081
+04:00    0.007
+
+=== E. Sportsbook bounds: ESPN main-book open vs close ===
+               sample     n  ll_open  ll_close  d_close_minus_open    ci_lo    ci_hi  acc_open  acc_close  picks_flipped
+0   2024-25 + 2025-26  2644  0.59222   0.58111            -0.01110 -0.01588 -0.00618   0.67814    0.68797        0.07413
+1  2023-24 .. 2025-26  3947  0.59325   0.58138            -0.01187 -0.01590 -0.00774   0.67912    0.68875        0.07575
+2             2023-24  1303  0.59536   0.58192            -0.01343      NaN      NaN   0.68112    0.69033        0.07905
+3             2024-25  1323  0.59763   0.58528            -0.01236      NaN      NaN   0.67952    0.69048        0.06954
+4             2025-26  1321  0.58679   0.57694            -0.00985      NaN      NaN   0.67676    0.68547        0.07873
+
+=== E2. Versus the ESPN opening line (same games; negative = better than open) ===
+    season               price     n  ll_espn_open  ll_price  delta_vs_open    ci_lo    ci_hi
+0  2024-25    Kalshi 09:00 UTC    62       0.67744   0.68778        0.01034 -0.00576  0.02758
+1  2024-25  09 + 21 UTC policy    62       0.67744   0.68466        0.00722 -0.01226  0.02773
+2  2024-25          ESPN close    62       0.67744   0.67890        0.00146 -0.02267  0.02446
+3  2025-26    Kalshi 09:00 UTC  1314       0.58614   0.58203       -0.00412 -0.00896  0.00094
+4  2025-26  09 + 21 UTC policy  1314       0.58614   0.57715       -0.00900 -0.01505 -0.00265
+5  2025-26          ESPN close  1314       0.58614   0.57678       -0.00936 -0.01575 -0.00256
+6      all    Kalshi 09:00 UTC  1376       0.59026   0.58679       -0.00346 -0.00791  0.00136
+7      all  09 + 21 UTC policy  1376       0.59026   0.58199       -0.00827 -0.01372 -0.00224
+8      all          ESPN close  1376       0.59026   0.58138       -0.00888 -0.01472 -0.00254
+
+=== F. Evening games (tip 23:00-02:59 UTC): price movement still to come, by UTC clock time ===
+        utc     n  mean_abs_move_to_close_pts  mean_sq_logit_move_to_close  share_of_09utc_remaining
+0     09:00  1115                      2.6309                       0.0372                    1.0000
+1     12:00  1100                      2.5730                       0.0362                    0.9734
+2     15:00  1131                      2.3470                       0.0314                    0.8448
+3     16:00  1133                      2.2767                       0.0304                    0.8177
+4     17:00  1133                      2.1814                       0.0280                    0.7532
+5     18:00  1133                      2.0232                       0.0255                    0.6850
+6     19:00  1133                      1.7511                       0.0200                    0.5382
+7     20:00  1133                      1.5693                       0.0150                    0.4036
+8     21:00  1133                      1.4462                       0.0133                    0.3567
+9     22:00  1133                      1.3094                       0.0118                    0.3162
+10    23:00   995                      1.1229                       0.0094                    0.2530
+11     T-1h  1133                      0.8694                       0.0053                    0.1439
+12   T-0.5h  1133                      0.5635                       0.0025                    0.0672
+13  T-0.25h  1133                      0.3619                       0.0013                    0.0344
+
+=== G. Does Kalshi add information beyond the ESPN closing line? (delta < 0 = better than close) ===
+                                               variant               scheme     n  ll_model  ll_espn_close    delta    ci_lo    ci_hi  bonf_lo  bonf_hi  K months_negative
+0                            espn_close + kalshi_close               season  1315   0.59822        0.57658  0.02164  0.01238  0.03115  0.00851  0.03477  8             2/9
+1                            espn_close + kalshi_close              monthly  1016   0.58316        0.57845  0.00470  0.00179  0.00762  0.00062  0.00879  8             2/7
+2            espn_close + kalshi_late_move(09utc->tip)               season  1315   0.60577        0.57658  0.02918  0.01764  0.04134  0.01203  0.04633  8             3/9
+3            espn_close + kalshi_late_move(09utc->tip)              monthly  1016   0.58563        0.57845  0.00718  0.00298  0.01116  0.00153  0.01282  8             1/7
+4                    kalshi_close alone (recalibrated)               season  1315   0.59903        0.57658  0.02245  0.01322  0.03207  0.00920  0.03569  8             2/9
+5                    kalshi_close alone (recalibrated)              monthly  1016   0.58103        0.57845  0.00258 -0.00024  0.00527 -0.00116  0.00631  8             2/7
+6                          kalshi_close raw (unfitted)  unfitted, all games  1377   0.58060        0.58119 -0.00059 -0.00208  0.00097 -0.00272  0.00154  8            4/12
+7  avg(logit espn_close, logit kalshi_close), unfitted  unfitted, all games  1377   0.58077        0.58119 -0.00042 -0.00117  0.00037 -0.00149  0.00064  8            5/12
+
+=== G. Betting at the ESPN closing moneyline (incl. vig) when Kalshi says the side is underpriced ===
+             signal  threshold  bets     roi   ci_lo   ci_hi  bonf_lo  bonf_hi
+0     kalshi T-1min       0.00    46 -0.2700 -0.5749  0.0822  -0.6744   0.2085
+1     kalshi T-1min       0.02     1     NaN     NaN     NaN      NaN      NaN
+2     kalshi T-1min       0.04     0     NaN     NaN     NaN      NaN      NaN
+3  kalshi 09:00 UTC       0.00   593 -0.0477 -0.1552  0.0594  -0.1933   0.1000
+4  kalshi 09:00 UTC       0.02   274 -0.0460 -0.1903  0.1066  -0.2255   0.1741
+5  kalshi 09:00 UTC       0.04   146 -0.1450 -0.3265  0.0453  -0.4030   0.1132
+
+=== G. Per-season deltas vs ESPN close ===
+                                               variant     test     n  delta_vs_espn_close
+0                            espn_close + kalshi_close  2025-26  1315              0.02164
+1            espn_close + kalshi_late_move(09utc->tip)  2025-26  1315              0.02918
+2                    kalshi_close alone (recalibrated)  2025-26  1315              0.02245
+3                          kalshi_close raw (unfitted)  2024-25    62              0.00200
+4                          kalshi_close raw (unfitted)  2025-26  1315             -0.00071
+5  avg(logit espn_close, logit kalshi_close), unfitted  2024-25    62              0.00092
+6  avg(logit espn_close, logit kalshi_close), unfitted  2025-26  1315             -0.00048

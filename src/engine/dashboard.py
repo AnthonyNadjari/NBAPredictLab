@@ -143,6 +143,7 @@ def enrich_pending(json_path: Path, db_path: str, thread_preview: bool = True,
             g["market_home_prob"] = f.get("market_home_prob")
             g["probability_source"] = f.get("probability_source")
             g["market_books"] = f.get("market_books")
+            g["refreshed_at"] = f.get("refreshed_at")
             g["key_out"] = {"home": f.get("home_key_out", []), "away": f.get("away_key_out", [])}
             if thread_preview and row is not None and g["id"] not in threads:
                 try:

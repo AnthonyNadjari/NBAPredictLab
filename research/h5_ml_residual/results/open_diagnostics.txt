@@ -1,0 +1,39 @@
+2024-25: train mean move -0.0146 logit | test mean move -0.0217 | ridge alpha 100 | pred mean -0.0264 sd 0.1422 | corr(pred, move) +0.178
+2025-26: train mean move -0.0182 logit | test mean move -0.0085 | ridge alpha 1000 | pred mean -0.0195 sd 0.0788 | corr(pred, move) +0.221
+
+log-loss delta vs the opening line (negative = better), paired bootstrap 95% CI:
+  const_shift     all games                  n= 2630 delta -0.00005 [-0.00033, +0.00024]  per season 2024-25 -0.00015 2025-26 +0.00005
+  const_shift     no back-to-back            n= 1880 delta +0.00007 [-0.00027, +0.00040]  per season 2024-25 -0.00010 2025-26 +0.00025
+  const_shift     a team on a back-to-back   n=  750 delta -0.00035 [-0.00090, +0.00019]  per season 2024-25 -0.00026 2025-26 -0.00045
+  ridge           all games                  n= 2630 delta -0.00241 [-0.00441, -0.00037]  per season 2024-25 -0.00337 2025-26 -0.00144
+  ridge           no back-to-back            n= 1880 delta -0.00187 [-0.00420, +0.00050]  per season 2024-25 -0.00209 2025-26 -0.00165
+  ridge           a team on a back-to-back   n=  750 delta -0.00375 [-0.00798, +0.00026]  per season 2024-25 -0.00651 2025-26 -0.00093
+  ridge_no_const  all games                  n= 2630 delta -0.00231 [-0.00427, -0.00032]  per season 2024-25 -0.00311 2025-26 -0.00151
+  ridge_no_const  no back-to-back            n= 1880 delta -0.00191 [-0.00420, +0.00037]  per season 2024-25 -0.00190 2025-26 -0.00192
+  ridge_no_const  a team on a back-to-back   n=  750 delta -0.00332 [-0.00734, +0.00057]  per season 2024-25 -0.00612 2025-26 -0.00046
+  close           all games                  n= 2630 delta -0.01109 [-0.01590, -0.00632]  per season 2024-25 -0.01213 2025-26 -0.01005
+  close           no back-to-back            n= 1880 delta -0.00743 [-0.01275, -0.00204]  per season 2024-25 -0.00886 2025-26 -0.00602
+  close           a team on a back-to-back   n=  750 delta -0.02025 [-0.03082, -0.01041]  per season 2024-25 -0.02020 2025-26 -0.02029
+
+home-win rate vs opening price by season (is the open biased toward one side?):
+            n  home_won  open_p  close_p  mean_move
+season                                             
+2024-25  1315    0.5460  0.5576   0.5537    -0.0217
+2025-26  1315    0.5544  0.5533   0.5514    -0.0085
+
+ridge move model, last fold: largest standardised coefficients (logit units per SD)
+elo_gap                         0.0536
+mkt_logit                      -0.0366
+diff_team_home_point_diff       0.0123
+b2b_diff                       -0.0121
+diff_back_to_back              -0.0121
+home_team_home_point_diff       0.0100
+home_back_to_back              -0.0097
+diff_streak                    -0.0088
+away_team_road_win_pct          0.0088
+home_team_home_win_pct          0.0082
+diff_last10_win_pct            -0.0077
+home_streak                    -0.0073
+home_games_last5d              -0.0070
+away_rest_days                 -0.0070
+away_last10_three_point_rate   -0.0069

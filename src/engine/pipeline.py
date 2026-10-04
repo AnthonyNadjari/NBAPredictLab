@@ -1,7 +1,7 @@
 """Daily v2 pipeline: refresh history, resolve results, predict a date."""
 import logging
 import sqlite3
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, timedelta, timezone
 from typing import Dict, List, Optional
 
 import numpy as np
@@ -85,6 +85,7 @@ def predict_date(day: date, hist: Optional[pd.DataFrame] = None, with_odds: bool
             "market_books": len(mk["books"]) if mk else 0,
             "probability_source": source,
             "engine": "v2",
+            "refreshed_at": datetime.now(timezone.utc).isoformat(timespec="minutes"),
             "start_utc": g["start_utc"],
             "season_type": g["season_type"],
         })

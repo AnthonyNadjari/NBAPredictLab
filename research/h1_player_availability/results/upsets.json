@@ -1,0 +1,99 @@
+{
+ "upsets": {
+  "oracle": {
+   "games": 5136,
+   "upsets": 1628,
+   "share_all_games_fav_missing_top2": 0.23228193146417445,
+   "share_upsets_fav_missing_top2": 0.24324324324324326,
+   "share_fav_wins_fav_missing_top2": 0.22719498289623719,
+   "share_upsets_dog_missing_top2": 0.3796068796068796,
+   "share_all_games_dog_missing_top2": 0.4269859813084112,
+   "fav_missing_top2": {
+    "n": 1193,
+    "fav_won": 0.6680637049455155,
+    "priced_close": 0.6584956779904088,
+    "gap_pts_close": 0.9568026955106723,
+    "z_close": 0.7164867888448332,
+    "n_open": 924,
+    "fav_won_open_subset": 0.6688311688311688,
+    "priced_open": 0.6666879079735771,
+    "gap_pts_open": 0.21432608575916445,
+    "z_open": 0.1433582444170548
+   },
+   "dog_missing_top2": {
+    "n": 2193,
+    "fav_won": 0.7181942544459644,
+    "priced_close": 0.7092618549995667,
+    "gap_pts_close": 0.8932399446397676,
+    "z_close": 0.9528631389695239,
+    "n_open": 1687,
+    "fav_won_open_subset": 0.7279193835210432,
+    "priced_open": 0.687098368292517,
+    "gap_pts_open": 4.082101522852621,
+    "z_open": 3.776768950007238
+   },
+   "neither": {
+    "n": 2390,
+    "fav_won": 0.6619246861924686,
+    "priced_close": 0.6623331519241811,
+    "gap_pts_close": -0.04084657317124929,
+    "z_close": -0.04328974198946374,
+    "n_open": 1794,
+    "fav_won_open_subset": 0.6605351170568562,
+    "priced_open": 0.6555815351844032,
+    "gap_pts_open": 0.49535818724529834,
+    "z_open": 0.4553587663658475
+   }
+  },
+  "prev": {
+   "games": 5136,
+   "upsets": 1628,
+   "share_all_games_fav_missing_top2": 0.25038940809968846,
+   "share_upsets_fav_missing_top2": 0.2616707616707617,
+   "share_fav_wins_fav_missing_top2": 0.2451539338654504,
+   "share_upsets_dog_missing_top2": 0.343980343980344,
+   "share_all_games_dog_missing_top2": 0.378309968847352,
+   "fav_missing_top2": {
+    "n": 1286,
+    "fav_won": 0.6687402799377916,
+    "priced_close": 0.6685258321852428,
+    "gap_pts_close": 0.021444775254886306,
+    "z_close": 0.016807637504310496,
+    "n_open": 965,
+    "fav_won_open_subset": 0.6683937823834197,
+    "priced_open": 0.6520587491982366,
+    "gap_pts_open": 1.6335033185183145,
+    "z_open": 1.1049010899400113
+   },
+   "dog_missing_top2": {
+    "n": 1943,
+    "fav_won": 0.7117858980957282,
+    "priced_close": 0.7034773458592044,
+    "gap_pts_close": 0.8308552236523825,
+    "z_close": 0.830009288716947,
+    "n_open": 1519,
+    "fav_won_open_subset": 0.7248189598420013,
+    "priced_open": 0.6955623526050125,
+    "gap_pts_open": 2.925660723698875,
+    "z_open": 2.580437477919218
+   },
+   "neither": {
+    "n": 2494,
+    "fav_won": 0.6700080192461909,
+    "priced_close": 0.6685047163512501,
+    "gap_pts_close": 0.15033028949408278,
+    "z_close": 0.16372860219587282,
+    "n_open": 1861,
+    "fav_won_open_subset": 0.6700698549167114,
+    "priced_open": 0.6599174914127931,
+    "gap_pts_open": 1.015236350391835,
+    "z_open": 0.9548286635839356
+   }
+  }
+ },
+ "line_move_extra": {
+  "n_big_new_absence_games": 805,
+  "move_direction_agrees": 0.7900621118012422,
+  "sd_move_logit": 0.292571525305297
+ }
+}

@@ -385,7 +385,7 @@ function gameCard(g) {
   const src = g.probability_source === 'market' ? 'consensus des cotes' : 'modèle stats (pas de cotes)';
   return `
   <article class="game ${g.published ? 'published' : ''}" data-id="${esc(g.id)}">
-    <div class="g-top"><div>${when}</div>${status}</div>
+    <div class="g-top"><div>${when}${g.refreshed_at ? ` · <span title="Heure de la dernière mise à jour de la probabilité">màj ${paris.format(new Date(g.refreshed_at))}</span>` : ''}</div>${status}</div>
     <div class="teams">
       <div class="team"><img src="${logo(a)}" alt="" loading="lazy"><div class="nm">${esc(TEAMS[a]?.[0] || g.away_team)}<span class="where">extérieur</span></div></div>
       <div class="at">@</div>
@@ -447,6 +447,17 @@ function renderSlate() {
 
 function findGame(id) { return [...(state.games?.games || []), ...(state.games?.specials || [])].find(g => g.id === id); }
 
+// research/h6_timing: the morning price is opening-line quality; the 21:00 UTC refresh
+// (injury reports in) captures ~80% of the accuracy gain. Published probabilities are frozen.
+function timingAdvice(g) {
+  if (!g.refreshed_at || g.published || g.type === 'weekly') return '';
+  const ref = new Date(g.refreshed_at), now = new Date();
+  const evening = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 21, 0));
+  const tip = g.start_utc ? new Date(g.start_utc) : null;
+  if (ref >= evening || now >= evening || (tip && tip <= evening)) return '';
+  return `<p class="warn" style="margin:0 0 10px">Probabilité du matin (${paris.format(ref)}), au niveau de la cote d'ouverture. La mise à jour de ${paris.format(evening)} intègre les rapports de blessures et vise plus juste (≈ +5 bons picks par saison). Publier maintenant fige cette probabilité.</p>`;
+}
+
 function threadOf(g) {
   if (Array.isArray(g.thread) && g.thread.length) return g.thread;
   return (g.thread_preview || []).map(t => ({ text: t, card: null }));
@@ -462,14 +473,14 @@ function fitCards(root) {
 function openThread(g, publishMode) {
   const tw = threadOf(g);
   $('#threadTitle').textContent = publishMode ? 'Publier ce thread ?' : 'Aperçu du thread';
-  $('#threadBody').innerHTML = tw.length ? tw.map((t, i) => `
+  $('#threadBody').innerHTML = timingAdvice(g) + (tw.length ? tw.map((t, i) => `
     <div class="tweet">
       <div class="n"><span>Tweet ${i + 1}/${tw.length}</span><span class="cnt" data-i="${i}">${t.text.length}/280</span></div>
       <textarea class="tw-edit" data-i="${i}" rows="${Math.min(9, t.text.split('\n').length + 1)}" ${g.published ? 'readonly' : ''}>${esc(t.text)}</textarea>
       ${t.card ? `<div class="cardwrap"><iframe src="${cardSrc(t.card)}" title="Image du tweet ${i + 1}" loading="lazy" tabindex="-1"></iframe></div>` : ''}
     </div>`).join('')
     + `<p style="color:var(--muted);font-size:13px;margin:4px 0 0">Tu peux modifier chaque tweet avant de publier. Vider un tweet le retire du thread. Les images sont exactement celles qui seront postées.</p>`
-    : `<p>Aperçu indisponible pour ce match. Le thread sera généré à la publication.</p>`;
+    : `<p>Aperçu indisponible pour ce match. Le thread sera généré à la publication.</p>`);
   const body = $('#threadBody');
   body.querySelectorAll('.tw-edit').forEach(ta => ta.addEventListener('input', () => {
     const c = body.querySelector(`.cnt[data-i="${ta.dataset.i}"]`);

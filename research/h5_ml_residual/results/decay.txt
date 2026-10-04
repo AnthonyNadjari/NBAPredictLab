@@ -1,0 +1,38 @@
+=== share of features with |z| > 1.96 vs the within-season permutation null ===
+ period  n_games  n_features  share_abs_z_gt_1_96  null_share_median  null_share_95  p_share  max_abs_z  null_max_95  p_max
+2018-23     6200         150                 0.18             0.0333         0.1667    0.042     4.3605       3.4492  0.002
+2023-26     3942         150                 0.06             0.0333         0.1737    0.260     2.6692       3.3106  0.378
+
+=== top features by |z| in 2018-23, and the same feature in 2023-26 ===
+                         2018-23  2023-26
+diff_last10_opp_fg3_pct     4.36     0.02
+away_last3_fg_pct           3.47     0.45
+away_last10_opp_fg3_pct    -3.19    -0.07
+away_team_road_ppg          2.83    -0.62
+away_last3_ppg              2.82     1.06
+home_last10_opp_fg3_pct     2.74    -0.04
+away_form_diff_ewm          2.70    -1.34
+diff_last3_ppg             -2.64    -0.03
+diff_last3_fg_pct          -2.63     1.46
+away_last10_win_pct         2.61    -0.79
+away_last5_win_pct          2.56    -0.59
+away_season_diff            2.53    -1.14
+
+correlation of the z-profiles across features (2018-23 vs 2023-26): -0.311
+
+=== per-season corr(feature, home_win - p_close) of the three top features ===
+                         2018-19  2019-20  2020-21  2021-22  2022-23  2023-24  2024-25  2025-26
+diff_last10_opp_fg3_pct    0.042    0.082    0.054    0.035    0.066    0.013    0.025   -0.035
+away_last3_fg_pct          0.051    0.023    0.046    0.070    0.011    0.019    0.006   -0.003
+away_last10_opp_fg3_pct   -0.057   -0.063   -0.028   -0.012   -0.053   -0.014   -0.035    0.048
+
+source of the closing price by season:
+season
+2018-19    espn_old_Caesars
+2019-20    espn_old_Caesars
+2020-21    espn_old_Caesars
+2021-22     espn_current_dk
+2022-23          espn_close
+2023-24          espn_close
+2024-25          espn_close
+2025-26          espn_close

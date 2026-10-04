@@ -1,0 +1,46 @@
+total player-games 165987
+=== 1. day-clustered bootstrap, opening line, realistic + oracle_min ===
+open wf   offset prev_min   delta -2.05 dayCI [-3.37,-0.70] coefs [-0.053 -0.104]
+open wf   offset prev_gs    delta -0.25 dayCI [-1.44,+0.90] coefs [-0.033 -0.089]
+open wf   offset prev_oo    delta +1.91 dayCI [+0.38,+3.63] coefs [-0.118 -0.062]
+open wf   offset oracle_min delta -4.05 dayCI [-6.29,-1.82] coefs [-0.13  -0.172]
+open wf   lr     prev_min   delta -1.03 dayCI [-3.01,+1.02] coefs [-0.022 -0.101]
+open wf   lr     prev_gs    delta +0.51 dayCI [-1.59,+2.65] coefs [-0.02  -0.085]
+open wf   lr     prev_oo    delta +2.77 dayCI [+0.32,+5.22] coefs [-0.133 -0.068]
+open wf   lr     oracle_min delta -3.39 dayCI [-6.07,-0.72] coefs [-0.109 -0.178]
+open loso offset prev_min   delta -1.32 dayCI [-3.13,+0.77] coefs [-0.18  -0.131 -0.104]
+open loso offset prev_gs    delta -0.13 dayCI [-1.19,+0.89] coefs [-0.084 -0.031 -0.089]
+open loso offset prev_oo    delta +1.64 dayCI [+0.79,+2.46] coefs [ 0.076  0.022 -0.062]
+open loso offset oracle_min delta -3.10 dayCI [-5.76,-0.48] coefs [-0.233 -0.19  -0.172]
+open loso lr     prev_min   delta -0.94 dayCI [-3.00,+1.23] coefs [-0.193 -0.122 -0.101]
+open loso lr     prev_gs    delta +0.05 dayCI [-1.28,+1.41] coefs [-0.083 -0.022 -0.085]
+open loso lr     prev_oo    delta +1.78 dayCI [+0.43,+3.17] coefs [ 0.075  0.018 -0.068]
+open loso lr     oracle_min delta -2.78 dayCI [-5.55,-0.06] coefs [-0.258 -0.188 -0.178]
+=== close, day-clustered ===
+close wf offset oracle_min delta +0.35 dayCI [+0.00,+0.70] coefs [-0.038  0.036  0.024 -0.008]
+close wf offset oracle_gs  delta +0.52 dayCI [-0.16,+1.24] coefs [-0.096 -0.025 -0.013 -0.036]
+close wf offset oracle_oo  delta +1.13 dayCI [+0.06,+2.28] coefs [-0.151 -0.066 -0.05  -0.045]
+close wf offset prev_min   delta +0.24 dayCI [-0.18,+0.67] coefs [-0.056  0.022  0.013 -0.026]
+close wf offset prev_gs    delta +0.06 dayCI [-0.51,+0.65] coefs [-0.062 -0.027 -0.017 -0.046]
+close wf offset prev_oo    delta +0.50 dayCI [-0.60,+1.60] coefs [-0.092 -0.081 -0.08  -0.061]
+close wf lr     oracle_min delta +1.05 dayCI [+0.29,+1.81] coefs [-0.03   0.031  0.043  0.005]
+close wf lr     oracle_gs  delta +1.22 dayCI [+0.25,+2.20] coefs [-0.092 -0.034 -0.006 -0.031]
+close wf lr     oracle_oo  delta +1.89 dayCI [+0.60,+3.17] coefs [-0.151 -0.066 -0.049 -0.045]
+close wf lr     prev_min   delta +0.97 dayCI [+0.14,+1.81] coefs [-0.051  0.017  0.022 -0.02 ]
+close wf lr     prev_gs    delta +0.79 dayCI [-0.10,+1.67] coefs [-0.059 -0.029 -0.015 -0.044]
+close wf lr     prev_oo    delta +1.23 dayCI [-0.08,+2.56] coefs [-0.096 -0.079 -0.083 -0.065]
+=== 2. permutation null for opening-line WF (feature shuffled within season) ===
+('offset', 'oracle_min'): real -4.05  null mean +0.21  perm p (one-sided) 0.000
+('offset', 'oracle_gs'): real -2.37  null mean +0.28  perm p (one-sided) 0.000
+('offset', 'oracle_oo'): real +0.38  null mean +0.24  perm p (one-sided) 0.747
+('offset', 'prev_min'): real -2.05  null mean +0.26  perm p (one-sided) 0.000
+('offset', 'prev_gs'): real -0.25  null mean +0.33  perm p (one-sided) 0.093
+('offset', 'prev_oo'): real +1.91  null mean +0.33  perm p (one-sided) 0.983
+('lr', 'oracle_min'): real -3.39  null mean +0.83  perm p (one-sided) 0.000
+('lr', 'oracle_gs'): real -1.66  null mean +0.90  perm p (one-sided) 0.000
+('lr', 'oracle_oo'): real +1.08  null mean +0.86  perm p (one-sided) 0.797
+('lr', 'prev_min'): real -1.03  null mean +0.88  perm p (one-sided) 0.000
+('lr', 'prev_gs'): real +0.51  null mean +0.96  perm p (one-sided) 0.153
+('lr', 'prev_oo'): real +2.77  null mean +0.96  perm p (one-sided) 0.987
+family-wise over 6 realistic variants: best real -2.05, P(min null <= best) = 0.000
+family-wise over 12 primary: best -4.05, P = 0.000

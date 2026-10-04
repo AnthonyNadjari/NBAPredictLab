@@ -4,9 +4,11 @@ on:
   schedule:
     # 09:00 UTC = 11:00 Paris (CEST) / 10:00 Paris (CET)
     - cron: '0 9 * * *'
-    # Evening refresh, 21:00 UTC = 5 pm ET: odds and injury report updated before tip-off
-    # (keep this line second: the control panel edits the first cron only)
+    # Evening refreshes (odds + injury report before tip-off). research/h6_timing: the 09:00
+    # price is opening-line quality; 21:00 UTC captures ~80% of the accuracy gain, 23:00 ~90%
+    # (late West Coast games). Keep these after the first line: the panel edits the first cron.
     - cron: '0 21 * * *'
+    - cron: '0 23 * * *'
   workflow_dispatch:
 
 permissions:
@@ -51,7 +53,7 @@ jobs:
           TW_ACCESS_TOKEN: ${{ secrets.TWITTER_ACCESS_TOKEN }}
           TW_ACCESS_SECRET: ${{ secrets.TWITTER_ACCESS_SECRET }}
         run: |
-          if [ "${{ github.event.schedule }}" = "0 21 * * *" ]; then
+          if [ "${{ github.event.schedule }}" = "0 21 * * *" ] || [ "${{ github.event.schedule }}" = "0 23 * * *" ]; then
             python scripts/morning_routine.py --refresh
           else
             python scripts/morning_routine.py
