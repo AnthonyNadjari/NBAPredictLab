@@ -67,7 +67,8 @@ def main() -> int:
     print(f"Working directory: {os.getcwd()}", flush=True)
 
     from config import get_llm_api_key
-    if not get_llm_api_key():
+    login_check = os.getenv("NBAVISION_LOGIN_CHECK", "").lower() in ("1", "true", "yes")
+    if not login_check and not get_llm_api_key():
         # Without a model the old code posted canned template replies: never do that.
         msg = "LLM_API_KEY missing: add the Groq key as a repo secret. No session run."
         print(f"ERR: {msg}", flush=True)
@@ -95,6 +96,20 @@ def main() -> int:
     print("Auth OK. Session started.", flush=True)
 
     profile_stats_run_at_start(page)
+
+    if login_check:
+        # Connection test only: log in, record followers, save the session, post nothing
+        from auth import logged_in_handle
+        save_session_state(context)
+        handle = logged_in_handle(page)
+        print(f"Login check OK ({handle or '?'}). Nothing posted.", flush=True)
+        record_run({"run_id": run_id or None, "auth": "ok", "login_check": True, "handle": handle})
+        try:
+            context.close()
+            pw.stop()
+        except Exception:
+            pass
+        return 0
 
     try:
         log_data = run_session(page, context, browser=browser, playwright_instance=pw)

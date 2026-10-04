@@ -776,7 +776,8 @@ function renderAccount() {
       <details style="margin-top:14px"><summary style="cursor:pointer;font-weight:600">Connecter le bot de réponses à X</summary>
         <p class="hint" style="margin:8px 0">Sur un navigateur connecté au compte @NBAPredictLab, ouvre x.com, puis l'extension <b>Cookie-Editor</b> → <b>Export</b> → <b>JSON</b>, et colle le résultat ici. Ou colle juste <code>auth_token=…; ct0=…</code>. Les cookies sont chiffrés avant d'être stockés comme secret GitHub, et personne ne peut les relire.</p>
         <textarea id="cookiesIn" rows="4" style="width:100%;border:1px solid var(--line);border-radius:8px;padding:8px;background:var(--wash);font:12px var(--mono)" placeholder='[{"name":"auth_token",...}] ou auth_token=...; ct0=...'></textarea>
-        <div class="row" style="margin-top:8px"><button class="btn primary" type="button" id="cookiesSave">Enregistrer les cookies</button></div>
+        <div class="row" style="margin-top:8px"><button class="btn primary" type="button" id="cookiesSave">Enregistrer les cookies</button>
+          <button class="btn" type="button" id="loginCheck">Vérifier la connexion du bot</button></div>
         <div class="msg" id="cookiesMsg"></div>
       </details>
       <details style="margin-top:10px"><summary style="cursor:pointer;font-weight:600">Clé du modèle (Groq)</summary>
@@ -831,6 +832,10 @@ function renderAccount() {
   $('#cookiesSave').onclick = saveSecret('TWITTER_COOKIES_JSON', '#cookiesIn', '#cookiesMsg',
     'Cookies enregistrés. Lance un « Essai à blanc » pour vérifier la connexion.');
   $('#groqSave').onclick = saveSecret('LLM_API_KEY', '#groqIn', '#groqMsg', 'Clé enregistrée.');
+  $('#loginCheck').onclick = needPw(async () => {
+    try { await api('admin', { action: 'vision_run', login_check: true }); msg('#cookiesMsg', 'ok', 'Vérification lancée : résultat ici dans 3 à 5 minutes (recharge la page).'); }
+    catch (err) { msg('#cookiesMsg', 'err', err.message); }
+  });
   const draft = JSON.parse(JSON.stringify(sched));
   draft.schedules = draft.schedules || [];
   $('#vTimes').addEventListener('change', e => { const i = e.target.dataset.i; if (i != null) draft.schedules[i].enabled = e.target.checked; });

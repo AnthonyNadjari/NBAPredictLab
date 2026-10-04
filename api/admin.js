@@ -147,7 +147,8 @@ module.exports = async function handler(req, res) {
       const max = Number.isInteger(req.body.max_replies) && req.body.max_replies > 0 && req.body.max_replies <= 100
         ? String(req.body.max_replies) : '';
       const r = await gh(`/repos/${repo}/actions/workflows/vision.yml/dispatches`, token, {
-        method: 'POST', body: JSON.stringify({ ref: 'main', inputs: { dry_run: dry, max_replies: max } }),
+        method: 'POST', body: JSON.stringify({ ref: 'main', inputs: { dry_run: dry, max_replies: max,
+          login_check: req.body.login_check === true } }),
       });
       if (r.status === 204) return res.status(200).json({ success: true });
       return res.status(502).json({ success: false, error: `GitHub API error (${r.status})` });
