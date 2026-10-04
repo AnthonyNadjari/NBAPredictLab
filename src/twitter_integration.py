@@ -207,9 +207,9 @@ def create_fresh_twitter_client() -> Dict:
     
     # Log credentials being used (first/last few chars for debugging)
     logger.info(f"🔑 Creating Twitter client with:")
-    logger.info(f"   API Key: {api_key[:15]}...{api_key[-5:] if len(api_key) > 20 else ''} (full length: {len(api_key)})")
-    logger.info(f"   Access Token: {access_token[:30]}...{access_token[-10:] if len(access_token) > 40 else ''} (full length: {len(access_token)})")
-    logger.info(f"   Access Token Secret: {access_token_secret[:15]}...{access_token_secret[-5:] if len(access_token_secret) > 20 else ''} (full length: {len(access_token_secret)})")
+    logger.info(f"   API Key: (length: {len(api_key)})")
+    logger.info(f"   Access Token: (length: {len(access_token)})")
+    logger.info(f"   Access Token Secret: (length: {len(access_token_secret)})")
     
     # Validate credentials are not empty
     if not api_key or not api_key_secret or not access_token or not access_token_secret:
@@ -300,7 +300,7 @@ def setup_twitter_api(credentials: Dict) -> Dict:
     else:
         # OAuth 1.0a (more straightforward for posting)
         # This is the method that works in our tests
-        logger.debug(f"Setting up OAuth1 client with: api_key={api_key[:10]}..., access_token={access_token[:10]}...")
+        logger.debug("Setting up OAuth1 client")
 
         # IMPORTANT: Create API v1.1 client FIRST (for media upload)
         auth = tweepy.OAuth1UserHandler(
@@ -711,6 +711,32 @@ def post_tweet_with_image(
         raise
 
 
+def _upload_media(api_v1, image_path: str) -> Optional[str]:
+    """Upload an image and return its media id (v2 endpoint first, v1.1 as fallback)."""
+    import requests
+    try:
+        with open(image_path, 'rb') as f:
+            r = requests.post(
+                "https://api.x.com/2/media/upload",
+                auth=api_v1.auth.apply_auth(),
+                files={"media": f},
+                data={"media_category": "tweet_image"},
+                timeout=60,
+            )
+        if r.ok:
+            media_id = (r.json().get("data") or {}).get("id")
+            if media_id:
+                return str(media_id)
+        logger.warning(f"v2 media upload HTTP {r.status_code}: {r.text[:200]}")
+    except Exception as e:
+        logger.warning(f"v2 media upload failed: {e}")
+    try:
+        return api_v1.media_upload(filename=image_path).media_id_string
+    except Exception as e:
+        logger.warning(f"v1.1 media upload failed: {e}")
+        return None
+
+
 def create_twitter_thread(
     api_clients: Dict,
     texts: List[str],
@@ -760,9 +786,9 @@ def create_twitter_thread(
         if hasattr(client_v2, '_client') and hasattr(client_v2._client, 'auth'):
             auth = client_v2._client.auth
             if hasattr(auth, 'access_token'):
-                logger.info(f"🔑 Client access token (first 30 chars): {auth.access_token[:30]}...")
+                logger.info(f"🔑 Client access token length: {len(auth.access_token)}")
             if hasattr(auth, 'consumer_key'):
-                logger.info(f"🔑 Client API key (first 15 chars): {auth.consumer_key[:15]}...")
+                logger.info(f"🔑 Client API key length: {len(auth.consumer_key)}")
     except Exception as debug_e:
         logger.debug(f"Could not extract client credentials for debugging: {debug_e}")
     
@@ -794,11 +820,11 @@ def create_twitter_thread(
                 image_path = None
             
             if image_path and api_v1:
-                try:
-                    media = api_v1.media_upload(filename=image_path)
-                    media_ids = [media.media_id_string]
-                except Exception as e:
-                    logger.warning(f"Failed to upload image for tweet {i+1}: {e}")
+                media_id = _upload_media(api_v1, image_path)
+                if media_id:
+                    media_ids = [media_id]
+                else:
+                    logger.warning(f"⚠️ Image upload failed for tweet {i+1}: posting text only")
         
         # Create tweet
         kwargs = {"text": text}
@@ -814,8 +840,8 @@ def create_twitter_thread(
                 # Debug: Verify credentials in client match what we expect
                 try:
                     if hasattr(client_v2, '_debug_api_key'):
-                        logger.info(f"🔍 Debug: Client API Key: {client_v2._debug_api_key[:15]}...")
-                        logger.info(f"🔍 Debug: Client Access Token: {client_v2._debug_access_token[:30]}...")
+                        logger.info("🔍 Debug: client API key present")
+                        logger.info("🔍 Debug: client access token present")
                 except:
                     pass
             response = client_v2.create_tweet(**kwargs)
@@ -1133,7 +1159,7 @@ def create_twitter_thread(
                 f"3. ❌ Access tokens were generated BEFORE permissions were changed\n\n"
                 f"🔧 To verify credentials are correct:\n"
                 f"1. Go to: https://developer.twitter.com/en/portal/projects-and-apps\n"
-                f"2. Find your app (API Key: {api_key[:25] if 'api_key' in dir() else 'N/A'}...)\n"
+                f"2. Find your app \n"
                 f"3. Check 'App permissions' is 'Read and write'\n"
                 f"4. Verify all 4 credentials are from the SAME app\n\n"
                 f"💡 TIP: Run 'python test_twitter_post.py' to verify credentials work.\n"

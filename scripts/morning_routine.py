@@ -1,408 +1,245 @@
 #!/usr/bin/env python3
 """
-Morning Routine Script for NBA Predictor
-=========================================
-This script automates the morning tasks:
-1. Fetch today's predictions (generate predictions for today's games)
-2. Refresh game data from NBA API (get yesterday's scores)
-3. Update prediction results (verify yesterday's predictions)
-4. Send email report (today's predictions + yesterday's results)
+Morning Routine (v2 engine)
+===========================
+1. Refresh finished games from ESPN into data/games_history.csv
+2. Resolve every pending prediction that now has a result
+3. Predict today's and tomorrow's games (US Eastern dates)
+4. Export docs/pending_games.json for the publishing page
+5. Send the email report
+6. Commit + push data (CI only, or with --push)
 
 Usage:
-    python scripts/morning_routine.py [--skip-email] [--skip-predictions]
+    python scripts/morning_routine.py [--skip-email] [--skip-predictions] [--lookback 7] [--push] [--no-push]
 """
 
-import sys
-import os
-import logging
 import argparse
-from concurrent.futures import ThreadPoolExecutor, TimeoutError as FuturesTimeoutError
-from pathlib import Path
+import logging
+import os
+import shutil
+import subprocess
+import sys
+import tempfile
 from datetime import datetime, timedelta
+from pathlib import Path
 
-# Add project root to path
-PROJECT_ROOT = Path(__file__).parent.parent
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
+os.chdir(PROJECT_ROOT)  # legacy modules use paths relative to the repo root
 
-# Setup logging
+(PROJECT_ROOT / 'logs').mkdir(exist_ok=True)
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
         logging.StreamHandler(sys.stdout),
-        logging.FileHandler(PROJECT_ROOT / 'logs' / f'morning_routine_{datetime.now().strftime("%Y%m")}.log', encoding='utf-8')
-    ]
+        logging.FileHandler(PROJECT_ROOT / 'logs' / f'morning_routine_{datetime.now().strftime("%Y%m")}.log',
+                            encoding='utf-8'),
+    ],
 )
 logger = logging.getLogger(__name__)
 
-# Database path
 DB_PATH = PROJECT_ROOT / 'data' / 'nba_predictor.db'
+JSON_PATH = PROJECT_ROOT / 'docs' / 'pending_games.json'
+DATA_FILES = ['data/nba_predictor.db', 'data/games_history.csv', 'docs/dashboard.json']
+# Also written by other workflows (reply bot): never restored wholesale, re-applied instead
+SHARED_FILES = ['docs/x_status.json', 'docs/vision/stats.json']
 
 
-def refresh_game_data(lookback_days: int = 7) -> bool:
-    """
-    Refresh game data from NBA API (equivalent to "Refresh Game Data" button).
-    Uses NBADataFetcher.update_recent_games() which has CDN fallback + per-day timeouts.
-    """
-    logger.info("=" * 60)
-    logger.info("STEP 2: Refreshing game data from NBA API")
-    logger.info("=" * 60)
+def step(title: str) -> None:
+    logger.info('')
+    logger.info('=' * 60)
+    logger.info(title)
+    logger.info('=' * 60)
 
-    try:
-        from src.data_fetcher import NBADataFetcher
 
-        fetcher = NBADataFetcher(db_path=str(DB_PATH))
-        games_fetched = fetcher.update_recent_games(
-            days_back=lookback_days,
-            timeout=90
-        )
-        logger.info(f"[OK] Fetched/updated {games_fetched} games")
-        return True
-
-    except Exception as e:
-        logger.error(f"[ERROR] Failed to refresh game data: {e}", exc_info=True)
+def export_json(today: str, tomorrow: str) -> bool:
+    from src.daily_games_exporter import DailyGamesExporter
+    from src.engine.dashboard import enrich_pending
+    if not DailyGamesExporter(str(DB_PATH)).export_today_and_tomorrow(today, tomorrow, output_path=str(JSON_PATH)):
         return False
-
-
-def update_prediction_results(lookback_days: int = 7) -> bool:
-    """
-    Update prediction results (equivalent to "Update Results" button).
-    Matches predictions to actual game outcomes.
-    """
-    logger.info("")
-    logger.info("=" * 60)
-    logger.info("STEP 3: Updating prediction results")
-    logger.info("=" * 60)
-
     try:
-        from src.model_feedback_system import ModelFeedbackSystem
-
-        feedback_system = ModelFeedbackSystem(str(DB_PATH))
-        updated = feedback_system.update_predictions_with_results(
-            lookback_days=lookback_days,
-            use_api=False  # DB only — Step 2 already fetched game data
-        )
-        feedback_system.close()
-
-        if updated > 0:
-            logger.info(f"[OK] Updated {updated} predictions with results")
-        else:
-            logger.info("[OK] No predictions to update (all already have results or no matching games)")
-
-        return True
-
+        enrich_pending(JSON_PATH, str(DB_PATH))
     except Exception as e:
-        logger.error(f"[ERROR] Failed to update prediction results: {e}", exc_info=True)
-        return False
+        logger.warning(f'[WARN] Could not enrich pending games: {e}')
+    return True
 
 
-def fetch_todays_predictions() -> list:
-    """
-    Fetch and generate today's AND tomorrow's predictions.
-    Returns the list of generated predictions (empty on failure/no games).
-    """
-    logger.info("")
-    logger.info("=" * 60)
-    logger.info("STEP 1: Fetching today's and tomorrow's predictions")
-    logger.info("=" * 60)
-
-    try:
-        from daily_auto_prediction import DailyPredictionAutomation
-
-        automation = DailyPredictionAutomation(
-            db_path=str(DB_PATH),
-            model_dir=str(PROJECT_ROOT / 'models'),
-            dry_run=True  # Don't post to Twitter
-        )
-
-        # Initialize components first
-        if not automation.initialize_components():
-            logger.error("Failed to initialize automation components")
-            return []
-
-        # Fetch today's games
-        today_str = datetime.now().strftime('%Y-%m-%d')
-        tomorrow_str = (datetime.now() + timedelta(days=1)).strftime('%Y-%m-%d')
-        
-        logger.info(f"Fetching games for today ({today_str})...")
-        games_today = automation.fetch_todays_games(target_date=today_str)
-        
-        logger.info(f"Fetching games for tomorrow ({tomorrow_str})...")
-        games_tomorrow = automation.fetch_todays_games(target_date=tomorrow_str)
-        
-        # Combine both days
-        all_games = games_today + games_tomorrow if games_today and games_tomorrow else (games_today or games_tomorrow or [])
-        
-        if not all_games:
-            logger.warning("[WARN] No games today or tomorrow")
-            return []  # Not an error
-
-        logger.info(f"Found {len(games_today) if games_today else 0} games today, {len(games_tomorrow) if games_tomorrow else 0} games tomorrow")
-        
-        # Generate predictions for all games
-        predictions = automation.generate_predictions(all_games)
-
-        # Save predictions to database (for both today and tomorrow)
-        if predictions:
-            # Each prediction carries its own game_date via game_info
-            automation._save_predictions_to_db(predictions, today_str)
-            logger.info(f"[OK] Generated {len(predictions)} predictions ({len(games_today) if games_today else 0} for today, {len(games_tomorrow) if games_tomorrow else 0} for tomorrow)")
-
-            # Export to JSON for publishing interface (both today and tomorrow in one file)
-            from src.daily_games_exporter import DailyGamesExporter
-            exporter = DailyGamesExporter(str(DB_PATH))
-            today_str = datetime.now().strftime('%Y-%m-%d')
-            tomorrow_str = (datetime.now() + timedelta(days=1)).strftime('%Y-%m-%d')
-
-            # Single export with today first, tomorrow second — no overwrite
-            export_success = exporter.export_today_and_tomorrow(today_str, tomorrow_str)
-
-            if export_success:
-                logger.info("[OK] Exported predictions to pending_games.json")
-
-                # Git commit and push with robust conflict resolution
-                import subprocess
-                import json
-
-                def validate_json_file(filepath):
-                    """Check if JSON file is valid and has no git conflict markers."""
-                    try:
-                        with open(filepath, 'r', encoding='utf-8') as f:
-                            content = f.read()
-                        # Check for git conflict markers
-                        if '<<<<<<<' in content or '=======' in content or '>>>>>>>' in content:
-                            return False, "Git conflict markers found"
-                        # Try to parse as JSON
-                        json.loads(content)
-                        return True, "Valid JSON"
-                    except json.JSONDecodeError as e:
-                        return False, f"Invalid JSON: {e}"
-                    except FileNotFoundError:
-                        return False, "File not found"
-
-                def ensure_clean_json():
-                    """Re-export JSON if it has conflicts or is invalid."""
-                    json_path = PROJECT_ROOT / 'docs' / 'pending_games.json'
-                    is_valid, msg = validate_json_file(json_path)
-                    if not is_valid:
-                        logger.info(f"[INFO] JSON file invalid ({msg}), re-exporting...")
-                        exporter.export_games_for_publishing(today_str)
-                        return True
-                    return False
-
-                try:
-                    # Configure git for CI environment
-                    if os.environ.get('GITHUB_ACTIONS'):
-                        subprocess.run(['git', 'config', 'user.name', 'GitHub Actions Bot'], capture_output=True, cwd=str(PROJECT_ROOT))
-                        subprocess.run(['git', 'config', 'user.email', 'actions@github.com'], capture_output=True, cwd=str(PROJECT_ROOT))
-
-                    # Abort any stuck rebase/merge state
-                    status_out = subprocess.run(['git', 'status'], capture_output=True, text=True, cwd=str(PROJECT_ROOT)).stdout
-                    if 'rebase in progress' in status_out:
-                        subprocess.run(['git', 'rebase', '--abort'], capture_output=True, cwd=str(PROJECT_ROOT))
-                    if 'You have unmerged paths' in status_out:
-                        subprocess.run(['git', 'merge', '--abort'], capture_output=True, cwd=str(PROJECT_ROOT))
-
-                    # Always validate/re-export JSON before committing
-                    ensure_clean_json()
-
-                    # Stage and commit predictions
-                    subprocess.run(['git', 'add', 'docs/pending_games.json'], capture_output=True, cwd=str(PROJECT_ROOT))
-                    subprocess.run(['git', 'add', 'data/nba_predictor.db'], capture_output=True, cwd=str(PROJECT_ROOT))
-                    commit_result = subprocess.run(
-                        ['git', 'commit', '-m', f'Auto-export predictions for {today_str}'],
-                        capture_output=True, text=True, cwd=str(PROJECT_ROOT)
-                    )
-
-                    if commit_result.returncode == 0:
-                        # Try push; if rejected (non-fast-forward), rebase onto remote and retry
-                        push_result = subprocess.run(['git', 'push'], capture_output=True, text=True, cwd=str(PROJECT_ROOT))
-                        if push_result.returncode != 0:
-                            logger.info("[INFO] Push rejected, rebasing onto remote and retrying...")
-                            subprocess.run(['git', 'pull', '--rebase'], capture_output=True, cwd=str(PROJECT_ROOT))
-                            ensure_clean_json()
-                            subprocess.run(['git', 'add', 'docs/pending_games.json'], capture_output=True, cwd=str(PROJECT_ROOT))
-                            retry_push = subprocess.run(['git', 'push'], capture_output=True, text=True, cwd=str(PROJECT_ROOT))
-                            if retry_push.returncode == 0:
-                                logger.info("[OK] Pushed predictions + database to GitHub")
-                            else:
-                                logger.warning(f"[WARN] Final push failed: {retry_push.stderr.strip()}")
-                        else:
-                            logger.info("[OK] Pushed predictions + database to GitHub")
-                    else:
-                        logger.info("[OK] No changes to commit (predictions already exported)")
-
-                except subprocess.CalledProcessError as git_error:
-                    logger.warning(f"[WARN] Git operation failed: {git_error}")
-            else:
-                logger.warning("[WARN] Failed to export predictions to JSON")
-
-            return predictions
-        else:
-            logger.warning("[WARN] No predictions generated (no games today?)")
-            return []  # Not an error if no games
-
-    except Exception as e:
-        logger.error(f"[ERROR] Failed to fetch predictions: {e}", exc_info=True)
-        return []
-
-
-def _predictions_to_email_format(predictions: list, target_date: str) -> list:
-    """
-    Convert generate_predictions() output to the dict format the email
-    reporter expects from get_today_predictions(). Filter to target_date only.
-    Converts team tricodes (NYK, CLE) to full names (New York Knicks, ...).
-    """
-    # Build tricode -> full name mapping (same as _save_predictions_to_db)
-    try:
-        from nba_api.stats.static import teams as nba_teams
-        tricode_to_full = {t['abbreviation']: t['full_name'] for t in nba_teams.get_teams()}
-    except Exception:
-        tricode_to_full = {}
-
-    def resolve_name(raw: str) -> str:
-        return tricode_to_full.get(raw, raw)
-
+def to_email_format(predictions: list, target_date: str) -> list:
+    from src.engine.teams import full_name
     out = []
-    for pred in predictions or []:
-        pred_date = (pred.get('game_info') or {}).get('game_date') or pred.get('game_date')
-        if pred_date != target_date:
+    for p in predictions:
+        if p['game_info']['game_date'] != target_date:
             continue
-        home_team = resolve_name(pred.get('home_team', ''))
-        away_team = resolve_name(pred.get('away_team', ''))
-        home_prob = float(pred.get('home_win_probability', 0.5))
-        away_prob = float(pred.get('away_win_probability', 0.5))
-        winner = home_team if pred.get('prediction') == 'home' else away_team
-        features = pred.get('features', {}) or {}
-        home_odds = features.get('market_home_ml') or pred.get('home_odds') or (round(1/home_prob, 2) if home_prob > 0 else 99.0)
-        away_odds = features.get('market_away_ml') or pred.get('away_odds') or (round(1/away_prob, 2) if away_prob > 0 else 99.0)
         out.append({
             'game_date': target_date,
-            'home_team': home_team,
-            'away_team': away_team,
-            'predicted_winner': winner,
-            'predicted_home_prob': home_prob,
-            'predicted_away_prob': away_prob,
-            'home_odds': float(home_odds),
-            'away_odds': float(away_odds),
-            'confidence': float(pred.get('confidence', 0.5)),
+            'home_team': full_name(p['home_team']),
+            'away_team': full_name(p['away_team']),
+            'predicted_winner': full_name(p['predicted_winner']),
+            'predicted_home_prob': p['home_win_probability'],
+            'predicted_away_prob': p['away_win_probability'],
+            'home_odds': float(p['home_odds'] or round(1 / max(p['home_win_probability'], 0.01), 2)),
+            'away_odds': float(p['away_odds'] or round(1 / max(p['away_win_probability'], 0.01), 2)),
+            'confidence': p['confidence'],
         })
     return out
 
 
-def send_email_report(today_predictions_override=None, tomorrow_predictions_override=None) -> bool:
+def git(*args, check=False):
+    r = subprocess.run(['git', *args], capture_output=True, text=True, cwd=str(PROJECT_ROOT))
+    if check and r.returncode != 0:
+        raise RuntimeError(f"git {' '.join(args)} failed: {r.stderr.strip()}")
+    return r
+
+
+def push_data(today: str, tomorrow: str, message: str, reapply=None) -> bool:
+    """Commit data + JSON and push.
+
+    The DB and history are only written by this job; pending_games.json is
+    also written by the publish workflow. On a rejected push we reset to the
+    remote, restore our data files and re-export the JSON, which carries the
+    remote's 'published' flags over, so nothing is lost on either side.
     """
-    Send the daily email report.
-    """
-    logger.info("")
-    logger.info("=" * 60)
-    logger.info("STEP 4: Sending email report")
-    logger.info("=" * 60)
-
-    try:
-        from src.email_reporter import EmailReporter
-
-        email_reporter = EmailReporter(db_path=str(DB_PATH))
-        if today_predictions_override is not None:
-            logger.info(f"Passing {len(today_predictions_override)} today + {len(tomorrow_predictions_override or [])} tomorrow prediction(s) to email reporter")
-        success = email_reporter.send_daily_report(
-            test_mode=False,
-            today_predictions_override=today_predictions_override,
-            tomorrow_predictions_override=tomorrow_predictions_override,
-        )
-
-        if success:
-            logger.info("[OK] Email report sent successfully")
-        else:
-            logger.warning("[WARN] Email report failed to send")
-
-        return success
-
-    except Exception as e:
-        logger.error(f"[ERROR] Failed to send email: {e}", exc_info=True)
-        return False
+    if os.environ.get('GITHUB_ACTIONS'):
+        git('config', 'user.name', 'GitHub Actions Bot')
+        git('config', 'user.email', 'actions@github.com')
+    for attempt in range(1, 4):
+        git('add', 'docs/pending_games.json', *DATA_FILES, *SHARED_FILES)
+        if git('diff', '--cached', '--quiet').returncode == 0:
+            logger.info('[OK] Nothing to commit')
+            return True
+        git('commit', '-m', message, check=True)
+        if git('push', 'origin', 'HEAD:main').returncode == 0:
+            logger.info('[OK] Pushed data to GitHub')
+            return True
+        logger.info(f'[INFO] Push rejected (attempt {attempt}), re-applying on top of remote')
+        backup = Path(tempfile.mkdtemp())
+        for f in DATA_FILES:
+            shutil.copy2(PROJECT_ROOT / f, backup / Path(f).name)
+        git('fetch', 'origin', 'main', check=True)
+        git('reset', '--hard', 'origin/main', check=True)
+        for f in DATA_FILES:
+            shutil.copy2(backup / Path(f).name, PROJECT_ROOT / f)
+        export_json(today, tomorrow)
+        if reapply:
+            reapply()  # files other jobs also write: re-apply our change on the remote version
+    logger.error('[ERROR] Could not push data after 3 attempts')
+    return False
 
 
-def main():
-    parser = argparse.ArgumentParser(description='NBA Predictor Morning Routine')
-    parser.add_argument('--skip-email', action='store_true', help='Skip sending email')
-    parser.add_argument('--skip-predictions', action='store_true', help='Skip fetching today\'s predictions')
-    parser.add_argument('--lookback', type=int, default=7, help='Days to look back for game data (default: 7)')
+def main() -> int:
+    parser = argparse.ArgumentParser(description='NBA Predictor - Morning Routine')
+    parser.add_argument('--skip-email', action='store_true')
+    parser.add_argument('--skip-predictions', action='store_true')
+    parser.add_argument('--lookback', type=int, default=7, help='days of results to refresh')
+    parser.add_argument('--push', action='store_true', help='commit + push data (default in CI)')
+    parser.add_argument('--no-push', action='store_true')
     args = parser.parse_args()
 
-    logger.info("=" * 60)
-    logger.info("NBA Predictor - Morning Routine")
-    logger.info(f"Started at: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-    logger.info("=" * 60)
+    from src.engine import pipeline
+    from src.engine.history import espn_today
 
-    # Create logs directory if needed
-    (PROJECT_ROOT / 'logs').mkdir(exist_ok=True)
+    today_d = espn_today()
+    today, tomorrow = today_d.isoformat(), (today_d + timedelta(days=1)).isoformat()
+    logger.info('=' * 60)
+    logger.info(f'NBA Predictor - Morning Routine (US date {today})')
+    logger.info('=' * 60)
+    problems = []
 
-    all_success = True
+    step('STEP 1: Refreshing results from ESPN')
+    try:
+        hist = pipeline.refresh_history(days_back=args.lookback)
+        logger.info(f'[OK] History: {len(hist)} games, last {hist.game_date.max()}')
+    except Exception as e:
+        logger.error(f'[ERROR] History refresh failed: {e}', exc_info=True)
+        problems.append('history')
+        from src.engine import history
+        hist = history.load()
 
-    # CORRECT ORDER: Predictions -> Games -> Results -> Email
+    step('STEP 2: Resolving pending predictions')
+    try:
+        n = pipeline.resolve_predictions(str(DB_PATH), hist)
+        logger.info(f'[OK] Resolved {n} prediction(s)')
+        rec = pipeline.track_record(str(DB_PATH), since='2026-10-01')
+        if rec['n']:
+            logger.info(f"Season record: {rec['correct']}/{rec['n']} ({rec['accuracy']:.1%})")
+    except Exception as e:
+        logger.error(f'[ERROR] Resolving failed: {e}', exc_info=True)
+        problems.append('resolve')
 
-    # Step 1: Fetch today's predictions (so they're ready for email)
-    generated_predictions = []
-    generated_today_str = datetime.now().strftime('%Y-%m-%d')
+    predictions = []
     if not args.skip_predictions:
-        generated_predictions = fetch_todays_predictions()
-        if generated_predictions is None:
-            generated_predictions = []
-    else:
-        logger.info("\n[SKIP] Skipping predictions (--skip-predictions)")
+        step(f'STEP 3: Predicting {today} and {tomorrow}')
+        for d in (today_d, today_d + timedelta(days=1)):
+            try:
+                preds = pipeline.predict_date(d, hist)
+                predictions += preds
+                logger.info(f'{d}: {len(preds)} game(s)')
+            except Exception as e:
+                logger.error(f'[ERROR] Prediction for {d} failed: {e}', exc_info=True)
+                problems.append(f'predict {d}')
+        for p in predictions:
+            f = p['features']
+            logger.info(f"  {p['away_team']} @ {p['home_team']} ({p['game_info']['game_date']}): "
+                        f"{p['predicted_winner']} {p['confidence']:.1%} [{f['probability_source']}] "
+                        f"model={f['model_home_prob']:.3f} market={f['market_home_prob']}")
+        if predictions:
+            saved = pipeline.save_predictions(str(DB_PATH), predictions)
+            logger.info(f'[OK] Saved {saved} prediction(s)')
 
-    # Step 2: Refresh game data (get yesterday's scores BEFORE updating results)
-    if not refresh_game_data(lookback_days=args.lookback):
-        all_success = False
+    step('STEP 4: Exporting publishing JSON + dashboard')
+    if not export_json(today, tomorrow):
+        problems.append('export')
+    try:
+        from src.engine.dashboard import write_dashboard
+        write_dashboard(str(DB_PATH), today_d)
+        logger.info('[OK] Dashboard data written')
+    except Exception as e:
+        logger.error(f'[ERROR] Dashboard failed: {e}', exc_info=True)
+        problems.append('dashboard')
 
-    # Step 3: Update prediction results (verify yesterday's predictions with fresh game data)
-    if not update_prediction_results(lookback_days=args.lookback):
-        all_success = False
-
-    # Step 3.5: Re-save today's predictions to DB right before emailing.
-    # Git operations in step 1 can overwrite the DB via git pull; this guarantees
-    # the predictions are present regardless of what happened in between.
-    if generated_predictions:
-        try:
-            from daily_auto_prediction import DailyPredictionAutomation
-            _automation = DailyPredictionAutomation(
-                db_path=str(DB_PATH),
-                model_dir=str(PROJECT_ROOT / 'models'),
-                dry_run=True
-            )
-            saved = _automation._save_predictions_to_db(generated_predictions, generated_today_str)
-            logger.info(f"[OK] Pre-email DB sync: ensured {saved} prediction(s) are in DB")
-        except Exception as e:
-            logger.warning(f"[WARN] Pre-email DB sync failed (non-critical): {e}")
-
-    # Step 4: Send email (today's predictions + yesterday's results - now updated!)
-    # Pass predictions in-memory as the most reliable source — bypasses any DB/JSON
-    # state issues caused by git operations during the pipeline.
-    generated_tomorrow_str = (datetime.now() + timedelta(days=1)).strftime('%Y-%m-%d')
-    email_today_override = _predictions_to_email_format(generated_predictions, generated_today_str) if generated_predictions else None
-    email_tomorrow_override = _predictions_to_email_format(generated_predictions, generated_tomorrow_str) if generated_predictions else None
-    if email_today_override is not None:
-        logger.info(f"[INFO] Will pass {len(email_today_override)} today + {len(email_tomorrow_override or [])} tomorrow prediction(s) to email")
-        for p in (email_today_override or []) + (email_tomorrow_override or []):
-            logger.info(f"  -> {p['away_team']} @ {p['home_team']} ({p['game_date']}) | Winner: {p['predicted_winner']} | Conf: {p['confidence']:.1%}")
     if not args.skip_email:
-        if not send_email_report(today_predictions_override=email_today_override, tomorrow_predictions_override=email_tomorrow_override):
-            logger.warning("[WARN] Email sending failed — predictions were generated successfully")
-    else:
-        logger.info("\n[SKIP] Skipping email (--skip-email)")
+        step('STEP 5: Email report')
+        try:
+            from src.email_reporter import EmailReporter
+            ok = EmailReporter(db_path=str(DB_PATH)).send_daily_report(
+                test_mode=False,
+                today_predictions_override=to_email_format(predictions, today) if predictions else None,
+                tomorrow_predictions_override=to_email_format(predictions, tomorrow) if predictions else None,
+            )
+            logger.info('[OK] Email step done' if ok else '[WARN] Email not sent')
+        except Exception as e:
+            logger.error(f'[ERROR] Email failed: {e}', exc_info=True)
 
-    # Summary
-    logger.info("")
-    logger.info("=" * 60)
-    if all_success:
-        logger.info("[OK] Morning routine completed successfully!")
-    else:
-        logger.info("[WARN] Morning routine completed with some warnings")
-    logger.info(f"Finished at: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-    logger.info("=" * 60)
+    x_result = None
+    if os.environ.get('TW_API_KEY'):
+        step('STEP 6: X account check + follower count')
+        from src import x_account
+        x_result = x_account.run()
+        if x_result.get('ok'):
+            logger.info(f"[OK] {x_result['handle']}: {x_result['followers']} followers")
+        else:
+            logger.error(f"[ERROR] X account check failed: {x_result.get('error')}")
+            problems.append('x_account')
 
-    return 0 if all_success else 1
+    def reapply_x():
+        if x_result:
+            from src import x_account
+            x_account.write_status(x_result)
+            if x_result.get('ok') and x_result.get('followers') is not None:
+                x_account.record_followers(x_result['followers'], x_result.get('following'))
+
+    if (os.environ.get('GITHUB_ACTIONS') or args.push) and not args.no_push:
+        step('STEP 7: Pushing data')
+        if not push_data(today, tomorrow, f'Auto-export predictions for {today}', reapply=reapply_x):
+            problems.append('push')
+
+    logger.info('')
+    if problems:
+        logger.error(f"[FAIL] Morning routine finished with problems: {', '.join(problems)}")
+        return 1
+    logger.info('[OK] Morning routine completed')
+    return 0
 
 
 if __name__ == '__main__':

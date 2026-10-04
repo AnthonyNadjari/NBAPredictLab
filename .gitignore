@@ -38,10 +38,13 @@ temp_*.png  # Temporary prediction images for Twitter
 # Model files (optional - uncomment if models are large)
 # models/*.pkl
 
-# Test files
-test_*.py
-*_test.py
+# Ad-hoc test scripts at the repo root (real tests live in tests/)
+/test_*.py
+/*_test.py
 
 # Documentation (if you want to exclude)
 # *.md
 
+
+# Research downloads (re-create with research/fetch_*.py)
+research/data/
