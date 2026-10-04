@@ -1,0 +1,86 @@
+name: Scheduler
+
+on:
+  schedule:
+    - cron: '*/15 * * * *'
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: write
+    steps:
+      - name: Log scheduler run
+        run: echo "Scheduler job ran at $(TZ='Etc/GMT-1' date '+%Y-%m-%d %H:%M:%S UTC+1')"
+
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: docs/schedule.json
+          sparse-checkout-cone-mode: false
+
+      - name: Check schedule and trigger
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+        run: |
+          if [ ! -f docs/schedule.json ]; then
+            echo "No schedule.json found, skipping"
+            exit 0
+          fi
+
+          CURRENT_HOUR=$(TZ='Etc/GMT-1' date +"%H")
+          CURRENT_MIN=$(TZ='Etc/GMT-1' date +"%M")
+          CURRENT_TOTAL=$((10#$CURRENT_HOUR * 60 + 10#$CURRENT_MIN))
+
+          echo "Current UTC+1 time: ${CURRENT_HOUR}:${CURRENT_MIN} (${CURRENT_TOTAL} minutes)"
+
+          SHOULD_TRIGGER=false
+
+          while IFS= read -r line; do
+            ENABLED=$(echo "$line" | jq -r '.enabled')
+            TIME=$(echo "$line" | jq -r '.time')
+
+            if [ "$ENABLED" != "true" ]; then
+              echo "  Schedule $TIME: disabled, skipping"
+              continue
+            fi
+
+            SCHED_HOUR=$(echo "$TIME" | cut -d: -f1)
+            SCHED_MIN=$(echo "$TIME" | cut -d: -f2)
+            SCHED_TOTAL=$((10#$SCHED_HOUR * 60 + 10#$SCHED_MIN))
+
+            DIFF=$((CURRENT_TOTAL - SCHED_TOTAL))
+            if [ $DIFF -lt 0 ]; then DIFF=$((-DIFF)); fi
+
+            echo "  Schedule $TIME ($SCHED_TOTAL min): diff=${DIFF} min"
+
+            if [ $DIFF -le 20 ]; then
+              SHOULD_TRIGGER=true
+              echo "  -> MATCH! Will trigger."
+            fi
+          done < <(jq -c '.schedules[]' docs/schedule.json)
+
+          if [ "$SHOULD_TRIGGER" != "true" ]; then
+            echo "No schedule match. Not triggering."
+            exit 0
+          fi
+
+          echo "Triggering NBAVision Engine via API..."
+          HTTP=$(curl -s -w "%{http_code}" -o /tmp/trigger_body.txt \
+            -X POST \
+            -H "Authorization: bearer ${GH_TOKEN}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            "https://api.github.com/repos/${REPO}/actions/workflows/nbavision.yml/dispatches" \
+            -d '{"ref":"main"}')
+          echo "API response HTTP status: $HTTP"
+          if [ -s /tmp/trigger_body.txt ]; then
+            echo "API response body:"
+            cat /tmp/trigger_body.txt
+          fi
+          if [ "$HTTP" = "204" ]; then
+            echo "Triggered successfully (204)."
+          else
+            echo "::warning::Trigger returned $HTTP (expected 204). Check repo Settings -> Actions -> General -> Workflow permissions (Read and write for GITHUB_TOKEN)."
+            exit 1
+          fi

@@ -1,0 +1,2231 @@
+{
+  "run_id": "24266161324",
+  "start_time": "2026-04-10T23:03:23.215145+01:00",
+  "end_time": "2026-04-11T00:28:38.300823+01:00",
+  "total_scraped": 1492,
+  "total_filtered": 88,
+  "total_scored": 88,
+  "total_llm_calls": 86,
+  "total_replied": 39,
+  "total_skipped": 49,
+  "skip_reasons": {
+    "likes_too_low": 1101,
+    "too_old": 287,
+    "no_relevance_to_tweet": 16,
+    "reply_adds_entity_not_in_tweet": 2,
+    "not_about_basketball": 12,
+    "already_seen": 7,
+    "likely_media_caption": 7,
+    "text_too_short": 2,
+    "image_caption_too_short": 3,
+    "too_many_same_first_word": 8,
+    "no_nba_keyword": 3,
+    "post_failed": 1,
+    "too_many_hashtags": 1,
+    "max_per_author": 2,
+    "too_similar": 1
+  },
+  "avg_response_length": 67.15,
+  "avg_engagement_velocity": 1.13,
+  "replies_posted": [
+    {
+      "tweet_url": "https://x.com/1saevv/status/2042721868373696978",
+      "reply_text": "Market's overthinking motivation. The better team usually wins anyway.",
+      "posted_at": "2026-04-10T23:13:34.562351+01:00"
+    },
+    {
+      "tweet_url": "https://x.com/HornetsHistory/status/2042717224205492700",
+      "reply_text": "That's a great game from Eddie Jones. His all-around stats were impressive.",
+      "posted_at": "2026-04-10T23:14:27.105072+01:00"
+    },
+    {
+      "tweet_url": "https://x.com/GL8BAL_SPORTS/status/2042711498896937305",
+      "reply_text": "Jessica Sheppard's triple-double record is actually in the #WNBA playoffs, not regular season. Still impressive though.",
+      "posted_at": "2026-04-10T23:15:05.929374+01:00"
+    },
+    {
+      "tweet_url": "https://x.com/BiggLynch/status/2042706747002097894",
+      "reply_text": "Giannis' injuries are a concern, but Tatum and Brown's value is too. Not worth the risk.",
+      "posted_at": "2026-04-10T23:15:52.773241+01:00"
+    },
+    {
+      "tweet_url": "https://x.com/monteywoolley/status/2042716135825772548",
+      "reply_text": "Fair point, but the Pacers' visit show is still a thing and that's what matters.",
+      "posted_at": "2026-04-10T23:16:46.433327+01:00"
+    },
+    {
+      "tweet_url": "https://x.com/NBATradeReport/status/2042689814093299929",
+      "reply_text": "Those odds don't lie. Thunder's got the momentum.",
+      "posted_at": "2026-04-10T23:17:40.662819+01:00"
+    },
+    {
+      "tweet_url": "https://x.com/BoogieFlandMuse/status/2042707182248996922",
+      "reply_text": "Impressive shooting percentages. What's the sample size on those rim shots?",
+      "posted_at": "2026-04-10T23:18:20.153751+01:00"
+    },
+    {
+      "tweet_url": "https://x.com/Hoopsatduke/status/2042693097276969066",
+      "reply_text": "Rim protector and PnR guy sound good. Sherrell needs to adjust to NBA D though, not just college.",
+      "posted_at": "2026-04-10T23:19:11.830370+01:00"
+    },
+    {
+      "tweet_url": "https://x.com/plasmanians/status/2042689046485385330",
+      "reply_text": "Road games can be tough, but Steph's been clutch in big moments",
+      "posted_at": "2026-04-10T23:19:41.866298+01:00"
+    },
+    {
+      "tweet_url": "https://x.com/TrevorLane/status/2042726824732491904",
+      "reply_text": "Fair question, but what's the alternative? They can't rebuild with their cap situation.",
+      "posted_at": "2026-04-10T23:33:28.902112+01:00"
+    },
+    {
+      "tweet_url": "https://x.com/BiasedHouston/status/2042711804757872711",
+      "reply_text": "That's a huge defensive breakdown. Maxey and Grimes need to work on their rotations",
+      "posted_at": "2026-04-10T23:34:14.558456+01:00"
+    },
+    {
+      "tweet_url": "https://x.com/NBAdabad/status/2042687040270037475",
+      "reply_text": "Yeah he's been unstoppable this season. Defense has no answer for him.",
+      "posted_at": "2026-04-10T23:34:53.999103+01:00"
+    },
+    {
+      "tweet_url": "https://x.com/UnderdogNBA/status/2042687665196118272",
+      "reply_text": "Probable players are likely to play, questionable ones are not confirmed yet.",
+      "posted_at": "2026-04-10T23:35:30.686596+01:00"
+    },
+    {
+      "tweet_url": "https://x.com/NBA/status/2042716753122283683",
+      "reply_text": "Great call with Jeremy Lin. He's been clutch in the playoffs before.",
+      "posted_at": "2026-04-10T23:36:21.027038+01:00"
+    },
+    {
+      "tweet_url": "https://x.com/DuaneRankin/status/2042702743366963664",
+      "reply_text": "Yeah it's a big one for seeding",
+      "posted_at": "2026-04-10T23:37:12.618998+01:00"
+    },
+    {
+      "tweet_url": "https://x.com/LakersNation/status/2042724807725212085",
+      "reply_text": "Expecting big minutes from AD then",
+      "posted_at": "2026-04-10T23:37:50.447833+01:00"
+    },
+    {
+      "tweet_url": "https://x.com/chenstimothy/status/2042717875769684074",
+      "reply_text": "That's a good point, but what's the actual timeline on Celina's extension?",
+      "posted_at": "2026-04-10T23:38:36.529614+01:00"
+    },
+    {
+      "tweet_url": "https://x.com/BigSargeSportz/status/2042714825948577838",
+      "reply_text": "Lineups matter, but it's the execution that counts. Let's see them do it in the playoffs.",
+      "posted_at": "2026-04-10T23:39:30.610424+01:00"
+    },
+    {
+      "tweet_url": "https://x.com/OwenOConnorNBA/status/2042717088989462783",
+      "reply_text": "That's a tough call. Both have been impressive this season.",
+      "posted_at": "2026-04-10T23:40:09.315447+01:00"
+    },
+    {
+      "tweet_url": "https://x.com/LakerLukaSZN77/status/2042703193482694803",
+      "reply_text": "SGA's case for MVP is strong this season, no doubt",
+      "posted_at": "2026-04-10T23:40:49.769578+01:00"
+    },
+    {
+      "tweet_url": "https://x.com/LukaDoncic_arg/status/2042701031339946388",
+      "reply_text": "Yeah, B2B games are tough. Smart's return helps, but Hayes' injury still hurts.",
+      "posted_at": "2026-04-10T23:41:31.004527+01:00"
+    },
+    {
+      "tweet_url": "https://x.com/invinciblecard1/status/2042692715779870795",
+      "reply_text": "Yeah that's true about blocks and 3pters. Never seen a rookie dominate like that before.",
+      "posted_at": "2026-04-10T23:42:24.889670+01:00"
+    },
+    {
+      "tweet_url": "https://x.com/WeAreCavsNation/status/2042728833552368120",
+      "reply_text": "Donovan's scoring is great but playoff D matters just as much",
+      "posted_at": "2026-04-10T23:53:34.760810+01:00"
+    },
+    {
+      "tweet_url": "https://x.com/BrasilAD/status/2042733506183278831",
+      "reply_text": "Yeah, tough breaks for OKC and Wolves. Lakers need this one bad",
+      "posted_at": "2026-04-10T23:54:08.032335+01:00"
+    },
+    {
+      "tweet_url": "https://x.com/ChrisKnowsBall2/status/2042718066505568282",
+      "reply_text": "Not sure what you mean. Randle's absence shouldn't change the outcome of a hypothetical game.",
+      "posted_at": "2026-04-10T23:55:03.467139+01:00"
+    },
+    {
+      "tweet_url": "https://x.com/Naylor408/status/2042721802515067307",
+      "reply_text": "Fair point. Home court can make a difference in the playoffs.",
+      "posted_at": "2026-04-10T23:55:40.174764+01:00"
+    },
+    {
+      "tweet_url": "https://x.com/AgbaChadox/status/2042735408065257935",
+      "reply_text": "Strong 5 matters in the playoffs, not just regular season.",
+      "posted_at": "2026-04-11T00:08:00.669152+01:00"
+    },
+    {
+      "tweet_url": "https://x.com/LeBron__legacy/status/2042718133547655380",
+      "reply_text": "Yeah, Luka's carrying the Mavs to the playoffs alone",
+      "posted_at": "2026-04-11T00:08:31.932193+01:00"
+    },
+    {
+      "tweet_url": "https://x.com/DamichaelC/status/2042735070843216033",
+      "reply_text": "Yeah, that's how it works. Jazz-Grizzlies should be a good one",
+      "posted_at": "2026-04-11T00:09:11.293139+01:00"
+    },
+    {
+      "tweet_url": "https://x.com/BronsHoodi/status/2042717623180279864",
+      "reply_text": "Luka's not a Laker though.",
+      "posted_at": "2026-04-11T00:10:18.006241+01:00"
+    },
+    {
+      "tweet_url": "https://x.com/TheHoopHerald/status/2042697687628206454",
+      "reply_text": "Totally agree. He's been a consistent top performer for years.",
+      "posted_at": "2026-04-11T00:11:12.224444+01:00"
+    },
+    {
+      "tweet_url": "https://x.com/WarriorNationCP/status/2042701694505734360",
+      "reply_text": "Good to see him back",
+      "posted_at": "2026-04-11T00:11:51.098089+01:00"
+    },
+    {
+      "tweet_url": "https://x.com/celtics/status/2042721518434517396",
+      "reply_text": "Good to see Brown back in action",
+      "posted_at": "2026-04-11T00:23:23.568034+01:00"
+    },
+    {
+      "tweet_url": "https://x.com/DominguezCinco/status/2042735850434224386",
+      "reply_text": "Wembanyama's extra warmup is a good sign he's feeling more comfortable with the injury.",
+      "posted_at": "2026-04-11T00:23:57.705174+01:00"
+    },
+    {
+      "tweet_url": "https://x.com/Pacers/status/2042735242541232232",
+      "reply_text": "Interesting to see how Potter's growth translates to a tough 76ers D.",
+      "posted_at": "2026-04-11T00:24:46.543383+01:00"
+    },
+    {
+      "tweet_url": "https://x.com/SomosWolves_/status/2042717018009342273",
+      "reply_text": "What a game! Edwards' freshman season was insane.",
+      "posted_at": "2026-04-11T00:25:25.314204+01:00"
+    },
+    {
+      "tweet_url": "https://x.com/taylorcsnow/status/2042721132285943954",
+      "reply_text": "Good to see Brown and White back. Achilles injuries are tough to come back from, so Tatum's status is concerning.",
+      "posted_at": "2026-04-11T00:26:02.111324+01:00"
+    },
+    {
+      "tweet_url": "https://x.com/The_Uncontested/status/2042715128383103201",
+      "reply_text": "Makes sense. That's a clear nod to LeBron.",
+      "posted_at": "2026-04-11T00:26:56.498397+01:00"
+    },
+    {
+      "tweet_url": "https://x.com/zm_cox/status/2042721507017654712",
+      "reply_text": "Good to see they're healthy, that's a big boost for them tonight",
+      "posted_at": "2026-04-11T00:27:41.527382+01:00"
+    }
+  ],
+  "cycles": [
+    {
+      "cycle_index": 0,
+      "scraped_count": 299,
+      "accepted_count": 13,
+      "top_count": 13,
+      "at": "2026-04-10T23:10:25.420221+01:00"
+    },
+    {
+      "cycle_index": 1,
+      "scraped_count": 290,
+      "accepted_count": 23,
+      "top_count": 23,
+      "at": "2026-04-10T23:27:35.224369+01:00"
+    },
+    {
+      "cycle_index": 2,
+      "scraped_count": 293,
+      "accepted_count": 15,
+      "top_count": 15,
+      "at": "2026-04-10T23:50:17.293195+01:00"
+    },
+    {
+      "cycle_index": 3,
+      "scraped_count": 297,
+      "accepted_count": 16,
+      "top_count": 16,
+      "at": "2026-04-11T00:04:38.167246+01:00"
+    },
+    {
+      "cycle_index": 4,
+      "scraped_count": 313,
+      "accepted_count": 21,
+      "top_count": 21,
+      "at": "2026-04-11T00:19:49.350021+01:00"
+    }
+  ],
+  "events": [
+    {
+      "step": "session_start",
+      "at": "2026-04-10T23:03:23.215145+01:00",
+      "detail": {
+        "max_replies": 60,
+        "dry_run": false
+      }
+    },
+    {
+      "step": "cycle_start",
+      "at": "2026-04-10T23:03:23.215145+01:00",
+      "detail": {
+        "cycle_index": 0
+      }
+    },
+    {
+      "step": "scrape_done",
+      "at": "2026-04-10T23:10:25.420221+01:00",
+      "detail": {
+        "raw_count": 299
+      }
+    },
+    {
+      "step": "filter_done",
+      "at": "2026-04-10T23:10:25.420221+01:00",
+      "detail": {
+        "accepted_count": 13,
+        "cycle_skip_reasons": {
+          "likes_too_low": 236,
+          "too_old": 50
+        }
+      }
+    },
+    {
+      "step": "rank_done",
+      "at": "2026-04-10T23:10:25.420221+01:00",
+      "detail": {
+        "top_count": 13
+      }
+    },
+    {
+      "step": "llm_call",
+      "at": "2026-04-10T23:13:23.590419+01:00",
+      "detail": {
+        "tweet_id": "2042724215762087943",
+        "author": "WemPerformances"
+      }
+    },
+    {
+      "step": "validation_fail",
+      "at": "2026-04-10T23:13:23.590419+01:00",
+      "detail": {
+        "tweet_id": "2042724215762087943",
+        "reason": "no_relevance_to_tweet"
+      }
+    },
+    {
+      "step": "llm_call",
+      "at": "2026-04-10T23:13:23.590419+01:00",
+      "detail": {
+        "tweet_id": "2042705771641868460",
+        "author": "LeBronFilm"
+      }
+    },
+    {
+      "step": "validation_fail",
+      "at": "2026-04-10T23:13:23.590419+01:00",
+      "detail": {
+        "tweet_id": "2042705771641868460",
+        "reason": "reply_adds_entity_not_in_tweet"
+      }
+    },
+    {
+      "step": "llm_call",
+      "at": "2026-04-10T23:13:23.590419+01:00",
+      "detail": {
+        "tweet_id": "2042695149331820545",
+        "author": "philly_number"
+      }
+    },
+    {
+      "step": "validation_fail",
+      "at": "2026-04-10T23:13:23.590419+01:00",
+      "detail": {
+        "tweet_id": "2042695149331820545",
+        "reason": "no_relevance_to_tweet"
+      }
+    },
+    {
+      "step": "llm_call",
+      "at": "2026-04-10T23:13:23.590419+01:00",
+      "detail": {
+        "tweet_id": "2042721868373696978",
+        "author": "1saevv"
+      }
+    },
+    {
+      "step": "post_attempt",
+      "at": "2026-04-10T23:13:23.590419+01:00",
+      "detail": {
+        "tweet_id": "2042721868373696978",
+        "tweet_url": "https://x.com/1saevv/status/2042721868373696978"
+      }
+    },
+    {
+      "step": "post_ok",
+      "at": "2026-04-10T23:13:34.562351+01:00",
+      "detail": {
+        "tweet_id": "2042721868373696978",
+        "tweet_url": "https://x.com/1saevv/status/2042721868373696978",
+        "reply_length": 70
+      }
+    },
+    {
+      "step": "llm_call",
+      "at": "2026-04-10T23:14:17.738075+01:00",
+      "detail": {
+        "tweet_id": "2042717224205492700",
+        "author": "HornetsHistory"
+      }
+    },
+    {
+      "step": "post_attempt",
+      "at": "2026-04-10T23:14:17.879697+01:00",
+      "detail": {
+        "tweet_id": "2042717224205492700",
+        "tweet_url": "https://x.com/HornetsHistory/status/2042717224205492700"
+      }
+    },
+    {
+      "step": "post_ok",
+      "at": "2026-04-10T23:14:27.105072+01:00",
+      "detail": {
+        "tweet_id": "2042717224205492700",
+        "tweet_url": "https://x.com/HornetsHistory/status/2042717224205492700",
+        "reply_length": 75
+      }
+    },
+    {
+      "step": "llm_call",
+      "at": "2026-04-10T23:14:55.804617+01:00",
+      "detail": {
+        "tweet_id": "2042711498896937305",
+        "author": "GL8BAL_SPORTS"
+      }
+    },
+    {
+      "step": "post_attempt",
+      "at": "2026-04-10T23:14:55.809415+01:00",
+      "detail": {
+        "tweet_id": "2042711498896937305",
+        "tweet_url": "https://x.com/GL8BAL_SPORTS/status/2042711498896937305"
+      }
+    },
+    {
+      "step": "post_ok",
+      "at": "2026-04-10T23:15:05.929374+01:00",
+      "detail": {
+        "tweet_id": "2042711498896937305",
+        "tweet_url": "https://x.com/GL8BAL_SPORTS/status/2042711498896937305",
+        "reply_length": 119
+      }
+    },
+    {
+      "step": "llm_call",
+      "at": "2026-04-10T23:15:41.297249+01:00",
+      "detail": {
+        "tweet_id": "2042706747002097894",
+        "author": "BiggLynch"
+      }
+    },
+    {
+      "step": "post_attempt",
+      "at": "2026-04-10T23:15:41.301265+01:00",
+      "detail": {
+        "tweet_id": "2042706747002097894",
+        "tweet_url": "https://x.com/BiggLynch/status/2042706747002097894"
+      }
+    },
+    {
+      "step": "post_ok",
+      "at": "2026-04-10T23:15:52.773241+01:00",
+      "detail": {
+        "tweet_id": "2042706747002097894",
+        "tweet_url": "https://x.com/BiggLynch/status/2042706747002097894",
+        "reply_length": 88
+      }
+    },
+    {
+      "step": "llm_call",
+      "at": "2026-04-10T23:16:35.084896+01:00",
+      "detail": {
+        "tweet_id": "2042716135825772548",
+        "author": "monteywoolley"
+      }
+    },
+    {
+      "step": "post_attempt",
+      "at": "2026-04-10T23:16:35.089030+01:00",
+      "detail": {
+        "tweet_id": "2042716135825772548",
+        "tweet_url": "https://x.com/monteywoolley/status/2042716135825772548"
+      }
+    },
+    {
+      "step": "post_ok",
+      "at": "2026-04-10T23:16:46.433327+01:00",
+      "detail": {
+        "tweet_id": "2042716135825772548",
+        "tweet_url": "https://x.com/monteywoolley/status/2042716135825772548",
+        "reply_length": 80
+      }
+    },
+    {
+      "step": "llm_call",
+      "at": "2026-04-10T23:17:30.527038+01:00",
+      "detail": {
+        "tweet_id": "2042689814093299929",
+        "author": "NBATradeReport"
+      }
+    },
+    {
+      "step": "post_attempt",
+      "at": "2026-04-10T23:17:30.531061+01:00",
+      "detail": {
+        "tweet_id": "2042689814093299929",
+        "tweet_url": "https://x.com/NBATradeReport/status/2042689814093299929"
+      }
+    },
+    {
+      "step": "post_ok",
+      "at": "2026-04-10T23:17:40.662819+01:00",
+      "detail": {
+        "tweet_id": "2042689814093299929",
+        "tweet_url": "https://x.com/NBATradeReport/status/2042689814093299929",
+        "reply_length": 49
+      }
+    },
+    {
+      "step": "llm_call",
+      "at": "2026-04-10T23:18:09.570101+01:00",
+      "detail": {
+        "tweet_id": "2042707182248996922",
+        "author": "BoogieFlandMuse"
+      }
+    },
+    {
+      "step": "post_attempt",
+      "at": "2026-04-10T23:18:09.574176+01:00",
+      "detail": {
+        "tweet_id": "2042707182248996922",
+        "tweet_url": "https://x.com/BoogieFlandMuse/status/2042707182248996922"
+      }
+    },
+    {
+      "step": "post_ok",
+      "at": "2026-04-10T23:18:20.153751+01:00",
+      "detail": {
+        "tweet_id": "2042707182248996922",
+        "tweet_url": "https://x.com/BoogieFlandMuse/status/2042707182248996922",
+        "reply_length": 75
+      }
+    },
+    {
+      "step": "llm_call",
+      "at": "2026-04-10T23:19:01.415326+01:00",
+      "detail": {
+        "tweet_id": "2042714151102140480",
+        "author": "FrankGogola"
+      }
+    },
+    {
+      "step": "llm_skip",
+      "at": "2026-04-10T23:19:01.415326+01:00",
+      "detail": {
+        "tweet_id": "2042714151102140480",
+        "reason": "not_about_basketball",
+        "decision": "SKIP"
+      }
+    },
+    {
+      "step": "llm_call",
+      "at": "2026-04-10T23:19:01.415326+01:00",
+      "detail": {
+        "tweet_id": "2042693097276969066",
+        "author": "Hoopsatduke"
+      }
+    },
+    {
+      "step": "post_attempt",
+      "at": "2026-04-10T23:19:01.419359+01:00",
+      "detail": {
+        "tweet_id": "2042693097276969066",
+        "tweet_url": "https://x.com/Hoopsatduke/status/2042693097276969066"
+      }
+    },
+    {
+      "step": "post_ok",
+      "at": "2026-04-10T23:19:11.830370+01:00",
+      "detail": {
+        "tweet_id": "2042693097276969066",
+        "tweet_url": "https://x.com/Hoopsatduke/status/2042693097276969066",
+        "reply_length": 97
+      }
+    },
+    {
+      "step": "llm_call",
+      "at": "2026-04-10T23:19:32.129660+01:00",
+      "detail": {
+        "tweet_id": "2042689046485385330",
+        "author": "plasmanians"
+      }
+    },
+    {
+      "step": "post_attempt",
+      "at": "2026-04-10T23:19:32.132670+01:00",
+      "detail": {
+        "tweet_id": "2042689046485385330",
+        "tweet_url": "https://x.com/plasmanians/status/2042689046485385330"
+      }
+    },
+    {
+      "step": "post_ok",
+      "at": "2026-04-10T23:19:41.866298+01:00",
+      "detail": {
+        "tweet_id": "2042689046485385330",
+        "tweet_url": "https://x.com/plasmanians/status/2042689046485385330",
+        "reply_length": 63
+      }
+    },
+    {
+      "step": "cycle_start",
+      "at": "2026-04-10T23:20:48.864061+01:00",
+      "detail": {
+        "cycle_index": 1
+      }
+    },
+    {
+      "step": "scrape_done",
+      "at": "2026-04-10T23:27:35.224369+01:00",
+      "detail": {
+        "raw_count": 290
+      }
+    },
+    {
+      "step": "filter_done",
+      "at": "2026-04-10T23:27:35.224369+01:00",
+      "detail": {
+        "accepted_count": 23,
+        "cycle_skip_reasons": {
+          "likes_too_low": 227,
+          "too_old": 39,
+          "already_seen": 1
+        }
+      }
+    },
+    {
+      "step": "rank_done",
+      "at": "2026-04-10T23:27:35.224369+01:00",
+      "detail": {
+        "top_count": 23
+      }
+    },
+    {
+      "step": "llm_call",
+      "at": "2026-04-10T23:33:17.950800+01:00",
+      "detail": {
+        "tweet_id": "2042726824732491904",
+        "author": "TrevorLane"
+      }
+    },
+    {
+      "step": "post_attempt",
+      "at": "2026-04-10T23:33:17.966861+01:00",
+      "detail": {
+        "tweet_id": "2042726824732491904",
+        "tweet_url": "https://x.com/TrevorLane/status/2042726824732491904"
+      }
+    },
+    {
+      "step": "post_ok",
+      "at": "2026-04-10T23:33:28.902112+01:00",
+      "detail": {
+        "tweet_id": "2042726824732491904",
+        "tweet_url": "https://x.com/TrevorLane/status/2042726824732491904",
+        "reply_length": 87
+      }
+    },
+    {
+      "step": "llm_call",
+      "at": "2026-04-10T23:34:04.032664+01:00",
+      "detail": {
+        "tweet_id": "2042702800937713737",
+        "author": "brasilcoast2"
+      }
+    },
+    {
+      "step": "validation_fail",
+      "at": "2026-04-10T23:34:04.032664+01:00",
+      "detail": {
+        "tweet_id": "2042702800937713737",
+        "reason": "no_relevance_to_tweet"
+      }
+    },
+    {
+      "step": "llm_call",
+      "at": "2026-04-10T23:34:04.032664+01:00",
+      "detail": {
+        "tweet_id": "2042724628112494948",
+        "author": "NBAdoPovo"
+      }
+    },
+    {
+      "step": "validation_fail",
+      "at": "2026-04-10T23:34:04.032664+01:00",
+      "detail": {
+        "tweet_id": "2042724628112494948",
+        "reason": "reply_adds_entity_not_in_tweet"
+      }
+    },
+    {
+      "step": "llm_call",
+      "at": "2026-04-10T23:34:04.032664+01:00",
+      "detail": {
+        "tweet_id": "2042720729024561579",
+        "author": "AndyHermanNFL"
+      }
+    },
+    {
+      "step": "llm_skip",
+      "at": "2026-04-10T23:34:04.032664+01:00",
+      "detail": {
+        "tweet_id": "2042720729024561579",
+        "reason": "not_about_basketball",
+        "decision": "SKIP"
+      }
+    },
+    {
+      "step": "llm_call",
+      "at": "2026-04-10T23:34:04.033301+01:00",
+      "detail": {
+        "tweet_id": "2042711804757872711",
+        "author": "BiasedHouston"
+      }
+    },
+    {
+      "step": "post_attempt",
+      "at": "2026-04-10T23:34:04.037323+01:00",
+      "detail": {
+        "tweet_id": "2042711804757872711",
+        "tweet_url": "https://x.com/BiasedHouston/status/2042711804757872711"
+      }
+    },
+    {
+      "step": "post_ok",
+      "at": "2026-04-10T23:34:14.558456+01:00",
+      "detail": {
+        "tweet_id": "2042711804757872711",
+        "tweet_url": "https://x.com/BiasedHouston/status/2042711804757872711",
+        "reply_length": 83
+      }
+    },
+    {
+      "step": "llm_call",
+      "at": "2026-04-10T23:34:44.219125+01:00",
+      "detail": {
+        "tweet_id": "2042687040270037475",
+        "author": "NBAdabad"
+      }
+    },
+    {
+      "step": "post_attempt",
+      "at": "2026-04-10T23:34:44.224144+01:00",
+      "detail": {
+        "tweet_id": "2042687040270037475",
+        "tweet_url": "https://x.com/NBAdabad/status/2042687040270037475"
+      }
+    },
+    {
+      "step": "post_ok",
+      "at": "2026-04-10T23:34:53.999103+01:00",
+      "detail": {
+        "tweet_id": "2042687040270037475",
+        "tweet_url": "https://x.com/NBAdabad/status/2042687040270037475",
+        "reply_length": 70
+      }
+    },
+    {
+      "step": "llm_call",
+      "at": "2026-04-10T23:35:19.703256+01:00",
+      "detail": {
+        "tweet_id": "2042728086492311689",
+        "author": "NBAdoPovo"
+      }
+    },
+    {
+      "step": "validation_fail",
+      "at": "2026-04-10T23:35:19.703256+01:00",
+      "detail": {
+        "tweet_id": "2042728086492311689",
+        "reason": "no_relevance_to_tweet"
+      }
+    },
+    {
+      "step": "llm_call",
+      "at": "2026-04-10T23:35:19.703256+01:00",
+      "detail": {
+        "tweet_id": "2042729004101173435",
+        "author": "JustExoticss"
+      }
+    },
+    {
+      "step": "llm_skip",
+      "at": "2026-04-10T23:35:19.703256+01:00",
+      "detail": {
+        "tweet_id": "2042729004101173435",
+        "reason": "likely_media_caption",
+        "decision": "SKIP"
+      }
+    },
+    {
+      "step": "llm_call",
+      "at": "2026-04-10T23:35:19.703256+01:00",
+      "detail": {
+        "tweet_id": "2042687665196118272",
+        "author": "UnderdogNBA"
+      }
+    },
+    {
+      "step": "post_attempt",
+      "at": "2026-04-10T23:35:19.707433+01:00",
+      "detail": {
+        "tweet_id": "2042687665196118272",
+        "tweet_url": "https://x.com/UnderdogNBA/status/2042687665196118272"
+      }
+    },
+    {
+      "step": "post_ok",
+      "at": "2026-04-10T23:35:30.686596+01:00",
+      "detail": {
+        "tweet_id": "2042687665196118272",
+        "tweet_url": "https://x.com/UnderdogNBA/status/2042687665196118272",
+        "reply_length": 77
+      }
+    },
+    {
+      "step": "llm_call",
+      "at": "2026-04-10T23:36:09.816330+01:00",
+      "detail": {
+        "tweet_id": "2042716753122283683",
+        "author": "NBA"
+      }
+    },
+    {
+      "step": "post_attempt",
+      "at": "2026-04-10T23:36:09.821180+01:00",
+      "detail": {
+        "tweet_id": "2042716753122283683",
+        "tweet_url": "https://x.com/NBA/status/2042716753122283683"
+      }
+    },
+    {
+      "step": "post_ok",
+      "at": "2026-04-10T23:36:21.027038+01:00",
+      "detail": {
+        "tweet_id": "2042716753122283683",
+        "tweet_url": "https://x.com/NBA/status/2042716753122283683",
+        "reply_length": 68
+      }
+    },
+    {
+      "step": "llm_call",
+      "at": "2026-04-10T23:37:01.917573+01:00",
+      "detail": {
+        "tweet_id": "2042720263146738175",
+        "author": "Billsbestbet"
+      }
+    },
+    {
+      "step": "llm_skip",
+      "at": "2026-04-10T23:37:01.917573+01:00",
+      "detail": {
+        "tweet_id": "2042720263146738175",
+        "reason": "likely_media_caption",
+        "decision": "SKIP"
+      }
+    },
+    {
+      "step": "llm_call",
+      "at": "2026-04-10T23:37:01.917573+01:00",
+      "detail": {
+        "tweet_id": "2042717153871143366",
+        "author": "BasketNews_com"
+      }
+    },
+    {
+      "step": "validation_fail",
+      "at": "2026-04-10T23:37:01.917573+01:00",
+      "detail": {
+        "tweet_id": "2042717153871143366",
+        "reason": "no_relevance_to_tweet"
+      }
+    },
+    {
+      "step": "llm_call",
+      "at": "2026-04-10T23:37:01.917573+01:00",
+      "detail": {
+        "tweet_id": "2042716154834153676",
+        "author": "WorldofOutlaws"
+      }
+    },
+    {
+      "step": "llm_skip",
+      "at": "2026-04-10T23:37:01.917573+01:00",
+      "detail": {
+        "tweet_id": "2042716154834153676",
+        "reason": "not_about_basketball",
+        "decision": "SKIP"
+      }
+    },
+    {
+      "step": "llm_call",
+      "at": "2026-04-10T23:37:01.917573+01:00",
+      "detail": {
+        "tweet_id": "2042702743366963664",
+        "author": "DuaneRankin"
+      }
+    },
+    {
+      "step": "post_attempt",
+      "at": "2026-04-10T23:37:01.921592+01:00",
+      "detail": {
+        "tweet_id": "2042702743366963664",
+        "tweet_url": "https://x.com/DuaneRankin/status/2042702743366963664"
+      }
+    },
+    {
+      "step": "post_ok",
+      "at": "2026-04-10T23:37:12.618998+01:00",
+      "detail": {
+        "tweet_id": "2042702743366963664",
+        "tweet_url": "https://x.com/DuaneRankin/status/2042702743366963664",
+        "reply_length": 31
+      }
+    },
+    {
+      "step": "llm_call",
+      "at": "2026-04-10T23:37:39.830280+01:00",
+      "detail": {
+        "tweet_id": "2042724807725212085",
+        "author": "LakersNation"
+      }
+    },
+    {
+      "step": "post_attempt",
+      "at": "2026-04-10T23:37:39.835307+01:00",
+      "detail": {
+        "tweet_id": "2042724807725212085",
+        "tweet_url": "https://x.com/LakersNation/status/2042724807725212085"
+      }
+    },
+    {
+      "step": "post_ok",
+      "at": "2026-04-10T23:37:50.447833+01:00",
+      "detail": {
+        "tweet_id": "2042724807725212085",
+        "tweet_url": "https://x.com/LakersNation/status/2042724807725212085",
+        "reply_length": 34
+      }
+    },
+    {
+      "step": "llm_call",
+      "at": "2026-04-10T23:38:27.297239+01:00",
+      "detail": {
+        "tweet_id": "2042717875769684074",
+        "author": "chenstimothy"
+      }
+    },
+    {
+      "step": "post_attempt",
+      "at": "2026-04-10T23:38:27.302114+01:00",
+      "detail": {
+        "tweet_id": "2042717875769684074",
+        "tweet_url": "https://x.com/chenstimothy/status/2042717875769684074"
+      }
+    },
+    {
+      "step": "post_ok",
+      "at": "2026-04-10T23:38:36.529614+01:00",
+      "detail": {
+        "tweet_id": "2042717875769684074",
+        "tweet_url": "https://x.com/chenstimothy/status/2042717875769684074",
+        "reply_length": 74
+      }
+    },
+    {
+      "step": "llm_call",
+      "at": "2026-04-10T23:39:19.417633+01:00",
+      "detail": {
+        "tweet_id": "2042714825948577838",
+        "author": "BigSargeSportz"
+      }
+    },
+    {
+      "step": "post_attempt",
+      "at": "2026-04-10T23:39:19.422227+01:00",
+      "detail": {
+        "tweet_id": "2042714825948577838",
+        "tweet_url": "https://x.com/BigSargeSportz/status/2042714825948577838"
+      }
+    },
+    {
+      "step": "post_ok",
+      "at": "2026-04-10T23:39:30.610424+01:00",
+      "detail": {
+        "tweet_id": "2042714825948577838",
+        "tweet_url": "https://x.com/BigSargeSportz/status/2042714825948577838",
+        "reply_length": 89
+      }
+    },
+    {
+      "step": "llm_call",
+      "at": "2026-04-10T23:39:59.842579+01:00",
+      "detail": {
+        "tweet_id": "2042717088989462783",
+        "author": "OwenOConnorNBA"
+      }
+    },
+    {
+      "step": "post_attempt",
+      "at": "2026-04-10T23:39:59.847448+01:00",
+      "detail": {
+        "tweet_id": "2042717088989462783",
+        "tweet_url": "https://x.com/OwenOConnorNBA/status/2042717088989462783"
+      }
+    },
+    {
+      "step": "post_ok",
+      "at": "2026-04-10T23:40:09.315447+01:00",
+      "detail": {
+        "tweet_id": "2042717088989462783",
+        "tweet_url": "https://x.com/OwenOConnorNBA/status/2042717088989462783",
+        "reply_length": 59
+      }
+    },
+    {
+      "step": "llm_call",
+      "at": "2026-04-10T23:40:38.894914+01:00",
+      "detail": {
+        "tweet_id": "2042711735245680654",
+        "author": "Thecappershub"
+      }
+    },
+    {
+      "step": "llm_skip",
+      "at": "2026-04-10T23:40:38.894914+01:00",
+      "detail": {
+        "tweet_id": "2042711735245680654",
+        "reason": "likely_media_caption",
+        "decision": "SKIP"
+      }
+    },
+    {
+      "step": "llm_call",
+      "at": "2026-04-10T23:40:38.894914+01:00",
+      "detail": {
+        "tweet_id": "2042703193482694803",
+        "author": "LakerLukaSZN77"
+      }
+    },
+    {
+      "step": "post_attempt",
+      "at": "2026-04-10T23:40:38.899174+01:00",
+      "detail": {
+        "tweet_id": "2042703193482694803",
+        "tweet_url": "https://x.com/LakerLukaSZN77/status/2042703193482694803"
+      }
+    },
+    {
+      "step": "post_ok",
+      "at": "2026-04-10T23:40:49.769578+01:00",
+      "detail": {
+        "tweet_id": "2042703193482694803",
+        "tweet_url": "https://x.com/LakerLukaSZN77/status/2042703193482694803",
+        "reply_length": 50
+      }
+    },
+    {
+      "step": "llm_call",
+      "at": "2026-04-10T23:41:20.631451+01:00",
+      "detail": {
+        "tweet_id": "2042705016004460817",
+        "author": "Learnball_"
+      }
+    },
+    {
+      "step": "validation_fail",
+      "at": "2026-04-10T23:41:20.631451+01:00",
+      "detail": {
+        "tweet_id": "2042705016004460817",
+        "reason": "no_relevance_to_tweet"
+      }
+    },
+    {
+      "step": "llm_call",
+      "at": "2026-04-10T23:41:20.631451+01:00",
+      "detail": {
+        "tweet_id": "2042701031339946388",
+        "author": "LukaDoncic_arg"
+      }
+    },
+    {
+      "step": "post_attempt",
+      "at": "2026-04-10T23:41:20.636078+01:00",
+      "detail": {
+        "tweet_id": "2042701031339946388",
+        "tweet_url": "https://x.com/LukaDoncic_arg/status/2042701031339946388"
+      }
+    },
+    {
+      "step": "post_ok",
+      "at": "2026-04-10T23:41:31.004527+01:00",
+      "detail": {
+        "tweet_id": "2042701031339946388",
+        "tweet_url": "https://x.com/LukaDoncic_arg/status/2042701031339946388",
+        "reply_length": 79
+      }
+    },
+    {
+      "step": "llm_call",
+      "at": "2026-04-10T23:42:13.622566+01:00",
+      "detail": {
+        "tweet_id": "2042692715779870795",
+        "author": "invinciblecard1"
+      }
+    },
+    {
+      "step": "post_attempt",
+      "at": "2026-04-10T23:42:13.627589+01:00",
+      "detail": {
+        "tweet_id": "2042692715779870795",
+        "tweet_url": "https://x.com/invinciblecard1/status/2042692715779870795"
+      }
+    },
+    {
+      "step": "post_ok",
+      "at": "2026-04-10T23:42:24.889670+01:00",
+      "detail": {
+        "tweet_id": "2042692715779870795",
+        "tweet_url": "https://x.com/invinciblecard1/status/2042692715779870795",
+        "reply_length": 88
+      }
+    },
+    {
+      "step": "cycle_start",
+      "at": "2026-04-10T23:43:25.538978+01:00",
+      "detail": {
+        "cycle_index": 2
+      }
+    },
+    {
+      "step": "scrape_done",
+      "at": "2026-04-10T23:50:17.293195+01:00",
+      "detail": {
+        "raw_count": 293
+      }
+    },
+    {
+      "step": "filter_done",
+      "at": "2026-04-10T23:50:17.293195+01:00",
+      "detail": {
+        "accepted_count": 15,
+        "cycle_skip_reasons": {
+          "likes_too_low": 192,
+          "text_too_short": 1,
+          "too_old": 84,
+          "image_caption_too_short": 1
+        }
+      }
+    },
+    {
+      "step": "rank_done",
+      "at": "2026-04-10T23:50:17.293195+01:00",
+      "detail": {
+        "top_count": 15
+      }
+    },
+    {
+      "step": "llm_call",
+      "at": "2026-04-10T23:53:24.009720+01:00",
+      "detail": {
+        "tweet_id": "2042728833552368120",
+        "author": "WeAreCavsNation"
+      }
+    },
+    {
+      "step": "post_attempt",
+      "at": "2026-04-10T23:53:24.016369+01:00",
+      "detail": {
+        "tweet_id": "2042728833552368120",
+        "tweet_url": "https://x.com/WeAreCavsNation/status/2042728833552368120"
+      }
+    },
+    {
+      "step": "post_ok",
+      "at": "2026-04-10T23:53:34.760810+01:00",
+      "detail": {
+        "tweet_id": "2042728833552368120",
+        "tweet_url": "https://x.com/WeAreCavsNation/status/2042728833552368120",
+        "reply_length": 61
+      }
+    },
+    {
+      "step": "llm_call",
+      "at": "2026-04-10T23:53:57.757677+01:00",
+      "detail": {
+        "tweet_id": "2042734527873745124",
+        "author": "lamedoo"
+      }
+    },
+    {
+      "step": "llm_skip",
+      "at": "2026-04-10T23:53:57.757677+01:00",
+      "detail": {
+        "tweet_id": "2042734527873745124",
+        "reason": "not_about_basketball",
+        "decision": "SKIP"
+      }
+    },
+    {
+      "step": "llm_call",
+      "at": "2026-04-10T23:53:57.757677+01:00",
+      "detail": {
+        "tweet_id": "2042734057294041297",
+        "author": "FiddlesPicks"
+      }
+    },
+    {
+      "step": "llm_skip",
+      "at": "2026-04-10T23:53:57.757677+01:00",
+      "detail": {
+        "tweet_id": "2042734057294041297",
+        "reason": "not_about_basketball",
+        "decision": "SKIP"
+      }
+    },
+    {
+      "step": "llm_call",
+      "at": "2026-04-10T23:53:57.757677+01:00",
+      "detail": {
+        "tweet_id": "2042725753796596089",
+        "author": "__whatley__"
+      }
+    },
+    {
+      "step": "validation_fail",
+      "at": "2026-04-10T23:53:57.757677+01:00",
+      "detail": {
+        "tweet_id": "2042725753796596089",
+        "reason": "no_relevance_to_tweet"
+      }
+    },
+    {
+      "step": "llm_call",
+      "at": "2026-04-10T23:53:57.757677+01:00",
+      "detail": {
+        "tweet_id": "2042733506183278831",
+        "author": "BrasilAD"
+      }
+    },
+    {
+      "step": "post_attempt",
+      "at": "2026-04-10T23:53:57.762010+01:00",
+      "detail": {
+        "tweet_id": "2042733506183278831",
+        "tweet_url": "https://x.com/BrasilAD/status/2042733506183278831"
+      }
+    },
+    {
+      "step": "post_ok",
+      "at": "2026-04-10T23:54:08.032335+01:00",
+      "detail": {
+        "tweet_id": "2042733506183278831",
+        "tweet_url": "https://x.com/BrasilAD/status/2042733506183278831",
+        "reply_length": 63
+      }
+    },
+    {
+      "step": "llm_call",
+      "at": "2026-04-10T23:54:52.652903+01:00",
+      "detail": {
+        "tweet_id": "2042725067159638146",
+        "author": "AlexGambles700"
+      }
+    },
+    {
+      "step": "llm_skip",
+      "at": "2026-04-10T23:54:52.652903+01:00",
+      "detail": {
+        "tweet_id": "2042725067159638146",
+        "reason": "not_about_basketball",
+        "decision": "SKIP"
+      }
+    },
+    {
+      "step": "llm_call",
+      "at": "2026-04-10T23:54:52.652903+01:00",
+      "detail": {
+        "tweet_id": "2042725819391361180",
+        "author": "MachinesPicks"
+      }
+    },
+    {
+      "step": "llm_skip",
+      "at": "2026-04-10T23:54:52.652903+01:00",
+      "detail": {
+        "tweet_id": "2042725819391361180",
+        "reason": "not_about_basketball",
+        "decision": "SKIP"
+      }
+    },
+    {
+      "step": "llm_call",
+      "at": "2026-04-10T23:54:52.652903+01:00",
+      "detail": {
+        "tweet_id": "2042706847950397726",
+        "author": "pisounalinha"
+      }
+    },
+    {
+      "step": "validation_fail",
+      "at": "2026-04-10T23:54:52.652903+01:00",
+      "detail": {
+        "tweet_id": "2042706847950397726",
+        "reason": "too_many_same_first_word"
+      }
+    },
+    {
+      "step": "llm_call",
+      "at": "2026-04-10T23:54:52.652903+01:00",
+      "detail": {
+        "tweet_id": "2042706523994882553",
+        "author": "ESPNCleveland"
+      }
+    },
+    {
+      "step": "validation_fail",
+      "at": "2026-04-10T23:54:52.652903+01:00",
+      "detail": {
+        "tweet_id": "2042706523994882553",
+        "reason": "no_relevance_to_tweet"
+      }
+    },
+    {
+      "step": "llm_call",
+      "at": "2026-04-10T23:54:52.652903+01:00",
+      "detail": {
+        "tweet_id": "2042711726244724790",
+        "author": "BySamGordon"
+      }
+    },
+    {
+      "step": "validation_fail",
+      "at": "2026-04-10T23:54:52.652903+01:00",
+      "detail": {
+        "tweet_id": "2042711726244724790",
+        "reason": "too_many_same_first_word"
+      }
+    },
+    {
+      "step": "llm_call",
+      "at": "2026-04-10T23:54:52.652903+01:00",
+      "detail": {
+        "tweet_id": "2042712540367454508",
+        "author": "NYAlpin"
+      }
+    },
+    {
+      "step": "validation_fail",
+      "at": "2026-04-10T23:54:52.653922+01:00",
+      "detail": {
+        "tweet_id": "2042712540367454508",
+        "reason": "too_many_same_first_word"
+      }
+    },
+    {
+      "step": "llm_call",
+      "at": "2026-04-10T23:54:52.653922+01:00",
+      "detail": {
+        "tweet_id": "2042718066505568282",
+        "author": "ChrisKnowsBall2"
+      }
+    },
+    {
+      "step": "post_attempt",
+      "at": "2026-04-10T23:54:52.658657+01:00",
+      "detail": {
+        "tweet_id": "2042718066505568282",
+        "tweet_url": "https://x.com/ChrisKnowsBall2/status/2042718066505568282"
+      }
+    },
+    {
+      "step": "post_ok",
+      "at": "2026-04-10T23:55:03.467139+01:00",
+      "detail": {
+        "tweet_id": "2042718066505568282",
+        "tweet_url": "https://x.com/ChrisKnowsBall2/status/2042718066505568282",
+        "reply_length": 93
+      }
+    },
+    {
+      "step": "llm_call",
+      "at": "2026-04-10T23:55:30.296005+01:00",
+      "detail": {
+        "tweet_id": "2042721802515067307",
+        "author": "Naylor408"
+      }
+    },
+    {
+      "step": "post_attempt",
+      "at": "2026-04-10T23:55:30.300548+01:00",
+      "detail": {
+        "tweet_id": "2042721802515067307",
+        "tweet_url": "https://x.com/Naylor408/status/2042721802515067307"
+      }
+    },
+    {
+      "step": "post_ok",
+      "at": "2026-04-10T23:55:40.174764+01:00",
+      "detail": {
+        "tweet_id": "2042721802515067307",
+        "tweet_url": "https://x.com/Naylor408/status/2042721802515067307",
+        "reply_length": 61
+      }
+    },
+    {
+      "step": "llm_call",
+      "at": "2026-04-10T23:56:18.926182+01:00",
+      "detail": {
+        "tweet_id": "2042704340662571498",
+        "author": "Raul_Ruscitti"
+      }
+    },
+    {
+      "step": "llm_skip",
+      "at": "2026-04-10T23:56:18.926182+01:00",
+      "detail": {
+        "tweet_id": "2042704340662571498",
+        "reason": "not_about_basketball",
+        "decision": "SKIP"
+      }
+    },
+    {
+      "step": "llm_call",
+      "at": "2026-04-10T23:56:18.926182+01:00",
+      "detail": {
+        "tweet_id": "2042703547398074605",
+        "author": "johnsemley3000"
+      }
+    },
+    {
+      "step": "validation_fail",
+      "at": "2026-04-10T23:56:18.926182+01:00",
+      "detail": {
+        "tweet_id": "2042703547398074605",
+        "reason": "too_many_same_first_word"
+      }
+    },
+    {
+      "step": "cycle_start",
+      "at": "2026-04-10T23:56:48.413520+01:00",
+      "detail": {
+        "cycle_index": 3
+      }
+    },
+    {
+      "step": "scrape_done",
+      "at": "2026-04-11T00:04:38.167246+01:00",
+      "detail": {
+        "raw_count": 297
+      }
+    },
+    {
+      "step": "filter_done",
+      "at": "2026-04-11T00:04:38.167246+01:00",
+      "detail": {
+        "accepted_count": 16,
+        "cycle_skip_reasons": {
+          "likes_too_low": 203,
+          "already_seen": 2,
+          "no_nba_keyword": 2,
+          "too_old": 74
+        }
+      }
+    },
+    {
+      "step": "rank_done",
+      "at": "2026-04-11T00:04:38.167246+01:00",
+      "detail": {
+        "top_count": 16
+      }
+    },
+    {
+      "step": "llm_call",
+      "at": "2026-04-11T00:07:49.736755+01:00",
+      "detail": {
+        "tweet_id": "2042735408065257935",
+        "author": "AgbaChadox"
+      }
+    },
+    {
+      "step": "post_attempt",
+      "at": "2026-04-11T00:07:49.752533+01:00",
+      "detail": {
+        "tweet_id": "2042735408065257935",
+        "tweet_url": "https://x.com/AgbaChadox/status/2042735408065257935"
+      }
+    },
+    {
+      "step": "post_ok",
+      "at": "2026-04-11T00:08:00.669152+01:00",
+      "detail": {
+        "tweet_id": "2042735408065257935",
+        "tweet_url": "https://x.com/AgbaChadox/status/2042735408065257935",
+        "reply_length": 58
+      }
+    },
+    {
+      "step": "llm_call",
+      "at": "2026-04-11T00:08:22.035814+01:00",
+      "detail": {
+        "tweet_id": "2042718133547655380",
+        "author": "LeBron__legacy"
+      }
+    },
+    {
+      "step": "post_attempt",
+      "at": "2026-04-11T00:08:22.038958+01:00",
+      "detail": {
+        "tweet_id": "2042718133547655380",
+        "tweet_url": "https://x.com/LeBron__legacy/status/2042718133547655380"
+      }
+    },
+    {
+      "step": "post_ok",
+      "at": "2026-04-11T00:08:31.932193+01:00",
+      "detail": {
+        "tweet_id": "2042718133547655380",
+        "tweet_url": "https://x.com/LeBron__legacy/status/2042718133547655380",
+        "reply_length": 52
+      }
+    },
+    {
+      "step": "llm_call",
+      "at": "2026-04-11T00:09:01.318394+01:00",
+      "detail": {
+        "tweet_id": "2042719051403649504",
+        "author": "MIK3MCDANIEL"
+      }
+    },
+    {
+      "step": "validation_fail",
+      "at": "2026-04-11T00:09:01.318394+01:00",
+      "detail": {
+        "tweet_id": "2042719051403649504",
+        "reason": "no_relevance_to_tweet"
+      }
+    },
+    {
+      "step": "llm_call",
+      "at": "2026-04-11T00:09:01.318394+01:00",
+      "detail": {
+        "tweet_id": "2042720075258470579",
+        "author": "ReichelRadio"
+      }
+    },
+    {
+      "step": "validation_fail",
+      "at": "2026-04-11T00:09:01.318394+01:00",
+      "detail": {
+        "tweet_id": "2042720075258470579",
+        "reason": "too_many_same_first_word"
+      }
+    },
+    {
+      "step": "llm_call",
+      "at": "2026-04-11T00:09:01.318394+01:00",
+      "detail": {
+        "tweet_id": "2042733696663306573",
+        "author": "Breaktheboox"
+      }
+    },
+    {
+      "step": "llm_skip",
+      "at": "2026-04-11T00:09:01.318394+01:00",
+      "detail": {
+        "tweet_id": "2042733696663306573",
+        "reason": "likely_media_caption",
+        "decision": "SKIP"
+      }
+    },
+    {
+      "step": "llm_call",
+      "at": "2026-04-11T00:09:01.318394+01:00",
+      "detail": {
+        "tweet_id": "2042735137834545388",
+        "author": "BetMGM"
+      }
+    },
+    {
+      "step": "llm_skip",
+      "at": "2026-04-11T00:09:01.318394+01:00",
+      "detail": {
+        "tweet_id": "2042735137834545388",
+        "reason": "not_about_basketball",
+        "decision": "SKIP"
+      }
+    },
+    {
+      "step": "llm_call",
+      "at": "2026-04-11T00:09:01.318394+01:00",
+      "detail": {
+        "tweet_id": "2042735070843216033",
+        "author": "DamichaelC"
+      }
+    },
+    {
+      "step": "post_attempt",
+      "at": "2026-04-11T00:09:01.323412+01:00",
+      "detail": {
+        "tweet_id": "2042735070843216033",
+        "tweet_url": "https://x.com/DamichaelC/status/2042735070843216033"
+      }
+    },
+    {
+      "step": "post_ok",
+      "at": "2026-04-11T00:09:11.293139+01:00",
+      "detail": {
+        "tweet_id": "2042735070843216033",
+        "tweet_url": "https://x.com/DamichaelC/status/2042735070843216033",
+        "reply_length": 62
+      }
+    },
+    {
+      "step": "llm_call",
+      "at": "2026-04-11T00:09:40.698240+01:00",
+      "detail": {
+        "tweet_id": "2042731079530865072",
+        "author": "BackyardLays"
+      }
+    },
+    {
+      "step": "llm_skip",
+      "at": "2026-04-11T00:09:40.698240+01:00",
+      "detail": {
+        "tweet_id": "2042731079530865072",
+        "reason": "likely_media_caption",
+        "decision": "SKIP"
+      }
+    },
+    {
+      "step": "llm_call",
+      "at": "2026-04-11T00:09:40.698240+01:00",
+      "detail": {
+        "tweet_id": "2042724024409903147",
+        "author": "MailManLockz"
+      }
+    },
+    {
+      "step": "post_attempt",
+      "at": "2026-04-11T00:09:40.703986+01:00",
+      "detail": {
+        "tweet_id": "2042724024409903147",
+        "tweet_url": "https://x.com/MailManLockz/status/2042724024409903147"
+      }
+    },
+    {
+      "step": "post_fail",
+      "at": "2026-04-11T00:10:07.136559+01:00",
+      "detail": {
+        "tweet_id": "2042724024409903147",
+        "error": "reply_box_not_found"
+      }
+    },
+    {
+      "step": "llm_call",
+      "at": "2026-04-11T00:10:07.136559+01:00",
+      "detail": {
+        "tweet_id": "2042698129435144539",
+        "author": "spurs_muse"
+      }
+    },
+    {
+      "step": "validation_fail",
+      "at": "2026-04-11T00:10:07.136559+01:00",
+      "detail": {
+        "tweet_id": "2042698129435144539",
+        "reason": "no_relevance_to_tweet"
+      }
+    },
+    {
+      "step": "llm_call",
+      "at": "2026-04-11T00:10:07.136559+01:00",
+      "detail": {
+        "tweet_id": "2042717480263590168",
+        "author": "WiscyBusiness"
+      }
+    },
+    {
+      "step": "llm_skip",
+      "at": "2026-04-11T00:10:07.136559+01:00",
+      "detail": {
+        "tweet_id": "2042717480263590168",
+        "reason": "not_about_basketball",
+        "decision": "SKIP"
+      }
+    },
+    {
+      "step": "llm_call",
+      "at": "2026-04-11T00:10:07.136559+01:00",
+      "detail": {
+        "tweet_id": "2042717623180279864",
+        "author": "BronsHoodi"
+      }
+    },
+    {
+      "step": "post_attempt",
+      "at": "2026-04-11T00:10:07.140324+01:00",
+      "detail": {
+        "tweet_id": "2042717623180279864",
+        "tweet_url": "https://x.com/BronsHoodi/status/2042717623180279864"
+      }
+    },
+    {
+      "step": "post_ok",
+      "at": "2026-04-11T00:10:18.006241+01:00",
+      "detail": {
+        "tweet_id": "2042717623180279864",
+        "tweet_url": "https://x.com/BronsHoodi/status/2042717623180279864",
+        "reply_length": 26
+      }
+    },
+    {
+      "step": "llm_call",
+      "at": "2026-04-11T00:11:01.435761+01:00",
+      "detail": {
+        "tweet_id": "2042698867750375498",
+        "author": "miketgould"
+      }
+    },
+    {
+      "step": "validation_fail",
+      "at": "2026-04-11T00:11:01.435761+01:00",
+      "detail": {
+        "tweet_id": "2042698867750375498",
+        "reason": "too_many_same_first_word"
+      }
+    },
+    {
+      "step": "llm_call",
+      "at": "2026-04-11T00:11:01.435761+01:00",
+      "detail": {
+        "tweet_id": "2042697687628206454",
+        "author": "TheHoopHerald"
+      }
+    },
+    {
+      "step": "post_attempt",
+      "at": "2026-04-11T00:11:01.438174+01:00",
+      "detail": {
+        "tweet_id": "2042697687628206454",
+        "tweet_url": "https://x.com/TheHoopHerald/status/2042697687628206454"
+      }
+    },
+    {
+      "step": "post_ok",
+      "at": "2026-04-11T00:11:12.224444+01:00",
+      "detail": {
+        "tweet_id": "2042697687628206454",
+        "tweet_url": "https://x.com/TheHoopHerald/status/2042697687628206454",
+        "reply_length": 62
+      }
+    },
+    {
+      "step": "llm_call",
+      "at": "2026-04-11T00:11:41.139323+01:00",
+      "detail": {
+        "tweet_id": "2042715052734558305",
+        "author": "SneakerAlertHD"
+      }
+    },
+    {
+      "step": "llm_skip",
+      "at": "2026-04-11T00:11:41.139323+01:00",
+      "detail": {
+        "tweet_id": "2042715052734558305",
+        "reason": "likely_media_caption",
+        "decision": "SKIP"
+      }
+    },
+    {
+      "step": "llm_call",
+      "at": "2026-04-11T00:11:41.139323+01:00",
+      "detail": {
+        "tweet_id": "2042701694505734360",
+        "author": "WarriorNationCP"
+      }
+    },
+    {
+      "step": "post_attempt",
+      "at": "2026-04-11T00:11:41.143426+01:00",
+      "detail": {
+        "tweet_id": "2042701694505734360",
+        "tweet_url": "https://x.com/WarriorNationCP/status/2042701694505734360"
+      }
+    },
+    {
+      "step": "post_ok",
+      "at": "2026-04-11T00:11:51.098089+01:00",
+      "detail": {
+        "tweet_id": "2042701694505734360",
+        "tweet_url": "https://x.com/WarriorNationCP/status/2042701694505734360",
+        "reply_length": 20
+      }
+    },
+    {
+      "step": "cycle_start",
+      "at": "2026-04-11T00:12:59.267236+01:00",
+      "detail": {
+        "cycle_index": 4
+      }
+    },
+    {
+      "step": "scrape_done",
+      "at": "2026-04-11T00:19:49.350021+01:00",
+      "detail": {
+        "raw_count": 313
+      }
+    },
+    {
+      "step": "filter_done",
+      "at": "2026-04-11T00:19:49.350021+01:00",
+      "detail": {
+        "accepted_count": 21,
+        "cycle_skip_reasons": {
+          "likes_too_low": 243,
+          "already_seen": 4,
+          "too_old": 40,
+          "no_nba_keyword": 1,
+          "image_caption_too_short": 2,
+          "text_too_short": 1,
+          "too_many_hashtags": 1
+        }
+      }
+    },
+    {
+      "step": "rank_done",
+      "at": "2026-04-11T00:19:49.350021+01:00",
+      "detail": {
+        "top_count": 21
+      }
+    },
+    {
+      "step": "skip",
+      "at": "2026-04-11T00:19:49.350021+01:00",
+      "detail": {
+        "tweet_id": "2042741813182623946",
+        "reason": "max_per_author",
+        "author": "UnderdogNBA"
+      }
+    },
+    {
+      "step": "skip",
+      "at": "2026-04-11T00:19:49.350021+01:00",
+      "detail": {
+        "tweet_id": "2042740851953275371",
+        "reason": "max_per_author",
+        "author": "UnderdogNBA"
+      }
+    },
+    {
+      "step": "llm_call",
+      "at": "2026-04-11T00:23:12.842006+01:00",
+      "detail": {
+        "tweet_id": "2042721518434517396",
+        "author": "celtics"
+      }
+    },
+    {
+      "step": "post_attempt",
+      "at": "2026-04-11T00:23:12.856400+01:00",
+      "detail": {
+        "tweet_id": "2042721518434517396",
+        "tweet_url": "https://x.com/celtics/status/2042721518434517396"
+      }
+    },
+    {
+      "step": "post_ok",
+      "at": "2026-04-11T00:23:23.568034+01:00",
+      "detail": {
+        "tweet_id": "2042721518434517396",
+        "tweet_url": "https://x.com/celtics/status/2042721518434517396",
+        "reply_length": 32
+      }
+    },
+    {
+      "step": "llm_call",
+      "at": "2026-04-11T00:23:48.099022+01:00",
+      "detail": {
+        "tweet_id": "2042741728902250562",
+        "author": "DonHarris4"
+      }
+    },
+    {
+      "step": "validation_fail",
+      "at": "2026-04-11T00:23:48.103098+01:00",
+      "detail": {
+        "tweet_id": "2042741728902250562",
+        "reason": "too_similar"
+      }
+    },
+    {
+      "step": "llm_call",
+      "at": "2026-04-11T00:23:48.103098+01:00",
+      "detail": {
+        "tweet_id": "2042741827522920619",
+        "author": "MaximeAubin1"
+      }
+    },
+    {
+      "step": "validation_fail",
+      "at": "2026-04-11T00:23:48.103098+01:00",
+      "detail": {
+        "tweet_id": "2042741827522920619",
+        "reason": "no_relevance_to_tweet"
+      }
+    },
+    {
+      "step": "llm_call",
+      "at": "2026-04-11T00:23:48.103098+01:00",
+      "detail": {
+        "tweet_id": "2042738817573003553",
+        "author": "BWMcGair03"
+      }
+    },
+    {
+      "step": "validation_fail",
+      "at": "2026-04-11T00:23:48.103098+01:00",
+      "detail": {
+        "tweet_id": "2042738817573003553",
+        "reason": "too_many_same_first_word"
+      }
+    },
+    {
+      "step": "llm_call",
+      "at": "2026-04-11T00:23:48.103098+01:00",
+      "detail": {
+        "tweet_id": "2042740716636418497",
+        "author": "ClutchPoints"
+      }
+    },
+    {
+      "step": "llm_skip",
+      "at": "2026-04-11T00:23:48.103098+01:00",
+      "detail": {
+        "tweet_id": "2042740716636418497",
+        "reason": "likely_media_caption",
+        "decision": "SKIP"
+      }
+    },
+    {
+      "step": "llm_call",
+      "at": "2026-04-11T00:23:48.103098+01:00",
+      "detail": {
+        "tweet_id": "2042726910929613064",
+        "author": "BrooklynGuyNBA"
+      }
+    },
+    {
+      "step": "validation_fail",
+      "at": "2026-04-11T00:23:48.103098+01:00",
+      "detail": {
+        "tweet_id": "2042726910929613064",
+        "reason": "no_relevance_to_tweet"
+      }
+    },
+    {
+      "step": "llm_call",
+      "at": "2026-04-11T00:23:48.103098+01:00",
+      "detail": {
+        "tweet_id": "2042735850434224386",
+        "author": "DominguezCinco"
+      }
+    },
+    {
+      "step": "post_attempt",
+      "at": "2026-04-11T00:23:48.105281+01:00",
+      "detail": {
+        "tweet_id": "2042735850434224386",
+        "tweet_url": "https://x.com/DominguezCinco/status/2042735850434224386"
+      }
+    },
+    {
+      "step": "post_ok",
+      "at": "2026-04-11T00:23:57.705174+01:00",
+      "detail": {
+        "tweet_id": "2042735850434224386",
+        "tweet_url": "https://x.com/DominguezCinco/status/2042735850434224386",
+        "reply_length": 87
+      }
+    },
+    {
+      "step": "llm_call",
+      "at": "2026-04-11T00:24:37.171662+01:00",
+      "detail": {
+        "tweet_id": "2042723682997420343",
+        "author": "sny_knicks"
+      }
+    },
+    {
+      "step": "validation_fail",
+      "at": "2026-04-11T00:24:37.171662+01:00",
+      "detail": {
+        "tweet_id": "2042723682997420343",
+        "reason": "too_many_same_first_word"
+      }
+    },
+    {
+      "step": "llm_call",
+      "at": "2026-04-11T00:24:37.171662+01:00",
+      "detail": {
+        "tweet_id": "2042737457184281046",
+        "author": "OmerOsman200"
+      }
+    },
+    {
+      "step": "validation_fail",
+      "at": "2026-04-11T00:24:37.172281+01:00",
+      "detail": {
+        "tweet_id": "2042737457184281046",
+        "reason": "no_relevance_to_tweet"
+      }
+    },
+    {
+      "step": "llm_call",
+      "at": "2026-04-11T00:24:37.172281+01:00",
+      "detail": {
+        "tweet_id": "2042735136920485927",
+        "author": "SlvrBlkCoffeeHr"
+      }
+    },
+    {
+      "step": "validation_fail",
+      "at": "2026-04-11T00:24:37.172281+01:00",
+      "detail": {
+        "tweet_id": "2042735136920485927",
+        "reason": "no_relevance_to_tweet"
+      }
+    },
+    {
+      "step": "llm_call",
+      "at": "2026-04-11T00:24:37.172281+01:00",
+      "detail": {
+        "tweet_id": "2042735242541232232",
+        "author": "Pacers"
+      }
+    },
+    {
+      "step": "post_attempt",
+      "at": "2026-04-11T00:24:37.176885+01:00",
+      "detail": {
+        "tweet_id": "2042735242541232232",
+        "tweet_url": "https://x.com/Pacers/status/2042735242541232232"
+      }
+    },
+    {
+      "step": "post_ok",
+      "at": "2026-04-11T00:24:46.543383+01:00",
+      "detail": {
+        "tweet_id": "2042735242541232232",
+        "tweet_url": "https://x.com/Pacers/status/2042735242541232232",
+        "reply_length": 69
+      }
+    },
+    {
+      "step": "llm_call",
+      "at": "2026-04-11T00:25:13.351629+01:00",
+      "detail": {
+        "tweet_id": "2042740305376743538",
+        "author": "anvyrd"
+      }
+    },
+    {
+      "step": "llm_skip",
+      "at": "2026-04-11T00:25:13.351629+01:00",
+      "detail": {
+        "tweet_id": "2042740305376743538",
+        "reason": "not_about_basketball",
+        "decision": "SKIP"
+      }
+    },
+    {
+      "step": "llm_call",
+      "at": "2026-04-11T00:25:13.351629+01:00",
+      "detail": {
+        "tweet_id": "2042739071089258546",
+        "author": "Spurs_Latam"
+      }
+    },
+    {
+      "step": "llm_skip",
+      "at": "2026-04-11T00:25:13.351629+01:00",
+      "detail": {
+        "tweet_id": "2042739071089258546",
+        "reason": "not_about_basketball",
+        "decision": "SKIP"
+      }
+    },
+    {
+      "step": "llm_call",
+      "at": "2026-04-11T00:25:13.351629+01:00",
+      "detail": {
+        "tweet_id": "2042738122589417690",
+        "author": "FanDuel"
+      }
+    },
+    {
+      "step": "validation_fail",
+      "at": "2026-04-11T00:25:13.351629+01:00",
+      "detail": {
+        "tweet_id": "2042738122589417690",
+        "reason": "no_relevance_to_tweet"
+      }
+    },
+    {
+      "step": "llm_call",
+      "at": "2026-04-11T00:25:13.351629+01:00",
+      "detail": {
+        "tweet_id": "2042735563631886805",
+        "author": "AndrewDBailey"
+      }
+    },
+    {
+      "step": "validation_fail",
+      "at": "2026-04-11T00:25:13.351629+01:00",
+      "detail": {
+        "tweet_id": "2042735563631886805",
+        "reason": "no_relevance_to_tweet"
+      }
+    },
+    {
+      "step": "llm_call",
+      "at": "2026-04-11T00:25:13.351629+01:00",
+      "detail": {
+        "tweet_id": "2042717018009342273",
+        "author": "SomosWolves_"
+      }
+    },
+    {
+      "step": "post_attempt",
+      "at": "2026-04-11T00:25:13.356295+01:00",
+      "detail": {
+        "tweet_id": "2042717018009342273",
+        "tweet_url": "https://x.com/SomosWolves_/status/2042717018009342273"
+      }
+    },
+    {
+      "step": "post_ok",
+      "at": "2026-04-11T00:25:25.314204+01:00",
+      "detail": {
+        "tweet_id": "2042717018009342273",
+        "tweet_url": "https://x.com/SomosWolves_/status/2042717018009342273",
+        "reply_length": 49
+      }
+    },
+    {
+      "step": "llm_call",
+      "at": "2026-04-11T00:25:50.670977+01:00",
+      "detail": {
+        "tweet_id": "2042721132285943954",
+        "author": "taylorcsnow"
+      }
+    },
+    {
+      "step": "post_attempt",
+      "at": "2026-04-11T00:25:50.674499+01:00",
+      "detail": {
+        "tweet_id": "2042721132285943954",
+        "tweet_url": "https://x.com/taylorcsnow/status/2042721132285943954"
+      }
+    },
+    {
+      "step": "post_ok",
+      "at": "2026-04-11T00:26:02.111324+01:00",
+      "detail": {
+        "tweet_id": "2042721132285943954",
+        "tweet_url": "https://x.com/taylorcsnow/status/2042721132285943954",
+        "reply_length": 113
+      }
+    },
+    {
+      "step": "llm_call",
+      "at": "2026-04-11T00:26:46.908547+01:00",
+      "detail": {
+        "tweet_id": "2042715128383103201",
+        "author": "The_Uncontested"
+      }
+    },
+    {
+      "step": "post_attempt",
+      "at": "2026-04-11T00:26:46.912144+01:00",
+      "detail": {
+        "tweet_id": "2042715128383103201",
+        "tweet_url": "https://x.com/The_Uncontested/status/2042715128383103201"
+      }
+    },
+    {
+      "step": "post_ok",
+      "at": "2026-04-11T00:26:56.498397+01:00",
+      "detail": {
+        "tweet_id": "2042715128383103201",
+        "tweet_url": "https://x.com/The_Uncontested/status/2042715128383103201",
+        "reply_length": 42
+      }
+    },
+    {
+      "step": "llm_call",
+      "at": "2026-04-11T00:27:30.366621+01:00",
+      "detail": {
+        "tweet_id": "2042721507017654712",
+        "author": "zm_cox"
+      }
+    },
+    {
+      "step": "post_attempt",
+      "at": "2026-04-11T00:27:30.371165+01:00",
+      "detail": {
+        "tweet_id": "2042721507017654712",
+        "tweet_url": "https://x.com/zm_cox/status/2042721507017654712"
+      }
+    },
+    {
+      "step": "post_ok",
+      "at": "2026-04-11T00:27:41.527382+01:00",
+      "detail": {
+        "tweet_id": "2042721507017654712",
+        "tweet_url": "https://x.com/zm_cox/status/2042721507017654712",
+        "reply_length": 64
+      }
+    },
+    {
+      "step": "session_stop",
+      "at": "2026-04-11T00:28:38.300823+01:00",
+      "detail": {
+        "reason": "session_dead"
+      }
+    },
+    {
+      "step": "session_end",
+      "at": "2026-04-11T00:28:38.300823+01:00",
+      "detail": {
+        "total_replied": 39,
+        "total_skipped": 49
+      }
+    }
+  ]
+}

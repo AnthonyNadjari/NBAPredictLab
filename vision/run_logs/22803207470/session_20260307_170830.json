@@ -1,0 +1,150 @@
+{
+  "run_id": "22803207470",
+  "start_time": "2026-03-07T16:59:35.387056+00:00",
+  "end_time": "2026-03-07T17:08:30.598850+00:00",
+  "total_scraped": 179,
+  "total_filtered": 18,
+  "total_scored": 18,
+  "total_llm_calls": 3,
+  "total_replied": 0,
+  "total_skipped": 2,
+  "skip_reasons": {
+    "too_old": 54,
+    "likes_too_low": 107,
+    "post_failed": 2
+  },
+  "avg_response_length": 0,
+  "avg_engagement_velocity": 0,
+  "replies_posted": [],
+  "cycles": [
+    {
+      "cycle_index": 0,
+      "scraped_count": 179,
+      "accepted_count": 18,
+      "top_count": 18,
+      "at": "2026-03-07T17:06:22.759410+00:00"
+    }
+  ],
+  "events": [
+    {
+      "step": "session_start",
+      "at": "2026-03-07T16:59:35.387056+00:00",
+      "detail": {
+        "max_replies": 60,
+        "dry_run": false
+      }
+    },
+    {
+      "step": "cycle_start",
+      "at": "2026-03-07T16:59:35.387056+00:00",
+      "detail": {
+        "cycle_index": 0
+      }
+    },
+    {
+      "step": "scrape_done",
+      "at": "2026-03-07T17:06:22.755455+00:00",
+      "detail": {
+        "raw_count": 179
+      }
+    },
+    {
+      "step": "filter_done",
+      "at": "2026-03-07T17:06:22.759410+00:00",
+      "detail": {
+        "accepted_count": 18,
+        "cycle_skip_reasons": {
+          "too_old": 54,
+          "likes_too_low": 107
+        }
+      }
+    },
+    {
+      "step": "rank_done",
+      "at": "2026-03-07T17:06:22.759410+00:00",
+      "detail": {
+        "top_count": 18
+      }
+    },
+    {
+      "step": "llm_call",
+      "at": "2026-03-07T17:06:22.759410+00:00",
+      "detail": {
+        "tweet_id": "2030325807982526808",
+        "author": "JaredWeissNBA"
+      }
+    },
+    {
+      "step": "post_attempt",
+      "at": "2026-03-07T17:06:24.154075+00:00",
+      "detail": {
+        "tweet_id": "2030325807982526808",
+        "tweet_url": "https://x.com/JaredWeissNBA/status/2030325807982526808"
+      }
+    },
+    {
+      "step": "post_fail",
+      "at": "2026-03-07T17:06:58.139500+00:00",
+      "detail": {
+        "tweet_id": "2030325807982526808",
+        "error": "DOMException: Failed to execute 'writeText' on 'Clipboard': Write permission denied."
+      }
+    },
+    {
+      "step": "llm_call",
+      "at": "2026-03-07T17:06:58.139500+00:00",
+      "detail": {
+        "tweet_id": "2030315606185238778",
+        "author": "fearedlaker"
+      }
+    },
+    {
+      "step": "post_attempt",
+      "at": "2026-03-07T17:06:59.673065+00:00",
+      "detail": {
+        "tweet_id": "2030315606185238778",
+        "tweet_url": "https://x.com/fearedlaker/status/2030315606185238778"
+      }
+    },
+    {
+      "step": "post_fail",
+      "at": "2026-03-07T17:07:19.400477+00:00",
+      "detail": {
+        "tweet_id": "2030315606185238778",
+        "error": "reply_button_not_found"
+      }
+    },
+    {
+      "step": "llm_call",
+      "at": "2026-03-07T17:07:19.400477+00:00",
+      "detail": {
+        "tweet_id": "2030325097915969888",
+        "author": "CAlmanza1007"
+      }
+    },
+    {
+      "step": "post_attempt",
+      "at": "2026-03-07T17:07:20.852502+00:00",
+      "detail": {
+        "tweet_id": "2030325097915969888",
+        "tweet_url": "https://x.com/CAlmanza1007/status/2030325097915969888"
+      }
+    },
+    {
+      "step": "post_fail",
+      "at": "2026-03-07T17:07:30.295986+00:00",
+      "detail": {
+        "tweet_id": "2030325097915969888",
+        "error": "DOMException: Failed to execute 'writeText' on 'Clipboard': Write permission denied."
+      }
+    },
+    {
+      "step": "session_end",
+      "at": "2026-03-07T17:08:30.598850+00:00",
+      "detail": {
+        "total_replied": 0,
+        "total_skipped": 2
+      }
+    }
+  ]
+}

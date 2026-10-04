@@ -1,0 +1,293 @@
+{
+  "run_id": "24815516354",
+  "start_time": "2026-04-23T04:47:18.391872+01:00",
+  "end_time": "2026-04-23T05:11:54.668934+01:00",
+  "total_scraped": 315,
+  "total_filtered": 13,
+  "total_scored": 13,
+  "total_llm_calls": 13,
+  "total_replied": 0,
+  "total_skipped": 13,
+  "skip_reasons": {
+    "likes_too_low": 260,
+    "too_old": 42,
+    "llm_timeout": 13
+  },
+  "avg_response_length": 0,
+  "avg_engagement_velocity": 0,
+  "replies_posted": [],
+  "cycles": [
+    {
+      "cycle_index": 0,
+      "scraped_count": 315,
+      "accepted_count": 13,
+      "top_count": 13,
+      "at": "2026-04-23T04:54:52.419313+01:00"
+    }
+  ],
+  "events": [
+    {
+      "step": "session_start",
+      "at": "2026-04-23T04:47:18.391872+01:00",
+      "detail": {
+        "max_replies": 60,
+        "dry_run": false
+      }
+    },
+    {
+      "step": "cycle_start",
+      "at": "2026-04-23T04:47:18.391872+01:00",
+      "detail": {
+        "cycle_index": 0
+      }
+    },
+    {
+      "step": "scrape_done",
+      "at": "2026-04-23T04:54:52.419313+01:00",
+      "detail": {
+        "raw_count": 315
+      }
+    },
+    {
+      "step": "filter_done",
+      "at": "2026-04-23T04:54:52.419313+01:00",
+      "detail": {
+        "accepted_count": 13,
+        "cycle_skip_reasons": {
+          "likes_too_low": 260,
+          "too_old": 42
+        }
+      }
+    },
+    {
+      "step": "rank_done",
+      "at": "2026-04-23T04:54:52.419313+01:00",
+      "detail": {
+        "top_count": 13
+      }
+    },
+    {
+      "step": "llm_call",
+      "at": "2026-04-23T05:11:24.398295+01:00",
+      "detail": {
+        "tweet_id": "2047156385767723302",
+        "author": "ClaireMPLS"
+      }
+    },
+    {
+      "step": "llm_skip",
+      "at": "2026-04-23T05:11:24.398295+01:00",
+      "detail": {
+        "tweet_id": "2047156385767723302",
+        "reason": "llm_timeout"
+      }
+    },
+    {
+      "step": "llm_call",
+      "at": "2026-04-23T05:11:24.398295+01:00",
+      "detail": {
+        "tweet_id": "2047159880386220114",
+        "author": "PANPOTD"
+      }
+    },
+    {
+      "step": "llm_skip",
+      "at": "2026-04-23T05:11:24.398295+01:00",
+      "detail": {
+        "tweet_id": "2047159880386220114",
+        "reason": "llm_timeout"
+      }
+    },
+    {
+      "step": "llm_call",
+      "at": "2026-04-23T05:11:24.398295+01:00",
+      "detail": {
+        "tweet_id": "2047159789247947133",
+        "author": "picksbyangel"
+      }
+    },
+    {
+      "step": "llm_skip",
+      "at": "2026-04-23T05:11:24.398295+01:00",
+      "detail": {
+        "tweet_id": "2047159789247947133",
+        "reason": "llm_timeout"
+      }
+    },
+    {
+      "step": "llm_call",
+      "at": "2026-04-23T05:11:24.398295+01:00",
+      "detail": {
+        "tweet_id": "2047156442688270369",
+        "author": "Rylan_Stiles"
+      }
+    },
+    {
+      "step": "llm_skip",
+      "at": "2026-04-23T05:11:24.398295+01:00",
+      "detail": {
+        "tweet_id": "2047156442688270369",
+        "reason": "llm_timeout"
+      }
+    },
+    {
+      "step": "llm_call",
+      "at": "2026-04-23T05:11:24.398295+01:00",
+      "detail": {
+        "tweet_id": "2047159804934902120",
+        "author": "ThomasBuckets78"
+      }
+    },
+    {
+      "step": "llm_skip",
+      "at": "2026-04-23T05:11:24.398295+01:00",
+      "detail": {
+        "tweet_id": "2047159804934902120",
+        "reason": "llm_timeout"
+      }
+    },
+    {
+      "step": "llm_call",
+      "at": "2026-04-23T05:11:24.398295+01:00",
+      "detail": {
+        "tweet_id": "2047155589608886693",
+        "author": "LockItLive"
+      }
+    },
+    {
+      "step": "llm_skip",
+      "at": "2026-04-23T05:11:24.398295+01:00",
+      "detail": {
+        "tweet_id": "2047155589608886693",
+        "reason": "llm_timeout"
+      }
+    },
+    {
+      "step": "llm_call",
+      "at": "2026-04-23T05:11:24.398295+01:00",
+      "detail": {
+        "tweet_id": "2047156662322995590",
+        "author": "Mlia_CFA"
+      }
+    },
+    {
+      "step": "llm_skip",
+      "at": "2026-04-23T05:11:24.398295+01:00",
+      "detail": {
+        "tweet_id": "2047156662322995590",
+        "reason": "llm_timeout"
+      }
+    },
+    {
+      "step": "llm_call",
+      "at": "2026-04-23T05:11:24.398295+01:00",
+      "detail": {
+        "tweet_id": "2047156469594988947",
+        "author": "LegendaryBooker"
+      }
+    },
+    {
+      "step": "llm_skip",
+      "at": "2026-04-23T05:11:24.398295+01:00",
+      "detail": {
+        "tweet_id": "2047156469594988947",
+        "reason": "llm_timeout"
+      }
+    },
+    {
+      "step": "llm_call",
+      "at": "2026-04-23T05:11:24.398295+01:00",
+      "detail": {
+        "tweet_id": "2047155769791902040",
+        "author": "stevejones20"
+      }
+    },
+    {
+      "step": "llm_skip",
+      "at": "2026-04-23T05:11:24.398295+01:00",
+      "detail": {
+        "tweet_id": "2047155769791902040",
+        "reason": "llm_timeout"
+      }
+    },
+    {
+      "step": "llm_call",
+      "at": "2026-04-23T05:11:24.398295+01:00",
+      "detail": {
+        "tweet_id": "2047131896023310453",
+        "author": "CalebPongratz10"
+      }
+    },
+    {
+      "step": "llm_skip",
+      "at": "2026-04-23T05:11:24.398295+01:00",
+      "detail": {
+        "tweet_id": "2047131896023310453",
+        "reason": "llm_timeout"
+      }
+    },
+    {
+      "step": "llm_call",
+      "at": "2026-04-23T05:11:24.398295+01:00",
+      "detail": {
+        "tweet_id": "2047144465022812446",
+        "author": "EverythingxKing"
+      }
+    },
+    {
+      "step": "llm_skip",
+      "at": "2026-04-23T05:11:24.398295+01:00",
+      "detail": {
+        "tweet_id": "2047144465022812446",
+        "reason": "llm_timeout"
+      }
+    },
+    {
+      "step": "llm_call",
+      "at": "2026-04-23T05:11:24.398295+01:00",
+      "detail": {
+        "tweet_id": "2047143835352887508",
+        "author": "embiidsrevenge"
+      }
+    },
+    {
+      "step": "llm_skip",
+      "at": "2026-04-23T05:11:24.398295+01:00",
+      "detail": {
+        "tweet_id": "2047143835352887508",
+        "reason": "llm_timeout"
+      }
+    },
+    {
+      "step": "llm_call",
+      "at": "2026-04-23T05:11:24.398295+01:00",
+      "detail": {
+        "tweet_id": "2047135888593829893",
+        "author": "OWHnews"
+      }
+    },
+    {
+      "step": "llm_skip",
+      "at": "2026-04-23T05:11:24.398295+01:00",
+      "detail": {
+        "tweet_id": "2047135888593829893",
+        "reason": "llm_timeout"
+      }
+    },
+    {
+      "step": "session_stop",
+      "at": "2026-04-23T05:11:54.668934+01:00",
+      "detail": {
+        "reason": "max_consecutive_errors"
+      }
+    },
+    {
+      "step": "session_end",
+      "at": "2026-04-23T05:11:54.668934+01:00",
+      "detail": {
+        "total_replied": 0,
+        "total_skipped": 13
+      }
+    }
+  ]
+}
