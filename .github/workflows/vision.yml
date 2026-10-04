@@ -9,9 +9,9 @@
 
 name: NBAVision Reply Bot
 
+# NOTE: x.com shows a Cloudflare challenge to GitHub runner IPs, so the bot now runs on the
+# IONOS server (vision/server/). This workflow is kept for manual experiments only.
 on:
-  schedule:
-    - cron: '*/15 * * * *'
   workflow_dispatch:
     inputs:
       dry_run:

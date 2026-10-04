@@ -766,7 +766,7 @@ function renderAccount() {
 
   <div class="cols" style="margin-top:12px">
     <div class="panel"><h3>Connexion au compte</h3>
-      <p class="hint">Deux accès distincts : l'API officielle (threads + relevé quotidien des followers) et la session navigateur du bot de réponses (sur GitHub).</p>
+      <p class="hint">Deux accès distincts : l'API officielle (threads + relevé quotidien des followers) et la session navigateur du bot de réponses (sur le serveur IONOS).</p>
       <div class="runs"><div style="display:flex;gap:8px;align-items:center;padding:6px 0">${apiState}</div>
       <div style="display:flex;gap:8px;align-items:center;padding:6px 0">${botState}</div></div>
       ${needsKey ? `<p class="warn" style="margin:8px 0 0">Colle ta clé Groq dans « Clé du modèle (Groq) » ci-dessous.</p>` : ''}
@@ -840,7 +840,7 @@ function renderAccount() {
   $('#groqSave').onclick = saveSecret('LLM_API_KEY', '#groqIn', '#groqMsg', 'Clé enregistrée.');
   $('#proxySave').onclick = saveSecret('BROWSER_PROXY', '#proxyIn', '#proxyMsg', 'Proxy enregistré. Clique « Vérifier la connexion du bot ».');
   $('#loginCheck').onclick = needPw(async () => {
-    try { await api('admin', { action: 'vision_run', login_check: true }); msg('#cookiesMsg', 'ok', 'Vérification lancée : résultat ici dans 3 à 5 minutes (recharge la page).'); }
+    try { await api('admin', { action: 'vision_run', login_check: true }); msg('#cookiesMsg', 'ok', 'Vérification demandée : le serveur la lance dans les 5 minutes, résultat ici 3 minutes plus tard (recharge la page).'); }
     catch (err) { msg('#cookiesMsg', 'err', err.message); }
   });
   const draft = JSON.parse(JSON.stringify(sched));
@@ -864,7 +864,7 @@ function renderAccount() {
   const run = dry => needPw(async () => {
     try {
       await api('admin', { action: 'vision_run', dry_run: dry, max_replies: parseInt($('#vMax').value, 10) });
-      msg('#vMsg', 'ok', dry ? 'Essai lancé : le bot cherche et rédige sans poster. Résultat ici à la fin.' : 'Session lancée sur le PC du runner.');
+      msg('#vMsg', 'ok', dry ? 'Essai demandé : le serveur le lance dans les 5 minutes (cherche et rédige sans poster).' : 'Session demandée : le serveur la lance dans les 5 minutes.');
     } catch (err) { msg('#vMsg', 'err', err.message); }
   });
   $('#vRun').onclick = run(false);

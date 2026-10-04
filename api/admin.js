@@ -143,15 +143,20 @@ module.exports = async function handler(req, res) {
     }
 
     if (action === 'vision_run') {
-      const dry = req.body.dry_run === true;
+      // The reply bot runs on the IONOS server (x.com challenges GitHub runner IPs).
+      // The server's 5-minute tick picks up docs/vision/request.json once.
+      const kind = req.body.login_check === true ? 'login' : req.body.dry_run === true ? 'dry' : 'session';
       const max = Number.isInteger(req.body.max_replies) && req.body.max_replies > 0 && req.body.max_replies <= 100
-        ? String(req.body.max_replies) : '';
-      const r = await gh(`/repos/${repo}/actions/workflows/vision.yml/dispatches`, token, {
-        method: 'POST', body: JSON.stringify({ ref: 'main', inputs: { dry_run: dry, max_replies: max,
-          login_check: req.body.login_check === true } }),
-      });
-      if (r.status === 204) return res.status(200).json({ success: true });
-      return res.status(502).json({ success: false, error: `GitHub API error (${r.status})` });
+        ? req.body.max_replies : null;
+      const body = { id: `${Date.now()}`, kind, max_replies: max, requested_at: new Date().toISOString() };
+      const path = `/repos/${repo}/contents/docs/vision/request.json`;
+      const cur = await gh(path, token);
+      const sha = cur.ok ? (await cur.json()).sha : undefined;
+      const put = await gh(path, token, { method: 'PUT', body: JSON.stringify({
+        message: `Reply bot request: ${kind}`,
+        content: Buffer.from(JSON.stringify(body, null, 2) + '\n').toString('base64'), ...(sha ? { sha } : {}) }) });
+      if (!put.ok) return res.status(502).json({ success: false, error: `GitHub API error (${put.status})` });
+      return res.status(200).json({ success: true });
     }
 
     if (action === 'vision_schedule') {
