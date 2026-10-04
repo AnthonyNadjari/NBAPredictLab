@@ -66,11 +66,19 @@ def main() -> int:
     )
     print(f"Working directory: {os.getcwd()}", flush=True)
 
+    from config import get_llm_api_key
+    if not get_llm_api_key():
+        # Without a model the old code posted canned template replies: never do that.
+        msg = "LLM_API_KEY missing: add the Groq key as a repo secret. No session run."
+        print(f"ERR: {msg}", flush=True)
+        record_run({"run_id": run_id or None, "auth": "no_llm_key", "auth_message": msg})
+        return 1
+
     result = launch_and_auth()
     if len(result) == 5 and result[0] is None:
         reason = result[4]
         if reason == "no_cookies":
-            msg = "No cookies. Set TWITTER_COOKIES_JSON (repo secret or env)."
+            msg = "Not logged in to X (no profile session, no backup cookies). On the runner PC run: python vision/tools/connect_x.py"
         elif reason == "cookies_expired":
             msg = "Profile logged out and backup cookies expired. On the runner PC run: python vision/tools/connect_x.py"
         elif reason == "browser_launch_failed":

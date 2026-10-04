@@ -666,6 +666,7 @@ async function loadStatus() {
 const AUTH_LABELS = {
   ok: 'connecté', session_invalid: 'déconnecté de X', no_cookies: 'déconnecté (aucun cookie)',
   cookies_expired: 'déconnecté (cookies expirés)', browser_launch_failed: 'navigateur introuvable sur le PC',
+  no_llm_key: 'clé LLM (Groq) manquante',
 };
 
 function followersSVG(stats, runs) {
@@ -735,7 +736,8 @@ function renderAccount() {
   const botState = !lastRun ? `<span class="dot"></span>Bot de réponses : aucune session depuis la fusion`
     : lastRun.auth === 'ok' ? `<span class="dot ok"></span>Bot de réponses : <b>connecté</b> · dernière session ${ago(lastRun.at)}`
     : `<span class="dot bad"></span>Bot de réponses : <b>${esc(AUTH_LABELS[lastRun.auth] || lastRun.auth)}</b> · ${ago(lastRun.at)}`;
-  const needsLogin = lastRun && lastRun.auth && lastRun.auth !== 'ok';
+  const needsLogin = lastRun && lastRun.auth && !['ok', 'no_llm_key'].includes(lastRun.auth);
+  const needsKey = lastRun && lastRun.auth === 'no_llm_key';
 
   el.innerHTML = `
   <div class="panel">
@@ -752,6 +754,7 @@ function renderAccount() {
       <p class="hint">Deux accès distincts : l'API officielle (threads + relevé quotidien des followers) et le navigateur du bot de réponses sur ton PC.</p>
       <div class="runs"><div style="display:flex;gap:8px;align-items:center;padding:6px 0">${apiState}</div>
       <div style="display:flex;gap:8px;align-items:center;padding:6px 0">${botState}</div></div>
+      ${needsKey ? `<p class="warn" style="margin:8px 0 0">Ajoute la clé Groq comme secret <code>LLM_API_KEY</code> du dépôt (Settings → Secrets → Actions).</p>` : ''}
       ${needsLogin ? `<p class="warn" style="margin:8px 0 0">Pour reconnecter le bot : sur le PC du runner, lance <code>python vision/tools/connect_x.py</code> et connecte-toi dans la fenêtre qui s'ouvre.</p>` : ''}
       <div class="row" style="margin-top:12px"><button class="btn" type="button" id="xCheck">Tester la connexion X</button></div>
       <div class="msg" id="xMsg"></div>
