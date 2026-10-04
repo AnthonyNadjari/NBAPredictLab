@@ -1,0 +1,110 @@
+# NBAVision reply bot. Runs on the self-hosted runner (home PC): free minutes,
+# same IP and persistent browser profile as the manual login (vision/tools/connect_x.py).
+# Ticks every 15 min; vision/tools/schedule_gate.py decides from docs/vision/schedule.json
+# (Paris time, editable in the control panel) whether a session is due.
+
+name: NBAVision Reply Bot
+
+on:
+  schedule:
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Dry run (scrape + LLM, no posting)"
+        type: boolean
+        default: false
+      max_replies:
+        description: "Max replies this session (blank = schedule setting)"
+        required: false
+        default: ""
+
+concurrency:
+  group: nbavision
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  run:
+    runs-on: self-hosted
+    timeout-minutes: 180
+    env:
+      PYTHONIOENCODING: utf-8
+      PYTHONUTF8: "1"
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Is a session due?
+        id: gate
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "due=true" >> "$GITHUB_OUTPUT"; echo "manual run"
+          else
+            python vision/tools/schedule_gate.py
+          fi
+
+      - name: Install dependencies
+        if: steps.gate.outputs.due == 'true'
+        run: |
+          python -m pip install -q -r vision/requirements.txt
+          python -m playwright install chromium
+
+      - name: Run reply session
+        if: steps.gate.outputs.due == 'true'
+        working-directory: vision
+        env:
+          TWITTER_COOKIES_JSON: ${{ secrets.TWITTER_COOKIES_JSON }}
+          LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
+          LLM_MODEL: ${{ vars.LLM_MODEL }}
+          LLM_FILTER_MODEL: ${{ vars.LLM_FILTER_MODEL }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          BOT_PROFILE_USERNAME: ${{ vars.BOT_PROFILE_USERNAME || 'NBAPredictLab' }}
+          DRY_RUN: ${{ github.event.inputs.dry_run || 'false' }}
+          MAX_REPLIES: ${{ github.event.inputs.max_replies }}
+          NBAVISION_RUN_ID: ${{ github.run_id }}
+        run: |
+          python main.py 2>&1 | tee logs/run_output.log
+          exit ${PIPESTATUS[0]}
+
+      - name: Upload session logs
+        if: always() && steps.gate.outputs.due == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: vision-logs-${{ github.run_id }}
+          path: |
+            vision/logs/*.json
+            vision/logs/*.png
+            vision/logs/*.log
+          if-no-files-found: ignore
+          retention-days: 14
+
+      - name: Push stats and run summary
+        if: always() && steps.gate.outputs.due == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          mkdir -p /tmp/vision && cp docs/vision/stats.json docs/vision/runs.json /tmp/vision/ 2>/dev/null || true
+          for i in 1 2 3; do
+            git fetch -q origin main && git reset -q --hard origin/main
+            # merge our new entries into the latest remote files
+            python vision/tools/merge_status.py /tmp/vision
+            git add docs/vision/stats.json docs/vision/runs.json
+            git diff --cached --quiet && exit 0
+            git commit -q -m "Vision: session ${{ github.run_id }}"
+            git push -q origin HEAD:main && exit 0
+            sleep 5
+          done
+          echo "::error::could not push vision status"; exit 1

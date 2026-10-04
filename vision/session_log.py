@@ -1,6 +1,7 @@
 """
 NBAVision Engine — Logging session (Spec Section 12).
 """
+from __future__ import annotations
 import json
 import os
 from datetime import datetime

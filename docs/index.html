@@ -219,6 +219,7 @@ footer { color: var(--muted); font-size: 12px; padding: 0 0 30px; }
     <nav class="tabs" role="tablist">
       <button role="tab" aria-selected="true" data-tab="slate">Matchs</button>
       <button role="tab" aria-selected="false" data-tab="record">Bilan</button>
+      <button role="tab" aria-selected="false" data-tab="account">Compte X</button>
       <button role="tab" aria-selected="false" data-tab="control">Pilotage</button>
     </nav>
   </header>
@@ -226,6 +227,7 @@ footer { color: var(--muted); font-size: 12px; padding: 0 0 30px; }
   <main>
     <section id="slate" role="tabpanel"></section>
     <section id="record" role="tabpanel" hidden></section>
+    <section id="account" role="tabpanel" hidden></section>
     <section id="control" role="tabpanel" hidden></section>
   </main>
   <footer id="foot"></footer>
@@ -350,6 +352,12 @@ function renderHealth() {
       pills.push(`<span class="pill"><span class="dot ${cls}"></span>Dernier run <b>${label}</b> · ${ago(last.created_at)}</span>`);
     }
   }
+  const fol = (state.vstats || []).filter(x => x.followers != null);
+  if (fol.length) {
+    const dd = delta(fol, 7);
+    pills.push(`<span class="pill">Followers <b>${fol[fol.length - 1].followers}</b>${dd != null ? ` · ${dd >= 0 ? '+' : ''}${dd} sur 7 j` : ''}</span>`);
+  }
+  if (state.xstatus && state.xstatus.ok === false) pills.push(`<span class="pill"><span class="dot bad"></span>API X en erreur</span>`);
   if (d?.season?.n) pills.push(`<span class="pill">Saison <b>${d.season.correct}–${d.season.n - d.season.correct}</b> · ${pct(d.season.accuracy, 1)}</span>`);
   if (d?.next_slate && !(g?.games || []).length) pills.push(`<span class="pill">Prochaine soirée <b>${longDay(d.next_slate.date)}</b></span>`);
   el.innerHTML = pills.join('');
@@ -611,6 +619,165 @@ async function loadStatus() {
   if (!$('#control').hidden) renderControl();
 }
 
+
+// ---------------- X account (followers + reply bot) ----------------
+const AUTH_LABELS = {
+  ok: 'connecté', session_invalid: 'déconnecté de X', no_cookies: 'déconnecté (aucun cookie)',
+  cookies_expired: 'déconnecté (cookies expirés)', browser_launch_failed: 'navigateur introuvable sur le PC',
+};
+
+function followersSVG(stats, runs) {
+  const pts = stats.filter(s => s.followers != null);
+  if (pts.length < 2) return '<p class="hint">La courbe apparaît dès qu’il y a deux relevés.</p>';
+  const W = 760, H = 230, L = 40, R = 10, T = 12, B = 48;
+  const d0 = new Date(pts[0].date + 'T00:00:00Z'), d1 = new Date(pts[pts.length - 1].date + 'T00:00:00Z');
+  const span = Math.max(1, (d1 - d0) / 864e5);
+  const x = d => L + ((new Date(d + 'T00:00:00Z') - d0) / 864e5) / span * (W - L - R);
+  const vals = pts.map(p => p.followers);
+  const lo = Math.floor(Math.min(...vals) * 0.95), hi = Math.ceil(Math.max(...vals) * 1.03);
+  const y = v => T + (1 - (v - lo) / Math.max(1, hi - lo)) * (H - T - B - 22);
+  // replies per day (bars along the bottom)
+  const perDay = {};
+  for (const r of runs) for (const rp of (r.replies || [])) {
+    if (rp.dry_run) continue;
+    const d = (rp.posted_at || '').slice(0, 10);
+    if (d) perDay[d] = (perDay[d] || 0) + 1;
+  }
+  const maxRep = Math.max(1, ...Object.values(perDay));
+  let s = `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Évolution des followers et réponses par jour">`;
+  const ticks = 4;
+  for (let i = 0; i <= ticks; i++) {
+    const v = Math.round(lo + (hi - lo) * i / ticks), yy = y(v);
+    s += `<line x1="${L}" x2="${W - R}" y1="${yy}" y2="${yy}" stroke="var(--line)"/><text x="${L - 6}" y="${yy + 4}" text-anchor="end">${v}</text>`;
+  }
+  const bw = Math.max(2, (W - L - R) / span * 0.6);
+  for (const [d, n] of Object.entries(perDay)) {
+    if (new Date(d + 'T00:00:00Z') < d0 || new Date(d + 'T00:00:00Z') > d1) continue;
+    const h = n / maxRep * 26;
+    s += `<rect x="${x(d) - bw / 2}" y="${H - B + 4 + (26 - h)}" width="${bw}" height="${h}" fill="var(--muted)" opacity=".35"><title>${d} : ${n} réponses</title></rect>`;
+  }
+  s += `<polyline fill="none" stroke="var(--ball)" stroke-width="2.5" stroke-linejoin="round" points="${pts.map(p => `${x(p.date).toFixed(1)},${y(p.followers).toFixed(1)}`).join(' ')}"/>`;
+  const last = pts[pts.length - 1];
+  s += `<circle cx="${x(last.date)}" cy="${y(last.followers)}" r="4" fill="var(--ball)"/>`;
+  s += `<text x="${L}" y="${H - 6}">${pts[0].date.slice(5)}</text><text x="${W - R}" y="${H - 6}" text-anchor="end">${last.date.slice(5)}</text>`;
+  s += `<text x="${(L + W - R) / 2}" y="${H - 6}" text-anchor="middle">barres grises : réponses postées par jour</text>`;
+  return s + '</svg>';
+}
+
+function delta(pts, days) {
+  if (pts.length < 2) return null;
+  const last = pts[pts.length - 1];
+  const target = new Date(new Date(last.date + 'T00:00:00Z') - days * 864e5).toISOString().slice(0, 10);
+  const base = [...pts].reverse().find(p => p.date <= target);
+  return base ? last.followers - base.followers : null;
+}
+
+function renderAccount() {
+  const el = $('#account');
+  const stats = (state.vstats || []).filter(s => s.followers != null);
+  const runs = state.vruns || [];
+  const xs = state.xstatus || {};
+  const sched = state.vschedule || { schedules: [], settings: { max_replies: 25 }, enabled: true };
+  const last = stats[stats.length - 1];
+  const d7 = delta(stats, 7), d30 = delta(stats, 30);
+  const sign = v => v == null ? '–' : (v >= 0 ? '+' : '') + v;
+  const lastRun = [...runs].reverse()[0];
+  const lastOkRun = [...runs].reverse().find(r => r.auth === 'ok');
+  const replies = runs.flatMap(r => (r.replies || []).map(rp => ({ ...rp }))).reverse().slice(0, 30);
+  const week = runs.filter(r => r.at && (Date.now() - new Date(r.at)) < 7 * 864e5);
+  const weekReplies = week.reduce((a, r) => a + (r.replied || 0), 0);
+
+  const apiState = xs.ok === true ? `<span class="dot ok"></span>API X : <b>${esc(xs.handle || 'ok')}</b> · vérifiée ${ago(xs.checked_at)}`
+    : xs.ok === false ? `<span class="dot bad"></span>API X : <b>erreur</b> · ${esc(xs.error || '')}`
+    : `<span class="dot"></span>API X : pas encore vérifiée`;
+  const botState = !lastRun ? `<span class="dot"></span>Bot de réponses : aucune session depuis la fusion`
+    : lastRun.auth === 'ok' ? `<span class="dot ok"></span>Bot de réponses : <b>connecté</b> · dernière session ${ago(lastRun.at)}`
+    : `<span class="dot bad"></span>Bot de réponses : <b>${esc(AUTH_LABELS[lastRun.auth] || lastRun.auth)}</b> · ${ago(lastRun.at)}`;
+  const needsLogin = lastRun && lastRun.auth && lastRun.auth !== 'ok';
+
+  el.innerHTML = `
+  <div class="panel">
+    <div class="scoreline" style="justify-content:space-between">
+      <div class="scoreline"><div class="big">${last ? last.followers : '–'}</div>
+        <div><div class="hint" style="margin:0">followers${last ? ` au ${longDay(last.date)}` : ''}</div>
+        <div style="font:500 15px var(--mono)">${sign(d7)} sur 7 j · ${sign(d30)} sur 30 j</div></div></div>
+    </div>
+    <div style="margin-top:12px">${followersSVG(state.vstats || [], runs)}</div>
+  </div>
+
+  <div class="cols" style="margin-top:12px">
+    <div class="panel"><h3>Connexion au compte</h3>
+      <p class="hint">Deux accès distincts : l'API officielle (threads + relevé quotidien des followers) et le navigateur du bot de réponses sur ton PC.</p>
+      <div class="runs"><div style="display:flex;gap:8px;align-items:center;padding:6px 0">${apiState}</div>
+      <div style="display:flex;gap:8px;align-items:center;padding:6px 0">${botState}</div></div>
+      ${needsLogin ? `<p class="warn" style="margin:8px 0 0">Pour reconnecter le bot : sur le PC du runner, lance <code>python vision/tools/connect_x.py</code> et connecte-toi dans la fenêtre qui s'ouvre.</p>` : ''}
+      <div class="row" style="margin-top:12px"><button class="btn" type="button" id="xCheck">Tester la connexion X</button></div>
+      <div class="msg" id="xMsg"></div>
+    </div>
+    <div class="panel"><h3>Bot de réponses</h3>
+      <p class="hint">${week.length} session${week.length > 1 ? 's' : ''} et ${weekReplies} réponses sur 7 jours${lastOkRun && lastOkRun.top_skips ? ` · principaux rejets : ${Object.keys(lastOkRun.top_skips).slice(0, 3).map(esc).join(', ')}` : ''}.</p>
+      <form id="schedVision">
+        <label class="row" style="gap:6px;margin-bottom:10px"><input type="checkbox" id="vEnabled" ${sched.enabled !== false ? 'checked' : ''}> Sessions automatiques activées</label>
+        <div class="hint" style="margin:0 0 6px">Horaires (heure de Paris) :</div>
+        <div class="row" id="vTimes">${(sched.schedules || []).map((t, i) => `
+          <span class="pill"><input type="checkbox" data-i="${i}" ${t.enabled !== false ? 'checked' : ''} aria-label="Activer ${t.time}"> ${esc(t.time)}
+          <button type="button" class="btn small" data-del="${i}" aria-label="Supprimer ${t.time}" style="padding:0 6px">×</button></span>`).join('')}
+        </div>
+        <div class="row" style="margin-top:8px"><input type="time" id="vNew"><button class="btn small" type="button" id="vAdd">Ajouter</button></div>
+        <div class="row" style="margin-top:10px"><label>Réponses max par session <input type="number" id="vMax" min="1" max="100" value="${(sched.settings || {}).max_replies || 25}" style="width:70px;padding:6px;border:1px solid var(--line);border-radius:8px;background:var(--wash)"></label></div>
+        <div class="row" style="margin-top:12px"><button class="btn" type="submit">Enregistrer</button>
+          <button class="btn primary" type="button" id="vRun">Lancer une session</button>
+          <button class="btn" type="button" id="vDry">Essai à blanc</button></div>
+        <div class="msg" id="vMsg"></div>
+      </form>
+    </div>
+  </div>
+
+  <div class="panel" style="margin-top:12px"><h3>Dernières réponses</h3>
+    <p class="hint">Le tweet d'origine et ce que le bot a répondu. Badge « fait » : la réponse cite une donnée vérifiée (bilan, série, prochain match).</p>
+    ${replies.length ? `<ul class="results">${replies.map(rp => `
+      <li style="grid-template-columns:1fr auto;align-items:start">
+        <div><div class="hint" style="margin:0">@${esc(rp.author || '?')}${rp.tweet_likes ? ` · ${rp.tweet_likes} ♥` : ''} · ${ago(rp.posted_at)}${rp.dry_run ? ' · essai' : ''}${rp.context_used ? ' · <b style="color:var(--win)">fait</b>' : ''}</div>
+          ${rp.tweet_text ? `<div style="color:var(--muted);font-size:13px">${esc(rp.tweet_text)}</div>` : ''}
+          <div style="margin-top:3px">↳ ${esc(rp.reply_text)}</div></div>
+        <a class="btn small" href="${esc(rp.tweet_url)}" target="_blank" rel="noopener">Voir</a></li>`).join('')}</ul>`
+      : '<p class="hint" style="margin:0">Aucune réponse enregistrée depuis la fusion. Les sessions précédentes restent dans vision/run_logs.</p>'}
+  </div>`;
+
+  const needPw = fn => async (...a) => { if (!state.pw) { openLock(() => fn(...a)); return; } return fn(...a); };
+  const msg = (id, cls, text) => { const m = $(id); m.className = 'msg ' + cls; m.textContent = text; };
+  $('#xCheck').onclick = needPw(async () => {
+    try { await api('admin', { action: 'x_check' }); msg('#xMsg', 'ok', 'Vérification lancée. Résultat ici dans 1 à 2 minutes.'); }
+    catch (err) { msg('#xMsg', 'err', err.message); }
+  });
+  const draft = JSON.parse(JSON.stringify(sched));
+  draft.schedules = draft.schedules || [];
+  $('#vTimes').addEventListener('change', e => { const i = e.target.dataset.i; if (i != null) draft.schedules[i].enabled = e.target.checked; });
+  $('#vTimes').addEventListener('click', e => {
+    const i = e.target.dataset.del; if (i == null) return;
+    draft.schedules.splice(+i, 1); state.vscheduleDirty = true; state.vschedule = { ...draft, enabled: $('#vEnabled').checked }; renderAccount();
+  });
+  $('#vAdd').onclick = () => {
+    const t = $('#vNew').value; if (!t || draft.schedules.some(s => s.time === t)) return;
+    draft.schedules.push({ time: t, enabled: true }); draft.schedules.sort((a, b) => a.time.localeCompare(b.time)); state.vscheduleDirty = true;
+    state.vschedule = { ...draft, enabled: $('#vEnabled').checked }; renderAccount();
+  };
+  $('#schedVision').onsubmit = needPw(async e => {
+    e && e.preventDefault && e.preventDefault();
+    const body = { ...draft, enabled: $('#vEnabled').checked, settings: { max_replies: parseInt($('#vMax').value, 10) } };
+    try { const r = await api('admin', { action: 'vision_schedule', schedule: body }); state.vschedule = r.schedule; state.vscheduleDirty = false; msg('#vMsg', 'ok', 'Horaires enregistrés. Visibles par le bot au prochain créneau.'); }
+    catch (err) { msg('#vMsg', 'err', err.message); }
+  });
+  const run = dry => needPw(async () => {
+    try {
+      await api('admin', { action: 'vision_run', dry_run: dry, max_replies: parseInt($('#vMax').value, 10) });
+      msg('#vMsg', 'ok', dry ? 'Essai lancé : le bot cherche et rédige sans poster. Résultat ici à la fin.' : 'Session lancée sur le PC du runner.');
+    } catch (err) { msg('#vMsg', 'err', err.message); }
+  });
+  $('#vRun').onclick = run(false);
+  $('#vDry').onclick = run(true);
+}
+
 // ---------------- lock ----------------
 let afterUnlock = null;
 function openLock(cb) { afterUnlock = cb || null; $('#lockMsg').textContent = ''; $('#pw').value = ''; $('#lockDlg').showModal(); $('#pw').focus(); }
@@ -635,14 +802,19 @@ document.addEventListener('click', e => { if (e.target.matches('[data-close]')) 
 // ---------------- tabs + boot ----------------
 document.querySelectorAll('nav.tabs button').forEach(b => b.addEventListener('click', () => {
   document.querySelectorAll('nav.tabs button').forEach(x => x.setAttribute('aria-selected', x === b));
-  for (const id of ['slate', 'record', 'control']) $('#' + id).hidden = id !== b.dataset.tab;
+  for (const id of ['slate', 'record', 'account', 'control']) $('#' + id).hidden = id !== b.dataset.tab;
   try { localStorage.setItem('pl_tab', b.dataset.tab); } catch (e) {}
   if (b.dataset.tab === 'record') renderRecord();
   if (b.dataset.tab === 'control') renderControl();
+  if (b.dataset.tab === 'account') renderAccount();
 }));
 
 async function load() {
-  const [g, d] = await Promise.allSettled([getJSON('pending_games.json'), getJSON('dashboard.json')]);
+  const [g, d, vs, vr, xs, vsc] = await Promise.allSettled([getJSON('pending_games.json'), getJSON('dashboard.json'),
+    getJSON('vision/stats.json'), getJSON('vision/runs.json'), getJSON('x_status.json'), getJSON('vision/schedule.json')]);
+  const val = r => r.status === 'fulfilled' ? r.value : null;
+  state.vstats = val(vs) || []; state.vruns = val(vr) || []; state.xstatus = val(xs) || {};
+  if (!state.vscheduleDirty) state.vschedule = val(vsc);
   state.games = g.status === 'fulfilled' ? g.value : { games: [] };
   state.dash = d.status === 'fulfilled' ? d.value : null;
   // drop local "launched" marks once the JSON says published
@@ -650,6 +822,7 @@ async function load() {
   renderHealth(); renderSlate();
   if (!$('#record').hidden) renderRecord();
   if (!$('#control').hidden) renderControl();
+  if (!$('#account').hidden && !document.activeElement?.closest?.('#account')) renderAccount();
   $('#foot').innerHTML = `Données du ${state.games.generated_at ? new Date(state.games.generated_at).toLocaleString('fr-FR', { timeZone: 'Europe/Paris' }) : '–'} · <a href="${REPO_URL}" target="_blank" rel="noopener">dépôt</a>`;
 }
 

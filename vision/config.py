@@ -2,6 +2,7 @@
 NBAVision Engine — Configuration centralisée (Spec Section 2, 4, 11).
 Credentials: credentials.json (or env vars).
 """
+from __future__ import annotations
 import json
 import os
 from datetime import timedelta, timezone
@@ -9,11 +10,19 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
-load_dotenv()
-
 PROJECT_ROOT = Path(__file__).resolve().parent
+load_dotenv(PROJECT_ROOT / ".env")  # never walk up into unrelated .env files
+REPO_ROOT = PROJECT_ROOT.parent
 
-TZ = timezone(timedelta(hours=1))  # UTC+1
+# Machine-local state (browser profile, last session): OUTSIDE the git checkout,
+# because actions/checkout runs `git clean -ffdx` and wiped state.json every run.
+LOCAL_STATE_DIR = Path(os.getenv("NBAVISION_STATE_DIR") or (
+    Path(os.getenv("LOCALAPPDATA") or Path.home() / ".local" / "share") / "NBAVision"))
+LOCAL_STATE_DIR.mkdir(parents=True, exist_ok=True)
+
+from zoneinfo import ZoneInfo
+
+TZ = ZoneInfo("Europe/Paris")  # schedule and timestamps follow Paris time (DST-aware)
 
 
 def _credentials_path() -> Path | None:
@@ -161,11 +170,35 @@ NBA_TEXT_KEYWORDS = frozenset([
     "rebound", "assist", "dunk", "triple-double", "point guard", "coach", "roster", "lineup",
 ])
 
+# Search targeting: X operators appended to every keyword search so the "Latest"
+# tab returns tweets that already have traction (before: 166k of 225k scraped tweets
+# were dropped for too few likes), in English, and not replies themselves.
+SEARCH_MIN_FAVES = int(os.getenv("SEARCH_MIN_FAVES", "15"))
+SEARCH_SUFFIX = f" min_faves:{SEARCH_MIN_FAVES} lang:en -filter:replies"
+
+# High-reach NBA accounts: replying early under their posts is where impressions are.
+WATCHLIST_ACCOUNTS = [
+    "NBA", "ShamsCharania", "BleacherReport", "TheHoopCentral", "LegionHoops",
+    "ClutchPoints", "statmuse", "espn", "TheNBACentral", "NBAonTNT", "UnderdogNBA",
+]
+WATCHLIST_QUERIES_PER_CYCLE = 2
+WATCHLIST_SCORE_BONUS = 2.0      # added to the ranking score of watchlist tweets
+EARLY_REPLY_MINUTES = 20         # extra bonus while a tweet is this fresh
+
 # How many keywords to sample per cycle
 KEYWORDS_PER_CYCLE = int(os.getenv("KEYWORDS_PER_CYCLE", "28"))
 
 # Session limits
-MAX_REPLIES = 60
+def _schedule_setting(key: str, default):
+    try:
+        return json.loads((PROJECT_ROOT.parent / "docs" / "vision" / "schedule.json")
+                          .read_text(encoding="utf-8")).get("settings", {}).get(key, default)
+    except Exception:
+        return default
+
+
+# Replies per session: workflow input > schedule.json setting (control panel) > 25
+MAX_REPLIES = int(os.getenv("MAX_REPLIES") or _schedule_setting("max_replies", 25))
 MAX_REPLIES_PER_AUTHOR = 1
 CYCLE_INTERVAL_MINUTES = 0.5
 MAX_CONSECUTIVE_ERRORS = 5
@@ -216,11 +249,14 @@ BROWSER_USER_AGENT = (
 BROWSER_VIEWPORT = {"width": 1280, "height": 720}
 
 # Cookie / state persistence
-STATE_FILE = PROJECT_ROOT / "state.json"
+STATE_FILE = LOCAL_STATE_DIR / "state.json"
+PROFILE_DIR = LOCAL_STATE_DIR / "profile"   # persistent Chromium profile
 
 # Stats tracker (follower count per day, scraped at run start)
 BOT_PROFILE_USERNAME = os.getenv("BOT_PROFILE_USERNAME", "").strip()
-STATS_FILE = PROJECT_ROOT / "docs" / "stats.json"
+STATS_FILE = REPO_ROOT / "docs" / "vision" / "stats.json"
+RUNS_FILE = REPO_ROOT / "docs" / "vision" / "runs.json"      # compact session summaries for the console
+SCHEDULE_FILE = REPO_ROOT / "docs" / "vision" / "schedule.json"
 
 # Dry-run: scrape + LLM but do NOT post replies
 DRY_RUN = os.getenv("DRY_RUN", "").strip().lower() in ("1", "true", "yes")

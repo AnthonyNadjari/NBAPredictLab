@@ -1,6 +1,7 @@
 """
 NBAVision Engine — Vérification avancée des réponses (Spec Section 9).
 """
+from __future__ import annotations
 import re
 from sklearn.feature_extraction.text import TfidfVectorizer
 from config import (

@@ -2,6 +2,7 @@
 NBAVision Engine — Main entry point.
 Authentication via cookies, then engine execution.
 """
+from __future__ import annotations
 import io
 import os
 import sys
@@ -18,6 +19,7 @@ from engine import run_session
 from notify import notify_auth_failure
 from profile_stats import run_at_start as profile_stats_run_at_start
 from session_log import write_session_log, build_session_log
+from status import record_run, summarize_session
 from config import (
     MAX_REPLIES,
     CYCLE_INTERVAL_MINUTES,
@@ -70,13 +72,14 @@ def main() -> int:
         if reason == "no_cookies":
             msg = "No cookies. Set TWITTER_COOKIES_JSON (repo secret or env)."
         elif reason == "cookies_expired":
-            msg = "Critical cookies are expired or missing. Re-export from browser."
+            msg = "Profile logged out and backup cookies expired. On the runner PC run: python vision/tools/connect_x.py"
         elif reason == "browser_launch_failed":
             msg = "Could not launch Chromium. Check Playwright installation."
         else:
-            msg = "Cookies present but session invalid or expired. Re-export cookies from the browser where you're logged in to X."
+            msg = "Not logged in to X. On the runner PC run: python vision/tools/connect_x.py"
         print(f"ERR: {msg}", flush=True)
         _write_failure_log(reason, run_id)
+        record_run({"run_id": run_id or None, "auth": reason, "auth_message": msg})
         notify_auth_failure(reason)
         return 1
 
@@ -88,12 +91,14 @@ def main() -> int:
     try:
         log_data = run_session(page, context, browser=browser, playwright_instance=pw)
         print("Session ended.", flush=True)
+        record_run(summarize_session(log_data, auth="ok"))
         save_session_state(context)
         return 0
     except Exception as e:
         print(f"Session error: {e}", flush=True)
         print(traceback.format_exc(), flush=True)
         _write_failure_log(f"session_crash: {e}", run_id)
+        record_run({"run_id": run_id or None, "auth": "ok", "crash": str(e)[:300]})
         return 1
     finally:
         try:
@@ -103,6 +108,8 @@ def main() -> int:
         try:
             if browser:
                 browser.close()
+            elif context:
+                context.close()
         except Exception:
             pass
         try:

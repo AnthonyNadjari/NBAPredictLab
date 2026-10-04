@@ -1,6 +1,7 @@
 """
 NBAVision Engine — Failure notification via Discord webhook (optional).
 """
+from __future__ import annotations
 import json
 import os
 import urllib.request

@@ -42,6 +42,8 @@ logger = logging.getLogger(__name__)
 DB_PATH = PROJECT_ROOT / 'data' / 'nba_predictor.db'
 JSON_PATH = PROJECT_ROOT / 'docs' / 'pending_games.json'
 DATA_FILES = ['data/nba_predictor.db', 'data/games_history.csv', 'docs/dashboard.json']
+# Also written by other workflows (reply bot): never restored wholesale, re-applied instead
+SHARED_FILES = ['docs/x_status.json', 'docs/vision/stats.json']
 
 
 def step(title: str) -> None:
@@ -90,7 +92,7 @@ def git(*args, check=False):
     return r
 
 
-def push_data(today: str, tomorrow: str, message: str) -> bool:
+def push_data(today: str, tomorrow: str, message: str, reapply=None) -> bool:
     """Commit data + JSON and push.
 
     The DB and history are only written by this job; pending_games.json is
@@ -102,7 +104,7 @@ def push_data(today: str, tomorrow: str, message: str) -> bool:
         git('config', 'user.name', 'GitHub Actions Bot')
         git('config', 'user.email', 'actions@github.com')
     for attempt in range(1, 4):
-        git('add', 'docs/pending_games.json', *DATA_FILES)
+        git('add', 'docs/pending_games.json', *DATA_FILES, *SHARED_FILES)
         if git('diff', '--cached', '--quiet').returncode == 0:
             logger.info('[OK] Nothing to commit')
             return True
@@ -119,6 +121,8 @@ def push_data(today: str, tomorrow: str, message: str) -> bool:
         for f in DATA_FILES:
             shutil.copy2(backup / Path(f).name, PROJECT_ROOT / f)
         export_json(today, tomorrow)
+        if reapply:
+            reapply()  # files other jobs also write: re-apply our change on the remote version
     logger.error('[ERROR] Could not push data after 3 attempts')
     return False
 
@@ -207,9 +211,27 @@ def main() -> int:
         except Exception as e:
             logger.error(f'[ERROR] Email failed: {e}', exc_info=True)
 
+    x_result = None
+    if os.environ.get('TW_API_KEY'):
+        step('STEP 6: X account check + follower count')
+        from src import x_account
+        x_result = x_account.run()
+        if x_result.get('ok'):
+            logger.info(f"[OK] {x_result['handle']}: {x_result['followers']} followers")
+        else:
+            logger.error(f"[ERROR] X account check failed: {x_result.get('error')}")
+            problems.append('x_account')
+
+    def reapply_x():
+        if x_result:
+            from src import x_account
+            x_account.write_status(x_result)
+            if x_result.get('ok') and x_result.get('followers') is not None:
+                x_account.record_followers(x_result['followers'], x_result.get('following'))
+
     if (os.environ.get('GITHUB_ACTIONS') or args.push) and not args.no_push:
-        step('STEP 6: Pushing data')
-        if not push_data(today, tomorrow, f'Auto-export predictions for {today}'):
+        step('STEP 7: Pushing data')
+        if not push_data(today, tomorrow, f'Auto-export predictions for {today}', reapply=reapply_x):
             problems.append('push')
 
     logger.info('')
