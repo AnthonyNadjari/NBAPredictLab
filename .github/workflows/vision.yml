@@ -6,8 +6,10 @@
 name: NBAVision Reply Bot
 
 on:
-  schedule:
-    - cron: '*/15 * * * *'
+  # Scheduled sessions paused: the bot no longer runs on the home PC; hosting decision pending
+  # (GitHub-hosted with encrypted session state, or an external server).
+  # schedule:
+  #   - cron: '*/15 * * * *'
   workflow_dispatch:
     inputs:
       dry_run:

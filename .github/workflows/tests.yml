@@ -6,16 +6,16 @@ on:
   pull_request:
   workflow_dispatch:
 
-# Runs on the self-hosted runner (home PC): free minutes in this private repo.
 jobs:
   test:
-    runs-on: self-hosted
+    runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+          cache: pip
       - shell: bash
         run: python -m pip install -q "pandas>=2.1.0,<2.2.0" "numpy>=1.26.0,<2" tzdata scikit-learn==1.6.1 requests pytest python-dotenv tweepy
       - shell: bash
