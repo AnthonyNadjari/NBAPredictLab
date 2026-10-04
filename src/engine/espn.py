@@ -164,3 +164,47 @@ def odds(event_id: str) -> Optional[Dict]:
         "spread": median(spreads) if spreads else None,
         "books": books,
     }
+
+
+def game_context(event_id: str) -> Optional[Dict]:
+    """Pre-game injury report and team leaders from the ESPN summary.
+
+    {'home': {'out': [...], 'doubtful': [...], 'questionable': [...], 'leaders': [...],
+              'key_out': [...]}, 'away': {...}}
+    key_out = players listed Out/Doubtful who are among the team's leaders
+    (points / assists / rebounds), i.e. absences that matter.
+    """
+    js = _get(SUMMARY.format(event_id))
+    if not js:
+        return None
+    comp = ((js.get("header") or {}).get("competitions") or [{}])[0]
+    side_of = {from_espn(c["team"]["abbreviation"]): c["homeAway"] for c in comp.get("competitors", [])}
+    out = {s: {"out": [], "doubtful": [], "questionable": [], "leaders": [], "key_out": []} for s in ("home", "away")}
+    for team in js.get("injuries", []):
+        side = side_of.get(from_espn((team.get("team") or {}).get("abbreviation", "")))
+        if not side:
+            continue
+        for inj in team.get("injuries", []):
+            name = (inj.get("athlete") or {}).get("displayName")
+            status = (inj.get("status") or "").lower()
+            if not name:
+                continue
+            if status == "out":
+                out[side]["out"].append(name)
+            elif status == "doubtful":
+                out[side]["doubtful"].append(name)
+            elif status in ("questionable", "day-to-day", "game-time decision"):
+                out[side]["questionable"].append(name)
+    for team in js.get("leaders", []):
+        side = side_of.get(from_espn((team.get("team") or {}).get("abbreviation", "")))
+        if not side:
+            continue
+        for cat in team.get("leaders", []):
+            for ld in cat.get("leaders", [])[:1]:
+                name = (ld.get("athlete") or {}).get("displayName")
+                if name and name not in out[side]["leaders"]:
+                    out[side]["leaders"].append(name)
+    for side in out:
+        missing = set(out[side]["out"]) | set(out[side]["doubtful"])
+        out[side]["key_out"] = [p for p in out[side]["leaders"] if p in missing]
+    return out

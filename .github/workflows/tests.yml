@@ -16,7 +16,6 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-          cache: pip
       - shell: bash
         run: python -m pip install -q "pandas>=2.1.0,<2.2.0" "numpy>=1.26.0,<2" tzdata scikit-learn==1.6.1 requests pytest python-dotenv tweepy
       - shell: bash

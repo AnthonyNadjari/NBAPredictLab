@@ -20,6 +20,7 @@ _SIDE_KEYS = [
     "last10_ast", "last10_reb", "last10_tov", "last10_opp_ppg", "last10_three_point_rate",
     "last5_win_pct", "last5_net_rating", "last5_point_diff", "last5_ppg", "last5_fg_pct", "last5_pace",
     "last3_win_pct", "last3_net_rating", "last3_point_diff", "games_played", "season_win_pct",
+    "season_diff", "games_last5d",
 ]
 _GAME_KEYS = ["elo_diff", "elo_win_prob", "net_diff", "form_diff", "rest_diff", "b2b_diff", "g5_diff",
               "home_team_home_win_pct", "home_team_home_ppg", "home_team_home_point_diff", "home_team_home_fg_pct",
@@ -86,10 +87,17 @@ def predict_date(day: date, hist: Optional[pd.DataFrame] = None, with_odds: bool
             "engine": "v2",
             "start_utc": g["start_utc"],
             "season_type": g["season_type"],
-            # No injury feed in v2: the market price already reflects injuries.
-            "home_injured_starters": 0, "away_injured_starters": 0,
-            "home_star_injured": 0, "away_star_injured": 0,
         })
+        ctx = espn.game_context(g["event_id"]) if with_odds else None
+        for side in ("home", "away"):
+            c = (ctx or {}).get(side) or {}
+            f[f"{side}_out"] = c.get("out", [])[:6]
+            f[f"{side}_doubtful"] = c.get("doubtful", [])[:6]
+            f[f"{side}_questionable"] = c.get("questionable", [])[:6]
+            f[f"{side}_key_out"] = c.get("key_out", [])
+            # legacy chart fields
+            f[f"{side}_injured_starters"] = len(c.get("key_out", []))
+            f[f"{side}_star_injured"] = int(bool(c.get("key_out")))
         out.append({
             "home_team": g["home"], "away_team": g["away"],
             "prediction": "home" if pick_home else "away",
