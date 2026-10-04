@@ -18,7 +18,7 @@ fi
 
 # shellcheck disable=SC1091
 source "$BASE/venv/bin/activate"
-set -a; . "$BASE/.env"; set +a
+set -a; . <(tr -d '\r' < "$BASE/.env"); set +a   # tolerate Windows line endings
 export NBAVISION_STATE_DIR=$BASE/state
 export NBAVISION_BROWSER_CHANNEL=chromium   # full Chromium in new headless mode (less detectable than the headless shell)
 export PYTHONIOENCODING=utf-8
