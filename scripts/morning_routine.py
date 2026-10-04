@@ -135,6 +135,8 @@ def main() -> int:
     parser.add_argument('--lookback', type=int, default=7, help='days of results to refresh')
     parser.add_argument('--push', action='store_true', help='commit + push data (default in CI)')
     parser.add_argument('--no-push', action='store_true')
+    parser.add_argument('--refresh', action='store_true',
+                        help='evening run: refresh odds/injuries/threads for tonight, no email')
     args = parser.parse_args()
 
     from src.engine import pipeline
@@ -171,7 +173,7 @@ def main() -> int:
     predictions = []
     if not args.skip_predictions:
         step(f'STEP 3: Predicting {today} and {tomorrow}')
-        for d in (today_d, today_d + timedelta(days=1)):
+        for d in ((today_d,) if args.refresh else (today_d, today_d + timedelta(days=1))):
             try:
                 preds = pipeline.predict_date(d, hist)
                 predictions += preds
@@ -185,8 +187,10 @@ def main() -> int:
                         f"{p['predicted_winner']} {p['confidence']:.1%} [{f['probability_source']}] "
                         f"model={f['model_home_prob']:.3f} market={f['market_home_prob']}")
         if predictions:
-            saved = pipeline.save_predictions(str(DB_PATH), predictions)
-            logger.info(f'[OK] Saved {saved} prediction(s)')
+            frozen = pipeline.published_game_keys(JSON_PATH)
+            saved = pipeline.save_predictions(str(DB_PATH), predictions, frozen=frozen)
+            logger.info(f'[OK] Saved {saved} prediction(s)'
+                        + (f' ({len(frozen)} already published, left unchanged)' if frozen else ''))
 
     step('STEP 4: Exporting publishing JSON + dashboard')
     if not export_json(today, tomorrow):
@@ -199,6 +203,8 @@ def main() -> int:
         logger.error(f'[ERROR] Dashboard failed: {e}', exc_info=True)
         problems.append('dashboard')
 
+    if args.refresh:
+        args.skip_email = True
     if not args.skip_email:
         step('STEP 5: Email report')
         try:
@@ -232,7 +238,8 @@ def main() -> int:
 
     if (os.environ.get('GITHUB_ACTIONS') or args.push) and not args.no_push:
         step('STEP 7: Pushing data')
-        if not push_data(today, tomorrow, f'Auto-export predictions for {today}', reapply=reapply_x):
+        label = 'Evening refresh' if args.refresh else 'Auto-export predictions'
+        if not push_data(today, tomorrow, f'{label} for {today}', reapply=reapply_x):
             problems.append('push')
 
     logger.info('')

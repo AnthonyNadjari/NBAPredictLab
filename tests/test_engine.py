@@ -166,3 +166,21 @@ def test_espn_odds_consensus(monkeypatch):
     assert len(o["books"]) == 2
     assert 0.57 < o["home_prob"] < 0.60
     assert o["home_odds"] == pytest.approx(1.65, abs=0.01)
+
+
+def test_published_predictions_are_frozen(tmp_path):
+    db = tmp_path / "p.db"
+    conn = _db(db)
+    conn.close()
+    pred = {"home_team": "BOS", "away_team": "NYK", "predicted_winner": "BOS", "home_win_probability": 0.62,
+            "away_win_probability": 0.38, "confidence": 0.62, "home_odds": 1.6, "away_odds": 2.4,
+            "features": {}, "game_info": {"game_date": "2026-10-25"}}
+    assert pipeline.save_predictions(str(db), [pred]) == 1
+    pending = tmp_path / "pending.json"
+    pending.write_text(json.dumps({"games": [{"date": "2026-10-25", "home_team": "Boston Celtics",
+                                              "away_team": "New York Knicks", "published": True}]}))
+    frozen = pipeline.published_game_keys(pending)
+    flipped = {**pred, "predicted_winner": "NYK", "home_win_probability": 0.45, "away_win_probability": 0.55}
+    assert pipeline.save_predictions(str(db), [flipped], frozen=frozen) == 0
+    row = sqlite3.connect(db).execute("SELECT predicted_home_prob FROM predictions").fetchone()
+    assert row[0] == 0.62

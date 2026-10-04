@@ -165,10 +165,22 @@ def track_record(db_path: str, since: Optional[str] = None) -> Dict:
     return {"n": n or 0, "correct": ok or 0, "accuracy": (ok / n) if n else None}
 
 
-def save_predictions(db_path: str, predictions: List[Dict]) -> int:
+def published_game_keys(json_path) -> set:
+    """(game_date, home full name, away full name) of games whose thread is already out."""
+    import json
+    try:
+        data = json.loads(open(json_path, encoding="utf-8").read())
+    except (OSError, ValueError):
+        return set()
+    return {(g["date"], g["home_team"], g["away_team"]) for g in data.get("games", []) if g.get("published")}
+
+
+def save_predictions(db_path: str, predictions: List[Dict], frozen: set = frozenset()) -> int:
     """Store predictions (full team names, same columns as the legacy writer).
 
-    Pending rows for the same game are replaced; resolved rows are never touched.
+    Pending rows for the same game are replaced; resolved rows are never touched, and
+    neither are games in `frozen` (already published: the public record must grade
+    the probability that was posted).
     """
     import json
     conn = sqlite3.connect(db_path)
@@ -177,6 +189,8 @@ def save_predictions(db_path: str, predictions: List[Dict]) -> int:
     for p in predictions:
         home, away = full_name(p["home_team"]), full_name(p["away_team"])
         gdate = p["game_info"]["game_date"]
+        if (gdate, home, away) in frozen:
+            continue
         conn.execute("DELETE FROM predictions WHERE game_date = ? AND home_team = ? AND away_team = ? "
                      "AND actual_winner IS NULL", (gdate, home, away))
         if conn.execute("SELECT 1 FROM predictions WHERE game_date = ? AND home_team = ? AND away_team = ?",
