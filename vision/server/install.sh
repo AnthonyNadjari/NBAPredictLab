@@ -50,10 +50,16 @@ After=network-online.target
 [Service]
 Type=oneshot
 User=nbavision
-ExecStart=/bin/bash $BASE/repo/vision/server/tick.sh
+ExecStartPre=/usr/bin/git -C $BASE/repo fetch -q origin main
+ExecStartPre=/usr/bin/git -C $BASE/repo reset -q --hard origin/main
+ExecStart=/bin/bash -c 'cp $BASE/repo/vision/server/tick.sh /tmp/nbavision-tick.sh && exec bash /tmp/nbavision-tick.sh'
 TimeoutStartSec=9600
-Nice=10
-MemoryMax=2G
+# Shares the box with the TCG drop bot: low priority, capped resources
+Nice=19
+CPUWeight=10
+CPUQuota=100%
+IOSchedulingClass=idle
+MemoryMax=1536M
 EOF
 cat > /etc/systemd/system/nbavision.timer <<EOF
 [Unit]

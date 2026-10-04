@@ -7,8 +7,14 @@ set -uo pipefail
 BASE=/opt/nba-vision
 REPO=$BASE/repo
 cd "$REPO" || exit 1
+# (the repo is synced by the service's ExecStartPre; this script runs from a copy in /tmp,
+#  so the git resets below can't change it under bash's feet)
 
-git fetch -q origin main && git reset -q --hard origin/main || { echo "git sync failed"; exit 1; }
+# The box also runs the TCG drop bot: never compete with it.
+LOAD=$(cut -d' ' -f1 /proc/loadavg)
+if awk -v l="$LOAD" 'BEGIN{exit !(l > 3.0)}'; then
+  echo "server busy (load $LOAD): skipping this tick"; exit 0
+fi
 
 # shellcheck disable=SC1091
 source "$BASE/venv/bin/activate"
