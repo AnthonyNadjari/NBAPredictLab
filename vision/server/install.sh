@@ -97,8 +97,8 @@ Nice=10
 CPUWeight=20
 CPUQuota=100%
 IOSchedulingClass=best-effort
-MemoryHigh=1024M
-MemoryMax=1280M
+MemoryHigh=1536M
+MemoryMax=2048M
 EOF
 
 cat > /etc/systemd/system/nbapublish.timer <<EOF
