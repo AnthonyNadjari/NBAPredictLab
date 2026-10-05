@@ -59,8 +59,8 @@ Nice=19
 CPUWeight=10
 CPUQuota=100%
 IOSchedulingClass=idle
-MemoryHigh=1280M
-MemoryMax=1536M
+MemoryHigh=2048M
+MemoryMax=2560M
 EOF
 cat > /etc/systemd/system/nbavision.timer <<EOF
 [Unit]
@@ -74,7 +74,48 @@ Persistent=true
 [Install]
 WantedBy=timers.target
 EOF
+# Thread publisher: its own checkout, browser profile and service (see publish_tick.sh)
+if [ ! -d $BASE/publish-repo/.git ]; then
+  sudo -u nbavision git clone -q --depth 50 https://github.com/AnthonyNadjari/NBAPredictLab.git $BASE/publish-repo
+fi
+sudo -u nbavision git -C $BASE/publish-repo remote set-url origin $REPO_SSH
+sudo -u nbavision mkdir -p $BASE/publish-state
+
+cat > /etc/systemd/system/nbapublish.service <<EOF
+[Unit]
+Description=NBA Predict Lab thread publisher tick
+After=network-online.target
+
+[Service]
+Type=oneshot
+User=nbavision
+ExecStartPre=/usr/bin/git -C $BASE/publish-repo fetch -q origin main
+ExecStartPre=/usr/bin/git -C $BASE/publish-repo reset -q --hard origin/main
+ExecStart=/bin/bash -c 'cp $BASE/publish-repo/vision/server/publish_tick.sh /tmp/nbapublish-tick.sh && exec bash /tmp/nbapublish-tick.sh'
+TimeoutStartSec=1200
+Nice=10
+CPUWeight=20
+CPUQuota=100%
+IOSchedulingClass=best-effort
+MemoryHigh=1024M
+MemoryMax=1280M
+EOF
+
+cat > /etc/systemd/system/nbapublish.timer <<EOF
+[Unit]
+Description=NBA Predict Lab thread publisher every 2 minutes
+
+[Timer]
+OnBootSec=3min
+OnUnitActiveSec=2min
+Persistent=true
+
+[Install]
+WantedBy=timers.target
+EOF
+
 systemctl daemon-reload
 systemctl enable --now nbavision.timer >/dev/null
+systemctl enable --now nbapublish.timer >/dev/null
 echo "== deploy key (add to GitHub with write access):"
 cat $KEY.pub

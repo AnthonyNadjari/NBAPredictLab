@@ -22,7 +22,7 @@ source vision/server/env.sh   # .env + secrets relayed from the control panel
 export NBAVISION_STATE_DIR=$BASE/state
 export NBAVISION_BROWSER_CHANNEL=chromium   # full Chromium in new headless mode (less detectable than the headless shell)
 export PYTHONIOENCODING=utf-8
-# Memory-lean browsing on the shared box (1.5 GB cap): one tab, no images/video/fonts
+# Memory-lean browsing on the shared box (2.5 GB cap): one tab, no images/video/fonts
 export PARALLEL_TABS=1 BLOCK_MEDIA=1
 # off-season (before the regular season starts on Oct 20) there are few fresh tweets
 [ "$(date -u +%Y%m%d)" -lt 20261020 ] && export MAX_MINUTES_SINCE_POST=360
