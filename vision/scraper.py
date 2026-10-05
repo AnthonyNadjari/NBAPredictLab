@@ -266,6 +266,8 @@ def scrape_all_keywords(page: Page, context: BrowserContext, cycle_index: int = 
             _wait_random(55, 65)
             consecutive_kw_errors = 0
 
+        import heartbeat
+        heartbeat.beat()
         batch_start = batch_idx * PARALLEL_TABS + 1
         kw_labels = ", ".join(f"{kw!r}" for kw in batch)
         print(f"    Batch {batch_idx + 1}/{len(batches)} (kw {batch_start}-{batch_start + len(batch) - 1}): {kw_labels}", flush=True)

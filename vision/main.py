@@ -6,6 +6,7 @@ from __future__ import annotations
 import io
 import os
 import sys
+import time
 import traceback
 
 # Force UTF-8 output so emoji/unicode in tweets and LLM replies don't crash
@@ -53,6 +54,33 @@ def _write_failure_log(reason: str, run_id: str) -> None:
     )
     path = write_session_log(log_data)
     print(f"Failure log written to {path}", flush=True)
+
+
+STALL_LIMIT_SEC = 15 * 60
+
+
+def _start_watchdog(run_id: str | None) -> None:
+    """End a session that stopped making progress (a dead Playwright driver makes calls spin
+    forever, the 5 Oct session sat 2 h on one post): record what was posted, then exit."""
+    import threading
+    import heartbeat
+
+    def watch():
+        heartbeat.beat()
+        while True:
+            time.sleep(30)
+            if heartbeat.idle_seconds() > STALL_LIMIT_SEC:
+                print(f"Watchdog: no progress for {STALL_LIMIT_SEC // 60} min, ending the session", flush=True)
+                try:
+                    replies = list(heartbeat.REPLIES)
+                    record_run({"run_id": run_id or None, "auth": "ok", "replied": len(replies),
+                                "replies": replies[-25:], "stop_reason": "stalled"})
+                except Exception as e:
+                    print(f"Watchdog: could not record the run ({e})", flush=True)
+                sys.stdout.flush()
+                os._exit(3)
+
+    threading.Thread(target=watch, daemon=True, name="watchdog").start()
 
 
 def main() -> int:
@@ -111,6 +139,7 @@ def main() -> int:
             pass
         return 0
 
+    _start_watchdog(run_id)
     try:
         log_data = run_session(page, context, browser=browser, playwright_instance=pw)
         print("Session ended.", flush=True)

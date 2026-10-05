@@ -80,7 +80,23 @@ def run_session(page, context, *, browser, playwright_instance):
     if DRY_RUN:
         print("*** DRY RUN MODE — no replies will be posted ***", flush=True)
 
+    import heartbeat
+    heartbeat.REPLIES = replies_posted
     while total_replied < MAX_REPLIES and posting_failures < MAX_POSTING_FAILURES:
+        heartbeat.beat()
+        if cycle_index > 0:
+            # a fresh tab each cycle: X's timeline keeps growing in memory (2 GB after an hour)
+            try:
+                fresh = context.new_page()
+                page.close()
+                page = fresh
+            except Exception as e:
+                from scraper import browser_gone as _gone
+                if _gone(e):
+                    print(f"[Cycle {cycle_index}] Browser gone ({e}): ending the session", flush=True)
+                    events.append(_event("session_stop", {"reason": "browser_crashed"}))
+                    browser_gone = True
+                    break
         if consecutive_errors >= MAX_CONSECUTIVE_ERRORS:
             events.append(_event("session_stop", {"reason": "max_consecutive_errors"}))
             print(f"Stopping: {consecutive_errors} consecutive errors reached limit", flush=True)
@@ -170,11 +186,13 @@ def run_session(page, context, *, browser, playwright_instance):
             tid = tweet.get("tweet_id")
             try:
                 llm_results[tid] = call_llm(tweet.get("text") or "", tweet.get("username") or "")
+                heartbeat.beat()
             except Exception:
                 llm_results[tid] = None
 
         # Process results in order and post
         for tweet in candidates:
+            heartbeat.beat()
             if total_replied >= MAX_REPLIES:
                 break
             tweet_id = tweet.get("tweet_id")
@@ -272,6 +290,7 @@ def run_session(page, context, *, browser, playwright_instance):
             print(f"  Posted. Session: {total_replied}/{MAX_REPLIES}", flush=True)
             events.append(_event("post_ok", {"tweet_id": tweet_id, "tweet_url": tweet_url, "reply_length": len(response)}))
 
+            heartbeat.beat()
             wait_before_next_tweet()
 
         # Save session state after each cycle so cookies stay fresh

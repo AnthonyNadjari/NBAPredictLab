@@ -816,7 +816,7 @@ function renderAccount() {
     : xs.ok === false ? `<span class="dot bad"></span>API X : <b>erreur</b> · ${esc(xs.error || '')}`
     : `<span class="dot"></span>API X : pas encore vérifiée`;
   const botState = !lastRun ? `<span class="dot"></span>Bot de réponses : aucune session depuis la fusion`
-    : lastRun.auth === 'ok' && (lastRun.crash || lastRun.stop_reason === 'browser_crashed')
+    : lastRun.auth === 'ok' && (lastRun.crash || ['browser_crashed', 'stalled'].includes(lastRun.stop_reason))
       ? `<span class="dot warn"></span>Bot de réponses : <b>connecté</b> · dernière session interrompue (navigateur arrêté) ${ago(lastRun.at)}`
     : lastRun.auth === 'ok' ? `<span class="dot ok"></span>Bot de réponses : <b>connecté</b> · dernière session ${ago(lastRun.at)}`
     : `<span class="dot bad"></span>Bot de réponses : <b>${esc(AUTH_LABELS[lastRun.auth] || lastRun.auth)}</b> · ${ago(lastRun.at)}`;
