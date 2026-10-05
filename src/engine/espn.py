@@ -12,7 +12,7 @@ from zoneinfo import ZoneInfo
 
 import requests
 
-from .teams import from_espn
+from .teams import TEAMS, from_espn
 
 log = logging.getLogger(__name__)
 ET = ZoneInfo("America/New_York")
@@ -69,6 +69,8 @@ def scoreboard(day: date, include_preseason: bool = False) -> List[Dict]:
             continue
         comp = ev["competitions"][0]
         sides = {c["homeAway"]: c for c in comp["competitors"]}
+        if not all(from_espn(sides[k]["team"]["abbreviation"]) in TEAMS for k in ("home", "away")):
+            continue   # All-Star weekend (STARS / WORLD / STRIPES...) is not an NBA game for us
         status = comp["status"]["type"]
         start = datetime.fromisoformat(ev["date"].replace("Z", "+00:00"))
         games.append({
