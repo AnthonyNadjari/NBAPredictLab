@@ -5,6 +5,7 @@ Batches LLM calls concurrently for speed.
 from __future__ import annotations
 import os
 import random
+import re
 import time
 from datetime import datetime
 from filter_tweets import filter_tweets, minutes_since_post
@@ -191,7 +192,7 @@ def run_session(page, context, *, browser, playwright_instance):
                 events.append(_event("llm_skip", {"tweet_id": tweet_id, "reason": reason or "skip", "decision": decision}))
                 continue
 
-            response = response[:180].strip()
+            response = re.sub(r"\s*—\s*", ", ", response)[:180].strip()
             reply_preview = (response[:60] + "...") if len(response) > 60 else response
             print(f"  @{author}: Reply ({len(response)} chars): {reply_preview!r}", flush=True)
             # names/numbers from the verified facts count as "in context" for the validator

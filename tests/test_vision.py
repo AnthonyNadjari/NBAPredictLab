@@ -67,8 +67,15 @@ def test_context_detection_and_facts(monkeypatch):
     assert teams == {"NYK"}
     assert players == {"Jalen Brunson": "NYK"}  # "Williams" alone is ambiguous: ignored
     facts = c.facts_for("Knicks are for real")
-    assert "New York Knicks are 2-0 in the 2026-27 regular season" in facts
+    # test data dates are 2026-10-20/22: recent relative to the 2026-27 season
+    monkeypatch.setattr(c, "_now", lambda: datetime(2026, 10, 25, 12, 0))
+    facts = c.facts_for("Knicks are for real")
+    assert "New York Knicks are 2-0 so far this season (2026-27)" in facts
     assert "New York Knicks have won 2 straight" in facts
+    # in the offseason the same record is phrased as last season, without stale form lines
+    monkeypatch.setattr(c, "_now", lambda: datetime(2027, 9, 1, 12, 0))
+    facts = c.facts_for("Knicks are for real")
+    assert facts == ["New York Knicks finished last season (2026-27) 2-0"]
 
 
 def test_validator_accepts_names_from_facts():
@@ -112,19 +119,19 @@ def test_llm_client_injects_facts_and_rejects_invented_ones(monkeypatch):
     import llm_client
     import nba_context
     monkeypatch.setenv("LLM_API_KEY", "k")
-    monkeypatch.setattr(nba_context, "facts_for", lambda t: ["New York Knicks are 2-0 in the 2026-27 regular season"])
+    monkeypatch.setattr(nba_context, "facts_for", lambda t: ["New York Knicks are 2-0 so far this season (2026-27)"])
     monkeypatch.setattr(nba_context, "today_line", lambda: "Today is 2026-10-25.")
     sent = {}
 
     def fake_post(url, headers=None, json=None, timeout=None):
         sent["body"] = json
         return _llm_reply({"decision": "REPLY", "reason": "agree", "response": "2-0 and rolling.",
-                           "fact_used": "New York Knicks are 2-0 in the 2026-27 regular season"})
+                           "fact_used": "New York Knicks are 2-0 so far this season (2026-27)"})
     monkeypatch.setattr(llm_client.requests, "post", fake_post)
     r = llm_client.call_llm("Knicks look good", "fan")
     assert r["decision"] == "REPLY" and r["context_used"]
     user_msg = sent["body"]["messages"][1]["content"]
-    assert "VERIFIED FACTS" in user_msg and "2-0 in the 2026-27" in user_msg
+    assert "VERIFIED FACTS" in user_msg and "2-0 so far this season" in user_msg
     assert sent["body"]["response_format"] == {"type": "json_object"}
 
     monkeypatch.setattr(llm_client.requests, "post", lambda *a, **k: _llm_reply(

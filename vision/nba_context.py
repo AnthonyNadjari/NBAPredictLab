@@ -162,24 +162,28 @@ def team_facts(code: str) -> list[str]:
     games = _team_games(code)
     facts = []
     if games:
+        today = _now().date()
+        current = f"{today.year if today.month >= 8 else today.year - 1}-{str((today.year if today.month >= 8 else today.year - 1) + 1)[2:]}"
         season = games[-1]["season"]
         season_games = [g for g in games if g["season"] == season and g.get("season_type") == "Regular Season"]
-        recent = games[-5:]
-        results = [_result_line(code, g) for g in recent]
         if season_games:
             w = sum(_result_line(code, g)[0] for g in season_games)
-            facts.append(f"{name} are {w}-{len(season_games) - w} in the {season} regular season")
-        facts.append(f"{name} last game: {results[-1][1]}")
-        streak, last = 0, results[-1][0]
-        for won, _ in reversed(results):
-            if won != last:
-                break
-            streak += 1
-        if streak >= 2:
-            facts.append(f"{name} have {'won' if last else 'lost'} {streak} straight")
+            if season == current:
+                facts.append(f"{name} are {w}-{len(season_games) - w} so far this season ({season})")
+            else:
+                # Offseason / before their first game: say it is LAST season, never "this season"
+                facts.append(f"{name} finished last season ({season}) {w}-{len(season_games) - w}")
         last_date = datetime.strptime(games[-1]["game_date"], "%Y-%m-%d").date()
-        if (_now().date() - last_date).days > 60:
-            facts.append(f"(no games since {games[-1]['game_date']}: offseason data)")
+        if (today - last_date).days <= 10:   # recent form only when it is actually recent
+            results = [_result_line(code, g) for g in games[-5:]]
+            facts.append(f"{name} last game: {results[-1][1]}")
+            streak, last = 0, results[-1][0]
+            for won, _ in reversed(results):
+                if won != last:
+                    break
+                streak += 1
+            if streak >= 2:
+                facts.append(f"{name} have {'won' if last else 'lost'} {streak} straight")
     for g in _pending():
         if code in (g.get("home_code"), g.get("away_code")):
             home = g.get("home_code") == code
