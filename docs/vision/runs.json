@@ -62,5 +62,79 @@
   "auth": "ok",
   "login_check": true,
   "handle": "@NBAPredictLab"
+ },
+ {
+  "at": "2026-10-05T09:21:29+02:00",
+  "dry_run": true,
+  "slot": null,
+  "run_id": "server-20261005T065959",
+  "auth": "ok",
+  "start": "2026-10-05T09:00:09.028253+02:00",
+  "end": "2026-10-05T09:21:29.161494+02:00",
+  "scraped": 143,
+  "candidates": 25,
+  "llm_calls": 15,
+  "replied": 5,
+  "skipped": 4,
+  "top_skips": {
+   "too_old": 107,
+   "no_nba_keyword": 8,
+   "not_about_basketball": 3,
+   "text_too_short": 2,
+   "image_caption_too_short": 1,
+   "nothing_to_add": 1
+  },
+  "replies": [
+   {
+    "tweet_url": "https://x.com/JustCasper_2/status/2107004182825681161",
+    "author": "JustCasper_2",
+    "tweet_text": "Despite his age, Lebron James is still looking classic .",
+    "tweet_likes": 18,
+    "reply_text": "Classic indeed—still dropping it for Philly. 45-37 and counting, even if the streak’s ugly.",
+    "context_used": true,
+    "dry_run": true,
+    "posted_at": "2026-10-05T09:18:40.081971+02:00"
+   },
+   {
+    "tweet_url": "https://x.com/ClutchPoints/status/2106985219417153678",
+    "author": "ClutchPoints",
+    "tweet_text": "“Yeah, definitely feel it. Whether I like it or not, it’s going to happen. So I don’t wanna get off into it, whether I like it or dislike it. It is what it is.”\n\nDraymond Green on having less control of the Warriors’ offense \n\n(via \n@bylucaevans\n)",
+    "tweet_likes": 10,
+    "reply_text": "Warriors sitting at 37-45, so the offense tweaks are overdue. Hopefully the numbers turn around soon.",
+    "context_used": true,
+    "dry_run": true,
+    "posted_at": "2026-10-05T09:19:22.245212+02:00"
+   },
+   {
+    "tweet_url": "https://x.com/ClutchPoints/status/2106970346146746461",
+    "author": "ClutchPoints",
+    "tweet_text": "\"He’s capable of being the lead offensive threat when Steph is not on the floor. He connects the game beautifully.\"\n\nSteve Kerr shares his thoughts on Yaxel Lendeborg following the Warriors-Clippers matchup \n\n(via \n@joseph_dycus\n)",
+    "tweet_likes": 11,
+    "reply_text": "With the Warriors sitting at 37-45, Lendeborg’s spark off the bench could be the boost they need when Curry rests.",
+    "context_used": true,
+    "dry_run": true,
+    "posted_at": "2026-10-05T09:19:43.233185+02:00"
+   },
+   {
+    "tweet_url": "https://x.com/RTNBA/status/2106970087991443748",
+    "author": "RTNBA",
+    "tweet_text": "LeBron James has been wearing No. 9 at Sixers practices out of respect for Julius Erving, per \n@JakeLFischer\n.\n\nLeBron normally wears his Olympic No. 6 during practices, but Dr. J’s No. 6 is retired in Philadelphia.\n\nHe’ll wear No. 23 during games.",
+    "tweet_likes": 176,
+    "reply_text": "Makes sense – LeBron’s already in Philly gear, just swapping numbers for practice. Still the same 76ers machine.",
+    "context_used": true,
+    "dry_run": true,
+    "posted_at": "2026-10-05T09:20:18.567719+02:00"
+   },
+   {
+    "tweet_url": "https://x.com/LBJsBest/status/2107000199646450028",
+    "author": "LBJsBest",
+    "tweet_text": "LeBron & 2016 Cavs overcome a 3-1 to take us from agony to euphoria ",
+    "tweet_likes": 21,
+    "reply_text": "LeBron’s still chasing that comeback vibe – his Sixers sit at 45-37 this season.",
+    "context_used": true,
+    "dry_run": true,
+    "posted_at": "2026-10-05T09:20:46.678805+02:00"
+   }
+  ]
  }
 ]
