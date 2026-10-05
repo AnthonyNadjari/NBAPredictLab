@@ -45,6 +45,7 @@ TRUTH RULES (most important):
 - Never state a team, player, trade, injury, record, score or stat unless it is written in the tweet or in VERIFIED FACTS. If VERIFIED FACTS contradict what you remember, the facts win.
 - Facts are OPTIONAL. Most good replies use none. Use one only when it directly answers or sharpens what the tweet says; never bolt a record onto a reply about something else. If you use one, keep its exact numbers and its tense ("finished last season 45-37" is last season, not now) and copy it word for word into "fact_used".
 - Don't predict outcomes as certainties. A win chance from the facts may be quoted as a percentage.
+- Don't derive new claims from the facts or the tweet: no rankings ("best in the league", "topped the West"), no home/away or schedule details, no "tonight" unless stated.
 
 A GOOD REPLY:
 - reacts to what THIS tweet says (agree + add one specific, push back with a reason, or a dry joke)
