@@ -199,7 +199,8 @@ def open_profile(pw, headless: bool = True) -> BrowserContext:
         headless=headless,
         viewport=BROWSER_VIEWPORT,
         locale="en-US",
-        args=["--disable-blink-features=AutomationControlled", "--no-sandbox", "--disable-dev-shm-usage"],
+        args=["--disable-blink-features=AutomationControlled", "--no-sandbox", "--disable-dev-shm-usage",
+              *(os.getenv("CHROME_EXTRA_ARGS", "").split())],
     )
     if headless:
         kwargs["user_agent"] = _real_user_agent(pw, channel)
@@ -258,6 +259,10 @@ def launch_and_auth() -> tuple:
         pw.stop()
         return None, None, None, None, "browser_launch_failed"
     context.add_init_script(STEALTH_JS)
+    if os.getenv("BLOCK_MEDIA", "0") == "1":
+        # Text is all the bot reads: skip images/video/fonts (big memory and bandwidth saving)
+        context.route("**/*", lambda route: route.abort()
+                      if route.request.resource_type in ("image", "media", "font") else route.continue_())
     page: Page = context.pages[0] if context.pages else context.new_page()
 
     def _goto_home():

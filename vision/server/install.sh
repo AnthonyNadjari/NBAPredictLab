@@ -59,6 +59,7 @@ Nice=19
 CPUWeight=10
 CPUQuota=100%
 IOSchedulingClass=idle
+MemoryHigh=1280M
 MemoryMax=1536M
 EOF
 cat > /etc/systemd/system/nbavision.timer <<EOF

@@ -34,6 +34,9 @@ fi
 export NBAVISION_STATE_DIR=$BASE/state
 export NBAVISION_BROWSER_CHANNEL=chromium   # full Chromium in new headless mode (less detectable than the headless shell)
 export PYTHONIOENCODING=utf-8
+# Memory-lean browsing on the shared box (1.5 GB cap): one tab, no images/video/fonts
+export PARALLEL_TABS=1 BLOCK_MEDIA=1
+export CHROME_EXTRA_ARGS="--disable-gpu --renderer-process-limit=2 --disable-extensions --disable-background-networking"
 
 MODE=$(python vision/tools/server_request.py)   # none | session | dry | login  (+ max replies)
 read -r KIND MAX <<<"$MODE"

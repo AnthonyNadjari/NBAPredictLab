@@ -4,6 +4,7 @@ Uses multiple browser tabs to scrape keywords in parallel batches,
 cutting total scrape time by ~60%.
 """
 from __future__ import annotations
+import os
 import random
 import re
 import time
@@ -29,7 +30,7 @@ HIGH_PRIORITY_KEYWORDS = {
     "basketball", "LeBron", "Stephen Curry", "Luka Doncic", "Victor Wembanyama",
 }
 
-PARALLEL_TABS = 3
+PARALLEL_TABS = int(os.getenv("PARALLEL_TABS", "3"))  # 1 on the shared server (memory cap)
 
 
 def _wait_random(low: float, high: float) -> None:
