@@ -55,3 +55,13 @@ def test_log_records_outcome_for_the_panel(tmp_path, monkeypatch):
     assert not e["ok"] and e["error"]
     log = json.loads((tmp_path / "publish_log.json").read_text(encoding="utf-8"))
     assert [x["id"] for x in log] == ["1-1", "2-1", "3-1"]
+
+
+def test_game_request_expires_at_tip_off(tmp_path, monkeypatch):
+    pq = _setup(tmp_path, monkeypatch, [
+        {"id": "1-1", "game_id": "DAL_at_HOU", "requested_at": (NOW - timedelta(minutes=5)).isoformat()},
+    ])
+    pending = tmp_path / "pending_games.json"
+    pending.write_text(json.dumps({"games": [{"id": "DAL_at_HOU", "start_utc": (NOW - timedelta(minutes=1)).isoformat()}]}))
+    monkeypatch.setattr(pq, "PENDING", pending)
+    assert pq.next_request(tmp_path / "t.json", NOW) == "none"      # game already started

@@ -4,11 +4,6 @@ on:
   repository_dispatch:
     types: [publish_thread]
 
-# One publish at a time: avoids push races and double posting
-concurrency:
-  group: publish-thread
-  cancel-in-progress: false
-
 jobs:
   # PUBLISH_BACKEND=server: queue the request for the IONOS server, which posts through the
   # logged-in browser (vision/server/publish_tick.sh): no API, no per-post cost.
@@ -66,6 +61,11 @@ jobs:
   publish:
     if: vars.PUBLISH_BACKEND != 'server'
     runs-on: ${{ vars.RUNNER || 'ubuntu-24.04' }}
+    # One API publish at a time: avoids push races and double posting
+    # (the queue job has its own push retry loop and must never drop a request)
+    concurrency:
+      group: publish-thread
+      cancel-in-progress: false
     defaults:
       run:
         shell: bash

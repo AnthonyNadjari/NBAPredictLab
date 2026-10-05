@@ -24,6 +24,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from config import LOCAL_STATE_DIR, REPO_ROOT  # noqa: E402
 
 QUEUE = REPO_ROOT / "docs" / "vision" / "publish_queue.json"
+PENDING = REPO_ROOT / "docs" / "pending_games.json"
 LOG = REPO_ROOT / "docs" / "vision" / "publish_log.json"
 DONE = LOCAL_STATE_DIR / "handled_publish.txt"
 MAX_AGE = timedelta(hours=12)        # a forgotten request must not post a stale thread
@@ -37,18 +38,31 @@ def _read_json(path: Path, default):
         return default
 
 
-def _fresh(req: dict, now: datetime) -> bool:
+def _when(value) -> datetime | None:
     try:
-        t = datetime.fromisoformat(str(req.get("requested_at")).replace("Z", "+00:00"))
+        t = datetime.fromisoformat(str(value).replace("Z", "+00:00"))
     except ValueError:
+        return None
+    return t if t.tzinfo else t.replace(tzinfo=timezone.utc)
+
+
+def _fresh(req: dict, now: datetime) -> bool:
+    """Requested less than 12 h ago, and (for a game) before tip-off: a pick is never posted late."""
+    t = _when(req.get("requested_at"))
+    if t is None or now - t > MAX_AGE:
         return False
-    return now - t <= MAX_AGE
+    games = _read_json(PENDING, {}).get("games", [])
+    game = next((g for g in games if isinstance(g, dict) and g.get("id") == req.get("game_id")), None)
+    tip = _when(game.get("start_utc")) if game and game.get("start_utc") else None
+    return tip is None or now < tip
 
 
 def next_request(texts_out: Path, now: datetime | None = None) -> str:
     now = now or datetime.now(timezone.utc)
     done = set(DONE.read_text().split()) if DONE.exists() else set()
     for req in _read_json(QUEUE, {}).get("requests", []):
+        if not isinstance(req, dict):
+            continue
         rid, game = str(req.get("id") or ""), str(req.get("game_id") or "")
         if not rid or rid in done or not GAME_ID_RE.match(game) or not _fresh(req, now):
             continue
@@ -69,7 +83,8 @@ def log_result(rid: str, game: str, result_path: Path, now: datetime | None = No
     ok = posted > 0 and (not dry or not res.get("error"))
     entry = {
         "id": rid, "game_id": game, "at": now.isoformat(timespec="seconds"),
-        "dry_run": dry, "ok": ok,
+        "dry_run": dry, "ok": ok and not res.get("uncertain"),
+        "uncertain": bool(res.get("uncertain")),
         "posted": posted, "total": res.get("total"),
         "url": f"https://x.com/NBAPredictLab/status/{res['first_id']}"
                if res.get("first_id") and not res.get("dry_run") else None,

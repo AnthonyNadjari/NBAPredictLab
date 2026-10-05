@@ -336,18 +336,32 @@ def apply_text_overrides(posts: list) -> list:
     return out
 
 
+# Outcome details of the last browser run (error message, uncertain click)
+BROWSER_OUTCOME: Dict = {}
+
+
 def post_thread_browser(posts: list, image_paths: list, dry_run: bool) -> list:
     """Post through the logged-in browser (vision/publisher.py): no API, no per-post cost."""
     sys.path.insert(0, str(PROJECT_ROOT / 'vision'))
     from auth import launch_and_auth
-    from publisher import post_thread as browser_post_thread
+    from publisher import post_thread as browser_post_thread, write_progress, UncertainPost
     res = launch_and_auth()
     if res[0] is None:
         raise RuntimeError(f"X login failed in the browser ({res[-1]})")
     pw, _, context, _page = res
+    result_file = os.getenv('THREAD_RESULT_FILE', 'thread_result.json')
+    progress = write_progress(result_file, len(posts), dry_run)
+    ids, error, uncertain = [], None, False
     try:
         ids, error = browser_post_thread(
-            context, [{'text': p['text'], 'image': img} for p, img in zip(posts, image_paths)], dry_run)
+            context, [{'text': p['text'], 'image': img} for p, img in zip(posts, image_paths)], dry_run,
+            on_progress=progress)
+    except UncertainPost as e:
+        error, uncertain = str(e), True
+        try:
+            ids = json.loads(Path(result_file).read_text()).get('ids') or []
+        except (OSError, ValueError):
+            ids = []
     finally:
         try:
             context.close()
@@ -356,7 +370,7 @@ def post_thread_browser(posts: list, image_paths: list, dry_run: bool) -> list:
             pass
     if error:
         logger.error(f"Browser posting stopped: {error}")
-        os.environ['THREAD_ERROR'] = error
+    BROWSER_OUTCOME.update(error=error, uncertain=uncertain, ids=ids)
     return [f"dry{i}" for i in range(len(posts))] if dry_run and not error else ids
 
 
@@ -422,6 +436,13 @@ def publish_thread(game_id: str) -> bool:
     except ValueError:
         raise
     except Exception as e:
+        if os.getenv('PUBLISH_BACKEND', 'api') == 'browser' or os.getenv('THREAD_TEXTS_JSON', '').strip():
+            # only ever post what the panel previewed
+            logger.error(f"Thread factory failed ({e}): nothing posted", exc_info=True)
+            Path(os.getenv('THREAD_RESULT_FILE', 'thread_result.json')).write_text(json.dumps(
+                {'posted': 0, 'total': 0, 'first_id': None, 'ids': [], 'sending': None,
+                 'dry_run': False, 'error': f'thread factory failed: {e}'[:300], 'uncertain': False}))
+            return False
         logger.error(f"Thread factory failed ({e}); falling back to the legacy format", exc_info=True)
         texts, imgs = format_thread_tweets_full(prediction)
         posts = [{'text': t} for t in texts]
@@ -435,8 +456,12 @@ def publish_thread(game_id: str) -> bool:
     ids = post_thread(posts, image_paths, dry)
 
     result = {'posted': len(ids), 'total': len(posts), 'first_id': ids[0] if ids else None,
-              'dry_run': dry, 'error': os.getenv('THREAD_ERROR') or None}
+              'ids': ids, 'sending': None, 'dry_run': dry, 'error': BROWSER_OUTCOME.get('error'),
+              'uncertain': bool(BROWSER_OUTCOME.get('uncertain'))}
     Path(os.getenv('THREAD_RESULT_FILE', 'thread_result.json')).write_text(json.dumps(result))
+    if result['uncertain']:
+        logger.error("Outcome uncertain: a tweet may be live. Check the account before posting again.")
+        return False
     if not ids:
         logger.error("Nothing was posted")
         return False

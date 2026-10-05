@@ -284,7 +284,16 @@ const ALT = { ATL: '#C1D32F', CHI: '#000000', HOU: '#000000', TOR: '#000000', DE
 
 const state = { games: null, dash: null, pw: null, runs: null, cron: null, launched: new Set(), launchedAt: {}, publog: [] };
 try { state.pw = sessionStorage.getItem('pl_pw'); } catch (e) {}
-try { state.launched = new Set(JSON.parse(localStorage.getItem('pl_launched') || '[]')); } catch (e) {}
+try {
+  state.launchedAt = JSON.parse(localStorage.getItem('pl_launched_at') || '{}') || {};
+  // a click with no outcome after 20 min is forgotten (the button comes back)
+  state.launched = new Set(Object.keys(state.launchedAt).filter(id => Date.now() - state.launchedAt[id] < 20 * 60000));
+} catch (e) {}
+function saveLaunched() {
+  const keep = {};
+  for (const id of state.launched) keep[id] = state.launchedAt[id] || Date.now();
+  try { localStorage.setItem('pl_launched_at', JSON.stringify(keep)); } catch (e) {}
+}
 
 const $ = (s, el = document) => el.querySelector(s);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -373,9 +382,11 @@ function lastPublish(id) {
   return e[e.length - 1] || null;
 }
 function pubChip(g) {
+  const last = lastPublish(g.id);
+  if (g.published && last && last.uncertain)
+    return `<span class="chip fail" title="${esc(last.error || '')}">À vérifier sur X</span>`;
   if (g.published) return `<span class="chip pub">Publié</span>`;
   if (state.launched.has(g.id)) return `<span class="chip launch">Publication lancée</span>`;
-  const last = lastPublish(g.id);
   if (last && !last.ok) return `<span class="chip fail" title="${esc(last.error || '')}">Échec de publication</span>`;
   return `<span class="chip">À publier</span>`;
 }
@@ -438,7 +449,7 @@ function renderSlate() {
       <div class="hint" style="margin:0">${esc(((sp.thread || [])[0] || {}).text ? sp.thread[0].text.split(String.fromCharCode(10))[2] || '' : '')}</div>
       <div class="g-actions"><button class="btn small" type="button" data-act="preview">Aperçu</button>
         ${sp.published && sp.tweet_url ? `<a class="btn small" href="${esc(sp.tweet_url)}" target="_blank" rel="noopener">Voir sur X</a>`
-          : `<button class="btn small primary" type="button" data-act="publish" ${sp.published ? 'disabled' : ''}>${sp.published ? 'Déjà publié' : 'Publier'}</button>`}</div>
+          : `<button class="btn small primary" type="button" data-act="publish" ${sp.published || state.launched.has(sp.id) ? 'disabled' : ''}>${sp.published ? 'Déjà publié' : 'Publier'}</button>`}</div>
     </article>`).join('');
   const specialsBlock = specials ? `<div class="day-head"><h2>Posts du jour</h2></div><div class="grid">${specials}</div>` : '';
   if (!all.length) {
@@ -513,8 +524,7 @@ function openThread(g, publishMode) {
     e.target.disabled = true; e.target.textContent = 'Envoi…';
     try {
       await api('publish', changed ? { game_id: g.id, texts: edited } : { game_id: g.id });
-      state.launched.add(g.id); state.launchedAt[g.id] = Date.now();
-      try { localStorage.setItem('pl_launched', JSON.stringify([...state.launched].slice(-60))); } catch (err) {}
+      state.launched.add(g.id); state.launchedAt[g.id] = Date.now(); saveLaunched();
       dlg.close(); renderSlate();
       toast('Publication lancée. Le thread part sur X dans 2 à 5 minutes.');
     } catch (err) {
@@ -929,6 +939,7 @@ async function load() {
   state.publog = Array.isArray(val(pl)) ? val(pl) : [];
   for (const x of [...(state.games.games || []), ...(state.games.specials || [])]) {
     if (x.published) { state.launched.delete(x.id); continue; }
+    if (state.launched.has(x.id) && Date.now() - (state.launchedAt[x.id] || 0) > 20 * 60000) state.launched.delete(x.id);
     // a failure reported after this click ends the "launched" state
     const last = lastPublish(x.id);
     if (last && !last.ok && state.launched.has(x.id) && Date.parse(last.at) > (state.launchedAt[x.id] || 0)) {
@@ -936,6 +947,7 @@ async function load() {
       toast(`Publication échouée : ${last.error || 'voir le serveur'}`);
     }
   }
+  saveLaunched();
   renderHealth(); renderSlate();
   if (!$('#record').hidden) renderRecord();
   if (!$('#control').hidden) renderControl();
