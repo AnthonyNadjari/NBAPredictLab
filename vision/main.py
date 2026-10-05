@@ -115,6 +115,11 @@ def main() -> int:
         log_data = run_session(page, context, browser=browser, playwright_instance=pw)
         print("Session ended.", flush=True)
         record_run(summarize_session(log_data, auth="ok"))
+        if log_data.get("browser_gone"):
+            # Any Playwright call would now hang: leave without cleanup (systemd reaps the cgroup)
+            print("Browser gone: exiting without cleanup.", flush=True)
+            sys.stdout.flush()
+            os._exit(0)
         save_session_state(context)
         return 0
     except Exception as e:

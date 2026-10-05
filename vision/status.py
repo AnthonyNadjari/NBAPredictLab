@@ -41,4 +41,7 @@ def summarize_session(log: dict, auth: str = "ok") -> dict:
         "skipped": log.get("total_skipped", 0),
         "top_skips": dict(skips.most_common(6)),
         "replies": (log.get("replies_posted") or [])[-KEEP_REPLIES_PER_RUN:],
+        # why the session ended early, if it did (max_consecutive_errors, browser_crashed...)
+        "stop_reason": next((e.get("detail", {}).get("reason") for e in reversed(log.get("events") or [])
+                             if e.get("step") == "session_stop"), None),
     }

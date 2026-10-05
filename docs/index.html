@@ -69,7 +69,7 @@ header.top { padding: 22px 0 0; }
 }
 .pill b { color: var(--ink); font-weight: 600; }
 .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); flex: none; }
-.dot.ok { background: var(--win); } .dot.bad { background: var(--loss); } .dot.run { background: var(--ball); animation: pulse 1.2s infinite; }
+.dot.ok { background: var(--win); } .dot.bad { background: var(--loss); } .dot.warn { background: var(--ball); } .dot.run { background: var(--ball); animation: pulse 1.2s infinite; }
 @keyframes pulse { 50% { opacity: .35; } }
 
 .btn {
@@ -760,6 +760,8 @@ function renderAccount() {
     : xs.ok === false ? `<span class="dot bad"></span>API X : <b>erreur</b> · ${esc(xs.error || '')}`
     : `<span class="dot"></span>API X : pas encore vérifiée`;
   const botState = !lastRun ? `<span class="dot"></span>Bot de réponses : aucune session depuis la fusion`
+    : lastRun.auth === 'ok' && (lastRun.crash || lastRun.stop_reason === 'browser_crashed')
+      ? `<span class="dot warn"></span>Bot de réponses : <b>connecté</b> · dernière session interrompue (navigateur arrêté) ${ago(lastRun.at)}`
     : lastRun.auth === 'ok' ? `<span class="dot ok"></span>Bot de réponses : <b>connecté</b> · dernière session ${ago(lastRun.at)}`
     : `<span class="dot bad"></span>Bot de réponses : <b>${esc(AUTH_LABELS[lastRun.auth] || lastRun.auth)}</b> · ${ago(lastRun.at)}`;
   const needsLogin = lastRun && lastRun.auth && !['ok', 'no_llm_key'].includes(lastRun.auth);

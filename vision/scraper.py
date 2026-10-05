@@ -234,6 +234,16 @@ def _select_keywords(cycle_index: int) -> list[str]:
     return _watchlist_queries(cycle_index) + result
 
 
+class BrowserGone(RuntimeError):
+    """The browser or the Playwright driver is gone; the session can't continue."""
+
+
+def browser_gone(ex: Exception) -> bool:
+    msg = str(ex)
+    return any(m in msg for m in ("Connection closed", "has been closed", "Browser closed",
+                                  "Target closed", "driver"))
+
+
 def scrape_all_keywords(page: Page, context: BrowserContext, cycle_index: int = 0) -> list[dict]:
     """
     Scrape keywords in parallel batches of PARALLEL_TABS tabs.
@@ -284,6 +294,9 @@ def scrape_all_keywords(page: Page, context: BrowserContext, cycle_index: int = 
                 consecutive_kw_errors = 0
 
         except Exception as ex:
+            if browser_gone(ex):
+                # The Playwright driver or the browser died: every next call would hang, stop now
+                raise BrowserGone(str(ex)) from ex
             consecutive_kw_errors += len(batch)
             print(f"      Batch error ({consecutive_kw_errors}/5): {ex}", flush=True)
             continue

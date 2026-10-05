@@ -72,6 +72,7 @@ def run_session(page, context, *, browser, playwright_instance):
     consecutive_errors = 0
     posting_failures = 0
     cycle_index = 0
+    browser_gone = False
 
     if DRY_RUN:
         print("*** DRY RUN MODE — no replies will be posted ***", flush=True)
@@ -100,6 +101,12 @@ def run_session(page, context, *, browser, playwright_instance):
             events.append(_event("scrape_done", {"raw_count": len(raw)}))
             consecutive_errors = max(0, consecutive_errors - 1)
         except Exception as e:
+            from scraper import BrowserGone
+            if isinstance(e, BrowserGone):
+                print(f"[Cycle {cycle_index}] Browser gone ({e}): ending the session", flush=True)
+                events.append(_event("session_stop", {"reason": "browser_crashed"}))
+                browser_gone = True
+                break
             consecutive_errors += 1
             events.append(_event("scrape_error", {"error": str(e)}))
             print(f"[Cycle {cycle_index}] Scrape error ({consecutive_errors}/{MAX_CONSECUTIVE_ERRORS}): {e}", flush=True)
@@ -291,5 +298,6 @@ def run_session(page, context, *, browser, playwright_instance):
         cycles=cycles,
         events=events,
     )
+    log_data["browser_gone"] = browser_gone
     write_session_log(log_data)
     return log_data
