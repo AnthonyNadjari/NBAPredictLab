@@ -422,7 +422,7 @@ function gameCard(g) {
     <div class="g-actions">
       <button class="btn small" type="button" data-act="preview">Aperçu du thread</button>
       ${g.published && g.tweet_url ? `<a class="btn small" href="${esc(g.tweet_url)}" target="_blank" rel="noopener">Voir sur X</a>`
-        : `<button class="btn small primary" type="button" data-act="publish" ${g.published || launched ? 'disabled' : ''}>${g.published ? 'Déjà publié' : 'Publier'}</button>`}
+        : `<button class="btn small primary" type="button" data-act="publish" ${g.published || state.launched.has(g.id) ? 'disabled' : ''}>${g.published ? 'Déjà publié' : 'Publier'}</button>`}
     </div>
   </article>`;
 }
