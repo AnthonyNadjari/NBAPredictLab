@@ -49,11 +49,18 @@ def build_thread(pred: Dict, record_line: str) -> Dict:
     O = A.Side(f, "away" if pick_home else "home", opp, nickname(opp))
 
     odds_pick = pred.get("home_odds") if pick_home else pred.get("away_odds")
-    market = f.get("probability_source") == "market"
-    source = "Books' consensus" if market else "Stats model (no odds yet)"
-    md = f.get("model_home_prob")
-    if market and md is not None:
-        source += f" · model {round(100 * (md if pick_home else 1 - md))}%"
+    src = f.get("probability_source")
+    market = src in ("market", "blend")
+    side = (lambda x: x if pick_home else 1 - x)
+    own, mkt = f.get("own_home_prob"), f.get("market_home_prob")
+    if src == "blend":
+        source = f"Our model {round(100 * side(own))}% + books {round(100 * side(mkt))}%"
+    elif market:
+        source = "Books' consensus" + (f" · our model {round(100 * side(own))}%" if own is not None else "")
+    elif src == "own":
+        source = "Our model (no odds yet)"
+    else:
+        source = "Stats model (no odds yet)"
     matchup = f"{nickname(away)} at {nickname(home)}"
     when = _when(f.get("start_utc"))
 
@@ -70,6 +77,7 @@ def build_thread(pred: Dict, record_line: str) -> Dict:
     hook = (f"🏀 {TEAMS[away]} at {TEAMS[home]}\n"
             f"{'🕗 ' + when_txt if when_txt else ''}\n\n"
             f"🎯 Pick: {TEAMS[pick]} ({p * 100:.0f}%)\n"
+            + (f"📊 Our model {round(100 * side(own))}% · books {round(100 * side(mkt))}%\n" if src == "blend" else "")
             + (f"💰 Odds {float(odds_pick):.2f} · {'books’ consensus' if market else 'model price'}\n" if odds_pick else "")
             + "\nThe case, and the risk 🧵")
     tweets = [{"text": _fit(hook), "card": {

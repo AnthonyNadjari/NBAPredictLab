@@ -184,3 +184,12 @@ def test_published_predictions_are_frozen(tmp_path):
     assert pipeline.save_predictions(str(db), [flipped], frozen=frozen) == 0
     row = sqlite3.connect(db).execute("SELECT predicted_home_prob FROM predictions").fetchone()
     assert row[0] == 0.62
+
+
+def test_final_probability_blends_own_model_with_market_only_in_full_mode():
+    from src.engine import model
+    p, src = model.final_probability(0.55, 0.70, own_prob=0.60, own_mode="full")
+    assert src == "blend" and 0.68 < p < 0.70                     # mostly the market, pulled toward ours
+    assert model.final_probability(0.55, 0.70, 0.60, "team_only") == (0.70, "market")
+    assert model.final_probability(0.55, None, 0.60, "team_only") == (0.60, "own")
+    assert model.final_probability(0.55, None, None) == (0.55, "model")

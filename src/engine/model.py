@@ -53,14 +53,29 @@ def predict_proba(model: dict, rows: pd.DataFrame) -> np.ndarray:
     return 1.0 / (1.0 + np.exp(-z))
 
 
+# Weight of our own model when blended with the market price (research/h7_own_model/blend:
+# walk-forward weights 0-0.2 against the evening price; the blend is as accurate as the
+# market and keeps our view, notably who plays tonight).
+BLEND_W_OWN = 0.15
+
+
+def _logit(p: float) -> float:
+    p = min(max(p, 1e-4), 1 - 1e-4)
+    return float(np.log(p / (1 - p)))
+
+
 def final_probability(model_prob: float, market_prob: Optional[float],
-                      own_prob: Optional[float] = None) -> tuple:
+                      own_prob: Optional[float] = None, own_mode: Optional[str] = None) -> tuple:
     """(home win probability, source) used for the published pick.
 
-    The market price when there is one; otherwise our own model (src/engine/own_model.py,
-    research H7: clearly better than this logit, -0.011 log-loss over 4 seasons); the stats
-    logit only if the own model could not run."""
+    With a market price and our own model in full mode (player data available): the blend
+    of both ("blend": our probability, improved by the books). The market price alone when
+    our model only has team data; our own model when there is no price (research H7: clearly
+    better than this logit); the stats logit only if the own model could not run."""
     if market_prob is not None and 0.01 < market_prob < 0.99:
+        if own_prob is not None and 0.0 < own_prob < 1.0 and own_mode == "full":
+            z = BLEND_W_OWN * _logit(own_prob) + (1 - BLEND_W_OWN) * _logit(market_prob)
+            return float(1 / (1 + np.exp(-z))), "blend"
         return float(market_prob), "market"
     if own_prob is not None and 0.0 < own_prob < 1.0:
         return float(own_prob), "own"

@@ -58,7 +58,7 @@ def choose(data: dict, cfg: dict, now: datetime) -> list:
             continue
         seen.add(g['id'])
         start = _start(g)
-        if g.get('probability_source') != 'market' or start is None or start - now < MIN_LEAD:
+        if g.get('probability_source') not in ('market', 'blend') or start is None or start - now < MIN_LEAD:
             continue
         if start - now > timedelta(hours=12):        # tonight only, not tomorrow's slate
             continue

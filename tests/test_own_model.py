@@ -228,7 +228,8 @@ def test_predict_date_stores_own_next_to_market(monkeypatch, league):
                                                  "own_model_mode": "full", "own_components": {}} for x in g})
     out = {p["home_team"]: p for p in pipeline.predict_date(day.date(), hist[hist.game_date < day.strftime("%Y-%m-%d")])}
     bos, lal = out["BOS"], out["LAL"]
-    assert bos["home_win_probability"] == 0.61 and bos["features"]["probability_source"] == "market"
+    # market price + own model in full mode: the published number is the blend (mostly the market)
+    assert 0.59 < bos["home_win_probability"] < 0.61 and bos["features"]["probability_source"] == "blend"
     assert bos["features"]["own_home_prob"] == 0.52 and bos["features"]["market_home_prob"] == 0.61
     assert lal["home_win_probability"] == 0.52 and lal["features"]["probability_source"] == "own"
     assert lal["features"]["own_model_mode"] == "full"

@@ -104,7 +104,8 @@ def predict_date(day: date, hist: Optional[pd.DataFrame] = None, with_odds: bool
         p_model = float(model.predict_proba(m, row.to_frame().T)[0])
         mk = espn.odds(g["event_id"]) if with_odds else None
         o = own.get((g["game_date"], g["home"], g["away"])) or {}
-        p_home, source = model.final_probability(p_model, mk and mk["home_prob"], o.get("own_home_prob"))
+        p_home, source = model.final_probability(p_model, mk and mk["home_prob"], o.get("own_home_prob"),
+                                                 o.get("own_model_mode"))
         pick_home = p_home >= 0.5
 
         f = {f"{side}_{k}": _clean(row.get(f"{side}_{k}")) for side in ("home", "away") for k in _SIDE_KEYS}

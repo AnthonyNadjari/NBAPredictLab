@@ -194,7 +194,7 @@ def team_facts(code: str) -> list[str]:
             if g.get("start_utc"):
                 et = datetime.fromisoformat(g["start_utc"]).astimezone(__import__("zoneinfo").ZoneInfo("America/New_York"))
                 when = et.strftime("%a %b %d %I:%M %p ET").replace(" 0", " ")
-            src = "betting market" if g.get("probability_source") == "market" else "our model"
+            src = {"market": "betting market", "blend": "our model + betting market"}.get(g.get("probability_source"), "our model")
             facts.append(f"{name} next: {'vs' if home else 'at'} {opp} {when}; {src} win chance {round(100 * p)}%")
             break
     return facts

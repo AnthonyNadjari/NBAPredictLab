@@ -427,7 +427,8 @@ function gameCard(g) {
   const disagree = mk != null && ref != null && (mk >= .5) !== (ref >= .5);
   const teamOnly = g.own_model_mode === 'team_only';
   const pickName = (TEAMS[pickHome ? h : a] || [g.predicted_winner])[0];
-  const src = g.probability_source === 'market' ? 'consensus des cotes'
+  const src = g.probability_source === 'blend' ? 'notre modèle + cotes'
+    : g.probability_source === 'market' ? 'consensus des cotes'
     : g.probability_source === 'own' ? 'notre modèle (pas de cotes)' : 'modèle stats (pas de cotes)';
   return `
   <article class="game ${g.published ? 'published' : ''}" data-id="${esc(g.id)}">
