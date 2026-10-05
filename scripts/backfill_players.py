@@ -33,6 +33,7 @@ import pandas as pd  # noqa: E402
 
 from src.engine import history, player_store  # noqa: E402
 from src.engine.espn import season_label  # noqa: E402
+from src.engine.teams import TEAMS  # noqa: E402
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s", stream=sys.stdout)
 log = logging.getLogger("backfill_players")
@@ -53,7 +54,15 @@ def days_to_scan(seasons, store: pd.DataFrame, today: date):
     start = date(int(cur[:4]), 9, 25)
     days += [start + timedelta(days=i) for i in range((today - start).days)]
     days = sorted(set(days))
-    covered = set(store.game_date.astype(str))
+    # a day is covered when the store has as many games as the history for it (a game whose
+    # ESPN summary failed on an earlier run is retried); days the history does not know
+    # (preseason) when the store has any game of them
+    nba = hist[hist.home.isin(TEAMS) & hist.away.isin(TEAMS)]
+    want = nba.groupby("game_date").size()
+    st = store[store.season_type.astype(str) != "Preseason"]
+    have = st.drop_duplicates("game_id").groupby(st.game_date.astype(str)).size() if len(st) else pd.Series(dtype=int)
+    any_rows = set(store.game_date.astype(str))
+    covered = {d for d in any_rows if d not in want.index or have.get(d, 0) >= want[d]}
     last = max((d for d in days if d.isoformat() in covered), default=None)
     todo = [d for d in days if d.isoformat() not in covered or d == last]
     log.info("%d days in range, %d to scan (%d already covered)", len(days), len(todo), len(days) - len(todo))

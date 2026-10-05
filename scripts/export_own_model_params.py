@@ -179,7 +179,7 @@ def main():
     e_prod, e_par = elo_params(rd, args.parity)
     meta = {"version": 1, "exported_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
             "source": "research/h7_own_model via scripts/export_own_model_params.py",
-            "mode": {"stale_games": 3}}
+            "mode": {"stale_games": 3, "min_player_games": 82}}
     prod = {**meta, "fitted_through": FIT_THROUGH, "for_season": NEXT, **e_prod, "margin": m_prod,
             "player_impact": pi_prod}
     Path(args.out).write_text(json.dumps(prod, indent=1) + "\n", encoding="utf-8")

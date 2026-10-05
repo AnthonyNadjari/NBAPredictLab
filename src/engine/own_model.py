@@ -19,7 +19,7 @@ pass in which a date's games are described from the state after all earlier date
 probability only ever uses games played strictly before its date (tests/test_own_model.py).
 
 Fallback: when a team's recent player box scores are missing (no data, backfill not run, ESPN
-field renamed...), the game uses the team-only parts: Elo without availability ('mov_rest',
+field renamed...) or cover fewer than 82 of its earlier games, the game uses the team-only parts: Elo without availability ('mov_rest',
 tuned without it) and the margin ratings without the absence term ('margin_full'), mode
 'team_only'. Otherwise mode 'full'.
 """
@@ -50,6 +50,7 @@ ORLANDO_BUBBLE = (28.337, -81.556, "America/New_York", 30)
 DAY0 = pd.Timestamp("2018-01-01")
 PRESEASON = "Preseason"
 FULL, TEAM_ONLY = "full", "team_only"
+MIN_PLAYER_GAMES = 82   # 'full' mode needs player lines for >= 82 earlier games of each team
 
 # elo_plus availability (elo_plus/run.py)
 EP_ROT_MIN, EP_ROT_WINDOW, EP_VALUE_WINDOW = 12.0, 10, 82
@@ -847,10 +848,15 @@ def player_impact_probs(x: pd.DataFrame, pp: dict) -> np.ndarray:
 
 
 # ============================================================================ ensemble
-def _player_ok(g: pd.DataFrame, rows: np.ndarray, p: pd.DataFrame, n_games: int) -> np.ndarray:
+def _player_ok(g: pd.DataFrame, rows: np.ndarray, p: pd.DataFrame, n_games: int,
+               min_games: int = 0) -> np.ndarray:
     """Per row: both teams have player lines for each of their last `n_games` played games
-    before the date (else the player terms would be built on missing or stale data)."""
+    before the date (else the player terms would be built on missing or stale data), and for at
+    least `min_games` games in all before the date (a store holding only the last few weeks, e.g.
+    the daily run without the backfill, gives player ratings that are mostly prior: on 2025-26
+    such a 'full' mode was worse than the team-only parts)."""
     have = set(zip(p.date, p.TEAM))
+    depth = {t: np.sort(x.date.to_numpy()) for t, x in p[["date", "TEAM"]].drop_duplicates().groupby("TEAM")}
     tl = pd.concat([pd.DataFrame({"team": g.home, "date": g.date, "played": g.played}),
                     pd.DataFrame({"team": g.away, "date": g.date, "played": g.played})])
     tl = tl[tl.played]
@@ -861,6 +867,9 @@ def _player_ok(g: pd.DataFrame, rows: np.ndarray, p: pd.DataFrame, n_games: int)
             ds = by_team.get(t, np.array([], dtype="datetime64[ns]"))
             prev = ds[:np.searchsorted(ds, d, side="left")][-n_games:]
             if len(prev) < n_games or not all((pd.Timestamp(x), t) in have for x in prev):
+                ok[i] = False
+            elif min_games and np.searchsorted(depth.get(t, np.array([], dtype="datetime64[ns]")), d,
+                                               side="left") < min_games:
                 ok[i] = False
     return ok
 
@@ -917,7 +926,8 @@ def compute(hist: pd.DataFrame, players: Optional[pd.DataFrame], params: dict,
         if len(x):
             pi = dict(zip(x.GAME_ID, player_impact_probs(x, params["player_impact"])))
             out["p_player"] = out.GAME_ID.map(pi).astype(float)
-        ok = _player_ok(g, rows, p, params.get("mode", {}).get("stale_games", 3))
+        mode = params.get("mode", {})
+        ok = _player_ok(g, rows, p, mode.get("stale_games", 3), mode.get("min_player_games", MIN_PLAYER_GAMES))
     else:
         ok = np.zeros(len(rows), bool)
     full = ok & out.p_player.notna().to_numpy()

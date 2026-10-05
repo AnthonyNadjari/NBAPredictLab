@@ -57,8 +57,8 @@ def own_for_days(days: List[date], hist: pd.DataFrame) -> Dict:
     for d in [min(days) - timedelta(days=1)] + sorted(days):
         try:
             games += [g for g in espn.scoreboard(d) if not g["completed"]]
-        except RuntimeError as e:
-            log.warning("%s", e)
+        except Exception as e:  # never block the published (market) probability
+            log.warning("Own model schedule for %s: %s", d, e)
     return own_probabilities(games, hist)
 
 

@@ -2,6 +2,7 @@
 ESPN player box-score parser, player store, pipeline wiring."""
 import json
 import os
+from datetime import date
 from pathlib import Path
 
 import numpy as np
@@ -12,7 +13,10 @@ from src.engine import espn, history, model, own_model, pipeline, player_store
 
 ROOT = Path(__file__).resolve().parents[1]
 FIXTURES = Path(__file__).resolve().parent / "fixtures"
-PARAMS = own_model.load_params()
+PROD_PARAMS = own_model.load_params()
+# the synthetic league is short (~35 games per team at the test day): lower the history depth
+# required for 'full' mode (test_thin_player_history_is_team_only checks the production value)
+PARAMS = {**PROD_PARAMS, "mode": {**PROD_PARAMS["mode"], "min_player_games": 20}}
 TEAMS = ["BOS", "NYK", "LAL", "GSW", "DEN", "MIA", "CHI", "PHX"]
 
 
@@ -151,6 +155,21 @@ def test_team_only_fallback_when_a_team_lacks_recent_player_lines(league, day_an
     # the team-only parts never depend on player data
     np.testing.assert_allclose(r.p_elo_team, base.p_elo_team, atol=1e-12)
     np.testing.assert_allclose(r.p_margin_team, base.p_margin_team, atol=1e-12)
+
+
+def test_thin_player_history_is_team_only(league, day_and_base):
+    """A store with only a few weeks of player lines (daily run, backfill not run) must not
+    switch to 'full': its player ratings are mostly prior (worse than team-only on 2025-26)."""
+    hist, players = league
+    day, up, base = day_and_base
+    past_h, past_p = hist[hist.game_date < day], players[players.game_date < day]
+    assert PROD_PARAMS["mode"]["min_player_games"] >= 82
+    r = own_model.compute(past_h, past_p, PROD_PARAMS, upcoming=up)
+    assert (r.own_model_mode == own_model.TEAM_ONLY).all()
+    recent = past_p[past_p.game_date >= sorted(past_h.game_date.unique())[-8]]
+    r = own_model.compute(past_h, recent, PARAMS, upcoming=up)
+    assert (r.own_model_mode == own_model.TEAM_ONLY).all()
+    np.testing.assert_allclose(r.p_elo_team, base.p_elo_team, atol=1e-12)
 
 
 def test_team_only_without_any_player_data(league, day_and_base):
@@ -314,3 +333,24 @@ def test_parity_with_research_2024_25():
               "mean =", round(float(np.abs(e.avg3 - e.p).mean()), 5))
     for k, v in diffs.items():
         assert v < 0.01, (k, v)
+    assert (m.own_model_mode == own_model.FULL).all()     # the published avg3 is the full mode
+    np.testing.assert_allclose(m.own_home_prob, m.avg3, atol=1e-12)
+
+
+def test_backfill_rescans_days_with_missing_games(monkeypatch):
+    """Resumable backfill: a day where one game's summary failed is scanned again; complete
+    days are skipped (except the last covered one)."""
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("backfill_players", ROOT / "scripts" / "backfill_players.py")
+    bf = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(bf)
+    h = pd.DataFrame({"game_date": ["2025-01-01", "2025-01-01", "2025-01-02", "2025-01-03"], "season": "2024-25",
+                      "home": ["BOS", "LAL", "BOS", "MIA"], "away": ["NYK", "GSW", "MIA", "STARS"]})
+    monkeypatch.setattr(bf.history, "load", lambda: h)
+    store = pd.DataFrame({"game_id": ["e1", "e1", "e3", "e4"], "season_type": "Regular Season",
+                          "game_date": ["2025-01-01", "2025-01-01", "2025-01-02", "2025-01-03"]})
+    todo = bf.days_to_scan(["2024-25"], store, date(2025, 9, 26))
+    days = [d.isoformat() for d in todo]
+    assert "2025-01-01" in days          # 1 of 2 games in the store
+    assert "2025-01-02" not in days      # complete
+    assert "2025-01-03" in days          # last covered day (All-Star 'STARS' game not counted)
