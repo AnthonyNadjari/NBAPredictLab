@@ -33,8 +33,7 @@ LLM_SERIAL_DELAY_SEC = (3.0, 4.5)
 SESSION_HEALTH_CHECK_INTERVAL = 5
 
 
-# W-L records like "49-33" (a reply may quote one at most once per session)
-RECORD_RE = re.compile(r"\b\d{1,2}-\d{1,2}\b")
+from nba_context import RECORD_RE  # W-L records like "49-33": one use per session
 
 def _engagement_velocity(tweet: dict) -> float:
     minutes = max(1, minutes_since_post(tweet.get("timestamp") or ""))

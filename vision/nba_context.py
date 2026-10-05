@@ -202,6 +202,8 @@ def team_facts(code: str) -> list[str]:
 
 # Records and form are only relevant when the tweet is about results/standing/form.
 # Whole words only: "ring" must not match "during", "rank" not "Frank", "form" not "former".
+# W-L records like "49-33" (a reply may quote one at most once per session)
+RECORD_RE = re.compile(r"\b\d{1,2}-\d{1,2}\b")
 PERFORMANCE_RE = re.compile(
     r"\b(record|wins?|won|loss(es)?|losing|lost|beat|beats|standings?|seed(ed)?|playoffs?|streak|"
     r"contenders?|washed|ranked|odds|favou?rites?|title|champions(hip)?|over \.500|under \.500|"

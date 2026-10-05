@@ -179,5 +179,5 @@ def test_records_only_for_result_tweets_whole_words():
 
 
 def test_record_pattern_catches_win_loss_numbers():
-    from engine import RECORD_RE
+    from nba_context import RECORD_RE
     assert RECORD_RE.findall("49-33 last season, 2026-27 is new") == ["49-33"]
