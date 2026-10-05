@@ -114,6 +114,12 @@ section[hidden] { display: none; }
 .rp .grades { display: flex; gap: 6px; flex-wrap: wrap; }
 .rp .grades button[aria-pressed="true"] { background: var(--ball); color: var(--ball-ink); border-color: var(--ball); }
 .rp .said { font-size: 12.5px; color: var(--muted); border-top: 1px dashed var(--line); padding-top: 6px; }
+.rtable { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 6px; }
+.rtable th { text-align: right; font-weight: 600; color: var(--muted); padding: 4px 8px; border-bottom: 1px solid var(--line); }
+.rtable th:first-child, .rtable td:first-child { text-align: left; }
+.rtable td { text-align: right; padding: 4px 8px; border-bottom: 1px solid var(--line); font-variant-numeric: tabular-nums; }
+.rtable tr.grp td { font-weight: 700; color: var(--muted); padding-top: 10px; border-bottom: 0; }
+.rtable td.hi { color: var(--win); font-weight: 700; } .rtable td.lo { color: var(--loss); }
 .rstats { display: flex; gap: 18px; flex-wrap: wrap; margin: 4px 0 14px; }
 .rstats div { font-size: 13px; color: var(--muted); } .rstats b { display: block; font-size: 22px; color: var(--ink); }
 .chip.g-bad, .chip.g-wrong { background: color-mix(in srgb, var(--loss) 15%, transparent); color: var(--loss); }
@@ -949,6 +955,43 @@ async function loadReplies() {
   renderReplies();
 }
 function myGrade(r) { return (state.grades[r.id] || {}).grade || null; }
+const per1k = (num, den) => den ? (1000 * num / den) : null;
+const fmt1 = x => x == null ? '–' : x.toFixed(1).replace('.', ',');
+// engagement of a set of measured replies: per 1,000 views, so big and small accounts compare
+function engage(rows) {
+  const m = rows.map(r => (r.metrics || {}).last).filter(Boolean);
+  const views = m.reduce((a, x) => a + (x.views || 0), 0);
+  const likes = m.reduce((a, x) => a + (x.likes || 0), 0);
+  const replies = m.reduce((a, x) => a + (x.replies || 0), 0);
+  const good = rows.filter(r => ['good', 'good_follow'].includes(myGrade(r) || r.auto_grade)).length;
+  const graded = rows.filter(r => myGrade(r) || r.auto_grade).length;
+  return { n: m.length, views, likes, replies, likeRate: per1k(likes, views), replyRate: per1k(replies, views),
+    avgViews: m.length ? views / m.length : null, goodPct: graded ? 100 * good / graded : null };
+}
+function breakdown(rows) {
+  const parisHour = r => +new Intl.DateTimeFormat('fr-FR', { hour: 'numeric', hour12: false, timeZone: 'Europe/Paris' }).format(new Date(r.posted_at));
+  const groups = [
+    ['Type de réponse', r => r.reason || 'non noté (avant le suivi)'],
+    ['Fait chiffré cité', r => r.fact_used ? 'oui' : 'non'],
+    ['Longueur', r => { const n = (r.reply_text || '').length; return n < 70 ? 'courte (< 70)' : n < 120 ? 'moyenne' : 'longue (120+)'; }],
+    ['Compte répondu (likes du tweet)', r => { const n = r.tweet_likes || 0; return n < 50 ? 'petit (< 50)' : n < 500 ? 'moyen (50-500)' : 'gros (500+)'; }],
+    ['Heure (Paris)', r => { const h = parisHour(r); return h < 6 ? 'nuit 0-6 h' : h < 12 ? 'matin 6-12 h' : h < 18 ? 'après-midi 12-18 h' : 'soir 18-24 h'; }],
+  ];
+  const all = engage(rows).likeRate;
+  let html = '';
+  for (const [title, key] of groups) {
+    const by = {};
+    for (const r of rows) (by[key(r)] = by[key(r)] || []).push(r);
+    html += `<tr class="grp"><td colspan="6">${esc(title)}</td></tr>`;
+    for (const [k, list] of Object.entries(by).sort((a, b) => b[1].length - a[1].length)) {
+      const e = engage(list);
+      const cls = e.n >= 5 && all != null && e.likeRate != null ? (e.likeRate > all * 1.3 ? 'hi' : e.likeRate < all * 0.7 ? 'lo' : '') : '';
+      html += `<tr><td>${esc(k)}</td><td>${e.n}</td><td>${e.avgViews == null ? '–' : Math.round(e.avgViews)}</td>
+        <td class="${cls}">${fmt1(e.likeRate)}</td><td>${fmt1(e.replyRate)}</td><td>${e.goodPct == null ? '–' : Math.round(e.goodPct) + ' %'}</td></tr>`;
+    }
+  }
+  return `<table class="rtable"><thead><tr><th></th><th>réponses</th><th>vues moy.</th><th>likes / 1000 vues</th><th>réponses / 1000 vues</th><th>bonnes</th></tr></thead><tbody>${html}</tbody></table>`;
+}
 function renderReplies() {
   const el = $('#replies'), all = state.replies || [];
   const now = Date.now(), day = 864e5;
@@ -957,6 +1000,8 @@ function renderReplies() {
   const likes = week.map(r => ((r.metrics || {}).h24 || {}).likes).filter(x => x != null);
   const avg = likes.length ? (likes.reduce((a, b) => a + b, 0) / likes.length).toFixed(1) : '–';
   const views = week.map(r => ((r.metrics || {}).last || {}).views || 0).reduce((a, b) => a + b, 0);
+  const eng = engage(week);
+  const measured14 = all.filter(r => now - Date.parse(r.posted_at) < 14 * day && (r.metrics || {}).last);
   const filters = { todo: 'À noter', all: 'Toutes', good: 'Bonnes', bad: 'Mauvaises', follow: 'Abonnés gagnés' };
   const pick = {
     todo: r => !myGrade(r) && now - Date.parse(r.posted_at) > day,
@@ -976,7 +1021,7 @@ function renderReplies() {
       <div class="mine">${esc(r.reply_text || '')}</div>
       <div class="meta">
         <span>${ago(r.posted_at)}</span>
-        ${r.metrics && r.metrics.last ? `<span>♥ ${m.likes || 0} · ↩ ${m.replies || 0} · ${m.views || 0} vues</span>` : '<span>pas encore mesurée</span>'}
+        ${r.metrics && r.metrics.last ? `<span>♥ ${m.likes || 0} · ↩ ${m.replies || 0} · ${m.views || 0} vues${m.views ? ` · ${fmt1(per1k(m.likes || 0, m.views))} ‰` : ''}</span>` : '<span>pas encore mesurée</span>'}
         ${auto ? `<span class="chip g-${auto}" title="note automatique (24 h)">auto : ${GRADE_LABELS[auto]}</span>` : ''}
         ${r.follow ? `<span class="chip g-good_follow">abonné : @${esc(r.follow.by)}</span>` : ''}
         ${r.author_replied ? '<span class="chip g-good">l’auteur a répondu</span>' : ''}
@@ -993,10 +1038,12 @@ function renderReplies() {
     <div class="panel" style="margin-bottom:12px"><h3>Suivi des réponses</h3>
       <p class="hint">Chaque réponse postée est mesurée 24 h et 72 h après (likes, réponses, vues, abonnés gagnés) et reçoit une note automatique. Ta note compte plus : elle guide la relecture tous les 2 jours${state.review ? ` (dernière : <a href="${esc(state.review.url)}" target="_blank" rel="noopener">${esc(state.review.date)}</a> · ${esc(state.review.summary || '')})` : ''}.</p>
       <div class="rstats">
-        <div><b>${week.length}</b>réponses (7 j)</div><div><b>${avg}</b>likes moyens à 24 h</div><div><b>${views}</b>vues</div>
+        <div><b>${week.length}</b>réponses (7 j)</div><div><b>${views}</b>vues</div><div><b>${avg}</b>likes moyens à 24 h</div>
+        <div><b>${fmt1(eng.likeRate)}</b>likes / 1000 vues</div><div><b>${fmt1(eng.replyRate)}</b>réponses / 1000 vues</div>
         <div><b>${count('good') + count('good_follow')}</b>bonnes</div><div><b>${count('normal')}</b>normales</div>
         <div><b>${count('bad') + count('wrong')}</b>mauvaises</div><div><b>${week.filter(r => r.follow).length}</b>abonnés gagnés</div>
       </div>
+      ${measured14.length ? `<details style="margin:4px 0 12px"><summary class="hint" style="cursor:pointer">Ce qui marche le mieux (${measured14.length} réponses mesurées, 14 j) : en vert au-dessus de la moyenne, en rouge en dessous</summary>${breakdown(measured14)}</details>` : ''}
       <div class="row" style="gap:6px;flex-wrap:wrap">${Object.entries(filters).map(([k, v]) =>
         `<button class="btn small ${state.rfilter === k ? 'primary' : ''}" type="button" data-rfilter="${k}">${v}</button>`).join('')}</div>
     </div>
