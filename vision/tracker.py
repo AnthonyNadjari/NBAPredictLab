@@ -50,10 +50,22 @@ def _pause(a=1.5, b=3.0):
     time.sleep(random.uniform(a, b))
 
 
+def _open(page, url: str, selector: str = "article") -> bool:
+    """Go to `url` and wait until X has rendered `selector` (the SPA can take 10-20 s)."""
+    page.goto(url, wait_until="domcontentloaded", timeout=45000)
+    try:
+        page.wait_for_selector(selector, timeout=30000)
+        _pause(1.5, 2.5)
+        return True
+    except Exception:
+        return False
+
+
 def timeline(page, oldest: datetime, max_scrolls: int = 80) -> dict[str, dict]:
     """{reply id: {"metrics", "text", "at"}} for our replies newer than `oldest`."""
-    page.goto(f"https://x.com/{HANDLE}/with_replies", wait_until="domcontentloaded", timeout=45000)
-    _pause(4, 6)
+    if not _open(page, f"https://x.com/{HANDLE}/with_replies"):
+        print("Tracker: our Replies timeline did not load", flush=True)
+        return {}
     found: dict[str, dict] = {}
     stale = 0
     for _ in range(max_scrolls):
@@ -77,8 +89,7 @@ def timeline(page, oldest: datetime, max_scrolls: int = 80) -> dict[str, dict]:
 
 def conversation(page, reply_id: str) -> dict:
     """Metrics of one reply and the accounts that answered it (status page)."""
-    page.goto(f"https://x.com/{HANDLE}/status/{reply_id}", wait_until="domcontentloaded", timeout=45000)
-    _pause(4, 6)
+    _open(page, f"https://x.com/{HANDLE}/status/{reply_id}")
     arts = page.evaluate(_ARTICLES_JS)
     idx = next((i for i, a in enumerate(arts) if _sid(a.get("link")) == reply_id), None)
     if idx is None:
@@ -92,8 +103,8 @@ def conversation(page, reply_id: str) -> dict:
 
 
 def newest_followers(page, screens: int = 6) -> list[str]:
-    page.goto(f"https://x.com/{HANDLE}/followers", wait_until="domcontentloaded", timeout=45000)
-    _pause(4, 6)
+    if not _open(page, f"https://x.com/{HANDLE}/followers", '[data-testid="UserCell"]'):
+        raise RuntimeError("followers page did not load")
     handles: list[str] = []
     for _ in range(screens):
         for h in page.evaluate("""() => [...document.querySelectorAll('[data-testid="UserCell"]')].map(c => {
