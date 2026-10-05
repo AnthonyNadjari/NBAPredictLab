@@ -2,7 +2,8 @@
 """
 Morning Routine (v2 engine)
 ===========================
-1. Refresh finished games from ESPN into data/games_history.csv
+1. Refresh finished games from ESPN into data/games_history.csv (+ player box scores into
+   data/player_games.csv, for our own model)
 2. Resolve every pending prediction that now has a result
 3. Predict today's and tomorrow's games (US Eastern dates)
 4. Export docs/pending_games.json for the publishing page
@@ -42,6 +43,8 @@ logger = logging.getLogger(__name__)
 DB_PATH = PROJECT_ROOT / 'data' / 'nba_predictor.db'
 JSON_PATH = PROJECT_ROOT / 'docs' / 'pending_games.json'
 DATA_FILES = ['data/nba_predictor.db', 'data/games_history.csv', 'docs/dashboard.json']
+# Also written by the player backfill workflow: merged (union of rows), never restored wholesale
+MERGED_FILES = ['data/player_games.csv']
 # Also written by other workflows (reply bot): never restored wholesale, re-applied instead
 SHARED_FILES = ['docs/x_status.json', 'docs/vision/stats.json']
 
@@ -93,6 +96,16 @@ def git(*args, check=False):
     return r
 
 
+def merge_players(local_copy: Path) -> None:
+    """Union of our player rows and the remote's (the backfill workflow also writes the file)."""
+    if not local_copy.exists():
+        return
+    import pandas as pd
+    from src.engine import player_store
+    ours = player_store.load(local_copy)
+    player_store.save(pd.concat([player_store.load(), ours], ignore_index=True))
+
+
 def push_data(today: str, tomorrow: str, message: str, reapply=None) -> bool:
     """Commit data + JSON and push.
 
@@ -104,8 +117,11 @@ def push_data(today: str, tomorrow: str, message: str, reapply=None) -> bool:
     if os.environ.get('GITHUB_ACTIONS'):
         git('config', 'user.name', 'GitHub Actions Bot')
         git('config', 'user.email', 'actions@github.com')
+    def existing(files):
+        return [f for f in files if (PROJECT_ROOT / f).exists()]
+
     for attempt in range(1, 4):
-        git('add', 'docs/pending_games.json', *DATA_FILES, *SHARED_FILES)
+        git('add', *existing(['docs/pending_games.json', *DATA_FILES, *SHARED_FILES, *MERGED_FILES]))
         if git('diff', '--cached', '--quiet').returncode == 0:
             logger.info('[OK] Nothing to commit')
             return True
@@ -115,12 +131,14 @@ def push_data(today: str, tomorrow: str, message: str, reapply=None) -> bool:
             return True
         logger.info(f'[INFO] Push rejected (attempt {attempt}), re-applying on top of remote')
         backup = Path(tempfile.mkdtemp())
-        for f in DATA_FILES:
+        for f in existing(DATA_FILES + MERGED_FILES):
             shutil.copy2(PROJECT_ROOT / f, backup / Path(f).name)
         git('fetch', 'origin', 'main', check=True)
         git('reset', '--hard', 'origin/main', check=True)
         for f in DATA_FILES:
-            shutil.copy2(backup / Path(f).name, PROJECT_ROOT / f)
+            if (backup / Path(f).name).exists():
+                shutil.copy2(backup / Path(f).name, PROJECT_ROOT / f)
+        merge_players(backup / 'player_games.csv')
         export_json(today, tomorrow)
         if reapply:
             reapply()  # files other jobs also write: re-apply our change on the remote version
@@ -158,6 +176,12 @@ def main() -> int:
         problems.append('history')
         from src.engine import history
         hist = history.load()
+    try:
+        players = pipeline.refresh_players(days_back=args.lookback)
+        logger.info(f'[OK] Player box scores: {len(players)} rows, last {players.game_date.max()}')
+    except Exception as e:  # the own model then falls back to its team-only parts
+        logger.error(f'[ERROR] Player box-score refresh failed: {e}', exc_info=True)
+        problems.append('players')
 
     step('STEP 2: Resolving pending predictions')
     try:
@@ -173,9 +197,11 @@ def main() -> int:
     predictions = []
     if not args.skip_predictions:
         step(f'STEP 3: Predicting {today} and {tomorrow}')
-        for d in ((today_d,) if args.refresh else (today_d, today_d + timedelta(days=1))):
+        days = (today_d,) if args.refresh else (today_d, today_d + timedelta(days=1))
+        own = pipeline.own_for_days(list(days), hist)   # our own model: one pass for all days
+        for d in days:
             try:
-                preds = pipeline.predict_date(d, hist)
+                preds = pipeline.predict_date(d, hist, own=own)
                 predictions += preds
                 logger.info(f'{d}: {len(preds)} game(s)')
             except Exception as e:
@@ -185,7 +211,8 @@ def main() -> int:
             f = p['features']
             logger.info(f"  {p['away_team']} @ {p['home_team']} ({p['game_info']['game_date']}): "
                         f"{p['predicted_winner']} {p['confidence']:.1%} [{f['probability_source']}] "
-                        f"model={f['model_home_prob']:.3f} market={f['market_home_prob']}")
+                        f"model={f['model_home_prob']:.3f} market={f['market_home_prob']} "
+                        f"own={f['own_home_prob']} ({f['own_model_mode']})")
         if predictions:
             frozen = pipeline.published_game_keys(JSON_PATH)
             saved = pipeline.save_predictions(str(DB_PATH), predictions, frozen=frozen)

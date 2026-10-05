@@ -24,7 +24,8 @@ jobs:
     defaults:
       run:
         shell: bash
-    timeout-minutes: 20
+    # + player box scores of the last days and our own model (recomputed from history, < 1 min)
+    timeout-minutes: 25
 
     steps:
       - name: Checkout repository

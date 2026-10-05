@@ -6,7 +6,8 @@ stored as plain JSON (no pickles, no library-version coupling).
 Final probability: the betting market's de-vigged consensus when odds are
 available. Backtests 2022-23..2025-26 (see research/): market 68.6% accuracy /
 Brier 0.203 vs stats model 65.5% / 0.214; a fitted blend gave the stats model
-~0 weight, so the market is used as-is and the stats model is the fallback.
+~0 weight, so the market is used as-is. Without a market price the published
+number is our own model (own_model.py, research H7); this logit is the last resort.
 """
 import json
 from datetime import datetime
@@ -52,8 +53,15 @@ def predict_proba(model: dict, rows: pd.DataFrame) -> np.ndarray:
     return 1.0 / (1.0 + np.exp(-z))
 
 
-def final_probability(model_prob: float, market_prob: Optional[float]) -> tuple:
-    """(home win probability, source) used for the published pick."""
+def final_probability(model_prob: float, market_prob: Optional[float],
+                      own_prob: Optional[float] = None) -> tuple:
+    """(home win probability, source) used for the published pick.
+
+    The market price when there is one; otherwise our own model (src/engine/own_model.py,
+    research H7: clearly better than this logit, -0.011 log-loss over 4 seasons); the stats
+    logit only if the own model could not run."""
     if market_prob is not None and 0.01 < market_prob < 0.99:
         return float(market_prob), "market"
+    if own_prob is not None and 0.0 < own_prob < 1.0:
+        return float(own_prob), "own"
     return float(model_prob), "model"

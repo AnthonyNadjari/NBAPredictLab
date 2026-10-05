@@ -420,12 +420,15 @@ function gameCard(g) {
   const status = pubChip(g);
   const t = g.start_utc ? new Date(g.start_utc) : null;
   const when = t ? `<span class="time">${paris.format(t)}</span> · ${parisDay.format(t)}` : '';
-  const mk = g.market_home_prob, md = g.model_home_prob;
+  const mk = g.market_home_prob, md = g.model_home_prob, ow = g.own_home_prob;
   const pickP = pickHome ? ph : pa;
   const side = p => pickHome ? p : 1 - p;
-  const disagree = mk != null && md != null && (mk >= .5) !== (md >= .5);
+  const ref = ow != null ? ow : md;   // our own model when available, else the old stats logit
+  const disagree = mk != null && ref != null && (mk >= .5) !== (ref >= .5);
+  const teamOnly = g.own_model_mode === 'team_only';
   const pickName = (TEAMS[pickHome ? h : a] || [g.predicted_winner])[0];
-  const src = g.probability_source === 'market' ? 'consensus des cotes' : 'modèle stats (pas de cotes)';
+  const src = g.probability_source === 'market' ? 'consensus des cotes'
+    : g.probability_source === 'own' ? 'notre modèle (pas de cotes)' : 'modèle stats (pas de cotes)';
   return `
   <article class="game ${g.published ? 'published' : ''}" data-id="${esc(g.id)}">
     <div class="g-top"><div>${when}${g.refreshed_at ? ` · <span title="Heure de la dernière mise à jour de la probabilité">màj ${paris.format(new Date(g.refreshed_at))}</span>` : ''}</div>${status}</div>
@@ -446,10 +449,12 @@ function gameCard(g) {
     </div>
     <div class="split">
       ${mk != null ? `<span>Marché <b>${pct(side(mk))}</b></span>` : ''}
-      ${md != null ? `<span>Modèle <b>${pct(side(md))}</b></span>` : ''}
+      ${ow != null ? `<span title="Notre modèle, sans aucune cote (Elo + ratings de marge + impact joueurs)${teamOnly ? ' : données joueurs absentes ou en retard, parties équipe seules' : ''}">Notre modèle <b>${pct(side(ow))}</b>${teamOnly ? ' <small>(sans joueurs)</small>' : ''}</span>`
+        : md != null ? `<span>Modèle <b>${pct(side(md))}</b></span>` : ''}
       ${mk != null ? `<span>Cotes <b>${(+g.away_odds).toFixed(2)}</b> / <b>${(+g.home_odds).toFixed(2)}</b></span>` : `<span>Pas encore de cotes</span>`}
     </div>
-    ${disagree ? `<div class="warn">Le modèle stats et le marché ne choisissent pas la même équipe.</div>` : ''}
+    ${disagree ? `<div class="warn">${ow != null ? 'Notre modèle' : 'Le modèle stats'} et le marché ne choisissent pas la même équipe.</div>` : ''}
+    ${teamOnly ? `<div class="warn">Notre modèle tourne sans données joueurs pour ce match (box-scores absents ou en retard) : Elo + ratings de marge seulement.</div>` : ''}
     <div class="g-actions">
       <button class="btn small" type="button" data-act="preview">Aperçu du thread</button>
       ${g.published && g.tweet_url ? `<a class="btn small" href="${esc(g.tweet_url)}" target="_blank" rel="noopener">Voir sur X</a>`
@@ -612,6 +617,7 @@ function renderRecord() {
     <dl class="kv">
       <div><dt>Matchs</dt><dd>${s.n}</dd></div>
       <div><dt>Brier (↓ mieux)</dt><dd>${s.brier.toFixed(3)}</dd></div>
+      ${d.own_model && d.own_model.n ? `<div><dt title="Notre modèle sans cotes, sur les mêmes matchs (affiché, pas publié)">Notre modèle</dt><dd>${pct(d.own_model.accuracy, 1)} · Brier ${d.own_model.brier.toFixed(3)}</dd></div>` : ''}
       <div><dt>Mise 1 u./pick</dt><dd>${s.flat_bets ? (s.flat_bets.units >= 0 ? '+' : '') + s.flat_bets.units + ' u.' : '–'}</dd></div>
     </dl>
     <div style="margin-top:16px">${cumulativeSVG(s.daily)}</div>`
@@ -654,6 +660,7 @@ function renderControl() {
       <dt>Matchs en base</dt><dd>${d.data.games_in_history}</dd>
       <dt>Dernier match connu</dt><dd>${esc(d.data.last_game_date)}</dd>
       <dt>Modèle entraîné</dt><dd>${esc((d.data.model_trained_at || '').slice(0, 10))} · ${d.data.model_seasons.length} saisons</dd>
+      <dt>Box-scores joueurs</dt><dd>${d.data.player_games && d.data.player_games.games ? `${d.data.player_games.games} matchs · dernier ${esc(d.data.player_games.last_game_date)}` : 'aucun (notre modèle sans joueurs)'}</dd>
       <dt>Données générées</dt><dd>${ago(d.generated_at)}</dd>
     </dl>` : '';
   if (!state.pw) {

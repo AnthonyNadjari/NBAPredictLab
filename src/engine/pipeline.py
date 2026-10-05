@@ -7,7 +7,7 @@ from typing import Dict, List, Optional
 import numpy as np
 import pandas as pd
 
-from . import espn, features, history, model
+from . import espn, features, history, model, own_model, player_store
 from .teams import full_name, to_code
 
 log = logging.getLogger(__name__)
@@ -33,6 +33,35 @@ def refresh_history(days_back: int = 7) -> pd.DataFrame:
     return history.load()
 
 
+def refresh_players(days_back: int = 7) -> pd.DataFrame:
+    """Add the player box scores of games finished in the last `days_back` days to
+    data/player_games.csv (always written, so the file exists for the data commit)."""
+    df = player_store.update_from_espn(player_store.load(), days_back=days_back)
+    player_store.save(df)
+    return df
+
+
+def own_probabilities(games: List[Dict], hist: pd.DataFrame) -> Dict:
+    """Own-model probabilities (own_model.predict) that never raise: {} if the model fails."""
+    try:
+        return own_model.predict(games, hist)
+    except Exception as e:  # never block the published (market) probability
+        log.error("Own model failed: %s", e, exc_info=True)
+        return {}
+
+
+def own_for_days(days: List[date], hist: pd.DataFrame) -> Dict:
+    """Own-model probabilities for the not-started games of `days`, computed in one pass.
+    Unfinished games of the day before serve as schedule context (back-to-backs)."""
+    games = []
+    for d in [min(days) - timedelta(days=1)] + sorted(days):
+        try:
+            games += [g for g in espn.scoreboard(d) if not g["completed"]]
+        except RuntimeError as e:
+            log.warning("%s", e)
+    return own_probabilities(games, hist)
+
+
 def _clean(v):
     if v is None:
         return None
@@ -43,17 +72,22 @@ def _clean(v):
     return v
 
 
-def predict_date(day: date, hist: Optional[pd.DataFrame] = None, with_odds: bool = True) -> List[Dict]:
+def predict_date(day: date, hist: Optional[pd.DataFrame] = None, with_odds: bool = True,
+                 own: Optional[Dict] = None) -> List[Dict]:
     """Predictions for games on US Eastern date `day` that have not started.
 
     Output dicts follow the legacy format used by _save_predictions_to_db,
     the exporter, the email and the Twitter thread.
+    Published probability: the market's when there is one, else our own model's (own),
+    else (own model failed) the stats logit. own: own_for_days() output, computed here if None.
     Raises RuntimeError if the schedule source is unreachable.
     """
     hist = hist if hist is not None else history.load()
     games = [g for g in espn.scoreboard(day) if g["state"] == "pre"]
     if not games:
         return []
+    if own is None:
+        own = own_for_days([day], hist)
     upcoming = pd.DataFrame([{
         "game_id": f"espn_{g['event_id']}", "game_date": g["game_date"], "season": g["season"],
         "season_type": g["season_type"], "home": g["home"], "away": g["away"], "source": "upcoming",
@@ -69,7 +103,8 @@ def predict_date(day: date, hist: Optional[pd.DataFrame] = None, with_odds: bool
         row = feats.loc[(g["game_date"], g["home"], g["away"])]
         p_model = float(model.predict_proba(m, row.to_frame().T)[0])
         mk = espn.odds(g["event_id"]) if with_odds else None
-        p_home, source = model.final_probability(p_model, mk and mk["home_prob"])
+        o = own.get((g["game_date"], g["home"], g["away"])) or {}
+        p_home, source = model.final_probability(p_model, mk and mk["home_prob"], o.get("own_home_prob"))
         pick_home = p_home >= 0.5
 
         f = {f"{side}_{k}": _clean(row.get(f"{side}_{k}")) for side in ("home", "away") for k in _SIDE_KEYS}
@@ -84,6 +119,11 @@ def predict_date(day: date, hist: Optional[pd.DataFrame] = None, with_odds: bool
             "market_spread": mk["spread"] if mk else None,
             "market_books": len(mk["books"]) if mk else 0,
             "probability_source": source,
+            # our own model (research H7 avg3, no odds): stored and shown next to the market
+            "own_home_prob": o.get("own_home_prob"),
+            "own_away_prob": o.get("own_away_prob"),
+            "own_model_mode": o.get("own_model_mode", "unavailable"),
+            "own_components": o.get("own_components"),
             "engine": "v2",
             "refreshed_at": datetime.now(timezone.utc).isoformat(timespec="minutes"),
             "start_utc": g["start_utc"],

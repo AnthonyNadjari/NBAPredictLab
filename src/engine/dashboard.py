@@ -27,11 +27,45 @@ def _resolved(db_path: str) -> pd.DataFrame:
     conn = sqlite3.connect(db_path)
     df = pd.read_sql("""SELECT game_date, home_team, away_team, predicted_winner, predicted_home_prob,
                                confidence, actual_winner, actual_home_score, actual_away_score, correct,
-                               home_odds, away_odds
+                               home_odds, away_odds, features_json
                         FROM predictions WHERE correct IS NOT NULL""", conn)
     conn.close()
     df["p_pick"] = df.predicted_home_prob.where(df.predicted_home_prob >= 0.5, 1 - df.predicted_home_prob)
-    return df
+    feats = [_features(x) for x in df.features_json]
+    df["own_home_prob"] = pd.Series([f.get("own_home_prob") for f in feats], index=df.index, dtype=float)
+    df["own_model_mode"] = [f.get("own_model_mode") for f in feats]
+    return df.drop(columns="features_json")
+
+
+def _features(raw) -> Dict:
+    try:
+        return json.loads(raw) if raw else {}
+    except ValueError:
+        return {}
+
+
+def _own_record(df: pd.DataFrame) -> Dict:
+    """Track record of our own model (published or not) on resolved games that have it."""
+    d = df[df.own_home_prob.notna()]
+    n = int(len(d))
+    if not n:
+        return {"n": 0, "correct": 0, "accuracy": None, "brier": None, "published_brier_same_games": None,
+                "team_only_share": None}
+    home_won = (d.actual_winner == d.home_team).astype(float)
+    ok = int(((d.own_home_prob >= 0.5) == (home_won == 1)).sum())
+    return {"n": n, "correct": ok, "accuracy": ok / n, "brier": float(((d.own_home_prob - home_won) ** 2).mean()),
+            "published_brier_same_games": float(((d.predicted_home_prob - home_won) ** 2).mean()),
+            "team_only_share": float((d.own_model_mode == "team_only").mean())}
+
+
+def _player_data() -> Dict:
+    from . import player_store
+    try:
+        p = player_store.load()
+    except Exception:
+        return {"rows": 0, "games": 0, "last_game_date": None}
+    return {"rows": int(len(p)), "games": int(p.game_id.nunique()) if len(p) else 0,
+            "last_game_date": str(p.game_date.max()) if len(p) else None}
 
 
 def _record(df: pd.DataFrame) -> Dict:
@@ -99,15 +133,31 @@ def build_dashboard(db_path: str, today: date, slate: Optional[Dict] = None) -> 
         "recent": [{
             "date": r.game_date, "home": _code(r.home_team), "away": _code(r.away_team),
             "pick": _code(r.predicted_winner), "p": round(float(r.p_pick), 3), "correct": int(r.correct),
+            "own_home_prob": None if pd.isna(r.own_home_prob) else round(float(r.own_home_prob), 4),
+            "own_away_prob": None if pd.isna(r.own_home_prob) else round(1 - float(r.own_home_prob), 4),
+            "own_model_mode": r.own_model_mode,
             "score": f"{int(r.actual_away_score)}–{int(r.actual_home_score)}"
             if pd.notna(r.actual_home_score) else None,
         } for r in recent.itertuples()],
         "data": {"games_in_history": int(len(hist)), "last_game_date": str(hist.game_date.max()),
-                 "model_trained_at": model_info.get("trained_at"), "model_seasons": model_info.get("seasons", [])},
+                 "model_trained_at": model_info.get("trained_at"), "model_seasons": model_info.get("seasons", []),
+                 "player_games": _player_data(), "own_model_params": _own_params_info()},
+        # our own model (no odds), shown next to the published market price
+        "own_model": {**_own_record(season),
+                      "backtest": {"seasons": "2022-23 → 2025-26", "accuracy": 0.673, "brier": 0.2081,
+                                   "logloss": 0.6028, "market_logloss": 0.5916}},
         "backtest": {"seasons": "2022-23 → 2025-26", "market_accuracy": 0.686, "market_brier": 0.203,
                      "model_accuracy": 0.655, "model_brier": 0.214},
         "next_slate": slate,
     }
+
+
+def _own_params_info() -> Dict:
+    try:
+        p = json.loads((ROOT / "data" / "own_model_params.json").read_text(encoding="utf-8"))
+        return {"fitted_through": p.get("fitted_through"), "exported_at": p.get("exported_at")}
+    except (OSError, ValueError):
+        return {}
 
 
 def _code(name: str) -> str:
@@ -142,6 +192,9 @@ def enrich_pending(json_path: Path, db_path: str, thread_preview: bool = True,
             g["model_home_prob"] = f.get("model_home_prob")
             g["market_home_prob"] = f.get("market_home_prob")
             g["probability_source"] = f.get("probability_source")
+            g["own_home_prob"] = f.get("own_home_prob")
+            g["own_away_prob"] = f.get("own_away_prob")
+            g["own_model_mode"] = f.get("own_model_mode")
             g["market_books"] = f.get("market_books")
             g["refreshed_at"] = f.get("refreshed_at")
             g["key_out"] = {"home": f.get("home_key_out", []), "away": f.get("away_key_out", [])}

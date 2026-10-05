@@ -1,0 +1,57 @@
+name: Backfill player box scores
+
+# One-off (manual): rebuilds data/player_games.csv from ESPN box scores for the own model
+# (src/engine/own_model.py): the last 2 seasons + the current preseason, ~2,700 ESPN calls at a
+# polite pace. Resumable: if the time budget runs out, run it again and it continues.
+# The daily run keeps the file up to date afterwards.
+
+on:
+  workflow_dispatch:
+    inputs:
+      seasons:
+        description: 'Seasons to rebuild (space-separated)'
+        default: '2024-25 2025-26'
+      sleep:
+        description: 'Seconds between ESPN calls'
+        default: '0.6'
+      budget_minutes:
+        description: 'Stop and commit after this many minutes (re-run to continue)'
+        default: '150'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: backfill-players
+  cancel-in-progress: false
+
+jobs:
+  backfill:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 175
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: python -m pip install -q "pandas>=2.1.0,<2.2.0" "numpy>=1.26.0,<2" requests tzdata
+
+      - name: Backfill from ESPN and commit
+        env:
+          SEASONS: ${{ inputs.seasons }}
+          SLEEP: ${{ inputs.sleep }}
+          BUDGET: ${{ inputs.budget_minutes }}
+        run: |
+          python scripts/backfill_players.py --seasons $SEASONS --sleep "$SLEEP" \
+            --budget-minutes "$BUDGET" --commit
