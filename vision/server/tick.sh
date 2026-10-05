@@ -36,6 +36,8 @@ export NBAVISION_BROWSER_CHANNEL=chromium   # full Chromium in new headless mode
 export PYTHONIOENCODING=utf-8
 # Memory-lean browsing on the shared box (1.5 GB cap): one tab, no images/video/fonts
 export PARALLEL_TABS=1 BLOCK_MEDIA=1
+# off-season (before the regular season starts on Oct 20) there are few fresh tweets
+[ "$(date -u +%Y%m%d)" -lt 20261020 ] && export MAX_MINUTES_SINCE_POST=360
 export CHROME_EXTRA_ARGS="--disable-gpu --renderer-process-limit=2 --disable-extensions --disable-background-networking"
 
 MODE=$(python vision/tools/server_request.py)   # none | session | dry | login  (+ max replies)
