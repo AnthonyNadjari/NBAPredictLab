@@ -169,3 +169,15 @@ def test_context_ignores_ambiguous_words_and_off_topic_tweets(monkeypatch):
     monkeypatch.setattr(c, "_history", lambda: [])
     monkeypatch.setattr(c, "_pending", lambda: [])
     assert c.facts_for("Celtics' new jersey looks clean") == []   # not about results: no records
+
+
+def test_records_only_for_result_tweets_whole_words():
+    import nba_context as nc
+    assert not nc.PERFORMANCE_RE.search("Bring it during the scoring drills, former teammate Frank says")
+    assert nc.PERFORMANCE_RE.search("Lakers lost again, washed?")
+    assert nc.PERFORMANCE_RE.search("Who wins the West this season")
+
+
+def test_record_pattern_catches_win_loss_numbers():
+    from engine import RECORD_RE
+    assert RECORD_RE.findall("49-33 last season, 2026-27 is new") == ["49-33"]

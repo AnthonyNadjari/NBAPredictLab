@@ -200,10 +200,12 @@ def team_facts(code: str) -> list[str]:
     return facts
 
 
-# Records and form are only relevant when the tweet is about results/standing/form
-PERFORMANCE_WORDS = ("record", "win", "won", "loss", "lose", "lost", "season", "standing", "seed",
-                     "playoff", "streak", "contender", "best", "worst", "washed", "rank", "beat",
-                     "tonight", "game", "favorite", "favourite", "odds", "title", "ring", "form")
+# Records and form are only relevant when the tweet is about results/standing/form.
+# Whole words only: "ring" must not match "during", "rank" not "Frank", "form" not "former".
+PERFORMANCE_RE = re.compile(
+    r"\b(record|wins?|won|loss(es)?|losing|lost|beat|beats|standings?|seed(ed)?|playoffs?|streak|"
+    r"contenders?|washed|ranked|odds|favou?rites?|title|champions(hip)?|over \.500|under \.500|"
+    r"last season|this season)\b", re.I)
 
 
 def facts_for(tweet_text: str) -> list[str]:
@@ -214,7 +216,7 @@ def facts_for(tweet_text: str) -> list[str]:
         print(f"    Context: detection failed ({e})", flush=True)
         return []
     facts = [f"{p} plays for the {TEAMS[t][0]}" for p, t in list(players.items())[:2] if t in TEAMS]
-    if any(w in tweet_text.lower() for w in PERFORMANCE_WORDS):
+    if PERFORMANCE_RE.search(tweet_text):
         for code in list(teams | set(players.values()))[:2]:
             if code in TEAMS:
                 facts += team_facts(code)

@@ -33,6 +33,9 @@ LLM_SERIAL_DELAY_SEC = (3.0, 4.5)
 SESSION_HEALTH_CHECK_INTERVAL = 5
 
 
+# W-L records like "49-33" (a reply may quote one at most once per session)
+RECORD_RE = re.compile(r"\b\d{1,2}-\d{1,2}\b")
+
 def _engagement_velocity(tweet: dict) -> float:
     minutes = max(1, minutes_since_post(tweet.get("timestamp") or ""))
     likes = tweet.get("likes") or 0
@@ -73,6 +76,7 @@ def run_session(page, context, *, browser, playwright_instance):
     posting_failures = 0
     cycle_index = 0
     browser_gone = False
+    used_records: set[str] = set()
 
     if DRY_RUN:
         print("*** DRY RUN MODE — no replies will be posted ***", flush=True)
@@ -202,6 +206,14 @@ def run_session(page, context, *, browser, playwright_instance):
             response = re.sub(r"\s*—\s*", ", ", response)[:180].strip()
             reply_preview = (response[:60] + "...") if len(response) > 60 else response
             print(f"  @{author}: Reply ({len(response)} chars): {reply_preview!r}", flush=True)
+            # the same record twice in a session reads like a bot: one use per session
+            records = set(RECORD_RE.findall(response))
+            if records & used_records:
+                total_skipped += 1
+                skip_reasons["repeated_fact"] = skip_reasons.get("repeated_fact", 0) + 1
+                print(f"  @{author}: Skip (record already used this session)", flush=True)
+                events.append(_event("llm_skip", {"tweet_id": tweet_id, "reason": "repeated_fact"}))
+                continue
             # names/numbers from the verified facts count as "in context" for the validator
             context_text = "\n".join([tweet.get("text") or ""] + list(llm_result.get("facts") or []))
             valid, fail_reason = validate_reply(response, session_replies, tweet_text=context_text)
@@ -232,6 +244,7 @@ def run_session(page, context, *, browser, playwright_instance):
             total_replied += 1
             replied_author_count[author] = replied_author_count.get(author, 0) + 1
             session_replies.append(response)
+            used_records |= records
             replies_posted.append({
                 "tweet_url": tweet_url,
                 "author": author,
