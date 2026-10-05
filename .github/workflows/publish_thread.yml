@@ -10,7 +10,61 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  # PUBLISH_BACKEND=server: queue the request for the IONOS server, which posts through the
+  # logged-in browser (vision/server/publish_tick.sh): no API, no per-post cost.
+  queue:
+    if: vars.PUBLISH_BACKEND == 'server'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    env:
+      GAME_ID: ${{ github.event.client_payload.game_id }}
+      THREAD_TEXTS_JSON: ${{ toJSON(github.event.client_payload.texts) != 'null' && toJSON(github.event.client_payload.texts) || '' }}
+      DRY: ${{ github.event.client_payload.dry == true && 'true' || 'false' }}
+    steps:
+      - name: Validate game id
+        run: |
+          if ! printf '%s' "$GAME_ID" | grep -Eq '^[A-Za-z0-9_.-]{1,120}$'; then
+            echo "Invalid game id"; exit 1
+          fi
+
+      - uses: actions/checkout@v4
+
+      - name: Queue the request for the server
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          for i in 1 2 3; do
+            git fetch -q origin main && git reset -q --hard origin/main
+            python3 - <<'PY'
+          import json, os, pathlib
+          from datetime import datetime, timezone
+          p = pathlib.Path('docs/vision/publish_queue.json')
+          q = json.loads(p.read_text(encoding='utf-8')) if p.exists() else {'requests': []}
+          raw = os.environ.get('THREAD_TEXTS_JSON', '')
+          texts = json.loads(raw) if raw else None
+          if texts is not None and not (isinstance(texts, list) and all(isinstance(t, str) for t in texts)):
+              raise SystemExit('texts must be a list of strings')
+          rid = f"{os.environ['GITHUB_RUN_ID']}-{os.environ['GITHUB_RUN_ATTEMPT']}"
+          if not any(r.get('id') == rid for r in q['requests']):
+              q['requests'] = (q['requests'] + [{
+                  'id': rid, 'game_id': os.environ['GAME_ID'], 'texts': texts,
+                  'dry': os.environ.get('DRY') == 'true',
+                  'requested_at': datetime.now(timezone.utc).isoformat(timespec='seconds')}])[-20:]
+          p.write_text(json.dumps(q, indent=2, ensure_ascii=False), encoding='utf-8')
+          PY
+            git add docs/vision/publish_queue.json
+            git diff --cached --quiet && exit 0
+            git commit -q -m "Publish request: $GAME_ID"
+            git push -q origin HEAD:main && exit 0
+            sleep 5
+          done
+          echo "::error::push failed"; exit 1
+
+  # Default: post with the X API from GitHub (needs API credits on the X developer account)
   publish:
+    if: vars.PUBLISH_BACKEND != 'server'
     runs-on: ${{ vars.RUNNER || 'ubuntu-24.04' }}
     defaults:
       run:

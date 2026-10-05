@@ -109,6 +109,7 @@ section[hidden] { display: none; }
 .chip { font-size: 11.5px; font-weight: 600; padding: 2px 8px; border-radius: 999px; background: var(--wash); color: var(--muted); }
 .chip.pub { background: color-mix(in srgb, var(--win) 15%, transparent); color: var(--win); }
 .chip.launch { background: color-mix(in srgb, var(--ball) 15%, transparent); color: var(--ball); }
+.chip.fail { background: color-mix(in srgb, var(--loss) 15%, transparent); color: var(--loss); cursor: help; }
 
 .teams { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 8px; }
 .team { display: flex; align-items: center; gap: 8px; min-width: 0; }
@@ -281,7 +282,7 @@ const ALT = { ATL: '#C1D32F', CHI: '#000000', HOU: '#000000', TOR: '#000000', DE
   POR: '#000000', MIN: '#78BE20', NOP: '#C8102E', UTA: '#F9A01B', WAS: '#E31837', CHA: '#00788C', PHX: '#E56020',
   DEN: '#FEC524', IND: '#FDBB30', BKN: '#707271', SAS: '#000000', MIA: '#F9A01B', CLE: '#FDBB30' };
 
-const state = { games: null, dash: null, pw: null, runs: null, cron: null, launched: new Set() };
+const state = { games: null, dash: null, pw: null, runs: null, cron: null, launched: new Set(), launchedAt: {}, publog: [] };
 try { state.pw = sessionStorage.getItem('pl_pw'); } catch (e) {}
 try { state.launched = new Set(JSON.parse(localStorage.getItem('pl_launched') || '[]')); } catch (e) {}
 
@@ -366,15 +367,26 @@ function renderHealth() {
   el.innerHTML = pills.join('');
 }
 
+// ---------------- publishing outcome (docs/vision/publish_log.json, written by the server) ----------------
+function lastPublish(id) {
+  const e = (state.publog || []).filter(x => x.game_id === id && !x.dry_run);
+  return e[e.length - 1] || null;
+}
+function pubChip(g) {
+  if (g.published) return `<span class="chip pub">Publié</span>`;
+  if (state.launched.has(g.id)) return `<span class="chip launch">Publication lancée</span>`;
+  const last = lastPublish(g.id);
+  if (last && !last.ok) return `<span class="chip fail" title="${esc(last.error || '')}">Échec de publication</span>`;
+  return `<span class="chip">À publier</span>`;
+}
+
 // ---------------- slate ----------------
 function gameCard(g) {
   const a = g.away_code, h = g.home_code;
   const pa = g.predicted_away_prob, ph = g.predicted_home_prob;
   const [ca, ch] = colors(a, h);
   const pickHome = ph >= .5;
-  const launched = !g.published && state.launched.has(g.id);
-  const status = g.published ? `<span class="chip pub">Publié</span>`
-    : launched ? `<span class="chip launch">Publication lancée</span>` : `<span class="chip">À publier</span>`;
+  const status = pubChip(g);
   const t = g.start_utc ? new Date(g.start_utc) : null;
   const when = t ? `<span class="time">${paris.format(t)}</span> · ${parisDay.format(t)}` : '';
   const mk = g.market_home_prob, md = g.model_home_prob;
@@ -421,7 +433,7 @@ function renderSlate() {
   const all = state.games.games || [];
   const specials = (state.games.specials || []).map(sp => `
     <article class="game ${sp.published ? 'published' : ''}" data-id="${esc(sp.id)}">
-      <div class="g-top"><div>Post spécial</div>${sp.published ? '<span class="chip pub">Publié</span>' : '<span class="chip">À publier</span>'}</div>
+      <div class="g-top"><div>Post spécial</div>${pubChip(sp)}</div>
       <div style="font:800 22px var(--display);text-transform:uppercase">${esc(sp.matchup || sp.title)}</div>
       <div class="hint" style="margin:0">${esc(((sp.thread || [])[0] || {}).text ? sp.thread[0].text.split(String.fromCharCode(10))[2] || '' : '')}</div>
       <div class="g-actions"><button class="btn small" type="button" data-act="preview">Aperçu</button>
@@ -501,10 +513,10 @@ function openThread(g, publishMode) {
     e.target.disabled = true; e.target.textContent = 'Envoi…';
     try {
       await api('publish', changed ? { game_id: g.id, texts: edited } : { game_id: g.id });
-      state.launched.add(g.id);
+      state.launched.add(g.id); state.launchedAt[g.id] = Date.now();
       try { localStorage.setItem('pl_launched', JSON.stringify([...state.launched].slice(-60))); } catch (err) {}
       dlg.close(); renderSlate();
-      toast('Publication lancée. Le thread part sur X dans 2 à 3 minutes.');
+      toast('Publication lancée. Le thread part sur X dans 2 à 5 minutes.');
     } catch (err) {
       e.target.disabled = false; e.target.textContent = 'Publier sur X';
       toast(err.message);
@@ -903,15 +915,25 @@ document.querySelectorAll('nav.tabs button').forEach(b => b.addEventListener('cl
 }));
 
 async function load() {
-  const [g, d, vs, vr, xs, vsc] = await Promise.allSettled([getJSON('pending_games.json'), getJSON('dashboard.json'),
-    getJSON('vision/stats.json'), getJSON('vision/runs.json'), getJSON('x_status.json'), getJSON('vision/schedule.json')]);
+  const [g, d, vs, vr, xs, vsc, pl] = await Promise.allSettled([getJSON('pending_games.json'), getJSON('dashboard.json'),
+    getJSON('vision/stats.json'), getJSON('vision/runs.json'), getJSON('x_status.json'), getJSON('vision/schedule.json'),
+    getJSON('vision/publish_log.json')]);
   const val = r => r.status === 'fulfilled' ? r.value : null;
   state.vstats = val(vs) || []; state.vruns = val(vr) || []; state.xstatus = val(xs) || {};
   if (!state.vscheduleDirty) state.vschedule = val(vsc);
   state.games = g.status === 'fulfilled' ? g.value : { games: [] };
   state.dash = d.status === 'fulfilled' ? d.value : null;
   // drop local "launched" marks once the JSON says published
-  for (const x of state.games.games || []) if (x.published) state.launched.delete(x.id);
+  state.publog = Array.isArray(val(pl)) ? val(pl) : [];
+  for (const x of [...(state.games.games || []), ...(state.games.specials || [])]) {
+    if (x.published) { state.launched.delete(x.id); continue; }
+    // a failure reported after this click ends the "launched" state
+    const last = lastPublish(x.id);
+    if (last && !last.ok && state.launched.has(x.id) && Date.parse(last.at) > (state.launchedAt[x.id] || 0)) {
+      state.launched.delete(x.id);
+      toast(`Publication échouée : ${last.error || 'voir le serveur'}`);
+    }
+  }
   renderHealth(); renderSlate();
   if (!$('#record').hidden) renderRecord();
   if (!$('#control').hidden) renderControl();

@@ -12,6 +12,7 @@ Example:
     python scripts/publish_single_thread.py LAL_vs_BOS_2026-01-03
 """
 
+import os
 import sys
 import time
 import json
@@ -25,8 +26,8 @@ from typing import Dict, Optional
 PROJECT_ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
-# Legacy modules (xgboost, plotly...) are imported lazily: only the fallback formatter needs them.
-from src.twitter_integration import create_fresh_twitter_client, _upload_media
+# Legacy modules (xgboost, plotly, tweepy...) are imported lazily: the server that posts
+# through the browser doesn't have them.
 
 # Full name to tricode mapping (reverse of TRICODE_TO_NAME)
 NAME_TO_TRICODE = {
@@ -335,13 +336,40 @@ def apply_text_overrides(posts: list) -> list:
     return out
 
 
+def post_thread_browser(posts: list, image_paths: list, dry_run: bool) -> list:
+    """Post through the logged-in browser (vision/publisher.py): no API, no per-post cost."""
+    sys.path.insert(0, str(PROJECT_ROOT / 'vision'))
+    from auth import launch_and_auth
+    from publisher import post_thread as browser_post_thread
+    res = launch_and_auth()
+    if res[0] is None:
+        raise RuntimeError(f"X login failed in the browser ({res[-1]})")
+    pw, _, context, _page = res
+    try:
+        ids, error = browser_post_thread(
+            context, [{'text': p['text'], 'image': img} for p, img in zip(posts, image_paths)], dry_run)
+    finally:
+        try:
+            context.close()
+            pw.stop()
+        except Exception:
+            pass
+    if error:
+        logger.error(f"Browser posting stopped: {error}")
+        os.environ['THREAD_ERROR'] = error
+    return [f"dry{i}" for i in range(len(posts))] if dry_run and not error else ids
+
+
 def post_thread(posts: list, image_paths: list, dry_run: bool) -> list:
     """Post tweet by tweet; returns posted tweet ids (stops at the first failure)."""
+    if os.getenv('PUBLISH_BACKEND', 'api') == 'browser':
+        return post_thread_browser(posts, image_paths, dry_run)
     if dry_run:
         for i, p in enumerate(posts):
             logger.info(f"[DRY RUN] tweet {i + 1}/{len(posts)} ({len(p['text'])} chars, "
                         f"image={bool(image_paths[i])}): {p['text']!r}")
         return [f"dry{i}" for i in range(len(posts))]
+    from src.twitter_integration import create_fresh_twitter_client, _upload_media
     clients = create_fresh_twitter_client()
     client_v2, api_v1 = clients.get('client_v2'), clients.get('api_v1')
     if not client_v2:
@@ -400,12 +428,14 @@ def publish_thread(game_id: str) -> bool:
         image_paths = [(imgs[i] if imgs and i < len(imgs) else None) for i in range(len(texts))]
 
     logger.info(f"{len(posts)} tweets, {sum(1 for p in image_paths if p)} images")
-    for var in ('TW_API_KEY', 'TW_API_SECRET', 'TW_ACCESS_TOKEN', 'TW_ACCESS_SECRET'):
-        logger.info(f"   {var}: {'set' if os.getenv(var) else 'MISSING'}")
+    if os.getenv('PUBLISH_BACKEND', 'api') != 'browser':
+        for var in ('TW_API_KEY', 'TW_API_SECRET', 'TW_ACCESS_TOKEN', 'TW_ACCESS_SECRET'):
+            logger.info(f"   {var}: {'set' if os.getenv(var) else 'MISSING'}")
     dry = os.getenv('TW_DRY_RUN', 'false').lower() in ('1', 'true', 'yes')
     ids = post_thread(posts, image_paths, dry)
 
-    result = {'posted': len(ids), 'total': len(posts), 'first_id': ids[0] if ids else None}
+    result = {'posted': len(ids), 'total': len(posts), 'first_id': ids[0] if ids else None,
+              'dry_run': dry, 'error': os.getenv('THREAD_ERROR') or None}
     Path(os.getenv('THREAD_RESULT_FILE', 'thread_result.json')).write_text(json.dumps(result))
     if not ids:
         logger.error("Nothing was posted")
