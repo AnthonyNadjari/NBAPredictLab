@@ -244,16 +244,27 @@ def run_session(page, context, *, browser, playwright_instance):
             replied_author_count[author] = replied_author_count.get(author, 0) + 1
             session_replies.append(response)
             used_records |= records
-            replies_posted.append({
+            import poster as _poster
+            posted = {
                 "tweet_url": tweet_url,
                 "author": author,
                 "tweet_text": (tweet.get("text") or "")[:280],
                 "tweet_likes": tweet.get("likes") or 0,
                 "reply_text": response,
+                "reason": reason,
+                "fact_used": (llm_result.get("fact_used") or "").strip() or None,
                 "context_used": bool(llm_result.get("context_used")),
+                "reply_id": None if DRY_RUN else _poster.LAST_POSTED_ID,
                 "dry_run": DRY_RUN,
                 "posted_at": datetime.now(TZ).isoformat(),
-            })
+            }
+            replies_posted.append(posted)
+            if not DRY_RUN:
+                try:   # tracking is a bonus: never let it stop a session
+                    import replies_ledger
+                    replies_ledger.add(posted, run_id=run_id)
+                except Exception as e:
+                    print(f"  Ledger: could not record the reply ({e})", flush=True)
             response_lengths.append(len(response))
             engagement_velocities.append(_engagement_velocity(tweet))
             consecutive_errors = 0

@@ -9,6 +9,7 @@
  *   action "vision_run" { dry_run, max_replies } -> start a reply-bot session
  *   action "vision_schedule" { schedule } -> save docs/vision/schedule.json
  *   action "autopilot" { autopilot } -> save docs/autopilot.json (threads queued automatically each evening)
+ *   action "grade_reply" { reply_id, grade } -> docs/vision/reply_grades.json (how a posted reply did, by hand)
  *   action "set_secret" { name, value } -> store TWITTER_COOKIES_JSON, LLM_API_KEY or BROWSER_PROXY as a repo secret
  *
  * Environment (same as publish.js): PUBLISH_PASSWORD, GITHUB_TOKEN, GITHUB_REPO
@@ -210,6 +211,32 @@ module.exports = async function handler(req, res) {
         content: Buffer.from(JSON.stringify(clean, null, 2) + '\n').toString('base64'), ...(sha ? { sha } : {}) }) });
       if (!put.ok) return res.status(502).json({ success: false, error: `GitHub API error (${put.status})` });
       return res.status(200).json({ success: true, autopilot: clean });
+    }
+
+    if (action === 'grade_reply') {
+      const id = String(req.body.reply_id || '');
+      const grade = req.body.grade === null ? null : String(req.body.grade || '');
+      if (!/^[\w-]{1,40}$/.test(id) || !(grade === null || ['bad', 'normal', 'good', 'good_follow', 'wrong'].includes(grade))) {
+        return res.status(400).json({ success: false, error: 'Invalid grade' });
+      }
+      const path = `/repos/${repo}/contents/docs/vision/reply_grades.json`;
+      for (let attempt = 0; attempt < 3; attempt++) {
+        const cur = await gh(path, token);
+        let grades = {}, sha;
+        if (cur.ok) {
+          const js = await cur.json();
+          sha = js.sha;
+          try { grades = JSON.parse(Buffer.from(js.content, 'base64').toString('utf8')) || {}; } catch (e) { grades = {}; }
+        }
+        if (grade === null) delete grades[id];
+        else grades[id] = { grade, at: new Date().toISOString() };
+        const put = await gh(path, token, { method: 'PUT', body: JSON.stringify({
+          message: `Grade reply ${id}`,
+          content: Buffer.from(JSON.stringify(grades, null, 1) + '\n').toString('base64'), ...(sha ? { sha } : {}) }) });
+        if (put.ok) return res.status(200).json({ success: true });
+        if (put.status !== 409) return res.status(502).json({ success: false, error: `GitHub API error (${put.status})` });
+      }
+      return res.status(409).json({ success: false, error: 'Busy, try again' });
     }
 
     if (action === 'set_secret') {

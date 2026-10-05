@@ -33,7 +33,16 @@ read -r KIND MAX <<<"$MODE"
 if [ "$KIND" = "none" ]; then
   OUT=$(python vision/tools/schedule_gate.py)
   echo "$OUT"
-  case "$OUT" in *"due=True"*) KIND=session; MAX="";; *) exit 0;; esac
+  case "$OUT" in
+    *"due=True"*) KIND=session; MAX="";;
+    *)  # between sessions: measure how the posted replies did, every 6 h (vision/tracker.py)
+        LAST=$(cat "$BASE/state/tracker_last" 2>/dev/null || echo 0)
+        if [ $(( $(date +%s) - LAST )) -ge 21600 ] && { ls "$BASE/state/replies/"*.json >/dev/null 2>&1 || [ -s docs/vision/runs.json ]; }; then
+          KIND=track
+        else
+          exit 0
+        fi;;
+  esac
   export NBAVISION_SLOT=$(echo "$OUT" | sed -n 's/.*slot=\([^ ]*\).*/\1/p')
 fi
 
@@ -44,14 +53,20 @@ export NBAVISION_RUN_ID="server-$(date -u +%Y%m%dT%H%M%S)"
 echo "Running: $KIND (max=${MAX:-default})"
 
 mkdir -p vision/logs
-(cd vision && timeout 9000 python main.py) 2>&1 | tee "$BASE/logs/$NBAVISION_RUN_ID.log"
+if [ "$KIND" = "track" ]; then
+  date +%s > "$BASE/state/tracker_last"   # even if it fails: never hammer X
+  (cd vision && timeout 1800 python tracker.py) 2>&1 | tee "$BASE/logs/tracker-$NBAVISION_RUN_ID.log"
+else
+  (cd vision && timeout 9000 python main.py) 2>&1 | tee "$BASE/logs/$NBAVISION_RUN_ID.log"
+fi
 
 # push the panel data (re-applied on top of the latest remote state if someone pushed meanwhile)
 mkdir -p /tmp/nbavision-status && cp docs/vision/stats.json docs/vision/runs.json /tmp/nbavision-status/
 for i in 1 2 3; do
   git fetch -q origin main && git reset -q --hard origin/main
   python vision/tools/merge_status.py /tmp/nbavision-status
-  git add docs/vision/stats.json docs/vision/runs.json
+  python vision/tools/export_replies.py      # replies ledger (server state) -> docs/vision/replies/
+  git add docs/vision/stats.json docs/vision/runs.json docs/vision/replies
   git diff --cached --quiet && break
   git -c user.name="nbavision-server" -c user.email="nbavision@users.noreply.github.com" \
       commit -q -m "Vision: $KIND $NBAVISION_RUN_ID"

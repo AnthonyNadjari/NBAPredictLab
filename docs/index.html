@@ -106,6 +106,18 @@ section[hidden] { display: none; }
 .game.published { border-color: color-mix(in srgb, var(--win) 45%, var(--line)); }
 .g-top { display: flex; justify-content: space-between; align-items: center; font-size: 12.5px; color: var(--muted); }
 .g-top .time { font-family: var(--mono); color: var(--ink); }
+.rp { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; display: grid; gap: 8px; }
+.rp .src { color: var(--muted); font-size: 13.5px; line-height: 1.4; }
+.rp .src b { color: var(--ink); }
+.rp .mine { font-size: 15px; line-height: 1.45; border-left: 3px solid var(--ball); padding-left: 10px; }
+.rp .meta { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; font-size: 12.5px; color: var(--muted); }
+.rp .grades { display: flex; gap: 6px; flex-wrap: wrap; }
+.rp .grades button[aria-pressed="true"] { background: var(--ball); color: var(--ball-ink); border-color: var(--ball); }
+.rp .said { font-size: 12.5px; color: var(--muted); border-top: 1px dashed var(--line); padding-top: 6px; }
+.rstats { display: flex; gap: 18px; flex-wrap: wrap; margin: 4px 0 14px; }
+.rstats div { font-size: 13px; color: var(--muted); } .rstats b { display: block; font-size: 22px; color: var(--ink); }
+.chip.g-bad, .chip.g-wrong { background: color-mix(in srgb, var(--loss) 15%, transparent); color: var(--loss); }
+.chip.g-good, .chip.g-good_follow { background: color-mix(in srgb, var(--win) 15%, transparent); color: var(--win); }
 .chip { font-size: 11.5px; font-weight: 600; padding: 2px 8px; border-radius: 999px; background: var(--wash); color: var(--muted); }
 .chip.pub { background: color-mix(in srgb, var(--win) 15%, transparent); color: var(--win); }
 .chip.launch { background: color-mix(in srgb, var(--ball) 15%, transparent); color: var(--ball); }
@@ -224,6 +236,7 @@ footer { color: var(--muted); font-size: 12px; padding: 0 0 30px; }
       <button role="tab" aria-selected="true" data-tab="slate">Matchs</button>
       <button role="tab" aria-selected="false" data-tab="record">Bilan</button>
       <button role="tab" aria-selected="false" data-tab="account">Compte X</button>
+      <button role="tab" aria-selected="false" data-tab="replies">Réponses</button>
       <button role="tab" aria-selected="false" data-tab="control">Pilotage</button>
     </nav>
   </header>
@@ -232,6 +245,7 @@ footer { color: var(--muted); font-size: 12px; padding: 0 0 30px; }
     <section id="slate" role="tabpanel"></section>
     <section id="record" role="tabpanel" hidden></section>
     <section id="account" role="tabpanel" hidden></section>
+    <section id="replies" role="tabpanel" hidden></section>
     <section id="control" role="tabpanel" hidden></section>
   </main>
   <footer id="foot"></footer>
@@ -921,6 +935,91 @@ function renderAccount() {
   $('#vDry').onclick = run(true);
 }
 
+// ---------------- replies ledger (docs/vision/replies, written by the server's tracker) ----------------
+const GRADE_LABELS = { bad: 'Mauvaise', normal: 'Normale', good: 'Bonne', good_follow: 'Bonne + abonné', wrong: 'Erreur / hors sujet' };
+state.replies = null; state.grades = {}; state.rfilter = 'todo';
+async function loadReplies() {
+  if (!state.replies) $('#replies').innerHTML = `<div class="empty"><h3>Chargement…</h3></div>`;
+  const safe = async (path, dflt) => { try { return (await getJSON(path)) ?? dflt; } catch (e) { return dflt; } };
+  const months = await safe('vision/replies/index.json', []);
+  const lists = await Promise.all(months.slice(-2).map(m => safe('vision/replies/' + m, [])));
+  state.replies = lists.flat().sort((a, b) => (b.posted_at || '').localeCompare(a.posted_at || ''));
+  state.grades = await safe('vision/reply_grades.json', {});
+  state.review = await safe('vision/reviews/latest.json', null);
+  renderReplies();
+}
+function myGrade(r) { return (state.grades[r.id] || {}).grade || null; }
+function renderReplies() {
+  const el = $('#replies'), all = state.replies || [];
+  const now = Date.now(), day = 864e5;
+  const week = all.filter(r => now - Date.parse(r.posted_at) < 7 * day);
+  const count = k => week.filter(r => (myGrade(r) || r.auto_grade) === k).length;
+  const likes = week.map(r => ((r.metrics || {}).h24 || {}).likes).filter(x => x != null);
+  const avg = likes.length ? (likes.reduce((a, b) => a + b, 0) / likes.length).toFixed(1) : '–';
+  const views = week.map(r => ((r.metrics || {}).last || {}).views || 0).reduce((a, b) => a + b, 0);
+  const filters = { todo: 'À noter', all: 'Toutes', good: 'Bonnes', bad: 'Mauvaises', follow: 'Abonnés gagnés' };
+  const pick = {
+    todo: r => !myGrade(r) && now - Date.parse(r.posted_at) > day,
+    all: () => true,
+    good: r => ['good', 'good_follow'].includes(myGrade(r) || r.auto_grade),
+    bad: r => ['bad', 'wrong'].includes(myGrade(r) || r.auto_grade),
+    follow: r => !!r.follow || myGrade(r) === 'good_follow',
+  }[state.rfilter];
+  const list = all.filter(pick).slice(0, 60);
+  const card = r => {
+    const m = (r.metrics || {}).last || {};
+    const g = myGrade(r), auto = r.auto_grade;
+    const src = r.tweet_text || '';
+    return `<article class="rp" data-id="${esc(r.id)}">
+      <div class="src"><b>@${esc(r.author || '?')}</b> · ${esc(src.slice(0, 220))}${src.length > 220 ? '…' : ''}
+        ${r.tweet_url ? ` <a href="${esc(r.tweet_url)}" target="_blank" rel="noopener">tweet</a>` : ''}</div>
+      <div class="mine">${esc(r.reply_text || '')}</div>
+      <div class="meta">
+        <span>${ago(r.posted_at)}</span>
+        ${r.metrics && r.metrics.last ? `<span>♥ ${m.likes || 0} · ↩ ${m.replies || 0} · ${m.views || 0} vues</span>` : '<span>pas encore mesurée</span>'}
+        ${auto ? `<span class="chip g-${auto}" title="note automatique (24 h)">auto : ${GRADE_LABELS[auto]}</span>` : ''}
+        ${r.follow ? `<span class="chip g-good_follow">abonné : @${esc(r.follow.by)}</span>` : ''}
+        ${r.author_replied ? '<span class="chip g-good">l’auteur a répondu</span>' : ''}
+        ${r.removed ? '<span class="chip g-bad">supprimée / masquée</span>' : ''}
+        ${r.fact_used ? `<span class="chip" title="${esc(r.fact_used)}">fait cité</span>` : ''}
+        ${r.reply_url ? `<a href="${esc(r.reply_url)}" target="_blank" rel="noopener">voir</a>` : ''}
+      </div>
+      ${(r.reply_samples || []).length ? `<div class="said">${r.reply_samples.map(x => `<b>@${esc(x.user)}</b> : ${esc(x.text)}`).join('<br>')}</div>` : ''}
+      <div class="grades">${Object.entries(GRADE_LABELS).map(([k, v]) =>
+        `<button class="btn small" type="button" data-grade="${k}" aria-pressed="${g === k}">${v}</button>`).join('')}</div>
+    </article>`;
+  };
+  el.innerHTML = `
+    <div class="panel" style="margin-bottom:12px"><h3>Suivi des réponses</h3>
+      <p class="hint">Chaque réponse postée est mesurée 24 h et 72 h après (likes, réponses, vues, abonnés gagnés) et reçoit une note automatique. Ta note compte plus : elle guide la relecture tous les 2 jours${state.review ? ` (dernière : <a href="${esc(state.review.url)}" target="_blank" rel="noopener">${esc(state.review.date)}</a> · ${esc(state.review.summary || '')})` : ''}.</p>
+      <div class="rstats">
+        <div><b>${week.length}</b>réponses (7 j)</div><div><b>${avg}</b>likes moyens à 24 h</div><div><b>${views}</b>vues</div>
+        <div><b>${count('good') + count('good_follow')}</b>bonnes</div><div><b>${count('normal')}</b>normales</div>
+        <div><b>${count('bad') + count('wrong')}</b>mauvaises</div><div><b>${week.filter(r => r.follow).length}</b>abonnés gagnés</div>
+      </div>
+      <div class="row" style="gap:6px;flex-wrap:wrap">${Object.entries(filters).map(([k, v]) =>
+        `<button class="btn small ${state.rfilter === k ? 'primary' : ''}" type="button" data-rfilter="${k}">${v}</button>`).join('')}</div>
+    </div>
+    ${list.length ? `<div class="grid">${list.map(card).join('')}</div>`
+      : `<div class="empty"><h3>${all.length ? 'Rien ici' : 'Pas encore de réponse suivie'}</h3><p class="hint">${all.length ? 'Change de filtre.' : 'Les réponses postées apparaissent ici après la prochaine session du bot.'}</p></div>`}`;
+}
+document.addEventListener('click', e => {
+  const f = e.target.closest('[data-rfilter]');
+  if (f) { state.rfilter = f.dataset.rfilter; renderReplies(); return; }
+  const b = e.target.closest('#replies [data-grade]');
+  if (!b) return;
+  const id = b.closest('[data-id]').dataset.id, grade = b.dataset.grade;
+  const next = myGrade({ id }) === grade ? null : grade;     // click again = remove the grade
+  const send = async () => {
+    try {
+      await api('admin', { action: 'grade_reply', reply_id: id, grade: next });
+      if (next) state.grades[id] = { grade: next, at: new Date().toISOString() }; else delete state.grades[id];
+      renderReplies();
+    } catch (err) { toast(err.message); }
+  };
+  if (!state.pw) openLock(send); else send();
+});
+
 // ---------------- lock ----------------
 let afterUnlock = null;
 function openLock(cb) { afterUnlock = cb || null; $('#lockMsg').textContent = ''; $('#pw').value = ''; $('#lockDlg').showModal(); $('#pw').focus(); }
@@ -945,11 +1044,12 @@ document.addEventListener('click', e => { if (e.target.matches('[data-close]')) 
 // ---------------- tabs + boot ----------------
 document.querySelectorAll('nav.tabs button').forEach(b => b.addEventListener('click', () => {
   document.querySelectorAll('nav.tabs button').forEach(x => x.setAttribute('aria-selected', x === b));
-  for (const id of ['slate', 'record', 'account', 'control']) $('#' + id).hidden = id !== b.dataset.tab;
+  for (const id of ['slate', 'record', 'account', 'replies', 'control']) $('#' + id).hidden = id !== b.dataset.tab;
   try { localStorage.setItem('pl_tab', b.dataset.tab); } catch (e) {}
   if (b.dataset.tab === 'record') renderRecord();
   if (b.dataset.tab === 'control') renderControl();
   if (b.dataset.tab === 'account') renderAccount();
+  if (b.dataset.tab === 'replies') loadReplies();
 }));
 
 async function load() {

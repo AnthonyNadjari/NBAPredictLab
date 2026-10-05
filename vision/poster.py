@@ -15,6 +15,8 @@ from config import (
 )
 
 LOGS_DIR = PROJECT_ROOT / "logs"
+# Id of the last reply posted (read from X's CreateTweet response), for the replies ledger
+LAST_POSTED_ID: str | None = None
 
 
 def _ensure_logs_dir() -> Path:
@@ -77,7 +79,20 @@ def _do_post(page: Page, tweet_url: str, reply_text: str, tweet_id: str) -> tupl
     send_btn = page.locator('[data-testid="tweetButton"]').first
     if not _visible_within(send_btn, 5000):
         return False, "send_button_not_found"
-    send_btn.click()
+    global LAST_POSTED_ID
+    LAST_POSTED_ID = None
+    clicked = False
+    try:
+        with page.expect_response(lambda r: ("/CreateTweet" in r.url or "/CreateNoteTweet" in r.url)
+                                  and r.request.method == "POST", timeout=20000) as info:
+            send_btn.click()
+            clicked = True
+        from publisher import _created_id
+        LAST_POSTED_ID, _err = _created_id(info.value)
+    except Exception:
+        if not clicked:
+            raise
+        # the id is a bonus for tracking; the toast check below still confirms the post
 
     time.sleep(random.uniform(2, 3))
     try:
