@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-05T09:20:58+00:00",
+  "generated_at": "2026-10-05T21:22:10+00:00",
   "us_date": "2026-10-05",
   "season": {
     "label": "2026-27",
@@ -109,7 +109,31 @@
       "2023-24",
       "2024-25",
       "2025-26"
-    ]
+    ],
+    "player_games": {
+      "rows": 100,
+      "games": 3,
+      "last_game_date": "2026-10-04"
+    },
+    "own_model_params": {
+      "fitted_through": "2025-26",
+      "exported_at": "2026-10-05T20:39:34+00:00"
+    }
+  },
+  "own_model": {
+    "n": 0,
+    "correct": 0,
+    "accuracy": null,
+    "brier": null,
+    "published_brier_same_games": null,
+    "team_only_share": null,
+    "backtest": {
+      "seasons": "2022-23 → 2025-26",
+      "accuracy": 0.673,
+      "brier": 0.2081,
+      "logloss": 0.6028,
+      "market_logloss": 0.5916
+    }
   },
   "backtest": {
     "seasons": "2022-23 → 2025-26",
