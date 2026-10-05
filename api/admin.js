@@ -8,6 +8,7 @@
  *   action "x_check" -> run the read-only X connection check
  *   action "vision_run" { dry_run, max_replies } -> start a reply-bot session
  *   action "vision_schedule" { schedule } -> save docs/vision/schedule.json
+ *   action "autopilot" { autopilot } -> save docs/autopilot.json (threads queued automatically each evening)
  *   action "set_secret" { name, value } -> store TWITTER_COOKIES_JSON, LLM_API_KEY or BROWSER_PROXY as a repo secret
  *
  * Environment (same as publish.js): PUBLISH_PASSWORD, GITHUB_TOKEN, GITHUB_REPO
@@ -189,6 +190,26 @@ module.exports = async function handler(req, res) {
       });
       if (!put.ok) return res.status(502).json({ success: false, error: `GitHub API error (${put.status})` });
       return res.status(200).json({ success: true, schedule: clean });
+    }
+
+    if (action === 'autopilot') {
+      // body.autopilot = { enabled, threads_per_day 0-5, min_odds 1.01-3, weekly_recap }
+      const a = req.body.autopilot || {};
+      const n = parseInt(a.threads_per_day, 10);
+      const odds = parseFloat(a.min_odds);
+      if (!(n >= 0 && n <= 5) || !(odds >= 1.01 && odds <= 3)) {
+        return res.status(400).json({ success: false, error: 'threads_per_day 0-5, min_odds 1.01-3' });
+      }
+      const clean = { enabled: a.enabled === true, threads_per_day: n, min_odds: Math.round(odds * 100) / 100,
+        weekly_recap: a.weekly_recap !== false };
+      const path = `/repos/${repo}/contents/docs/autopilot.json`;
+      const cur = await gh(path, token);
+      const sha = cur.ok ? (await cur.json()).sha : undefined;
+      const put = await gh(path, token, { method: 'PUT', body: JSON.stringify({
+        message: `Autopilot ${clean.enabled ? 'on' : 'off'} from control panel`,
+        content: Buffer.from(JSON.stringify(clean, null, 2) + '\n').toString('base64'), ...(sha ? { sha } : {}) }) });
+      if (!put.ok) return res.status(502).json({ success: false, error: `GitHub API error (${put.status})` });
+      return res.status(200).json({ success: true, autopilot: clean });
     }
 
     if (action === 'set_secret') {

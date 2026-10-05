@@ -58,3 +58,11 @@ jobs:
           else
             python scripts/morning_routine.py
           fi
+
+      # After the 21:00 UTC refresh: queue tonight's best threads for the server (off until
+      # switched on in the control panel, docs/autopilot.json)
+      - name: Autopilot
+        if: github.event.schedule == '0 21 * * *'
+        run: |
+          git fetch -q origin main && git reset -q --hard origin/main
+          python scripts/autopilot.py

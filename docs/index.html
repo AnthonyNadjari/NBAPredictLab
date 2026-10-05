@@ -644,6 +644,7 @@ function renderControl() {
     return;
   }
   const runs = state.runs;
+  const ap = { enabled: false, threads_per_day: 2, min_odds: 1.25, weekly_recap: true, ...(state.autopilot || {}) };
   el.innerHTML = `
   <div class="ctl">
     <div class="panel"><h3>Prédictions du matin</h3>
@@ -665,6 +666,19 @@ function renderControl() {
       <div class="row" style="margin-top:10px"><button class="btn small" type="button" id="refreshRuns">Actualiser</button></div>
     </div>
   </div>
+  <div class="panel" style="margin-top:12px"><h3>Autopilote des threads</h3>
+    <p class="hint">Chaque soir après la mise à jour des cotes de 21 h UTC (23 h à Paris l'été, 22 h l'hiver), les meilleurs matchs de la nuit partent tout seuls sur X, sans clic. Même chemin et mêmes contrôles que le bouton Publier ; jamais après le début d'un match.</p>
+    <form id="apForm">
+      <label class="row" style="gap:8px"><input type="checkbox" id="apOn" ${ap.enabled ? 'checked' : ''}> <b>Activer l'autopilote</b></label>
+      <div class="row" style="gap:14px;margin-top:8px;flex-wrap:wrap">
+        <label>Threads par soir <input type="number" id="apN" min="0" max="5" value="${ap.threads_per_day}" style="width:64px"></label>
+        <label>Cote minimale <input type="number" id="apOdds" min="1.01" max="3" step="0.01" value="${ap.min_odds}" style="width:80px"></label>
+        <label class="row" style="gap:6px"><input type="checkbox" id="apWeekly" ${ap.weekly_recap ? 'checked' : ''}> Bilan du lundi</label>
+      </div>
+      <div class="row" style="margin-top:10px"><button class="btn primary" type="submit">Enregistrer</button></div>
+    </form>
+    <div class="msg" id="apMsg"></div>
+  </div>
   <div class="panel" style="margin-top:12px"><h3>Données</h3>${facts}</div>`;
 
   $('#runNow').onclick = async e => {
@@ -684,6 +698,18 @@ function renderControl() {
     catch (err) { $('#schedMsg').className = 'msg err'; $('#schedMsg').textContent = err.message; }
   };
   $('#refreshRuns').onclick = loadStatus;
+  $('#apForm').onsubmit = async e => {
+    e.preventDefault();
+    const body = { enabled: $('#apOn').checked, threads_per_day: +$('#apN').value, min_odds: +$('#apOdds').value,
+      weekly_recap: $('#apWeekly').checked };
+    try {
+      const js = await api('admin', { action: 'autopilot', autopilot: body });
+      state.autopilot = js.autopilot;
+      $('#apMsg').className = 'msg ok';
+      $('#apMsg').textContent = js.autopilot.enabled
+        ? `Autopilote activé : ${js.autopilot.threads_per_day} thread(s) par soir.` : 'Autopilote désactivé.';
+    } catch (err) { $('#apMsg').className = 'msg err'; $('#apMsg').textContent = err.message; }
+  };
 }
 
 async function loadStatus() {
@@ -927,9 +953,9 @@ document.querySelectorAll('nav.tabs button').forEach(b => b.addEventListener('cl
 }));
 
 async function load() {
-  const [g, d, vs, vr, xs, vsc, pl] = await Promise.allSettled([getJSON('pending_games.json'), getJSON('dashboard.json'),
+  const [g, d, vs, vr, xs, vsc, pl, apr] = await Promise.allSettled([getJSON('pending_games.json'), getJSON('dashboard.json'),
     getJSON('vision/stats.json'), getJSON('vision/runs.json'), getJSON('x_status.json'), getJSON('vision/schedule.json'),
-    getJSON('vision/publish_log.json')]);
+    getJSON('vision/publish_log.json'), getJSON('autopilot.json')]);
   const val = r => r.status === 'fulfilled' ? r.value : null;
   state.vstats = val(vs) || []; state.vruns = val(vr) || []; state.xstatus = val(xs) || {};
   if (!state.vscheduleDirty) state.vschedule = val(vsc);
@@ -937,6 +963,7 @@ async function load() {
   state.dash = d.status === 'fulfilled' ? d.value : null;
   // drop local "launched" marks once the JSON says published
   state.publog = Array.isArray(val(pl)) ? val(pl) : [];
+  if (val(apr) && !document.activeElement?.closest?.('#apForm')) state.autopilot = val(apr);
   for (const x of [...(state.games.games || []), ...(state.games.specials || [])]) {
     if (x.published) { state.launched.delete(x.id); continue; }
     if (state.launched.has(x.id) && Date.now() - (state.launchedAt[x.id] || 0) > 20 * 60000) state.launched.delete(x.id);
