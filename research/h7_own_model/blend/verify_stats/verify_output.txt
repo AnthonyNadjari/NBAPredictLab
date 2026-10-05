@@ -1,0 +1,109 @@
+walk-forward w(own) {'2024-25': 0.25, '2025-26': 0.45}; games 2630; bets 1062
+books: {'ESPN BET': 1612, 'DraftKings': 1018}
+  REPRODUCE blend value > 0%                       n= 1062 ROI   +9.7% [-0.5, +20.9]
+
+=== 1. Closing line value (bets at open, vs main-book close of the same side) ===
+  CLV (close de-vig mult): mean EV vs fair close +2.11% [+0.66, +3.62], beat fair close 49.9% of bets
+  CLV (close de-vig pow): mean EV vs fair close -3.27% [-4.86, -1.63], beat fair close 40.1% of bets
+  raw price: open dec > close dec on 59.8%, equal 6.5%, worse 33.7%  (n=1062)
+  logit move open->close toward our side: mean +0.0860, moved our way 61.6%, against 34.2%
+  hit 41.4% vs fair-open 36.2% vs fair-close 38.0% vs blend 39.4%
+  realised ROI on these 1062 bets +9.72%; ROI if settled at close-fair EV +2.11%; remainder (outcome luck vs close) +7.61%
+  baseline: all opening underdogs EV vs fair close -3.54%; all favourites -3.89%
+    2024-25: n=450, CLV +4.88% [+2.22, +8.00], realised ROI +12.4%
+    2025-26: n=612, CLV +0.08% [-1.33, +1.46], realised ROI +7.7%
+  CLV vs Kalshi close (n=648): -2.74% [-4.19, -1.28]
+
+=== 2. Robustness of the value>0 strategy ===
+  season 2024-25                                   n=  450 ROI  +12.4% [-4.3, +30.3]
+  season 2025-26                                   n=  612 ROI   +7.7% [-5.0, +21.0]
+  by month:
+    2024-10: n=  23 ROI  +46.2% profit  +10.6u
+    2024-11: n=  80 ROI  +40.1% profit  +32.1u
+    2024-12: n=  59 ROI  -22.9% profit  -13.5u
+    2025-01: n=  75 ROI   -0.1% profit   -0.0u
+    2025-02: n=  56 ROI  +36.3% profit  +20.3u
+    2025-03: n=  68 ROI  +25.6% profit  +17.4u
+    2025-04: n=  68 ROI  -22.2% profit  -15.1u
+    2025-05: n=  20 ROI  +25.5% profit   +5.1u
+    2025-06: n=   1 ROI -100.0% profit   -1.0u
+    2025-10: n=  55 ROI   +5.4% profit   +3.0u
+    2025-11: n= 110 ROI   +2.2% profit   +2.4u
+    2025-12: n=  74 ROI  +48.0% profit  +35.5u
+    2026-01: n=  81 ROI   +9.6% profit   +7.8u
+    2026-02: n=  85 ROI  +15.2% profit  +12.9u
+    2026-03: n= 101 ROI  -18.2% profit  -18.3u
+    2026-04: n=  91 ROI   +4.2% profit   +3.8u
+    2026-05: n=  13 ROI   -4.2% profit   -0.5u
+    2026-06: n=   2 ROI  +40.0% profit   +0.8u
+  bets on opening favourite    n= 236 (22%) ROI +5.1% [-4.9, +14.4] profit +12.1u
+  bets on opening underdog     n= 826 (78%) ROI +11.0% [-2.2, +24.8] profit +91.1u
+  bets on home: n=485 ROI -2.9%
+  bets on away: n=577 ROI +20.4%
+  by decimal price band:
+    [1.0,1.5): n=  63 ROI   +3.0% profit   +1.9u (+2% of total)
+    [1.5,2.0): n= 191 ROI  +11.2% profit  +21.5u (+21% of total)
+    [2.0,2.5): n= 198 ROI  +11.1% profit  +21.9u (+21% of total)
+    [2.5,3.0): n= 130 ROI  +24.6% profit  +31.9u (+31% of total)
+    [3.0,4.0): n= 187 ROI   +2.9% profit   +5.4u (+5% of total)
+    [4.0,100.0): n= 293 ROI   +7.1% profit  +20.7u (+20% of total)
+  share of profit from bets at >= 3.0: 25%; profit excluding them: +77.2u on 582 bets
+  total profit +103.2u; top 10 wins sum +84.5u; top 20 +140.7u
+  by model edge:
+    edge (0%,2%]: n= 362 ROI  +12.3%
+    edge (2%,4%]: n= 244 ROI   +5.1%
+    edge (4%,8%]: n= 231 ROI  +15.9%
+    edge (8%,100%]: n= 225 ROI   +4.3%
+  threshold grid (multiple testing):
+  blend value > 0%                                 n= 1062 ROI   +9.7% [-0.8, +20.4]
+  blend value > 1%                                 n=  867 ROI   +9.9% [-1.5, +21.5]
+  blend value > 2%                                 n=  700 ROI   +8.4% [-4.4, +21.9]
+  blend value > 3%                                 n=  572 ROI  +13.5% [-1.7, +29.3]
+  blend value > 4%                                 n=  456 ROI  +10.2% [-5.7, +27.9]
+  blend value > 5%                                 n=  388 ROI  +10.2% [-8.0, +30.2]
+  blend value > 6%                                 n=  312 ROI   +7.2% [-12.8, +28.7]
+  blend value > 8%                                 n=  225 ROI   +4.3% [-19.3, +28.7]
+  blend value > 10%                                n=  171 ROI   +3.8% [-20.3, +29.6]
+  best z over grid 1.79; family-wise p (max-stat, day bootstrap) = 0.113; single-test p for thr=0: 0.038
+
+=== 3. Model-free baselines at the same opening prices (2024-25+2025-26) ===
+  always opening favourite                         n= 2630 ROI   -5.1% [-7.9, -2.3]
+  always opening underdog                          n= 2630 ROI   -4.2% [-10.5, +2.0]
+  always home                                      n= 2630 ROI   -6.8% [-10.4, -2.9]
+  always away                                      n= 2630 ROI   -2.5% [-7.6, +3.2]
+  all underdogs at dec >= 2.0                      n= 2512 ROI   -5.3% [-11.7, +1.5]
+  all underdogs at dec >= 2.5                      n= 1717 ROI   -5.1% [-14.0, +4.0]
+  all underdogs at dec >= 3.0                      n= 1247 ROI   -7.2% [-18.4, +4.4]
+  all underdogs at dec >= 4.0                      n=  727 ROI   -7.7% [-23.8, +9.5]
+  2023-24 always opening favourite                 n= 1299 ROI   -2.2% [-6.2, +1.6]
+  2023-24 always opening underdog                  n= 1299 ROI   -6.9% [-15.3, +2.3]
+  own model alone value > 0                        n= 1901 ROI   +6.4% [-0.7, +13.8]
+  placebo: own prob shuffled across games of the same month (keeps dog-tilt of the blend weights):
+    placebo ROI mean -5.0%, 95% range [-8.4, -1.0], share >= observed 0.0%
+  de-vig method for the market input of the blend:
+  blend with open de-vig mult w={'2024-25': 0.25, '2025-26': 0.45} n= 1062 ROI   +9.7% [-0.9, +19.8]
+  blend with open de-vig pow w={'2024-25': 0.3, '2025-26': 0.5} n=  967 ROI   +7.2% [-0.4, +15.1]
+  realised win rate vs de-vigged open, by open prob band (side = the team at that prob):
+    [0.00,0.25): n= 786 mult 0.171 power 0.146 realised 0.174
+    [0.25,0.40): n=1020 mult 0.329 power 0.318 realised 0.333
+    [0.40,0.50): n= 787 mult 0.447 power 0.444 realised 0.447
+    [0.50,0.60): n= 861 mult 0.548 power 0.551 realised 0.548
+    [0.60,0.75): n=1020 mult 0.671 power 0.682 realised 0.667
+    [0.75,1.00): n= 786 mult 0.829 power 0.854 realised 0.826
+
+=== 3b. Stale-open check: bets involving a team on a back-to-back (open set before its D-1 game ended) ===
+  any team on B2B  n= 332 ROI  +20.0% CLV +3.59%
+  no B2B           n= 730 ROI   +5.0% CLV +1.44%
+
+=== 3c. Executable price check: Kalshi at 09:00 UTC on game day (2025-26 regular + PO) ===
+  k_prev_utc09  games 1270 bets  747 ROI   +3.4% [-5.1, +12.5] | ESPN-open strategy on same games n=580 ROI +6.9%
+  k_h24         games 1377 bets  692 ROI   -1.2% [-11.3, +8.7] | ESPN-open strategy on same games n=642 ROI +6.9%
+  k_utc09       games 1371 bets  701 ROI   -8.4% [-19.1, +2.6] | ESPN-open strategy on same games n=637 ROI +7.4%
+  k_utc17       games 1381 bets  760 ROI   -9.4% [-19.6, +1.0] | ESPN-open strategy on same games n=642 ROI +6.9%
+  mean |Kalshi 09UTC - ESPN open| = 0.0259; log-loss open 0.5899, k09 0.5863, blend 0.5872
+
+=== 4. Shrink the own model toward the fallback (selection bias) and re-run ===
+  keep 100% of own gain over fallback: own-open -0.0018, w={'2024-25': 0.25, '2025-26': 0.45}, blend-open -0.0032, value bets 1062 ROI +9.7%
+  keep 60% of own gain over fallback: own-open +0.0006, w={'2024-25': 0.2, '2025-26': 0.4}, blend-open -0.0021, value bets 1004 ROI +4.4%
+  keep 40% of own gain over fallback: own-open +0.0029, w={'2024-25': 0.15, '2025-26': 0.3}, blend-open -0.0015, value bets 854 ROI +4.3%
+  keep 0% of own gain over fallback: own-open +0.0100, w={'2024-25': 0.1, '2025-26': 0.2}, blend-open -0.0007, value bets 652 ROI -3.0%

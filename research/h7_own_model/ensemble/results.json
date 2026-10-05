@@ -1,0 +1,1430 @@
+{
+ "n_games": 5197,
+ "n_open_subset": 3929,
+ "primary": "stack3",
+ "pooled": {
+  "stack3": {
+   "n": 5197,
+   "logloss": 0.60372,
+   "brier": 0.20852,
+   "acc": 0.6721
+  },
+  "stack3_monthly": {
+   "n": 5197,
+   "logloss": 0.60418,
+   "brier": 0.20866,
+   "acc": 0.674
+  },
+  "stack4": {
+   "n": 5197,
+   "logloss": 0.60384,
+   "brier": 0.20855,
+   "acc": 0.6721
+  },
+  "avg3": {
+   "n": 5197,
+   "logloss": 0.6028,
+   "brier": 0.20811,
+   "acc": 0.6731
+  },
+  "player_impact": {
+   "n": 5197,
+   "logloss": 0.60672,
+   "brier": 0.20965,
+   "acc": 0.6694
+  },
+  "margin_ratings": {
+   "n": 5197,
+   "logloss": 0.60882,
+   "brier": 0.2108,
+   "acc": 0.6652
+  },
+  "elo_plus": {
+   "n": 5197,
+   "logloss": 0.60732,
+   "brier": 0.21012,
+   "acc": 0.671
+  },
+  "margin_team_only": {
+   "n": 5197,
+   "logloss": 0.61066,
+   "brier": 0.21171,
+   "acc": 0.6558
+  },
+  "fallback": {
+   "n": 5197,
+   "logloss": 0.6146,
+   "brier": 0.21341,
+   "acc": 0.6548
+  },
+  "elo": {
+   "n": 5197,
+   "logloss": 0.62768,
+   "brier": 0.21867,
+   "acc": 0.6498
+  },
+  "market_close": {
+   "n": 5197,
+   "logloss": 0.59156,
+   "brier": 0.20325,
+   "acc": 0.6856
+  },
+  "market_open": {
+   "n": 3929,
+   "logloss": 0.59317,
+   "brier": 0.2038,
+   "acc": 0.6808
+  }
+ },
+ "pooled_open_subset": {
+  "stack3": {
+   "n": 3929,
+   "logloss": 0.59412,
+   "brier": 0.20441,
+   "acc": 0.6791
+  },
+  "stack3_monthly": {
+   "n": 3929,
+   "logloss": 0.59358,
+   "brier": 0.20416,
+   "acc": 0.6831
+  },
+  "stack4": {
+   "n": 3929,
+   "logloss": 0.59426,
+   "brier": 0.20445,
+   "acc": 0.6791
+  },
+  "avg3": {
+   "n": 3929,
+   "logloss": 0.59291,
+   "brier": 0.20387,
+   "acc": 0.6801
+  },
+  "player_impact": {
+   "n": 3929,
+   "logloss": 0.59638,
+   "brier": 0.20533,
+   "acc": 0.6757
+  },
+  "margin_ratings": {
+   "n": 3929,
+   "logloss": 0.59815,
+   "brier": 0.20611,
+   "acc": 0.674
+  },
+  "elo_plus": {
+   "n": 3929,
+   "logloss": 0.59724,
+   "brier": 0.20574,
+   "acc": 0.6788
+  },
+  "margin_team_only": {
+   "n": 3929,
+   "logloss": 0.60091,
+   "brier": 0.20747,
+   "acc": 0.664
+  },
+  "fallback": {
+   "n": 3929,
+   "logloss": 0.60452,
+   "brier": 0.20894,
+   "acc": 0.6628
+  },
+  "elo": {
+   "n": 3929,
+   "logloss": 0.61738,
+   "brier": 0.21426,
+   "acc": 0.6589
+  },
+  "market_close": {
+   "n": 3929,
+   "logloss": 0.58171,
+   "brier": 0.19922,
+   "acc": 0.69
+  },
+  "market_open": {
+   "n": 3929,
+   "logloss": 0.59317,
+   "brier": 0.2038,
+   "acc": 0.6808
+  }
+ },
+ "seasons": {
+  "stack3": {
+   "2022-23": {
+    "n": 1255,
+    "logloss": 0.63378,
+    "brier": 0.22134,
+    "acc": 0.6518
+   },
+   "2023-24": {
+    "n": 1312,
+    "logloss": 0.60205,
+    "brier": 0.20751,
+    "acc": 0.6707
+   },
+   "2024-25": {
+    "n": 1315,
+    "logloss": 0.59396,
+    "brier": 0.20462,
+    "acc": 0.6821
+   },
+   "2025-26": {
+    "n": 1315,
+    "logloss": 0.58645,
+    "brier": 0.2012,
+    "acc": 0.6829
+   }
+  },
+  "stack3_monthly": {
+   "2022-23": {
+    "n": 1255,
+    "logloss": 0.63736,
+    "brier": 0.22269,
+    "acc": 0.647
+   },
+   "2023-24": {
+    "n": 1312,
+    "logloss": 0.60007,
+    "brier": 0.20661,
+    "acc": 0.6776
+   },
+   "2024-25": {
+    "n": 1315,
+    "logloss": 0.59377,
+    "brier": 0.20454,
+    "acc": 0.6829
+   },
+   "2025-26": {
+    "n": 1315,
+    "logloss": 0.587,
+    "brier": 0.20143,
+    "acc": 0.6875
+   }
+  },
+  "stack4": {
+   "2022-23": {
+    "n": 1255,
+    "logloss": 0.63378,
+    "brier": 0.22134,
+    "acc": 0.6518
+   },
+   "2023-24": {
+    "n": 1312,
+    "logloss": 0.60297,
+    "brier": 0.2078,
+    "acc": 0.6684
+   },
+   "2024-25": {
+    "n": 1315,
+    "logloss": 0.59356,
+    "brier": 0.2044,
+    "acc": 0.6829
+   },
+   "2025-26": {
+    "n": 1315,
+    "logloss": 0.58642,
+    "brier": 0.20126,
+    "acc": 0.6844
+   }
+  },
+  "avg3": {
+   "2022-23": {
+    "n": 1255,
+    "logloss": 0.63378,
+    "brier": 0.22134,
+    "acc": 0.6518
+   },
+   "2023-24": {
+    "n": 1312,
+    "logloss": 0.59827,
+    "brier": 0.2059,
+    "acc": 0.6715
+   },
+   "2024-25": {
+    "n": 1315,
+    "logloss": 0.59357,
+    "brier": 0.2044,
+    "acc": 0.6821
+   },
+   "2025-26": {
+    "n": 1315,
+    "logloss": 0.58699,
+    "brier": 0.20139,
+    "acc": 0.6859
+   }
+  },
+  "player_impact": {
+   "2022-23": {
+    "n": 1255,
+    "logloss": 0.63932,
+    "brier": 0.22319,
+    "acc": 0.6502
+   },
+   "2023-24": {
+    "n": 1312,
+    "logloss": 0.59897,
+    "brier": 0.20629,
+    "acc": 0.6707
+   },
+   "2024-25": {
+    "n": 1315,
+    "logloss": 0.59753,
+    "brier": 0.20612,
+    "acc": 0.6806
+   },
+   "2025-26": {
+    "n": 1315,
+    "logloss": 0.59255,
+    "brier": 0.20361,
+    "acc": 0.6753
+   }
+  },
+  "margin_ratings": {
+   "2022-23": {
+    "n": 1255,
+    "logloss": 0.64225,
+    "brier": 0.22547,
+    "acc": 0.6382
+   },
+   "2023-24": {
+    "n": 1312,
+    "logloss": 0.60719,
+    "brier": 0.20991,
+    "acc": 0.6601
+   },
+   "2024-25": {
+    "n": 1315,
+    "logloss": 0.59755,
+    "brier": 0.20605,
+    "acc": 0.6722
+   },
+   "2025-26": {
+    "n": 1315,
+    "logloss": 0.58981,
+    "brier": 0.20243,
+    "acc": 0.689
+   }
+  },
+  "elo_plus": {
+   "2022-23": {
+    "n": 1255,
+    "logloss": 0.63864,
+    "brier": 0.22366,
+    "acc": 0.6478
+   },
+   "2023-24": {
+    "n": 1312,
+    "logloss": 0.60072,
+    "brier": 0.2068,
+    "acc": 0.6806
+   },
+   "2024-25": {
+    "n": 1315,
+    "logloss": 0.59961,
+    "brier": 0.20701,
+    "acc": 0.6753
+   },
+   "2025-26": {
+    "n": 1315,
+    "logloss": 0.59174,
+    "brier": 0.20361,
+    "acc": 0.6791
+   }
+  },
+  "margin_team_only": {
+   "2022-23": {
+    "n": 1255,
+    "logloss": 0.64144,
+    "brier": 0.22509,
+    "acc": 0.6303
+   },
+   "2023-24": {
+    "n": 1312,
+    "logloss": 0.60852,
+    "brier": 0.2106,
+    "acc": 0.6555
+   },
+   "2024-25": {
+    "n": 1315,
+    "logloss": 0.60245,
+    "brier": 0.20851,
+    "acc": 0.6578
+   },
+   "2025-26": {
+    "n": 1315,
+    "logloss": 0.59161,
+    "brier": 0.20323,
+    "acc": 0.6783
+   }
+  },
+  "fallback": {
+   "2022-23": {
+    "n": 1255,
+    "logloss": 0.64639,
+    "brier": 0.22747,
+    "acc": 0.6311
+   },
+   "2023-24": {
+    "n": 1312,
+    "logloss": 0.60946,
+    "brier": 0.21111,
+    "acc": 0.6517
+   },
+   "2024-25": {
+    "n": 1315,
+    "logloss": 0.60628,
+    "brier": 0.21011,
+    "acc": 0.6578
+   },
+   "2025-26": {
+    "n": 1315,
+    "logloss": 0.59772,
+    "brier": 0.20556,
+    "acc": 0.6776
+   }
+  },
+  "elo": {
+   "2022-23": {
+    "n": 1255,
+    "logloss": 0.661,
+    "brier": 0.23283,
+    "acc": 0.6223
+   },
+   "2023-24": {
+    "n": 1312,
+    "logloss": 0.62231,
+    "brier": 0.217,
+    "acc": 0.6441
+   },
+   "2024-25": {
+    "n": 1315,
+    "logloss": 0.62174,
+    "brier": 0.21634,
+    "acc": 0.657
+   },
+   "2025-26": {
+    "n": 1315,
+    "logloss": 0.60719,
+    "brier": 0.20914,
+    "acc": 0.6745
+   }
+  },
+  "market_close": {
+   "2022-23": {
+    "n": 1255,
+    "logloss": 0.62279,
+    "brier": 0.21602,
+    "acc": 0.6717
+   },
+   "2023-24": {
+    "n": 1312,
+    "logloss": 0.58295,
+    "brier": 0.19926,
+    "acc": 0.6913
+   },
+   "2024-25": {
+    "n": 1315,
+    "logloss": 0.58562,
+    "brier": 0.20104,
+    "acc": 0.6935
+   },
+   "2025-26": {
+    "n": 1315,
+    "logloss": 0.57629,
+    "brier": 0.19725,
+    "acc": 0.6852
+   }
+  },
+  "market_open": {
+   "2023-24": {
+    "n": 1299,
+    "logloss": 0.59545,
+    "brier": 0.20394,
+    "acc": 0.6821
+   },
+   "2024-25": {
+    "n": 1315,
+    "logloss": 0.59775,
+    "brier": 0.206,
+    "acc": 0.6814
+   },
+   "2025-26": {
+    "n": 1315,
+    "logloss": 0.58633,
+    "brier": 0.20147,
+    "acc": 0.6791
+   }
+  }
+ },
+ "bootstrap": {
+  "stack3": {
+   "vs_fallback": {
+    "n": 5197,
+    "diff": -0.01088,
+    "ci95": [
+     -0.01432,
+     -0.00734
+    ],
+    "ci95_dayblock": [
+     -0.01433,
+     -0.00738
+    ]
+   },
+   "vs_market_close": {
+    "n": 5197,
+    "diff": 0.01216,
+    "ci95": [
+     0.00766,
+     0.01678
+    ],
+    "ci95_dayblock": [
+     0.0076,
+     0.01688
+    ]
+   },
+   "vs_market_open_open_subset": {
+    "n": 3929,
+    "diff": 0.00096,
+    "ci95": [
+     -0.00374,
+     0.00596
+    ],
+    "ci95_dayblock": [
+     -0.00397,
+     0.00608
+    ]
+   },
+   "seasons_better_than_fallback": 4,
+   "seasons_better_than_close": 0
+  },
+  "stack3_monthly": {
+   "vs_fallback": {
+    "n": 5197,
+    "diff": -0.01043,
+    "ci95": [
+     -0.01424,
+     -0.00646
+    ],
+    "ci95_dayblock": [
+     -0.01432,
+     -0.00657
+    ]
+   },
+   "vs_market_close": {
+    "n": 5197,
+    "diff": 0.01262,
+    "ci95": [
+     0.00762,
+     0.01739
+    ],
+    "ci95_dayblock": [
+     0.00802,
+     0.01737
+    ]
+   },
+   "vs_market_open_open_subset": {
+    "n": 3929,
+    "diff": 0.00041,
+    "ci95": [
+     -0.00462,
+     0.00517
+    ],
+    "ci95_dayblock": [
+     -0.00445,
+     0.0052
+    ]
+   },
+   "seasons_better_than_fallback": 4,
+   "seasons_better_than_close": 0
+  },
+  "stack4": {
+   "vs_fallback": {
+    "n": 5197,
+    "diff": -0.01076,
+    "ci95": [
+     -0.01494,
+     -0.00667
+    ],
+    "ci95_dayblock": [
+     -0.01472,
+     -0.00675
+    ]
+   },
+   "vs_market_close": {
+    "n": 5197,
+    "diff": 0.01228,
+    "ci95": [
+     0.00755,
+     0.01695
+    ],
+    "ci95_dayblock": [
+     0.00758,
+     0.01691
+    ]
+   },
+   "vs_market_open_open_subset": {
+    "n": 3929,
+    "diff": 0.00109,
+    "ci95": [
+     -0.00374,
+     0.00616
+    ],
+    "ci95_dayblock": [
+     -0.00416,
+     0.0063
+    ]
+   },
+   "seasons_better_than_fallback": 4,
+   "seasons_better_than_close": 0
+  },
+  "avg3": {
+   "vs_fallback": {
+    "n": 5197,
+    "diff": -0.0118,
+    "ci95": [
+     -0.01499,
+     -0.00842
+    ],
+    "ci95_dayblock": [
+     -0.01506,
+     -0.00861
+    ]
+   },
+   "vs_market_close": {
+    "n": 5197,
+    "diff": 0.01124,
+    "ci95": [
+     0.00665,
+     0.01592
+    ],
+    "ci95_dayblock": [
+     0.00665,
+     0.01565
+    ]
+   },
+   "vs_market_open_open_subset": {
+    "n": 3929,
+    "diff": -0.00026,
+    "ci95": [
+     -0.00521,
+     0.00451
+    ],
+    "ci95_dayblock": [
+     -0.00504,
+     0.00471
+    ]
+   },
+   "seasons_better_than_fallback": 4,
+   "seasons_better_than_close": 0
+  },
+  "player_impact": {
+   "vs_fallback": {
+    "n": 5197,
+    "diff": -0.00788,
+    "ci95": [
+     -0.01284,
+     -0.00295
+    ],
+    "ci95_dayblock": [
+     -0.01294,
+     -0.00298
+    ]
+   },
+   "vs_market_close": {
+    "n": 5197,
+    "diff": 0.01516,
+    "ci95": [
+     0.01001,
+     0.02067
+    ],
+    "ci95_dayblock": [
+     0.00973,
+     0.02058
+    ]
+   },
+   "vs_market_open_open_subset": {
+    "n": 3929,
+    "diff": 0.00321,
+    "ci95": [
+     -0.00234,
+     0.00911
+    ],
+    "ci95_dayblock": [
+     -0.0026,
+     0.0091
+    ]
+   },
+   "seasons_better_than_fallback": 4,
+   "seasons_better_than_close": 0
+  },
+  "margin_ratings": {
+   "vs_fallback": {
+    "n": 5197,
+    "diff": -0.00578,
+    "ci95": [
+     -0.0099,
+     -0.00169
+    ],
+    "ci95_dayblock": [
+     -0.00953,
+     -0.00192
+    ]
+   },
+   "vs_market_close": {
+    "n": 5197,
+    "diff": 0.01726,
+    "ci95": [
+     0.01171,
+     0.02292
+    ],
+    "ci95_dayblock": [
+     0.01166,
+     0.02283
+    ]
+   },
+   "vs_market_open_open_subset": {
+    "n": 3929,
+    "diff": 0.00498,
+    "ci95": [
+     -0.00127,
+     0.01102
+    ],
+    "ci95_dayblock": [
+     -0.00127,
+     0.01107
+    ]
+   },
+   "seasons_better_than_fallback": 4,
+   "seasons_better_than_close": 0
+  },
+  "elo_plus": {
+   "vs_fallback": {
+    "n": 5197,
+    "diff": -0.00728,
+    "ci95": [
+     -0.01091,
+     -0.00367
+    ],
+    "ci95_dayblock": [
+     -0.01079,
+     -0.00365
+    ]
+   },
+   "vs_market_close": {
+    "n": 5197,
+    "diff": 0.01576,
+    "ci95": [
+     0.01097,
+     0.02046
+    ],
+    "ci95_dayblock": [
+     0.01112,
+     0.02046
+    ]
+   },
+   "vs_market_open_open_subset": {
+    "n": 3929,
+    "diff": 0.00407,
+    "ci95": [
+     -0.00089,
+     0.00884
+    ],
+    "ci95_dayblock": [
+     -0.00087,
+     0.009
+    ]
+   },
+   "seasons_better_than_fallback": 4,
+   "seasons_better_than_close": 0
+  },
+  "margin_team_only": {
+   "vs_fallback": {
+    "n": 5197,
+    "diff": -0.00395,
+    "ci95": [
+     -0.00724,
+     -0.00063
+    ],
+    "ci95_dayblock": [
+     -0.00714,
+     -0.00071
+    ]
+   },
+   "vs_market_close": {
+    "n": 5197,
+    "diff": 0.0191,
+    "ci95": [
+     0.01321,
+     0.025
+    ],
+    "ci95_dayblock": [
+     0.01335,
+     0.02513
+    ]
+   },
+   "vs_market_open_open_subset": {
+    "n": 3929,
+    "diff": 0.00774,
+    "ci95": [
+     0.00162,
+     0.014
+    ],
+    "ci95_dayblock": [
+     0.00138,
+     0.01391
+    ]
+   },
+   "seasons_better_than_fallback": 4,
+   "seasons_better_than_close": 0
+  },
+  "elo": {
+   "vs_fallback": {
+    "n": 5197,
+    "diff": 0.01308,
+    "ci95": [
+     0.00814,
+     0.01774
+    ],
+    "ci95_dayblock": [
+     0.00811,
+     0.01781
+    ]
+   },
+   "vs_market_close": {
+    "n": 5197,
+    "diff": 0.03612,
+    "ci95": [
+     0.02925,
+     0.04351
+    ],
+    "ci95_dayblock": [
+     0.02919,
+     0.04312
+    ]
+   },
+   "vs_market_open_open_subset": {
+    "n": 3929,
+    "diff": 0.02421,
+    "ci95": [
+     0.01643,
+     0.0318
+    ],
+    "ci95_dayblock": [
+     0.01666,
+     0.03191
+    ]
+   },
+   "seasons_better_than_fallback": 0,
+   "seasons_better_than_close": 0
+  },
+  "stack3_vs_player_impact": {
+   "n": 5197,
+   "diff": -0.00301,
+   "ci95": [
+    -0.00574,
+    -0.00033
+   ],
+   "ci95_dayblock": [
+    -0.00567,
+    -0.00021
+   ]
+  },
+  "stack3_vs_margin_ratings": {
+   "n": 5197,
+   "diff": -0.0051,
+   "ci95": [
+    -0.00834,
+    -0.00177
+   ],
+   "ci95_dayblock": [
+    -0.00856,
+    -0.0018
+   ]
+  },
+  "stack3_vs_elo_plus": {
+   "n": 5197,
+   "diff": -0.0036,
+   "ci95": [
+    -0.00612,
+    -0.00113
+   ],
+   "ci95_dayblock": [
+    -0.00601,
+    -0.00111
+   ]
+  },
+  "avg3_vs_stack3": {
+   "n": 5197,
+   "diff": -0.00092,
+   "ci95": [
+    -0.00198,
+    0.00019
+   ],
+   "ci95_dayblock": [
+    -0.00202,
+    0.00015
+   ]
+  },
+  "market_close_vs_fallback": {
+   "n": 5197,
+   "diff": -0.02304,
+   "ci95": [
+    -0.02856,
+    -0.01765
+   ],
+   "ci95_dayblock": [
+    -0.02864,
+    -0.01753
+   ]
+  }
+ },
+ "stack_coefs": {
+  "stack3": [
+   {
+    "first_date": "2023-10-24",
+    "n_train": 1255,
+    "intercept": 0.136,
+    "player_impact": 0.3891,
+    "margin_ratings": 0.1524,
+    "elo_plus": 0.3483
+   },
+   {
+    "first_date": "2024-10-22",
+    "n_train": 2567,
+    "intercept": 0.0306,
+    "player_impact": 0.4572,
+    "margin_ratings": 0.228,
+    "elo_plus": 0.3454
+   },
+   {
+    "first_date": "2025-10-21",
+    "n_train": 3882,
+    "intercept": -0.0004,
+    "player_impact": 0.4727,
+    "margin_ratings": 0.3527,
+    "elo_plus": 0.2287
+   }
+  ],
+  "stack3_monthly": [
+   {
+    "first_date": "2022-12-01",
+    "n_train": 309,
+    "intercept": 0.2854,
+    "player_impact": 0.4536,
+    "margin_ratings": 0.3314,
+    "elo_plus": 0.1853
+   },
+   {
+    "first_date": "2023-01-01",
+    "n_train": 517,
+    "intercept": 0.3221,
+    "player_impact": 0.2995,
+    "margin_ratings": 0.0584,
+    "elo_plus": 0.3311
+   },
+   {
+    "first_date": "2023-02-01",
+    "n_train": 727,
+    "intercept": 0.2527,
+    "player_impact": 0.3302,
+    "margin_ratings": 0.0576,
+    "elo_plus": 0.3915
+   },
+   {
+    "first_date": "2023-03-01",
+    "n_train": 882,
+    "intercept": 0.2263,
+    "player_impact": 0.4334,
+    "margin_ratings": 0.0184,
+    "elo_plus": 0.3751
+   },
+   {
+    "first_date": "2023-04-01",
+    "n_train": 1100,
+    "intercept": 0.1465,
+    "player_impact": 0.3473,
+    "margin_ratings": 0.1786,
+    "elo_plus": 0.3955
+   },
+   {
+    "first_date": "2023-05-01",
+    "n_train": 1216,
+    "intercept": 0.1379,
+    "player_impact": 0.3353,
+    "margin_ratings": 0.1741,
+    "elo_plus": 0.3933
+   },
+   {
+    "first_date": "2023-06-01",
+    "n_train": 1250,
+    "intercept": 0.1399,
+    "player_impact": 0.3745,
+    "margin_ratings": 0.1623,
+    "elo_plus": 0.3548
+   },
+   {
+    "first_date": "2023-10-24",
+    "n_train": 1255,
+    "intercept": 0.136,
+    "player_impact": 0.3891,
+    "margin_ratings": 0.1524,
+    "elo_plus": 0.3483
+   },
+   {
+    "first_date": "2023-11-01",
+    "n_train": 1307,
+    "intercept": 0.126,
+    "player_impact": 0.41,
+    "margin_ratings": 0.1533,
+    "elo_plus": 0.3319
+   },
+   {
+    "first_date": "2023-12-01",
+    "n_train": 1524,
+    "intercept": 0.1303,
+    "player_impact": 0.3934,
+    "margin_ratings": 0.1403,
+    "elo_plus": 0.4079
+   },
+   {
+    "first_date": "2024-01-01",
+    "n_train": 1730,
+    "intercept": 0.0988,
+    "player_impact": 0.3611,
+    "margin_ratings": 0.2033,
+    "elo_plus": 0.4599
+   },
+   {
+    "first_date": "2024-02-01",
+    "n_train": 1960,
+    "intercept": 0.1019,
+    "player_impact": 0.3166,
+    "margin_ratings": 0.2134,
+    "elo_plus": 0.4983
+   },
+   {
+    "first_date": "2024-03-01",
+    "n_train": 2134,
+    "intercept": 0.0761,
+    "player_impact": 0.3632,
+    "margin_ratings": 0.1764,
+    "elo_plus": 0.4814
+   },
+   {
+    "first_date": "2024-04-01",
+    "n_train": 2364,
+    "intercept": 0.0364,
+    "player_impact": 0.4427,
+    "margin_ratings": 0.2149,
+    "elo_plus": 0.381
+   },
+   {
+    "first_date": "2024-05-01",
+    "n_train": 2521,
+    "intercept": 0.0378,
+    "player_impact": 0.4326,
+    "margin_ratings": 0.2259,
+    "elo_plus": 0.3709
+   },
+   {
+    "first_date": "2024-06-06",
+    "n_train": 2562,
+    "intercept": 0.0295,
+    "player_impact": 0.4563,
+    "margin_ratings": 0.2248,
+    "elo_plus": 0.3471
+   },
+   {
+    "first_date": "2024-10-22",
+    "n_train": 2567,
+    "intercept": 0.0306,
+    "player_impact": 0.4572,
+    "margin_ratings": 0.228,
+    "elo_plus": 0.3454
+   },
+   {
+    "first_date": "2024-11-01",
+    "n_train": 2638,
+    "intercept": 0.0251,
+    "player_impact": 0.4794,
+    "margin_ratings": 0.2172,
+    "elo_plus": 0.3253
+   },
+   {
+    "first_date": "2024-12-01",
+    "n_train": 2859,
+    "intercept": 0.036,
+    "player_impact": 0.4735,
+    "margin_ratings": 0.2456,
+    "elo_plus": 0.31
+   },
+   {
+    "first_date": "2025-01-01",
+    "n_train": 3048,
+    "intercept": 0.0201,
+    "player_impact": 0.4573,
+    "margin_ratings": 0.2569,
+    "elo_plus": 0.3259
+   },
+   {
+    "first_date": "2025-02-01",
+    "n_train": 3273,
+    "intercept": 0.0151,
+    "player_impact": 0.4754,
+    "margin_ratings": 0.2888,
+    "elo_plus": 0.2724
+   },
+   {
+    "first_date": "2025-03-01",
+    "n_train": 3449,
+    "intercept": 0.0155,
+    "player_impact": 0.4234,
+    "margin_ratings": 0.3423,
+    "elo_plus": 0.2776
+   },
+   {
+    "first_date": "2025-04-01",
+    "n_train": 3687,
+    "intercept": 0.0118,
+    "player_impact": 0.4568,
+    "margin_ratings": 0.3296,
+    "elo_plus": 0.2663
+   },
+   {
+    "first_date": "2025-05-01",
+    "n_train": 3836,
+    "intercept": 0.0016,
+    "player_impact": 0.4704,
+    "margin_ratings": 0.3488,
+    "elo_plus": 0.2429
+   },
+   {
+    "first_date": "2025-06-05",
+    "n_train": 3875,
+    "intercept": -0.0017,
+    "player_impact": 0.4738,
+    "margin_ratings": 0.3526,
+    "elo_plus": 0.2296
+   },
+   {
+    "first_date": "2025-10-21",
+    "n_train": 3882,
+    "intercept": -0.0004,
+    "player_impact": 0.4727,
+    "margin_ratings": 0.3527,
+    "elo_plus": 0.2287
+   },
+   {
+    "first_date": "2025-11-01",
+    "n_train": 3961,
+    "intercept": 0.0018,
+    "player_impact": 0.4697,
+    "margin_ratings": 0.3494,
+    "elo_plus": 0.2346
+   },
+   {
+    "first_date": "2025-12-01",
+    "n_train": 4179,
+    "intercept": -0.0058,
+    "player_impact": 0.4824,
+    "margin_ratings": 0.4033,
+    "elo_plus": 0.1872
+   },
+   {
+    "first_date": "2026-01-01",
+    "n_train": 4374,
+    "intercept": -0.001,
+    "player_impact": 0.4749,
+    "margin_ratings": 0.409,
+    "elo_plus": 0.1629
+   },
+   {
+    "first_date": "2026-02-01",
+    "n_train": 4605,
+    "intercept": 0.0038,
+    "player_impact": 0.4628,
+    "margin_ratings": 0.386,
+    "elo_plus": 0.1778
+   },
+   {
+    "first_date": "2026-03-01",
+    "n_train": 4771,
+    "intercept": -0.013,
+    "player_impact": 0.4534,
+    "margin_ratings": 0.4187,
+    "elo_plus": 0.1689
+   },
+   {
+    "first_date": "2026-04-01",
+    "n_train": 5010,
+    "intercept": -0.0056,
+    "player_impact": 0.446,
+    "margin_ratings": 0.4234,
+    "elo_plus": 0.1949
+   },
+   {
+    "first_date": "2026-05-01",
+    "n_train": 5154,
+    "intercept": -0.0014,
+    "player_impact": 0.4304,
+    "margin_ratings": 0.4108,
+    "elo_plus": 0.2339
+   },
+   {
+    "first_date": "2026-06-03",
+    "n_train": 5192,
+    "intercept": -0.0042,
+    "player_impact": 0.4313,
+    "margin_ratings": 0.4098,
+    "elo_plus": 0.2356
+   }
+  ],
+  "stack4": [
+   {
+    "first_date": "2023-10-24",
+    "n_train": 1255,
+    "intercept": 0.1373,
+    "player_impact": 0.4396,
+    "margin_ratings": 0.2367,
+    "elo_plus": 0.4803,
+    "fallback": -0.3356
+   },
+   {
+    "first_date": "2024-10-22",
+    "n_train": 2567,
+    "intercept": 0.0304,
+    "player_impact": 0.4798,
+    "margin_ratings": 0.2933,
+    "elo_plus": 0.434,
+    "fallback": -0.204
+   },
+   {
+    "first_date": "2025-10-21",
+    "n_train": 3882,
+    "intercept": 0.0013,
+    "player_impact": 0.493,
+    "margin_ratings": 0.4259,
+    "elo_plus": 0.333,
+    "fallback": -0.2234
+   }
+  ]
+ },
+ "logit_corr": {
+  "player_impact": {
+   "player_impact": 1.0,
+   "margin_ratings": 0.891,
+   "elo_plus": 0.937,
+   "fallback": 0.907,
+   "mkt_close": 0.902
+  },
+  "margin_ratings": {
+   "player_impact": 0.891,
+   "margin_ratings": 1.0,
+   "elo_plus": 0.924,
+   "fallback": 0.923,
+   "mkt_close": 0.872
+  },
+  "elo_plus": {
+   "player_impact": 0.937,
+   "margin_ratings": 0.924,
+   "elo_plus": 1.0,
+   "fallback": 0.941,
+   "mkt_close": 0.909
+  },
+  "fallback": {
+   "player_impact": 0.907,
+   "margin_ratings": 0.923,
+   "elo_plus": 0.941,
+   "fallback": 1.0,
+   "mkt_close": 0.878
+  },
+  "mkt_close": {
+   "player_impact": 0.902,
+   "margin_ratings": 0.872,
+   "elo_plus": 0.909,
+   "fallback": 0.878,
+   "mkt_close": 1.0
+  }
+ },
+ "by_phase_logloss": {
+  "1_oct_dec": {
+   "n": 1965,
+   "stack3": 0.61557,
+   "fallback": 0.62289,
+   "market_close": 0.60781
+  },
+  "2_jan_feb": {
+   "n": 1567,
+   "stack3": 0.61624,
+   "fallback": 0.62447,
+   "market_close": 0.59887
+  },
+  "3_mar_apr": {
+   "n": 1309,
+   "stack3": 0.55955,
+   "fallback": 0.57992,
+   "market_close": 0.54308
+  },
+  "4_playin_playoffs": {
+   "n": 356,
+   "stack3": 0.64558,
+   "fallback": 0.65296,
+   "market_close": 0.64794
+  }
+ },
+ "calibration_primary": [
+  {
+   "bin": "0.0-0.1",
+   "n": 15,
+   "mean_p": 0.0769,
+   "home_win_rate": 0.0
+  },
+  {
+   "bin": "0.1-0.2",
+   "n": 146,
+   "mean_p": 0.1594,
+   "home_win_rate": 0.089
+  },
+  {
+   "bin": "0.2-0.3",
+   "n": 365,
+   "mean_p": 0.2545,
+   "home_win_rate": 0.2521
+  },
+  {
+   "bin": "0.3-0.4",
+   "n": 539,
+   "mean_p": 0.3545,
+   "home_win_rate": 0.3154
+  },
+  {
+   "bin": "0.4-0.5",
+   "n": 768,
+   "mean_p": 0.4538,
+   "home_win_rate": 0.4492
+  },
+  {
+   "bin": "0.5-0.6",
+   "n": 992,
+   "mean_p": 0.5502,
+   "home_win_rate": 0.5625
+  },
+  {
+   "bin": "0.6-0.7",
+   "n": 1023,
+   "mean_p": 0.6481,
+   "home_win_rate": 0.6295
+  },
+  {
+   "bin": "0.7-0.8",
+   "n": 799,
+   "mean_p": 0.7451,
+   "home_win_rate": 0.7685
+  },
+  {
+   "bin": "0.8-0.9",
+   "n": 457,
+   "mean_p": 0.8426,
+   "home_win_rate": 0.8249
+  },
+  {
+   "bin": "0.9-1.0",
+   "n": 93,
+   "mean_p": 0.9227,
+   "home_win_rate": 0.9355
+  }
+ ],
+ "content_view": {
+  "stack3": {
+   "threshold": 0.05,
+   "n_games": 5197,
+   "n_disagree": 2413,
+   "share": 0.4643,
+   "per_regular_season_week": {
+    "mean": 22.2,
+    "median": 22.0,
+    "games_per_week": 48.4
+   },
+   "per_season": {
+    "2022-23": 621,
+    "2023-24": 629,
+    "2024-25": 619,
+    "2025-26": 544
+   },
+   "model_higher_on_home": {
+    "n": 1343,
+    "mean_model": 0.5373,
+    "mean_close": 0.4363,
+    "home_win_rate": 0.4326
+   },
+   "model_lower_on_home": {
+    "n": 1070,
+    "mean_model": 0.5485,
+    "mean_close": 0.6497,
+    "home_win_rate": 0.6327
+   },
+   "outcome_on_model_side_share": 0.4036,
+   "logloss_on_disagreements": {
+    "model": 0.6344,
+    "close": 0.6099
+   },
+   "brier_on_disagreements": {
+    "model": 0.2218,
+    "close": 0.2111
+   },
+   "different_pick": {
+    "n": 580,
+    "per_regular_season_week": 5.41,
+    "model_pick_won": 255,
+    "market_pick_won": 325
+   }
+  },
+  "stack3_10pts": {
+   "threshold": 0.1,
+   "n_games": 5197,
+   "n_disagree": 876,
+   "share": 0.1686,
+   "per_regular_season_week": {
+    "mean": 7.9,
+    "median": 8.0,
+    "games_per_week": 48.4
+   },
+   "per_season": {
+    "2022-23": 242,
+    "2023-24": 201,
+    "2024-25": 229,
+    "2025-26": 204
+   },
+   "model_higher_on_home": {
+    "n": 501,
+    "mean_model": 0.5425,
+    "mean_close": 0.3923,
+    "home_win_rate": 0.3992
+   },
+   "model_lower_on_home": {
+    "n": 375,
+    "mean_model": 0.5077,
+    "mean_close": 0.6646,
+    "home_win_rate": 0.64
+   },
+   "outcome_on_model_side_share": 0.3824,
+   "logloss_on_disagreements": {
+    "model": 0.6657,
+    "close": 0.6198
+   },
+   "brier_on_disagreements": {
+    "model": 0.236,
+    "close": 0.2155
+   },
+   "different_pick": {
+    "n": 580,
+    "per_regular_season_week": 5.41,
+    "model_pick_won": 255,
+    "market_pick_won": 325
+   }
+  }
+ },
+ "runtime_s": 12.7
+}

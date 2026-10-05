@@ -1,0 +1,1237 @@
+{
+ "n_games": 5197,
+ "n_games_with_open": 3929,
+ "best_variant": "pregame_plus_team",
+ "pooled": {
+  "pregame": {
+   "n": 5197,
+   "logloss": 0.60771,
+   "brier": 0.21013,
+   "acc": 0.6675
+  },
+  "pregame_hard": {
+   "n": 5197,
+   "logloss": 0.61084,
+   "brier": 0.21157,
+   "acc": 0.6652
+  },
+  "oracle_roster": {
+   "n": 5197,
+   "logloss": 0.59782,
+   "brier": 0.20577,
+   "acc": 0.6756
+  },
+  "oracle": {
+   "n": 5197,
+   "logloss": 0.59485,
+   "brier": 0.20449,
+   "acc": 0.6812
+  },
+  "pregame_box_pm_only": {
+   "n": 5197,
+   "logloss": 0.61712,
+   "brier": 0.21413,
+   "acc": 0.6663
+  },
+  "pregame_kalman_only": {
+   "n": 5197,
+   "logloss": 0.6078,
+   "brier": 0.21031,
+   "acc": 0.6706
+  },
+  "pregame_plus_team": {
+   "n": 5197,
+   "logloss": 0.60672,
+   "brier": 0.20965,
+   "acc": 0.6694
+  },
+  "pregame_kalman_plus_team": {
+   "n": 5197,
+   "logloss": 0.60685,
+   "brier": 0.20991,
+   "acc": 0.6679
+  },
+  "oracle_roster_plus_team": {
+   "n": 5197,
+   "logloss": 0.59768,
+   "brier": 0.20565,
+   "acc": 0.679
+  },
+  "fallback": {
+   "n": 5197,
+   "logloss": 0.6146,
+   "brier": 0.21341,
+   "acc": 0.6548
+  },
+  "elo": {
+   "n": 5197,
+   "logloss": 0.62768,
+   "brier": 0.21867,
+   "acc": 0.6498
+  },
+  "team_logit_monthly": {
+   "n": 5197,
+   "logloss": 0.61508,
+   "brier": 0.21359,
+   "acc": 0.6558
+  },
+  "market_close": {
+   "n": 5197,
+   "logloss": 0.59156,
+   "brier": 0.20325,
+   "acc": 0.6856
+  },
+  "market_open": {
+   "n": 3929,
+   "logloss": 0.59317,
+   "brier": 0.2038,
+   "acc": 0.6808,
+   "note": "opening lines exist from 2023-24 only"
+  }
+ },
+ "pooled_open_subset": {
+  "pregame": {
+   "n": 3929,
+   "logloss": 0.59758,
+   "brier": 0.20589,
+   "acc": 0.675
+  },
+  "pregame_hard": {
+   "n": 3929,
+   "logloss": 0.60058,
+   "brier": 0.20728,
+   "acc": 0.6732
+  },
+  "oracle_roster": {
+   "n": 3929,
+   "logloss": 0.58735,
+   "brier": 0.20149,
+   "acc": 0.6824
+  },
+  "oracle": {
+   "n": 3929,
+   "logloss": 0.583,
+   "brier": 0.19956,
+   "acc": 0.6864
+  },
+  "pregame_box_pm_only": {
+   "n": 3929,
+   "logloss": 0.60989,
+   "brier": 0.21111,
+   "acc": 0.6714
+  },
+  "pregame_kalman_only": {
+   "n": 3929,
+   "logloss": 0.59716,
+   "brier": 0.20572,
+   "acc": 0.6813
+  },
+  "pregame_plus_team": {
+   "n": 3929,
+   "logloss": 0.59638,
+   "brier": 0.20533,
+   "acc": 0.6757
+  },
+  "pregame_kalman_plus_team": {
+   "n": 3929,
+   "logloss": 0.59613,
+   "brier": 0.20529,
+   "acc": 0.6778
+  },
+  "oracle_roster_plus_team": {
+   "n": 3929,
+   "logloss": 0.58711,
+   "brier": 0.20137,
+   "acc": 0.6824
+  },
+  "fallback": {
+   "n": 3929,
+   "logloss": 0.60452,
+   "brier": 0.20894,
+   "acc": 0.6628
+  },
+  "elo": {
+   "n": 3929,
+   "logloss": 0.61738,
+   "brier": 0.21426,
+   "acc": 0.6589
+  },
+  "team_logit_monthly": {
+   "n": 3929,
+   "logloss": 0.6052,
+   "brier": 0.20922,
+   "acc": 0.6628
+  },
+  "market_close": {
+   "n": 3929,
+   "logloss": 0.58171,
+   "brier": 0.19922,
+   "acc": 0.69
+  },
+  "market_open": {
+   "n": 3929,
+   "logloss": 0.59317,
+   "brier": 0.2038,
+   "acc": 0.6808
+  }
+ },
+ "seasons": {
+  "2022-23": {
+   "pregame": {
+    "n": 1255,
+    "logloss": 0.63985,
+    "brier": 0.22352,
+    "acc": 0.6446
+   },
+   "pregame_hard": {
+    "n": 1255,
+    "logloss": 0.64311,
+    "brier": 0.22503,
+    "acc": 0.6406
+   },
+   "oracle_roster": {
+    "n": 1255,
+    "logloss": 0.63108,
+    "brier": 0.21932,
+    "acc": 0.655
+   },
+   "oracle": {
+    "n": 1255,
+    "logloss": 0.63205,
+    "brier": 0.21993,
+    "acc": 0.6653
+   },
+   "pregame_box_pm_only": {
+    "n": 1255,
+    "logloss": 0.64031,
+    "brier": 0.2238,
+    "acc": 0.651
+   },
+   "pregame_kalman_only": {
+    "n": 1255,
+    "logloss": 0.64108,
+    "brier": 0.22463,
+    "acc": 0.6375
+   },
+   "pregame_plus_team": {
+    "n": 1255,
+    "logloss": 0.63932,
+    "brier": 0.22319,
+    "acc": 0.6502
+   },
+   "pregame_kalman_plus_team": {
+    "n": 1255,
+    "logloss": 0.64021,
+    "brier": 0.22422,
+    "acc": 0.6382
+   },
+   "oracle_roster_plus_team": {
+    "n": 1255,
+    "logloss": 0.6311,
+    "brier": 0.21913,
+    "acc": 0.6693
+   },
+   "fallback": {
+    "n": 1255,
+    "logloss": 0.64639,
+    "brier": 0.22747,
+    "acc": 0.6311
+   },
+   "elo": {
+    "n": 1255,
+    "logloss": 0.661,
+    "brier": 0.23283,
+    "acc": 0.6223
+   },
+   "team_logit_monthly": {
+    "n": 1255,
+    "logloss": 0.64624,
+    "brier": 0.22733,
+    "acc": 0.6351
+   },
+   "market_close": {
+    "n": 1255,
+    "logloss": 0.62279,
+    "brier": 0.21602,
+    "acc": 0.6717
+   }
+  },
+  "2023-24": {
+   "pregame": {
+    "n": 1312,
+    "logloss": 0.59897,
+    "brier": 0.20629,
+    "acc": 0.67
+   },
+   "pregame_hard": {
+    "n": 1312,
+    "logloss": 0.60267,
+    "brier": 0.20799,
+    "acc": 0.6616
+   },
+   "oracle_roster": {
+    "n": 1312,
+    "logloss": 0.59061,
+    "brier": 0.20289,
+    "acc": 0.6829
+   },
+   "oracle": {
+    "n": 1312,
+    "logloss": 0.58902,
+    "brier": 0.20249,
+    "acc": 0.6845
+   },
+   "pregame_box_pm_only": {
+    "n": 1312,
+    "logloss": 0.60714,
+    "brier": 0.20979,
+    "acc": 0.6715
+   },
+   "pregame_kalman_only": {
+    "n": 1312,
+    "logloss": 0.60147,
+    "brier": 0.20748,
+    "acc": 0.6753
+   },
+   "pregame_plus_team": {
+    "n": 1312,
+    "logloss": 0.59897,
+    "brier": 0.20629,
+    "acc": 0.6707
+   },
+   "pregame_kalman_plus_team": {
+    "n": 1312,
+    "logloss": 0.60155,
+    "brier": 0.20756,
+    "acc": 0.6684
+   },
+   "oracle_roster_plus_team": {
+    "n": 1312,
+    "logloss": 0.59067,
+    "brier": 0.20292,
+    "acc": 0.6829
+   },
+   "fallback": {
+    "n": 1312,
+    "logloss": 0.60946,
+    "brier": 0.21111,
+    "acc": 0.6517
+   },
+   "elo": {
+    "n": 1312,
+    "logloss": 0.62231,
+    "brier": 0.217,
+    "acc": 0.6441
+   },
+   "team_logit_monthly": {
+    "n": 1312,
+    "logloss": 0.6105,
+    "brier": 0.21146,
+    "acc": 0.6555
+   },
+   "market_close": {
+    "n": 1312,
+    "logloss": 0.58295,
+    "brier": 0.19926,
+    "acc": 0.6913
+   }
+  },
+  "2024-25": {
+   "pregame": {
+    "n": 1315,
+    "logloss": 0.59831,
+    "brier": 0.20642,
+    "acc": 0.6814
+   },
+   "pregame_hard": {
+    "n": 1315,
+    "logloss": 0.59931,
+    "brier": 0.20702,
+    "acc": 0.6791
+   },
+   "oracle_roster": {
+    "n": 1315,
+    "logloss": 0.58953,
+    "brier": 0.20283,
+    "acc": 0.6798
+   },
+   "oracle": {
+    "n": 1315,
+    "logloss": 0.58327,
+    "brier": 0.1997,
+    "acc": 0.6814
+   },
+   "pregame_box_pm_only": {
+    "n": 1315,
+    "logloss": 0.61143,
+    "brier": 0.21194,
+    "acc": 0.6616
+   },
+   "pregame_kalman_only": {
+    "n": 1315,
+    "logloss": 0.59726,
+    "brier": 0.20598,
+    "acc": 0.6859
+   },
+   "pregame_plus_team": {
+    "n": 1315,
+    "logloss": 0.59753,
+    "brier": 0.20612,
+    "acc": 0.6806
+   },
+   "pregame_kalman_plus_team": {
+    "n": 1315,
+    "logloss": 0.59667,
+    "brier": 0.20587,
+    "acc": 0.6791
+   },
+   "oracle_roster_plus_team": {
+    "n": 1315,
+    "logloss": 0.59005,
+    "brier": 0.2031,
+    "acc": 0.6829
+   },
+   "fallback": {
+    "n": 1315,
+    "logloss": 0.60628,
+    "brier": 0.21011,
+    "acc": 0.6578
+   },
+   "elo": {
+    "n": 1315,
+    "logloss": 0.62174,
+    "brier": 0.21634,
+    "acc": 0.657
+   },
+   "team_logit_monthly": {
+    "n": 1315,
+    "logloss": 0.60659,
+    "brier": 0.21031,
+    "acc": 0.6555
+   },
+   "market_close": {
+    "n": 1315,
+    "logloss": 0.58562,
+    "brier": 0.20104,
+    "acc": 0.6935
+   },
+   "market_open": {
+    "n": 1315,
+    "logloss": 0.59775,
+    "brier": 0.206,
+    "acc": 0.6814
+   }
+  },
+  "2025-26": {
+   "pregame": {
+    "n": 1315,
+    "logloss": 0.59515,
+    "brier": 0.20489,
+    "acc": 0.673
+   },
+   "pregame_hard": {
+    "n": 1315,
+    "logloss": 0.59971,
+    "brier": 0.20686,
+    "acc": 0.6783
+   },
+   "oracle_roster": {
+    "n": 1315,
+    "logloss": 0.58157,
+    "brier": 0.19866,
+    "acc": 0.6837
+   },
+   "oracle": {
+    "n": 1315,
+    "logloss": 0.57674,
+    "brier": 0.19655,
+    "acc": 0.6928
+   },
+   "pregame_box_pm_only": {
+    "n": 1315,
+    "logloss": 0.61065,
+    "brier": 0.21141,
+    "acc": 0.6806
+   },
+   "pregame_kalman_only": {
+    "n": 1315,
+    "logloss": 0.59289,
+    "brier": 0.20381,
+    "acc": 0.6821
+   },
+   "pregame_plus_team": {
+    "n": 1315,
+    "logloss": 0.59255,
+    "brier": 0.20361,
+    "acc": 0.6753
+   },
+   "pregame_kalman_plus_team": {
+    "n": 1315,
+    "logloss": 0.59047,
+    "brier": 0.20263,
+    "acc": 0.6844
+   },
+   "oracle_roster_plus_team": {
+    "n": 1315,
+    "logloss": 0.58043,
+    "brier": 0.19806,
+    "acc": 0.6806
+   },
+   "fallback": {
+    "n": 1315,
+    "logloss": 0.59772,
+    "brier": 0.20556,
+    "acc": 0.6776
+   },
+   "elo": {
+    "n": 1315,
+    "logloss": 0.60719,
+    "brier": 0.20914,
+    "acc": 0.6745
+   },
+   "team_logit_monthly": {
+    "n": 1315,
+    "logloss": 0.59841,
+    "brier": 0.20588,
+    "acc": 0.676
+   },
+   "market_close": {
+    "n": 1315,
+    "logloss": 0.57629,
+    "brier": 0.19725,
+    "acc": 0.6852
+   },
+   "market_open": {
+    "n": 1315,
+    "logloss": 0.58633,
+    "brier": 0.20147,
+    "acc": 0.6791
+   }
+  }
+ },
+ "bootstrap": {
+  "pregame": {
+   "vs_fallback": {
+    "diff": -0.00689,
+    "ci95": [
+     -0.01214,
+     -0.00169
+    ]
+   },
+   "vs_market_close": {
+    "diff": 0.01615,
+    "ci95": [
+     0.0106,
+     0.02165
+    ]
+   },
+   "vs_market_open_open_subset": {
+    "diff": 0.00441,
+    "ci95": [
+     -0.00142,
+     0.01018
+    ]
+   },
+   "seasons_better_than_fallback": 4
+  },
+  "pregame_hard": {
+   "vs_fallback": {
+    "diff": -0.00376,
+    "ci95": [
+     -0.00891,
+     0.00142
+    ]
+   },
+   "vs_market_close": {
+    "diff": 0.01928,
+    "ci95": [
+     0.01377,
+     0.02464
+    ]
+   },
+   "vs_market_open_open_subset": {
+    "diff": 0.00741,
+    "ci95": [
+     0.00132,
+     0.01346
+    ]
+   },
+   "seasons_better_than_fallback": 3
+  },
+  "oracle_roster": {
+   "vs_fallback": {
+    "diff": -0.01678,
+    "ci95": [
+     -0.02295,
+     -0.01059
+    ]
+   },
+   "vs_market_close": {
+    "diff": 0.00626,
+    "ci95": [
+     0.00194,
+     0.0107
+    ]
+   },
+   "vs_market_open_open_subset": {
+    "diff": -0.00582,
+    "ci95": [
+     -0.0117,
+     -0.00013
+    ]
+   },
+   "seasons_better_than_fallback": 4
+  },
+  "oracle": {
+   "vs_fallback": {
+    "diff": -0.01975,
+    "ci95": [
+     -0.02634,
+     -0.0134
+    ]
+   },
+   "vs_market_close": {
+    "diff": 0.00329,
+    "ci95": [
+     -0.00154,
+     0.00782
+    ]
+   },
+   "vs_market_open_open_subset": {
+    "diff": -0.01017,
+    "ci95": [
+     -0.01649,
+     -0.00366
+    ]
+   },
+   "seasons_better_than_fallback": 4
+  },
+  "pregame_box_pm_only": {
+   "vs_fallback": {
+    "diff": 0.00252,
+    "ci95": [
+     -0.00343,
+     0.00851
+    ]
+   },
+   "vs_market_close": {
+    "diff": 0.02556,
+    "ci95": [
+     0.01969,
+     0.03138
+    ]
+   },
+   "vs_market_open_open_subset": {
+    "diff": 0.01672,
+    "ci95": [
+     0.01064,
+     0.02278
+    ]
+   },
+   "seasons_better_than_fallback": 2
+  },
+  "pregame_kalman_only": {
+   "vs_fallback": {
+    "diff": -0.0068,
+    "ci95": [
+     -0.01105,
+     -0.00228
+    ]
+   },
+   "vs_market_close": {
+    "diff": 0.01624,
+    "ci95": [
+     0.01053,
+     0.02157
+    ]
+   },
+   "vs_market_open_open_subset": {
+    "diff": 0.00399,
+    "ci95": [
+     -0.00223,
+     0.00999
+    ]
+   },
+   "seasons_better_than_fallback": 4
+  },
+  "pregame_plus_team": {
+   "vs_fallback": {
+    "diff": -0.00788,
+    "ci95": [
+     -0.01282,
+     -0.00286
+    ]
+   },
+   "vs_market_close": {
+    "diff": 0.01516,
+    "ci95": [
+     0.01005,
+     0.02029
+    ]
+   },
+   "vs_market_open_open_subset": {
+    "diff": 0.00321,
+    "ci95": [
+     -0.00216,
+     0.00888
+    ]
+   },
+   "seasons_better_than_fallback": 4
+  },
+  "pregame_kalman_plus_team": {
+   "vs_fallback": {
+    "diff": -0.00776,
+    "ci95": [
+     -0.01167,
+     -0.00376
+    ]
+   },
+   "vs_market_close": {
+    "diff": 0.01529,
+    "ci95": [
+     0.0099,
+     0.02069
+    ]
+   },
+   "vs_market_open_open_subset": {
+    "diff": 0.00296,
+    "ci95": [
+     -0.0028,
+     0.00851
+    ]
+   },
+   "seasons_better_than_fallback": 4
+  },
+  "oracle_roster_plus_team": {
+   "vs_fallback": {
+    "diff": -0.01692,
+    "ci95": [
+     -0.02336,
+     -0.01069
+    ]
+   },
+   "vs_market_close": {
+    "diff": 0.00612,
+    "ci95": [
+     0.00178,
+     0.01092
+    ]
+   },
+   "vs_market_open_open_subset": {
+    "diff": -0.00606,
+    "ci95": [
+     -0.01229,
+     0.0002
+    ]
+   },
+   "seasons_better_than_fallback": 4
+  },
+  "elo": {
+   "vs_fallback": {
+    "diff": 0.01308,
+    "ci95": [
+     0.00831,
+     0.01828
+    ]
+   },
+   "vs_market_close": {
+    "diff": 0.03612,
+    "ci95": [
+     0.02908,
+     0.04371
+    ]
+   },
+   "vs_market_open_open_subset": {
+    "diff": 0.02421,
+    "ci95": [
+     0.01693,
+     0.0318
+    ]
+   },
+   "seasons_better_than_fallback": 0
+  },
+  "team_logit_monthly": {
+   "vs_fallback": {
+    "diff": 0.00048,
+    "ci95": [
+     -0.00036,
+     0.00132
+    ]
+   },
+   "vs_market_close": {
+    "diff": 0.02352,
+    "ci95": [
+     0.01764,
+     0.0289
+    ]
+   },
+   "vs_market_open_open_subset": {
+    "diff": 0.01203,
+    "ci95": [
+     0.00591,
+     0.01811
+    ]
+   },
+   "seasons_better_than_fallback": 1
+  },
+  "market_close": {
+   "vs_fallback": {
+    "diff": -0.02304,
+    "ci95": [
+     -0.02846,
+     -0.01767
+    ]
+   },
+   "vs_market_open_open_subset": {
+    "diff": -0.01145,
+    "ci95": [
+     -0.01539,
+     -0.00725
+    ]
+   },
+   "seasons_better_than_fallback": 4
+  }
+ },
+ "by_phase_logloss": {
+  "1_oct_nov": {
+   "n": 1167,
+   "pregame": 0.61149,
+   "pregame_hard": 0.61228,
+   "oracle_roster": 0.60521,
+   "oracle": 0.60188,
+   "pregame_box_pm_only": 0.62327,
+   "pregame_kalman_only": 0.60813,
+   "pregame_plus_team": 0.60942,
+   "pregame_kalman_plus_team": 0.60643,
+   "oracle_roster_plus_team": 0.60476,
+   "fallback": 0.61612,
+   "elo": 0.62165,
+   "team_logit_monthly": 0.61712,
+   "market_close": 0.59851
+  },
+  "2_dec_feb": {
+   "n": 2365,
+   "pregame": 0.62576,
+   "pregame_hard": 0.62997,
+   "oracle_roster": 0.61441,
+   "oracle": 0.61469,
+   "pregame_box_pm_only": 0.63486,
+   "pregame_kalman_only": 0.62591,
+   "pregame_plus_team": 0.62599,
+   "pregame_kalman_plus_team": 0.6255,
+   "oracle_roster_plus_team": 0.61543,
+   "fallback": 0.62728,
+   "elo": 0.64263,
+   "team_logit_monthly": 0.62816,
+   "market_close": 0.60647
+  },
+  "3_mar_apr": {
+   "n": 1309,
+   "pregame": 0.56065,
+   "pregame_hard": 0.56355,
+   "oracle_roster": 0.54709,
+   "oracle": 0.54206,
+   "pregame_box_pm_only": 0.56987,
+   "pregame_kalman_only": 0.56322,
+   "pregame_plus_team": 0.55925,
+   "pregame_kalman_plus_team": 0.56266,
+   "oracle_roster_plus_team": 0.54541,
+   "fallback": 0.57992,
+   "elo": 0.59551,
+   "team_logit_monthly": 0.57936,
+   "market_close": 0.54308
+  },
+  "4_playoffs_playin": {
+   "n": 356,
+   "pregame": 0.64843,
+   "pregame_hard": 0.65292,
+   "oracle_roster": 0.64993,
+   "oracle": 0.63407,
+   "pregame_box_pm_only": 0.6529,
+   "pregame_kalman_only": 0.65032,
+   "pregame_plus_team": 0.64448,
+   "pregame_kalman_plus_team": 0.64675,
+   "oracle_roster_plus_team": 0.64884,
+   "fallback": 0.65296,
+   "elo": 0.66653,
+   "team_logit_monthly": 0.65286,
+   "market_close": 0.64794
+  }
+ },
+ "calibration_slope": {
+  "pregame": 0.955,
+  "pregame_hard": 0.948,
+  "oracle_roster": 0.949,
+  "oracle": 0.951,
+  "pregame_box_pm_only": 0.949,
+  "pregame_kalman_only": 1.005,
+  "pregame_plus_team": 0.943,
+  "pregame_kalman_plus_team": 0.995,
+  "oracle_roster_plus_team": 0.934,
+  "fallback": 1.068,
+  "elo": 0.754,
+  "team_logit_monthly": 1.046,
+  "market_close": 1.039
+ },
+ "top_players_end_2025_26": [
+  [
+   "Shai Gilgeous-Alexander",
+   8.45,
+   4.37
+  ],
+  [
+   "Nikola Jokić",
+   8.31,
+   3.16
+  ],
+  [
+   "Kawhi Leonard",
+   7.77,
+   5.37
+  ],
+  [
+   "Victor Wembanyama",
+   7.21,
+   2.7
+  ],
+  [
+   "Derrick White",
+   6.36,
+   3.33
+  ],
+  [
+   "Kevin Huerter",
+   6.26,
+   4.62
+  ],
+  [
+   "Paul Reed",
+   6.2,
+   3.36
+  ],
+  [
+   "Stephen Curry",
+   6.13,
+   3.15
+  ],
+  [
+   "Devin Booker",
+   6.13,
+   3.16
+  ],
+  [
+   "Joel Embiid",
+   6.06,
+   2.76
+  ],
+  [
+   "Donovan Mitchell",
+   5.92,
+   1.69
+  ],
+  [
+   "Brook Lopez",
+   5.9,
+   4.86
+  ],
+  [
+   "Isaiah Hartenstein",
+   5.8,
+   3.59
+  ],
+  [
+   "Luke Kornet",
+   5.77,
+   4.52
+  ],
+  [
+   "Payton Pritchard",
+   5.62,
+   3.76
+  ]
+ ],
+ "p_play_table": {
+  "streak_bucket0_min_bucket0": 0.579,
+  "streak_bucket0_min_bucket1": 0.889,
+  "streak_bucket0_min_bucket2": 0.934,
+  "streak_bucket1_min_bucket0": 0.396,
+  "streak_bucket1_min_bucket1": 0.412,
+  "streak_bucket1_min_bucket2": 0.472,
+  "streak_bucket2_min_bucket0": 0.313,
+  "streak_bucket2_min_bucket1": 0.312,
+  "streak_bucket2_min_bucket2": 0.274,
+  "streak_bucket3_min_bucket0": 0.236,
+  "streak_bucket3_min_bucket1": 0.214,
+  "streak_bucket3_min_bucket2": 0.229,
+  "streak_bucket4_min_bucket0": 0.121,
+  "streak_bucket4_min_bucket1": 0.124,
+  "streak_bucket4_min_bucket2": 0.143
+ },
+ "hyperparameters": {
+  "HL_BOX": 60.0,
+  "HL_PM": 120.0,
+  "K_BOX": 1500.0,
+  "K_PM": 4000.0,
+  "K_OO": 4000.0,
+  "KAL": {
+   "prior_mean": -1.0,
+   "entry_offset": -4.0,
+   "ref_rho": 0.05,
+   "burnin_end": "2021-01-31",
+   "p0": 4.0,
+   "q_day": 0.012,
+   "q_season": 0.5,
+   "sigma2": 150.0,
+   "hca0": 2.5,
+   "hca_p0": 1.0
+  },
+  "WIN": 10,
+  "N_MIN": 5,
+  "RIDGE_ALPHA": 10.0,
+  "N_BOOT": 2000,
+  "SEED": 7
+ },
+ "last_refit": {
+  "pregame": {
+   "season": "2025-26",
+   "refit": "2026-06-01",
+   "n_train": 6587,
+   "beta": {
+    "r_PTS": 0.2382,
+    "r_FGA": -0.1606,
+    "r_FTA": -0.186,
+    "r_FG3M": -1.7924,
+    "r_FG3A": 0.7391,
+    "r_OREB": 0.2403,
+    "r_DREB": -0.1043,
+    "r_AST": 0.2366,
+    "r_STL": 0.5262,
+    "r_BLK": 0.3464,
+    "r_TOV": -0.0964,
+    "r_PF": 0.21,
+    "r_PM": 0.0568,
+    "r_ONOFF": 0.1006,
+    "r_KAL": 0.6816
+   },
+   "logit": {
+    "gap": 0.1337,
+    "rest_diff": 0.0516,
+    "b2b_diff": -0.2491,
+    "g5_diff": -0.0077
+   },
+   "intercept": 0.2516
+  },
+  "pregame_hard": {
+   "season": "2025-26",
+   "refit": "2026-06-01",
+   "n_train": 6587,
+   "beta": {
+    "r_PTS": 0.2352,
+    "r_FGA": -0.2124,
+    "r_FTA": -0.1767,
+    "r_FG3M": -1.9159,
+    "r_FG3A": 0.784,
+    "r_OREB": 0.2819,
+    "r_DREB": -0.1527,
+    "r_AST": 0.2553,
+    "r_STL": 0.4163,
+    "r_BLK": 0.3188,
+    "r_TOV": -0.0984,
+    "r_PF": 0.192,
+    "r_PM": 0.096,
+    "r_ONOFF": 0.0912,
+    "r_KAL": 0.6313
+   },
+   "logit": {
+    "gap": 0.1332,
+    "rest_diff": 0.053,
+    "b2b_diff": -0.2513,
+    "g5_diff": -0.01
+   },
+   "intercept": 0.2528
+  },
+  "oracle_roster": {
+   "season": "2025-26",
+   "refit": "2026-06-01",
+   "n_train": 6587,
+   "beta": {
+    "r_PTS": 0.3058,
+    "r_FGA": -0.208,
+    "r_FTA": -0.1511,
+    "r_FG3M": -1.4044,
+    "r_FG3A": 0.5939,
+    "r_OREB": 0.2563,
+    "r_DREB": -0.0067,
+    "r_AST": 0.2655,
+    "r_STL": 0.8537,
+    "r_BLK": 0.442,
+    "r_TOV": -0.2001,
+    "r_PF": 0.073,
+    "r_PM": 0.0253,
+    "r_ONOFF": 0.0779,
+    "r_KAL": 0.6644
+   },
+   "logit": {
+    "gap": 0.1363,
+    "rest_diff": 0.0254,
+    "b2b_diff": -0.2185,
+    "g5_diff": -0.0178
+   },
+   "intercept": 0.2463
+  },
+  "oracle": {
+   "season": "2025-26",
+   "refit": "2026-06-01",
+   "n_train": 6587,
+   "beta": {
+    "r_PTS": 0.3957,
+    "r_FGA": -0.3568,
+    "r_FTA": -0.2041,
+    "r_FG3M": -1.4885,
+    "r_FG3A": 0.6469,
+    "r_OREB": 0.4756,
+    "r_DREB": 0.0914,
+    "r_AST": 0.2638,
+    "r_STL": 0.8003,
+    "r_BLK": 0.4736,
+    "r_TOV": -0.4902,
+    "r_PF": -0.0224,
+    "r_PM": -0.0271,
+    "r_ONOFF": 0.0175,
+    "r_KAL": 0.7685
+   },
+   "logit": {
+    "gap": 0.1361,
+    "rest_diff": 0.0181,
+    "b2b_diff": -0.2116,
+    "g5_diff": -0.0197
+   },
+   "intercept": 0.2474
+  },
+  "pregame_box_pm_only": {
+   "season": "2025-26",
+   "refit": "2026-06-01",
+   "n_train": 6587,
+   "beta": {
+    "r_PTS": 0.4842,
+    "r_FGA": -0.3465,
+    "r_FTA": -0.2874,
+    "r_FG3M": -2.0523,
+    "r_FG3A": 0.8209,
+    "r_OREB": 0.4655,
+    "r_DREB": -0.0866,
+    "r_AST": 0.3838,
+    "r_STL": 1.2196,
+    "r_BLK": 0.3851,
+    "r_TOV": -0.0986,
+    "r_PF": 0.0297,
+    "r_PM": 0.3079,
+    "r_ONOFF": 0.0049
+   },
+   "logit": {
+    "gap": 0.1313,
+    "rest_diff": 0.054,
+    "b2b_diff": -0.2363,
+    "g5_diff": -0.0219
+   },
+   "intercept": 0.2483
+  },
+  "pregame_kalman_only": {
+   "season": "2025-26",
+   "refit": "2026-06-01",
+   "n_train": 6587,
+   "beta": {
+    "r_KAL": 0.881
+   },
+   "logit": {
+    "gap": 0.1344,
+    "rest_diff": 0.0461,
+    "b2b_diff": -0.2565,
+    "g5_diff": -0.0087
+   },
+   "intercept": 0.2506
+  },
+  "pregame_plus_team": {
+   "season": "2025-26",
+   "refit": "2026-06-01",
+   "n_train": 6587,
+   "beta": {
+    "r_PTS": 0.2382,
+    "r_FGA": -0.1606,
+    "r_FTA": -0.186,
+    "r_FG3M": -1.7924,
+    "r_FG3A": 0.7391,
+    "r_OREB": 0.2403,
+    "r_DREB": -0.1043,
+    "r_AST": 0.2366,
+    "r_STL": 0.5262,
+    "r_BLK": 0.3464,
+    "r_TOV": -0.0964,
+    "r_PF": 0.21,
+    "r_PM": 0.0568,
+    "r_ONOFF": 0.1006,
+    "r_KAL": 0.6816
+   },
+   "logit": {
+    "gap": 0.1196,
+    "rest_diff": 0.0471,
+    "b2b_diff": -0.2566,
+    "g5_diff": -0.0098,
+    "elo_diff": -0.0007,
+    "net_diff": 0.0396,
+    "form_diff": 0.003
+   },
+   "intercept": 0.3011
+  },
+  "pregame_kalman_plus_team": {
+   "season": "2025-26",
+   "refit": "2026-06-01",
+   "n_train": 6587,
+   "beta": {
+    "r_KAL": 0.881
+   },
+   "logit": {
+    "gap": 0.1161,
+    "rest_diff": 0.0414,
+    "b2b_diff": -0.2649,
+    "g5_diff": -0.0116,
+    "elo_diff": -0.0005,
+    "net_diff": 0.0434,
+    "form_diff": -0.0
+   },
+   "intercept": 0.2898
+  },
+  "oracle_roster_plus_team": {
+   "season": "2025-26",
+   "refit": "2026-06-01",
+   "n_train": 6587,
+   "beta": {
+    "r_PTS": 0.3058,
+    "r_FGA": -0.208,
+    "r_FTA": -0.1511,
+    "r_FG3M": -1.4044,
+    "r_FG3A": 0.5939,
+    "r_OREB": 0.2563,
+    "r_DREB": -0.0067,
+    "r_AST": 0.2655,
+    "r_STL": 0.8537,
+    "r_BLK": 0.442,
+    "r_TOV": -0.2001,
+    "r_PF": 0.073,
+    "r_PM": 0.0253,
+    "r_ONOFF": 0.0779,
+    "r_KAL": 0.6644
+   },
+   "logit": {
+    "gap": 0.1309,
+    "rest_diff": 0.0247,
+    "b2b_diff": -0.2238,
+    "g5_diff": -0.0181,
+    "elo_diff": -0.0007,
+    "net_diff": 0.0312,
+    "form_diff": 0.0007
+   },
+   "intercept": 0.2964
+  }
+ }
+}

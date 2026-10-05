@@ -24,6 +24,8 @@ Median price of a beaten favourite: 62%. 35% of upsets were decided by 5 points 
 | H4 | Price structure: longshot bias, book dispersion, spread vs ML, line moves, popular teams | 37 | No | Line shopping cuts vig from ~4.3% to 1-2%: a cost saving, not an edge |
 | H5 | ML on everything (LightGBM from the market, interactions, margin model) | 18 | No | Median variant is slightly worse than the market |
 | H6 | Timing: how accurate is the price at 09:00 vs later | 8 | No (nothing beats the close) | **Actionable:** 09:00 UTC = opening-line quality; publishing after the 21:00 UTC refresh captures ~80% of the gain (~+5 correct picks/season), 21:00+23:00 ~90% |
+| H7 | Our own model without odds (player impact, margin ratings, better Elo, ensemble) | 3 families + ensemble | No: opening-line level (67.3%), behind the close (68.6%) | Beats the old fallback by 1.8 pts; ships as the odds-free second opinion (`h7_own_model/`) |
+| H7b | Own model blended with the market; value bets at the open | 9 thresholds | No bettable edge | Beats the ESPN open only because the open predates last night's results; ~0% ROI at prices available after our 09:00 run (`h7_own_model/blend/`) |
 
 No betting rule had a positive ROI with a confidence interval above zero after vig.
 

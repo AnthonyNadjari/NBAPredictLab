@@ -56,3 +56,7 @@ data/twitter_rate_limits_cache.json
 node_modules/
 research/h5_ml_residual/results/predictions_*.csv
 research/**/__pycache__/
+
+# local worktrees of agent runs, research caches
+.claude/worktrees/
+research/h7_own_model/*/cache/

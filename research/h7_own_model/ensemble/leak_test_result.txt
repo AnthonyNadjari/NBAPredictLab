@@ -1,0 +1,13 @@
+scramble date 2024-01-15 (everything on/after it scrambled; all odds randomised everywhere)
+player_impact   games<=D  1844  max|diff| 3.10e-04   games>D  3353  mean|diff| 0.1488  PASS (tol 1e-3, see below)
+margin_ratings  games<=D  1844  max|diff| 0.00e+00   games>D  3353  mean|diff| 0.1502  PASS
+elo_plus        games<=D  1915  max|diff| 0.00e+00   games>D  3354  mean|diff| 0.1618  PASS
+
+player_impact follow-up (2026-10-05):
+  published preds.csv vs a clean re-run of the unmodified script: identical (max diff 0.0)
+  published vs a re-run where games_features_odds.csv is merely re-derived with features.py from
+    the same unscrambled logs (values equal to 1e-14): max diff 5.0e-04 on 3,783 of 5,197 games
+    -> lbfgs-tolerance noise of the monthly logistic / ridge refits
+  scrambled vs clean, before D: Kalman ratings 0.0, player rates 0.0, P(plays) table 0.0,
+    team features 0.0, player composites <= 4.3e-14 (summation order)
+  => no information from on/after D reaches pre-D predictions. No leak.

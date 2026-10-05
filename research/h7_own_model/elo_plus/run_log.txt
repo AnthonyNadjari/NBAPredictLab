@@ -1,0 +1,104 @@
+games 10,218 (2018-19..2025-26), availability rows 183,690
+
+[2022-23] P(absent | consecutive games missed [0, 1, 2, 3, 5, 10, 20]) from ['2020-21', '2021-22']: [0.086, 0.551, 0.699, 0.766, 0.862, 0.94, 0.982]
+  elo_538       tune-ll nan (0 passes, 0s)  
+  mov_tuned     tune-ll 0.6342 (84 passes, 2s)  k=16 alpha=0.838 carry=0.542 hca=37.8 k_early=0.339
+  mov_rest      tune-ll 0.6319 (210 passes, 6s)  k=14.9 alpha=0.868 carry=0.536 hca=34.1 k_early=0.337 c_b2b=40.9 c_rest3=15.7 c_dense=1.73 hca_po=26.5
+  avail_prev    tune-ll 0.6285 (195 passes, 5s)  k=14.3 alpha=0.838 carry=0.564 hca=33.9 k_early=0.766 c_b2b=43.4 c_rest3=15.9 c_dense=-1.08 hca_po=30.5 b_gs=3.96 b_min=0.473 b_oo=7.28
+  avail_post    tune-ll 0.6286 (195 passes, 5s)  k=13.8 alpha=0.851 carry=0.55 hca=33.9 k_early=0.788 c_b2b=42.7 c_rest3=15.7 c_dense=-0.667 hca_po=30.1 b_gs=3.03 b_min=0.595 b_oo=8.11
+  elo_plus      tune-ll 0.6276 (360 passes, 10s)  k=12.6 alpha=0.828 carry=0.506 hca=34.2 k_early=1.05 c_b2b=42.9 c_rest3=14.7 c_dense=-0.733 hca_po=31.8 b_gs=3.44 b_min=0.564 b_oo=11.4 b_tal=2.4 b_tal_oo=5.83
+  oracle_bound  tune-ll 0.6214 (435 passes, 11s)  k=10.9 alpha=0.849 carry=0.509 hca=33.2 k_early=1.33 c_b2b=33.4 c_rest3=11.9 c_dense=1.33 hca_po=29 b_gs=7.89 b_min=0.279 b_oo=5.79 b_tal=3.6 b_tal_oo=5.15
+
+[2023-24] P(absent | consecutive games missed [0, 1, 2, 3, 5, 10, 20]) from ['2020-21', '2021-22', '2022-23']: [0.087, 0.532, 0.683, 0.757, 0.867, 0.938, 0.976]
+  elo_538       tune-ll nan (0 passes, 0s)  
+  mov_tuned     tune-ll 0.6380 (102 passes, 4s)  k=12.5 alpha=0.892 carry=0.506 hca=44.3 k_early=0.278
+  mov_rest      tune-ll 0.6357 (170 passes, 6s)  k=11.7 alpha=0.924 carry=0.498 hca=40.7 k_early=0.261 c_b2b=42.2 c_rest3=9.49 c_dense=6.68 hca_po=20.3
+  avail_prev    tune-ll 0.6322 (273 passes, 9s)  k=11.8 alpha=0.877 carry=0.569 hca=41.2 k_early=0.633 c_b2b=43.7 c_rest3=9.88 c_dense=3.65 hca_po=23.6 b_gs=3.68 b_min=0.495 b_oo=5.69
+  avail_post    tune-ll 0.6322 (325 passes, 12s)  k=10.7 alpha=0.907 carry=0.55 hca=41.1 k_early=0.712 c_b2b=43 c_rest3=9.81 c_dense=3.79 hca_po=23.9 b_gs=3.43 b_min=0.577 b_oo=5.55
+  elo_plus      tune-ll 0.6308 (480 passes, 17s)  k=9 alpha=0.904 carry=0.483 hca=41.4 k_early=0.818 c_b2b=43.3 c_rest3=9.23 c_dense=3.67 hca_po=24.7 b_gs=3.76 b_min=0.534 b_oo=8.66 b_tal=3.21 b_tal_oo=5.27
+  oracle_bound  tune-ll 0.6251 (585 passes, 19s)  k=8.27 alpha=0.913 carry=0.498 hca=39.4 k_early=0.963 c_b2b=32.6 c_rest3=6.43 c_dense=5.44 hca_po=21.3 b_gs=7.2 b_min=0.221 b_oo=3.71 b_tal=3.96 b_tal_oo=4.54
+
+[2024-25] P(absent | consecutive games missed [0, 1, 2, 3, 5, 10, 20]) from ['2020-21', '2021-22', '2022-23', '2023-24']: [0.085, 0.524, 0.687, 0.757, 0.871, 0.941, 0.974]
+  elo_538       tune-ll nan (0 passes, 0s)  
+  mov_tuned     tune-ll 0.6327 (114 passes, 4s)  k=14.7 alpha=0.828 carry=0.578 hca=43.3 k_early=0.613
+  mov_rest      tune-ll 0.6301 (310 passes, 13s)  k=13.6 alpha=0.862 carry=0.567 hca=39.7 k_early=0.589 c_b2b=46.9 c_rest3=9.68 c_dense=5.19 hca_po=23.2
+  avail_prev    tune-ll 0.6263 (286 passes, 11s)  k=14.6 alpha=0.79 carry=0.639 hca=40.4 k_early=1.03 c_b2b=48.3 c_rest3=10.3 c_dense=1.9 hca_po=25.7 b_gs=3.25 b_min=0.488 b_oo=6.49
+  avail_post    tune-ll 0.6264 (364 passes, 16s)  k=13.1 alpha=0.827 carry=0.618 hca=40.2 k_early=1.09 c_b2b=47.8 c_rest3=10.4 c_dense=2.13 hca_po=26.1 b_gs=2.98 b_min=0.561 b_oo=6.45
+  elo_plus      tune-ll 0.6245 (375 passes, 15s)  k=9.28 alpha=0.864 carry=0.509 hca=40.5 k_early=1.18 c_b2b=48.4 c_rest3=9.83 c_dense=1.87 hca_po=26.6 b_gs=3.56 b_min=0.51 b_oo=9.6 b_tal=4.3 b_tal_oo=5.82
+  oracle_bound  tune-ll 0.6191 (390 passes, 15s)  k=8.28 alpha=0.88 carry=0.529 hca=38.3 k_early=1.31 c_b2b=37.7 c_rest3=6.37 c_dense=4.36 hca_po=24 b_gs=6.61 b_min=0.214 b_oo=4.41 b_tal=4.92 b_tal_oo=4.94
+
+[2025-26] P(absent | consecutive games missed [0, 1, 2, 3, 5, 10, 20]) from ['2020-21', '2021-22', '2022-23', '2023-24', '2024-25']: [0.086, 0.515, 0.686, 0.765, 0.869, 0.939, 0.975]
+  elo_538       tune-ll nan (0 passes, 0s)  
+  mov_tuned     tune-ll 0.6287 (156 passes, 7s)  k=14.1 alpha=0.845 carry=0.57 hca=42 k_early=0.73
+  mov_rest      tune-ll 0.6258 (160 passes, 8s)  k=13.1 alpha=0.878 carry=0.562 hca=38.7 k_early=0.695 c_b2b=50.6 c_rest3=11.6 c_dense=3.57 hca_po=20.8
+  avail_prev    tune-ll 0.6215 (299 passes, 13s)  k=13.4 alpha=0.811 carry=0.643 hca=39.6 k_early=1.08 c_b2b=51 c_rest3=12.4 c_dense=1.29 hca_po=22.8 b_gs=3.41 b_min=0.6 b_oo=4.32
+  avail_post    tune-ll 0.6218 (286 passes, 14s)  k=11.8 alpha=0.855 carry=0.62 hca=39.5 k_early=1.15 c_b2b=50.4 c_rest3=12.3 c_dense=1.51 hca_po=23 b_gs=3.03 b_min=0.669 b_oo=4.1
+  elo_plus      tune-ll 0.6200 (450 passes, 22s)  k=8.07 alpha=0.901 carry=0.523 hca=39.8 k_early=1.34 c_b2b=51 c_rest3=11.5 c_dense=1.59 hca_po=23.1 b_gs=3.1 b_min=0.626 b_oo=8.09 b_tal=2.86 b_tal_oo=6.33
+  oracle_bound  tune-ll 0.6140 (525 passes, 24s)  k=7.36 alpha=0.923 carry=0.538 hca=37.9 k_early=1.33 c_b2b=40.6 c_rest3=8.18 c_dense=3.7 hca_po=21.2 b_gs=6.25 b_min=0.28 b_oo=4.63 b_tal=3.29 b_tal_oo=5.85
+
+evaluation set: 5,197 test-season games with a closing line ({'2022-23': 1255, '2023-24': 1312, '2024-25': 1315, '2025-26': 1315}); opening line on 3,929 of them
+
+log-loss / accuracy (evaluation set; market_open row and 'open' column on the open subset)
+predictor             2022-23       2023-24       2024-25       2025-26          pooled   brier  open-sub
+market_close    0.6228/0.672 0.5829/0.691 0.5856/0.694 0.5763/0.685 0.5916/0.686 0.2032    0.5817
+market_open                 - 0.5955/0.682 0.5978/0.681 0.5863/0.679 0.5932/0.681 0.2038    0.5932
+fallback_logit  0.6464/0.631 0.6095/0.652 0.6063/0.658 0.5977/0.678 0.6146/0.655 0.2134    0.6045
+elo_prod        0.6610/0.622 0.6223/0.644 0.6217/0.657 0.6072/0.675 0.6277/0.650 0.2187    0.6174
+elo_538         0.6522/0.633 0.6242/0.643 0.6257/0.650 0.6119/0.674 0.6283/0.650 0.2189    0.6208
+mov_tuned       0.6470/0.632 0.6128/0.649 0.6099/0.656 0.5982/0.683 0.6166/0.655 0.2142    0.6070
+mov_rest        0.6447/0.628 0.6091/0.665 0.6056/0.656 0.5983/0.684 0.6141/0.659 0.2130    0.6043
+avail_prev      0.6402/0.646 0.6043/0.671 0.5992/0.671 0.5900/0.681 0.6080/0.668 0.2104    0.5977
+avail_post      0.6401/0.647 0.6046/0.670 0.6005/0.668 0.5896/0.681 0.6083/0.667 0.2106    0.5982
+elo_plus        0.6386/0.648 0.6007/0.681 0.5996/0.675 0.5917/0.679 0.6073/0.671 0.2101    0.5972
+oracle_bound    0.6333/0.648 0.5967/0.674 0.5907/0.681 0.5856/0.671 0.6012/0.669 0.2075    0.5911
+
+paired bootstrap, mean log-loss difference (negative = better), 95% CI over games [over game-days]
+  vs_fallback:
+    elo_prod         +13.08e-3  [ +8.15, +17.92] [ +8.30, +18.27]  better in 0/4 seasons
+    elo_538          +13.65e-3  [ +8.20, +19.01] [ +8.61, +19.14]  better in 0/4 seasons
+    mov_tuned         +2.02e-3  [ -0.37,  +4.24] [ -0.42,  +4.52]  better in 0/4 seasons
+    mov_rest          -0.55e-3  [ -2.16,  +1.12] [ -2.14,  +1.05]  better in 3/4 seasons
+    avail_prev        -6.56e-3  [ -9.56,  -3.42] [ -9.70,  -3.48]  better in 4/4 seasons
+    avail_post        -6.25e-3  [ -9.27,  -3.20] [ -9.31,  -3.27]  better in 4/4 seasons
+    elo_plus          -7.28e-3  [-10.77,  -3.80] [-10.97,  -3.76]  better in 4/4 seasons
+    oracle_bound     -13.41e-3  [-18.88,  -8.05] [-18.79,  -8.24]  better in 4/4 seasons
+  vs_market_close:
+    fallback_logit   +23.04e-3  [+17.31, +28.69] [+17.36, +28.74]  better in 0/4 seasons
+    elo_prod         +36.12e-3  [+28.62, +43.34] [+29.34, +43.77]  better in 0/4 seasons
+    elo_538          +36.70e-3  [+29.77, +43.55] [+29.83, +43.93]  better in 0/4 seasons
+    mov_tuned        +25.06e-3  [+19.42, +30.68] [+19.56, +30.71]  better in 0/4 seasons
+    mov_rest         +22.50e-3  [+17.22, +27.93] [+17.02, +27.88]  better in 0/4 seasons
+    avail_prev       +16.49e-3  [+11.31, +21.69] [+11.84, +21.29]  better in 0/4 seasons
+    avail_post       +16.79e-3  [+11.53, +22.01] [+12.03, +21.66]  better in 0/4 seasons
+    elo_plus         +15.76e-3  [+10.78, +20.94] [+11.09, +20.55]  better in 0/4 seasons
+    oracle_bound      +9.64e-3  [ +6.19, +12.95] [ +6.37, +13.00]  better in 0/4 seasons
+  vs_market_open:
+    fallback_logit   +11.35e-3  [ +5.69, +17.17]  better in 0/3 seasons
+    elo_prod         +24.21e-3  [+16.51, +31.84]  better in 0/3 seasons
+    elo_538          +27.62e-3  [+19.94, +35.14]  better in 0/3 seasons
+    mov_tuned        +13.85e-3  [ +8.33, +19.64]  better in 0/3 seasons
+    mov_rest         +11.15e-3  [ +5.67, +16.88]  better in 0/3 seasons
+    avail_prev        +4.58e-3  [ -0.47,  +9.83]  better in 0/3 seasons
+    avail_post        +5.00e-3  [ -0.12, +10.36]  better in 0/3 seasons
+    elo_plus          +4.07e-3  [ -0.94,  +9.27]  better in 0/3 seasons
+    oracle_bound      -2.11e-3  [ -7.61,  +3.54]  better in 2/3 seasons
+  ladder (variant - previous variant):
+    mov_tuned - elo_538         -11.63e-3  [-16.26,  -7.10]  better in 4/4 seasons
+    mov_rest - mov_tuned         -2.57e-3  [ -4.37,  -0.60]  better in 3/4 seasons
+    avail_prev - mov_rest        -6.01e-3  [ -8.81,  -3.11]  better in 4/4 seasons
+    avail_post - avail_prev      +0.30e-3  [ -0.41,  +0.97]  better in 2/4 seasons
+    elo_plus - avail_post        -1.02e-3  [ -2.84,  +0.87]  better in 3/4 seasons
+    elo_plus - avail_prev        -0.72e-3  [ -2.62,  +1.26]  better in 2/4 seasons
+    elo_plus - mov_rest          -6.73e-3  [-10.13,  -3.37]  better in 4/4 seasons
+
+segments (log-loss): market_close / fallback_logit / elo_plus
+  regular season       n= 4841  0.5874 / 0.6118 / 0.6041
+  play-in + playoffs   n=  356  0.6479 / 0.6530 / 0.6515
+  games played < 10    n=  614  0.6066 / 0.6281 / 0.6201
+  games played 10-29   n= 1190  0.6067 / 0.6193 / 0.6188
+  games played 30-59   n= 1779  0.5961 / 0.6218 / 0.6160
+  games played 60+     n= 1614  0.5697 / 0.5981 / 0.5844
+
+calibration of elo_plus on the test games: slope 1.042, intercept +0.024
+
+wrote preds.csv (5,269 rows, variant elo_plus), results.json; 280s
