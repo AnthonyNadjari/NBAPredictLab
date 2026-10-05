@@ -66,15 +66,15 @@ def test_context_detection_and_facts(monkeypatch):
     teams, players = c.detect("Brunson and the Knicks rolling, Williams quiet")
     assert teams == {"NYK"}
     assert players == {"Jalen Brunson": "NYK"}  # "Williams" alone is ambiguous: ignored
-    facts = c.facts_for("Knicks are for real")
+    facts = c.facts_for("Knicks have the best record in the East")
     # test data dates are 2026-10-20/22: recent relative to the 2026-27 season
     monkeypatch.setattr(c, "_now", lambda: datetime(2026, 10, 25, 12, 0))
-    facts = c.facts_for("Knicks are for real")
+    facts = c.facts_for("Knicks have the best record in the East")
     assert "New York Knicks are 2-0 so far this season (2026-27)" in facts
     assert "New York Knicks have won 2 straight" in facts
     # in the offseason the same record is phrased as last season, without stale form lines
     monkeypatch.setattr(c, "_now", lambda: datetime(2027, 9, 1, 12, 0))
-    facts = c.facts_for("Knicks are for real")
+    facts = c.facts_for("Knicks have the best record in the East")
     assert facts == ["New York Knicks finished last season (2026-27) 2-0"]
 
 
@@ -157,3 +157,15 @@ def test_llm_client_falls_back_when_model_is_gone(monkeypatch):
     monkeypatch.setattr(llm_client.requests, "post", fake_post)
     r = llm_client.call_llm("NBA tonight", "fan")
     assert models == ["retired-model", llm_client.FALLBACK_MODEL] and r["decision"] == "SKIP"
+
+
+def test_context_ignores_ambiguous_words_and_off_topic_tweets(monkeypatch):
+    import nba_context as c
+    monkeypatch.setattr(c, "_rosters", lambda: {})
+    teams, _ = c.detect("Hawks smash the Magpies, Heat wave in Melbourne, Kings Cross tonight")
+    assert teams == set()                        # AFL / weather / places, not NBA
+    teams, _ = c.detect("Miami Heat and Orlando Magic in the East")
+    assert teams == {"MIA", "ORL"}
+    monkeypatch.setattr(c, "_history", lambda: [])
+    monkeypatch.setattr(c, "_pending", lambda: [])
+    assert c.facts_for("Celtics' new jersey looks clean") == []   # not about results: no records

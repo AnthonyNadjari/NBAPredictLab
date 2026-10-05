@@ -27,21 +27,21 @@ ROSTERS_TTL_H = 20
 MAX_FACTS = 6
 
 TEAMS = {
-    "ATL": ("Atlanta Hawks", ["hawks", "atlanta"]), "BOS": ("Boston Celtics", ["celtics", "boston"]),
-    "BKN": ("Brooklyn Nets", ["nets", "brooklyn"]), "CHA": ("Charlotte Hornets", ["hornets", "charlotte"]),
-    "CHI": ("Chicago Bulls", ["bulls", "chicago"]), "CLE": ("Cleveland Cavaliers", ["cavaliers", "cavs", "cleveland"]),
-    "DAL": ("Dallas Mavericks", ["mavericks", "mavs", "dallas"]), "DEN": ("Denver Nuggets", ["nuggets", "denver"]),
-    "DET": ("Detroit Pistons", ["pistons", "detroit"]), "GSW": ("Golden State Warriors", ["warriors", "golden state", "dubs"]),
-    "HOU": ("Houston Rockets", ["rockets", "houston"]), "IND": ("Indiana Pacers", ["pacers", "indiana"]),
+    "ATL": ("Atlanta Hawks", ["atlanta hawks"]), "BOS": ("Boston Celtics", ["celtics"]),
+    "BKN": ("Brooklyn Nets", ["brooklyn nets"]), "CHA": ("Charlotte Hornets", ["hornets"]),
+    "CHI": ("Chicago Bulls", ["chicago bulls"]), "CLE": ("Cleveland Cavaliers", ["cavaliers", "cavs"]),
+    "DAL": ("Dallas Mavericks", ["mavericks", "mavs"]), "DEN": ("Denver Nuggets", ["nuggets"]),
+    "DET": ("Detroit Pistons", ["pistons"]), "GSW": ("Golden State Warriors", ["warriors", "golden state", "dubs"]),
+    "HOU": ("Houston Rockets", ["houston rockets"]), "IND": ("Indiana Pacers", ["pacers"]),
     "LAC": ("LA Clippers", ["clippers", "clips"]), "LAL": ("Los Angeles Lakers", ["lakers"]),
-    "MEM": ("Memphis Grizzlies", ["grizzlies", "grizz", "memphis"]), "MIA": ("Miami Heat", ["miami heat", "heat"]),
-    "MIL": ("Milwaukee Bucks", ["bucks", "milwaukee"]), "MIN": ("Minnesota Timberwolves", ["timberwolves", "wolves", "minnesota"]),
-    "NOP": ("New Orleans Pelicans", ["pelicans", "new orleans"]), "NYK": ("New York Knicks", ["knicks"]),
-    "OKC": ("Oklahoma City Thunder", ["thunder", "okc"]), "ORL": ("Orlando Magic", ["orlando magic", "orlando"]),
-    "PHI": ("Philadelphia 76ers", ["76ers", "sixers", "philly", "philadelphia"]), "PHX": ("Phoenix Suns", ["suns", "phoenix"]),
-    "POR": ("Portland Trail Blazers", ["trail blazers", "blazers", "portland"]), "SAC": ("Sacramento Kings", ["sacramento kings", "sacramento"]),
-    "SAS": ("San Antonio Spurs", ["spurs", "san antonio"]), "TOR": ("Toronto Raptors", ["raptors", "toronto"]),
-    "UTA": ("Utah Jazz", ["utah jazz", "utah"]), "WAS": ("Washington Wizards", ["wizards", "washington"]),
+    "MEM": ("Memphis Grizzlies", ["grizzlies", "grizz"]), "MIA": ("Miami Heat", ["miami heat"]),
+    "MIL": ("Milwaukee Bucks", ["bucks"]), "MIN": ("Minnesota Timberwolves", ["timberwolves"]),
+    "NOP": ("New Orleans Pelicans", ["pelicans"]), "NYK": ("New York Knicks", ["knicks"]),
+    "OKC": ("Oklahoma City Thunder", ["okc thunder", "okc"]), "ORL": ("Orlando Magic", ["orlando magic"]),
+    "PHI": ("Philadelphia 76ers", ["76ers", "sixers"]), "PHX": ("Phoenix Suns", ["phoenix suns"]),
+    "POR": ("Portland Trail Blazers", ["trail blazers", "blazers"]), "SAC": ("Sacramento Kings", ["sacramento kings"]),
+    "SAS": ("San Antonio Spurs", ["san antonio spurs"]), "TOR": ("Toronto Raptors", ["raptors"]),
+    "UTA": ("Utah Jazz", ["utah jazz"]), "WAS": ("Washington Wizards", ["wizards"]),
 }
 ESPN_TO_NBA = {"GS": "GSW", "NY": "NYK", "SA": "SAS", "NO": "NOP", "UTAH": "UTA", "WSH": "WAS"}
 # Well-known short names that are unambiguous in NBA talk
@@ -124,7 +124,8 @@ def detect(text: str) -> tuple[set[str], dict[str, str]]:
     """Teams (codes) and players ({display name: team code}) mentioned in a tweet."""
     t = " " + _norm(text) + " "
     teams = {code for code, (_, keys) in TEAMS.items() if any(f" {k} " in t for k in keys)}
-    teams |= {code for code in TEAMS if re.search(rf"\b{code}\b", text)}
+    # Tricodes like MIN, DAL, DEN, MEM, SAC are ordinary words/abbreviations: only the unambiguous ones
+    teams |= {code for code in ("LAL", "LAC", "GSW", "NYK", "OKC", "PHI", "BKN") if re.search(rf"\b{code}\b", text)}
     players = {}
     rosters = _rosters()
     by_last = defaultdict(list)
@@ -199,6 +200,12 @@ def team_facts(code: str) -> list[str]:
     return facts
 
 
+# Records and form are only relevant when the tweet is about results/standing/form
+PERFORMANCE_WORDS = ("record", "win", "won", "loss", "lose", "lost", "season", "standing", "seed",
+                     "playoff", "streak", "contender", "best", "worst", "washed", "rank", "beat",
+                     "tonight", "game", "favorite", "favourite", "odds", "title", "ring", "form")
+
+
 def facts_for(tweet_text: str) -> list[str]:
     """Up to MAX_FACTS verified one-line facts relevant to the tweet (may be empty)."""
     try:
@@ -207,9 +214,10 @@ def facts_for(tweet_text: str) -> list[str]:
         print(f"    Context: detection failed ({e})", flush=True)
         return []
     facts = [f"{p} plays for the {TEAMS[t][0]}" for p, t in list(players.items())[:2] if t in TEAMS]
-    for code in list(teams | set(players.values()))[:2]:
-        if code in TEAMS:
-            facts += team_facts(code)
+    if any(w in tweet_text.lower() for w in PERFORMANCE_WORDS):
+        for code in list(teams | set(players.values()))[:2]:
+            if code in TEAMS:
+                facts += team_facts(code)
     return facts[:MAX_FACTS]
 
 

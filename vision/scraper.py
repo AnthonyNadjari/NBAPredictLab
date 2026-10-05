@@ -26,8 +26,7 @@ from config import (
 )
 
 HIGH_PRIORITY_KEYWORDS = {
-    "NBA", "NBA playoffs", "NBA trade", "NBA game", "NBA tonight", "NBA finals",
-    "basketball", "LeBron", "Stephen Curry", "Luka Doncic", "Victor Wembanyama",
+    "NBA", "NBA trade", "NBA injury", "LeBron", "Steph Curry", "Luka Doncic", "Wembanyama",
 }
 
 PARALLEL_TABS = int(os.getenv("PARALLEL_TABS", "3"))  # 1 on the shared server (memory cap)
