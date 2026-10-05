@@ -304,7 +304,7 @@ Odds: {away_odds:.2f} / {home_odds:.2f}"""
 
 def build_posts(game: Dict, prediction: Optional[Dict]) -> list:
     """[{text, card}] from the thread factory (or the pre-built weekly recap)."""
-    if game.get('type') == 'weekly':
+    if game.get('type') in ('weekly', 'announcement'):
         return game['thread']
     from src.social.thread import build_thread, record_line
     return build_thread(prediction, record_line('data/nba_predictor.db', since='2026-10-01'))['tweets']
@@ -381,7 +381,7 @@ def publish_thread(game_id: str) -> bool:
     logger.info(f"Publishing: {game.get('matchup') or game.get('title') or game_id}")
 
     prediction = None
-    if game.get('type') != 'weekly':
+    if game.get('type') not in ('weekly', 'announcement'):
         prediction = get_prediction_from_db(game['home_team'], game['away_team'], game['date'])
         if not prediction:
             logger.error("No prediction in the database for this game")

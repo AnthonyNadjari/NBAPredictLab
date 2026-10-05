@@ -22,7 +22,7 @@
   * { box-sizing: border-box; margin: 0; }
   html, body { width: 1200px; height: 675px; background: var(--bg); overflow: hidden; }
   body { color: var(--ink); font-family: var(--sans); -webkit-font-smoothing: antialiased; }
-  #card { position: relative; width: 1200px; height: 675px; padding: 46px 56px 40px; display: flex; flex-direction: column; }
+  #card { position: relative; width: 1200px; height: 675px; padding: 40px 56px 30px; overflow: hidden; display: flex; flex-direction: column; }
   .top { display: flex; justify-content: space-between; align-items: baseline; font: 500 19px var(--mono); color: var(--muted); letter-spacing: .4px; }
   .brand { font: 800 26px var(--display); letter-spacing: 1px; color: var(--ink); text-transform: uppercase; }
   .brand b { color: var(--ball); font-weight: 800; }
@@ -30,14 +30,14 @@
   .stripe i { display: block; height: 50%; }
 
   /* match */
-  .teams { display: grid; grid-template-columns: 1fr 120px 1fr; align-items: center; margin-top: 34px; }
+  .teams { display: grid; grid-template-columns: 1fr 120px 1fr; align-items: center; margin-top: 22px; }
   .team { display: flex; align-items: center; gap: 22px; }
   .team.home { flex-direction: row-reverse; text-align: right; }
-  .team img { width: 132px; height: 132px; object-fit: contain; filter: drop-shadow(0 4px 14px rgba(0,0,0,.35)); }
+  .team img { width: 116px; height: 116px; object-fit: contain; filter: drop-shadow(0 4px 14px rgba(0,0,0,.35)); }
   .tname { font: 900 54px/0.95 var(--display); text-transform: uppercase; letter-spacing: .5px; }
   .tsub { font: 500 19px var(--mono); color: var(--muted); margin-top: 8px; }
   .vs { text-align: center; font: 800 34px var(--display); color: var(--muted); }
-  .bar { display: flex; height: 92px; border-radius: 12px; overflow: hidden; margin-top: 40px; position: relative; }
+  .bar { display: flex; height: 84px; border-radius: 12px; overflow: hidden; margin-top: 28px; position: relative; }
   .bar > div { display: flex; align-items: center; }
   .bar .a { padding-left: 22px; } .bar .h { justify-content: flex-end; padding-right: 22px; }
   .bar span { font: 900 64px var(--display); color: #fff; text-shadow: 0 2px 6px rgba(0,0,0,.35); }
@@ -53,7 +53,7 @@
   /* edge */
   .eyebrow { font: 500 19px var(--mono); color: var(--ball); letter-spacing: 1px; text-transform: uppercase; margin-top: 30px; }
   .title { font: 900 76px/0.95 var(--display); text-transform: uppercase; margin-top: 10px; letter-spacing: .5px; }
-  .sub { font: 500 30px/1.35 var(--sans); color: var(--ink); opacity: .86; margin-top: 18px; max-width: 1040px; }
+  .sub { font: 500 34px/1.3 var(--sans); color: var(--ink); opacity: .9; margin-top: 18px; max-width: 1060px; }
   .rows { margin-top: auto; display: flex; flex-direction: column; gap: 22px; }
   .row { display: grid; grid-template-columns: 230px 1fr; align-items: center; gap: 20px; }
   .row .k { font: 600 21px var(--sans); color: var(--muted); }
@@ -64,18 +64,35 @@
   .pbar .t { font: 800 22px var(--display); width: 64px; color: var(--muted); }
   .pbar.win .t { color: var(--ink); }
 
-  .duel { margin-top: auto; display: flex; flex-direction: column; gap: 18px; }
+  .duel { margin-top: 22px; display: flex; flex-direction: column; gap: 18px; }
   .drow .k { font: 500 18px var(--mono); color: var(--muted); text-transform: uppercase; letter-spacing: .6px; margin-bottom: 8px; }
   .dpair { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-  .dv { border-radius: 12px; padding: 14px 22px; display: flex; justify-content: space-between; align-items: baseline; }
-  .dv .t { font: 800 30px var(--display); letter-spacing: .5px; }
-  .dv .n { font: 900 64px/1 var(--display); }
+  .dv { border-radius: 14px; padding: 20px 26px; display: flex; justify-content: space-between; align-items: baseline; }
+  .dv .t { font: 800 34px var(--display); letter-spacing: .5px; }
+  .dv .n { font: 900 84px/1 var(--display); }
   .dv.lose { background: var(--panel) !important; color: var(--muted); }
   .tape { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-top: 30px; }
   .tape div { background: var(--panel); border-radius: 10px; padding: 12px 16px; }
   .tape .k { font: 500 15px var(--mono); color: var(--muted); text-transform: uppercase; letter-spacing: .5px; }
   .tape .v { font: 800 30px var(--display); margin-top: 4px; display: flex; justify-content: space-between; }
   .tape .v span:first-child { color: color-mix(in srgb, var(--ac) 55%, #fff); } .tape .v span:last-child { color: color-mix(in srgb, var(--hc) 55%, #fff); }
+
+  .gap { margin-top: auto; font: 900 72px/1 var(--display); color: var(--ball); text-transform: uppercase; letter-spacing: .5px; }
+  .gap small { font: 500 20px var(--mono); color: var(--muted); margin-left: 14px; text-transform: none; letter-spacing: 0; }
+  /* brand footer: the orange that ties every card to PredictLab */
+  .foot { display: flex; justify-content: space-between; align-items: center; margin-top: 26px; padding-top: 16px;
+          border-top: 3px solid var(--ball); font: 500 18px var(--mono); color: var(--muted); letter-spacing: .4px; }
+  .foot b { color: var(--ball); font-weight: 500; }
+  .glow { position: absolute; right: -180px; top: -220px; width: 620px; height: 620px; border-radius: 50%;
+          background: radial-gradient(circle, rgba(240,116,49,.22), rgba(240,116,49,0) 65%); pointer-events: none; }
+
+  /* announce */
+  .big2 { font: 900 138px/0.86 var(--display); text-transform: uppercase; letter-spacing: 1px; margin-top: 18px; }
+  .big2 em { font-style: normal; color: var(--ball); }
+  .games { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: auto; }
+  .gm { background: var(--panel); border-radius: 14px; padding: 14px 18px; display: flex; align-items: center; justify-content: space-between; }
+  .gm img { width: 64px; height: 64px; object-fit: contain; }
+  .gm span { font: 800 24px var(--display); color: var(--muted); }
 
   /* recap */
   .big { font: 900 190px/0.85 var(--display); letter-spacing: 2px; margin-top: 26px; }
@@ -129,6 +146,19 @@ function colors(away, home) {
 const logo = c => `https://a.espncdn.com/i/teamlogos/nba/500/${(TEAMS[c] || [, , c.toLowerCase()])[2]}.png`;
 const esc = s => String(s ?? '').replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
 const brand = d => `<div class="brand">Predict<b>Lab</b></div>`;
+const foot = (right) => `<div class="foot"><span><b>@NBAPredictLab</b> · NBA probabilities</span><span>${esc(right || 'Probabilities, not locks')}</span></div>`;
+
+function announce(d) {
+  const games = (d.games || []).slice(0, 3).map(g => `<div class="gm"><img src="${logo(g.away)}" alt=""><span>AT</span><img src="${logo(g.home)}" alt=""></div>`).join('');
+  return `
+    <div class="glow"></div>
+    <div class="top"><span>${esc(d.kicker || '')}</span>${brand()}</div>
+    <div class="eyebrow">${esc(d.eyebrow || '')}</div>
+    <div class="big2">${d.title_html || ''}</div>
+    ${d.sub ? `<div class="sub" style="font-size:26px;max-width:1060px">${esc(d.sub)}</div>` : ''}
+    ${games ? `<div class="games">${games}</div>` : ''}
+    ${foot(d.foot)}`;
+}
 
 function match(d) {
   const [ca, ch] = colors(d.away, d.home);
@@ -152,7 +182,24 @@ function match(d) {
     <div class="pick">
       <div><div class="lab">Our pick</div><div class="who">${esc(d.pick_name)} <em>${Math.round(Math.max(pa, ph) * 100)}%</em></div></div>
       <div class="meta">${d.odds ? `Odds <b>${esc(d.odds)}</b><br>` : ''}${esc(d.source || '')}</div>
-    </div>`;
+    </div>
+    ${foot()}`;
+}
+
+// "ROCKETS BY 10.7": the size of the edge, in the units of the first metric
+function gapLine(d) {
+  const r = (d.rows || [])[0];
+  if (!r) return '<div style="margin-top:auto"></div>';
+  const a = +r.a.value, b = +r.b.value;
+  const aWins = r.lower_is_better ? a <= b : a >= b;
+  const win = aWins ? r.a : r.b, lose = aWins ? r.b : r.a;
+  const num = x => parseFloat(String(x.label).replace(/[^0-9.\-+]/g, ''));
+  let diff = Math.abs(num(win) - num(lose));
+  if (!isFinite(diff) || diff === 0) return '<div style="margin-top:auto"></div>';
+  const dec = (String(win.label).split('.')[1] || '').replace(/[^0-9]/g, '').length;
+  const unit = /%$/.test(String(win.label)) ? ' pts' : '';
+  const name = (TEAMS[win.team] || [win.team])[0];
+  return `<div class="gap">${esc(name)} by ${diff.toFixed(dec)}${unit}</div>`;
 }
 
 function edge(d) {
@@ -171,7 +218,9 @@ function edge(d) {
     <div class="eyebrow">${esc(d.eyebrow || '')}</div>
     <div class="title">${esc(d.title)}</div>
     ${d.sub ? `<div class="sub">${esc(d.sub)}</div>` : ''}
-    <div class="duel">${rows}</div>`;
+    ${gapLine(d)}
+    <div class="duel">${rows}</div>
+    ${foot()}`;
 }
 
 function recap(d) {
@@ -184,7 +233,8 @@ function recap(d) {
       ${stat('Hit rate', d.hit_rate, d.expected ? `exp. ${d.expected}` : '')}
       ${stat('Season', d.season || '–')}
       ${stat(d.best_label || 'Best call', d.best || '–')}
-    </div>`;
+    </div>
+    ${foot('Every pick graded')}`;
 }
 
 function decode() {
@@ -199,7 +249,7 @@ function decode() {
   const d = decode();
   const el = document.getElementById('card');
   if (!d) { el.innerHTML = '<div class="title">No data</div>'; return; }
-  el.innerHTML = d.type === 'match' ? match(d) : d.type === 'recap' ? recap(d) : edge(d);
+  el.innerHTML = d.type === 'announce' ? announce(d) : d.type === 'match' ? match(d) : d.type === 'recap' ? recap(d) : edge(d);
   await document.fonts.ready;
   await Promise.all([...document.images].map(i => i.complete ? 1 : new Promise(r => { i.onload = i.onerror = r; })));
   window.__READY__ = true;
