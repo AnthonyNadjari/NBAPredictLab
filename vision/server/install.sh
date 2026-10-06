@@ -114,8 +114,39 @@ Persistent=true
 WantedBy=timers.target
 EOF
 
+# Market + injury tape (vision/tape.py): stdlib only, tiny, every 3 min
+sudo -u nbavision mkdir -p $BASE/tape
+cat > /etc/systemd/system/nbatape.service <<EOF
+[Unit]
+Description=NBA Predict Lab market and injury tape
+After=network-online.target
+
+[Service]
+Type=oneshot
+User=nbavision
+Environment=NBA_TAPE_DIR=$BASE/tape
+ExecStart=/usr/bin/python3 $BASE/publish-repo/vision/tape.py
+TimeoutStartSec=170
+Nice=15
+CPUQuota=25%
+MemoryMax=256M
+EOF
+
+cat > /etc/systemd/system/nbatape.timer <<EOF
+[Unit]
+Description=NBA Predict Lab market and injury tape every 3 minutes
+
+[Timer]
+OnBootSec=4min
+OnUnitActiveSec=3min
+
+[Install]
+WantedBy=timers.target
+EOF
+
 systemctl daemon-reload
 systemctl enable --now nbavision.timer >/dev/null
 systemctl enable --now nbapublish.timer >/dev/null
+systemctl enable --now nbatape.timer >/dev/null
 echo "== deploy key (add to GitHub with write access):"
 cat $KEY.pub
