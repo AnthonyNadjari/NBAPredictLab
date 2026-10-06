@@ -39,6 +39,8 @@ if [ "$KIND" = "none" ]; then
         LAST=$(cat "$BASE/state/tracker_last" 2>/dev/null || echo 0)
         if [ $(( $(date +%s) - LAST )) -ge 21600 ] && { ls "$BASE/state/replies/"*.json >/dev/null 2>&1 || [ -s docs/vision/runs.json ]; }; then
           KIND=track
+        elif [ $(( $(date +%s) - $(cat "$BASE/state/tipsters_last" 2>/dev/null || echo 0) )) -ge 10800 ]; then
+          KIND=tipsters   # every 3 h: what the betting accounts pick (vision/tipsters.py)
         else
           exit 0
         fi;;
@@ -56,6 +58,9 @@ mkdir -p vision/logs
 if [ "$KIND" = "track" ]; then
   date +%s > "$BASE/state/tracker_last"   # even if it fails: never hammer X
   (cd vision && timeout 1800 python tracker.py) 2>&1 | tee "$BASE/logs/tracker-$NBAVISION_RUN_ID.log"
+elif [ "$KIND" = "tipsters" ]; then
+  date +%s > "$BASE/state/tipsters_last"
+  (cd vision && NBA_TAPE_DIR="$BASE/tape" timeout 1500 python tipsters.py) 2>&1 | tee "$BASE/logs/tipsters-$NBAVISION_RUN_ID.log"
 else
   (cd vision && timeout 9000 python main.py) 2>&1 | tee "$BASE/logs/$NBAVISION_RUN_ID.log"
 fi
