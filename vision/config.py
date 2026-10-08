@@ -125,8 +125,9 @@ MAX_SENTENCES = 3
 TFIDF_SIMILARITY_THRESHOLD = 0.65
 
 # Posting — human-like, faster
-WAIT_BEFORE_NEXT_TWEET_SEC_MIN = 20
-WAIT_BEFORE_NEXT_TWEET_SEC_MAX = 45
+# a human pace: one reply a minute on the profile is what gets an account called a bot (8 Oct)
+WAIT_BEFORE_NEXT_TWEET_SEC_MIN = 75
+WAIT_BEFORE_NEXT_TWEET_SEC_MAX = 210
 
 # Scraping delays
 SEARCH_WAIT_SEC_MIN = 2.5

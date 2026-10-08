@@ -83,6 +83,15 @@ def run_session(page, context, *, browser, playwright_instance):
         used_records: set[str] = set(json.loads(records_file.read_text(encoding="utf-8")))
     except Exception:
         used_records = set()
+    # accounts answered today and our last replies (all sessions), against repetition across sessions
+    memory_file = LOCAL_STATE_DIR / "reply_memory.json"
+    try:
+        memory = json.loads(memory_file.read_text(encoding="utf-8"))
+    except Exception:
+        memory = {}
+    today_key = datetime.now(TZ).strftime("%Y-%m-%d")
+    day_authors: dict[str, int] = memory.get("authors", {}) if memory.get("day") == today_key else {}
+    recent_replies: list[str] = memory.get("recent", [])[-150:]
 
     if DRY_RUN:
         print("*** DRY RUN MODE — no replies will be posted ***", flush=True)
@@ -178,17 +187,22 @@ def run_session(page, context, *, browser, playwright_instance):
 
         # Filter candidates (author limit, already seen)
         candidates = []
+        chosen_authors: set[str] = set()
         for tweet in top:
             if len(candidates) + total_replied >= MAX_REPLIES + 10:
                 break
             tweet_id = tweet.get("tweet_id")
             author = tweet.get("username") or ""
-            if replied_author_count.get(author, 0) >= MAX_REPLIES_PER_AUTHOR:
+            # one reply per account per session, two per day: a profile full of replies to the
+            # same account a minute apart is how people spot a bot ("bot spotted", 8 Oct)
+            if (replied_author_count.get(author, 0) >= MAX_REPLIES_PER_AUTHOR or author.lower() in chosen_authors
+                    or day_authors.get(author.lower(), 0) >= 2):
                 total_skipped += 1
                 skip_reasons["max_per_author"] = skip_reasons.get("max_per_author", 0) + 1
                 events.append(_event("skip", {"tweet_id": tweet_id, "reason": "max_per_author", "author": author}))
                 continue
             seen_tweet_ids.add(tweet_id)
+            chosen_authors.add(author.lower())
             candidates.append(tweet)
 
         # Serial LLM calls with delay to avoid Groq 429 (no concurrent requests)
@@ -248,6 +262,12 @@ def run_session(page, context, *, browser, playwright_instance):
             # names/numbers from the verified facts count as "in context" for the validator
             context_text = "\n".join([tweet.get("text") or ""] + list(llm_result.get("facts") or []))
             valid, fail_reason = validate_reply(response, session_replies, tweet_text=context_text)
+            if valid:
+                from reply_validator import repeats_recent
+                rep = repeats_recent(response, recent_replies + session_replies)
+                if rep:
+                    valid, fail_reason = False, "repeated_phrase"
+                    print(f"  @{author}: repeats an earlier reply ({rep!r})", flush=True)
             if valid and os.getenv("VERIFY_REPLIES", "1") == "1":
                 # second pass: every factual claim must come from the tweet or our verified facts
                 from llm_client import verify_reply
@@ -283,6 +303,13 @@ def run_session(page, context, *, browser, playwright_instance):
             total_replied += 1
             replied_author_count[author] = replied_author_count.get(author, 0) + 1
             session_replies.append(response)
+            day_authors[author.lower()] = day_authors.get(author.lower(), 0) + 1
+            recent_replies = (recent_replies + [response])[-150:]
+            try:
+                memory_file.write_text(json.dumps({"day": today_key, "authors": day_authors, "recent": recent_replies}),
+                                       encoding="utf-8")
+            except Exception:
+                pass
             used_records |= records
             if records:
                 try:

@@ -171,3 +171,29 @@ def validate_reply(
         return False, "too_similar"
 
     return True, None
+
+
+# Tics that made the account look like a bot (8 Oct: "full circle" twice in a row, "the most X thing
+# ever" every day, "bot spotted" reply): banned outright
+TIC_RE = re.compile(r"(?i)(full circle|most \w+ thing ever|cheat code|real test|let'?s see|peak \w+ (brain|basketball|talk)|"
+                    r"stays? undefeated|is wild to (see|watch)|love (the|that) energy|can'?t wait to see)")
+_STOP = {"the", "a", "an", "and", "or", "to", "of", "in", "on", "is", "it", "that", "this", "for", "at", "with",
+         "he", "his", "they", "their", "be", "was", "are", "but", "so", "just", "still", "now", "all", "up"}
+
+
+def _trigrams(text: str) -> set:
+    w = re.findall(r"[a-z0-9']+", (text or "").lower())
+    return {tuple(w[i:i + 3]) for i in range(len(w) - 2) if sum(1 for x in w[i:i + 3] if x not in _STOP) >= 2}
+
+
+def repeats_recent(response: str, recent: list[str]) -> str | None:
+    """A banned tic, or a 3-word phrase (with 2+ content words) already used in a recent reply."""
+    m = TIC_RE.search(response or "")
+    if m:
+        return m.group(0)
+    mine = _trigrams(response)
+    for r in recent:
+        common = mine & _trigrams(r)
+        if common:
+            return " ".join(sorted(common)[0])
+    return None
