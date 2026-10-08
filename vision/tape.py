@@ -115,8 +115,13 @@ def main() -> int:
     _append(day / "kalshi.csv", ["ts", "event", "ticker", "team", "yes_bid", "yes_ask", "last", "volume", "expected_end"], k)
     i = injury_changes(ts, TAPE_DIR / "injuries_state.json")
     _append(day / "injuries.csv", ["ts", "team", "player", "status", "comment"], i)
-    compress_old_days()
     print(f"tape {ts}: {len(k)} kalshi markets, {len(i)} injury changes", flush=True)
+    try:                                   # injury alert drafts (vision/alerts.py), never fatal
+        import alerts
+        alerts.main()
+    except Exception as e:
+        print(f"tape: alerts failed ({e})", flush=True)
+    compress_old_days()
     return 0
 
 
