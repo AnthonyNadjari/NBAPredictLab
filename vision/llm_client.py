@@ -73,6 +73,28 @@ Return only the JSON."""
 
 GROQ_BASE_URL = "https://api.groq.com/openai/v1"
 
+# Tokens used by this process (read by the replay lab to compare settings)
+USAGE = {"calls": 0, "prompt": 0, "cached": 0, "completion": 0}
+
+
+def _reasoning_args(model: str) -> dict:
+    """gpt-oss (Groq): low effort. DeepSeek thinks at HIGH effort by default, which is most of the
+    cost (output tokens): LLM_REASONING = low (default) | high | none (thinking disabled)."""
+    if "gpt-oss" in model:
+        return {"reasoning_effort": "low"}
+    if "deepseek" in model:
+        level = os.getenv("LLM_REASONING", "low")
+        return {"thinking": {"type": "disabled"}} if level == "none" else {"reasoning_effort": level}
+    return {}
+
+
+def _count(data: dict) -> None:
+    u = (data or {}).get("usage") or {}
+    USAGE["calls"] += 1
+    USAGE["prompt"] += int(u.get("prompt_tokens") or 0)
+    USAGE["cached"] += int(u.get("prompt_cache_hit_tokens") or (u.get("prompt_tokens_details") or {}).get("cached_tokens") or 0)
+    USAGE["completion"] += int(u.get("completion_tokens") or 0)
+
 
 def switch_to_fallback(why: str) -> bool:
     """DeepSeek over budget, out of credit or down: continue on Groq (free tier) instead of stopping.
@@ -174,7 +196,7 @@ def call_llm(tweet_text: str, tweet_author: str = ""):
                     # reasoning models spend tokens thinking before the JSON: keep it short
                     "max_tokens": 1200,
                     "temperature": 0.5,
-                    **({"reasoning_effort": "low"} if "gpt-oss" in model else {}),
+                    **_reasoning_args(model),
                     "response_format": {"type": "json_object"},
                 },
                 timeout=LLM_TIMEOUT_SECONDS,
@@ -198,6 +220,7 @@ def call_llm(tweet_text: str, tweet_author: str = ""):
 
             r.raise_for_status()
             data = r.json()
+            _count(data)
             content = (data.get("choices") or [{}])[0].get("message", {}).get("content", "")
             parsed = _extract_json(content)
             if parsed and isinstance(parsed.get("decision"), str):
@@ -280,7 +303,7 @@ def verify_reply(tweet_text: str, facts: list, reply: str) -> tuple[bool, str]:
         try:
             r = requests.post(url, headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"},
                               json={"model": model, "temperature": 0, "max_tokens": 900,
-                                    **({"reasoning_effort": "low"} if "gpt-oss" in model else {}),
+                                    **_reasoning_args(model),
                                     "response_format": {"type": "json_object"},
                                     "messages": [{"role": "system", "content": VERIFY_PROMPT},
                                                  {"role": "user", "content": user}]},
@@ -293,7 +316,9 @@ def verify_reply(tweet_text: str, facts: list, reply: str) -> tuple[bool, str]:
                 url = os.getenv("LLM_BASE_URL", GROQ_BASE_URL).rstrip("/") + "/chat/completions"
                 continue
             r.raise_for_status()
-            js = _extract_json(r.json()["choices"][0]["message"].get("content") or "") or {}
+            data = r.json()
+            _count(data)
+            js = _extract_json(data["choices"][0]["message"].get("content") or "") or {}
             bad = [c for c in js.get("claims", []) if isinstance(c, dict) and c.get("supported") is False]
             if (js.get("verdict") or "").lower() == "reject" or bad:
                 why = "; ".join(f"{c.get('claim')} ({c.get('why')})" for c in bad)[:240] or "rejected"

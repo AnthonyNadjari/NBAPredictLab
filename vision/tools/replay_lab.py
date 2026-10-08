@@ -18,7 +18,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from config import REPO_ROOT  # noqa: E402
-from llm_client import call_llm, verify_reply  # noqa: E402
+from llm_client import call_llm, verify_reply, USAGE  # noqa: E402
 import os  # noqa: E402
 from reply_validator import validate_reply  # noqa: E402
 
@@ -65,6 +65,7 @@ def main() -> int:
         print(f"[{i + 1}/{len(tweets)}] {line['decision']} {('' if valid in (None, True) else 'BLOCKED ' + str(why))}", flush=True)
         # Groq free tier: 8,000 tokens/min shared with the live bot (~2,500 per call)
         time.sleep(float(__import__('os').getenv('REPLAY_DELAY', '20')) + random.uniform(0, 3))
+    print('USAGE ' + json.dumps(USAGE), flush=True)
     return 0
 
 
