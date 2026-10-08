@@ -77,13 +77,13 @@ GROQ_BASE_URL = "https://api.groq.com/openai/v1"
 USAGE = {"calls": 0, "prompt": 0, "cached": 0, "completion": 0}
 
 
-def _reasoning_args(model: str) -> dict:
+def _reasoning_args(model: str, env: str = "LLM_REASONING") -> dict:
     """gpt-oss (Groq): low effort. DeepSeek thinks at HIGH effort by default, which is most of the
     cost (output tokens): LLM_REASONING = low (default) | high | none (thinking disabled)."""
     if "gpt-oss" in model:
         return {"reasoning_effort": "low"}
     if "deepseek" in model:
-        level = os.getenv("LLM_REASONING", "low")
+        level = os.getenv(env) or os.getenv("LLM_REASONING", "high")
         return {"thinking": {"type": "disabled"}} if level == "none" else {"reasoning_effort": level}
     return {}
 
@@ -303,7 +303,7 @@ def verify_reply(tweet_text: str, facts: list, reply: str) -> tuple[bool, str]:
         try:
             r = requests.post(url, headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"},
                               json={"model": model, "temperature": 0, "max_tokens": 900,
-                                    **_reasoning_args(model),
+                                    **_reasoning_args(model, "VERIFY_REASONING"),
                                     "response_format": {"type": "json_object"},
                                     "messages": [{"role": "system", "content": VERIFY_PROMPT},
                                                  {"role": "user", "content": user}]},
