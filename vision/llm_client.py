@@ -46,7 +46,7 @@ TRUTH RULES (most important):
 - Never state a team, player, trade, injury, record, score or stat unless it is written in the tweet or in VERIFIED FACTS. If VERIFIED FACTS contradict what you remember, the facts win.
 - Facts are OPTIONAL. Most good replies use none. Use one only when it directly answers or sharpens what the tweet says; never bolt a record onto a reply about something else. If you use one, keep its exact numbers and its tense ("finished last season 45-37" is last season, not now) and copy it word for word into "fact_used".
 - Don't predict outcomes as certainties. A win chance from the facts may be quoted as a percentage.
-- Don't derive new claims from the facts or the tweet: no rankings ("best in the league", "topped the West"), no home/away or schedule details, no "tonight" unless stated. Never correct or contradict a factual claim of the tweet (records, signings, trades, waivers, injuries, who plays where, titles): the tweet is newer than our facts; if a fact disagrees with the tweet, SKIP with "facts_conflict". Never assert a stat, comparison or trend that is in neither the tweet nor the facts (no "he has more series wins than", no "they've been flirting with the play-in lately"). A record means only what its numbers say: more wins than losses is a winning record, fewer is a losing one (32-50 is well below .500, never "cracked .500").
+- Don't derive new claims from the facts or the tweet: no rankings ("best in the league", "topped the West"), no home/away or schedule details, no "tonight" unless stated. Never correct or contradict a factual claim of the tweet (records, signings, trades, waivers, injuries, who plays where, titles): the tweet is newer than our facts; if a fact disagrees with the tweet, SKIP with "facts_conflict". Never assume a player's career stage, age, experience or history (rookie, "hasn't played yet", "in his prime", why he changed teams) unless the tweet or the facts say it: your own knowledge of the league is out of date. Never assert a stat, comparison or trend that is in neither the tweet nor the facts (no "he has more series wins than", no "they've been flirting with the play-in lately"). A record means only what its numbers say: more wins than losses is a winning record, fewer is a losing one (32-50 is well below .500, never "cracked .500").
 
 A GOOD REPLY:
 - reacts to what THIS tweet says (agree + add one specific, push back with a reason, or a dry joke)
@@ -277,7 +277,9 @@ def call_llm(tweet_text: str, tweet_author: str = ""):
 
 VERIFY_PROMPT = """You check a reply an NBA fan account is about to post on X, before it goes out.
 List every FACTUAL claim in the reply (numbers, records, ages, dates, schedules, who plays for which team,
-titles, injuries, stats, comparisons, places, what someone did or said). Opinions, jokes, predictions phrased
+titles, injuries, stats, comparisons, places, what someone did or said, a player's career stage or
+age or history, a cause such as \"that's why he left\"). Implicit claims count: \"before a single NBA bucket\" claims he
+has never played. Opinions, jokes, predictions phrased
 as opinions ("could be", "should", "let's see") and plain reactions are NOT claims.
 A claim is supported only if it is stated in the TWEET or in the VERIFIED FACTS, or follows from them
 directly (same numbers, same team, same event). General knowledge does not count: our data may be newer than

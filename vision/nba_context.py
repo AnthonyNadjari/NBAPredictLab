@@ -107,7 +107,8 @@ def _rosters() -> dict:
                 for a in r.get("athletes", []):
                     name = a.get("displayName") or a.get("fullName")
                     if name:
-                        data[_norm(name)] = [name, abbr]
+                        exp = (a.get("experience") or {}).get("years")
+                        data[_norm(name)] = [name, abbr, exp, a.get("age")]
             ROSTERS_CACHE.write_text(json.dumps({"fetched": time.time(), "players": data}), encoding="utf-8")
         except Exception as e:
             print(f"    Context: rosters unavailable ({e})", flush=True)
@@ -183,16 +184,19 @@ def detect(text: str) -> tuple[set[str], dict[str, str]]:
     players = {}
     rosters = _rosters()
     by_last = defaultdict(list)
-    for key, (name, team) in rosters.items():
+    for key, (name, team, *_rest) in rosters.items():
         by_last[key.split()[-1]].append((name, team))
-    for key, (name, team) in rosters.items():
+    for key, (name, team, *_rest) in rosters.items():
         if f" {key} " in t:
             players[name] = team
     for nick, full in NICKNAMES.items():
         if f" {nick} " in t and _norm(full) in rosters:
             players[rosters[_norm(full)][0]] = rosters[_norm(full)][1]
+    # words of the full names already found ("Cooper Flagg" must not also detect Carson Cooper)
+    used = {w for n in players for w in _norm(n).split()}
     for last, cands in by_last.items():
-        if len(cands) == 1 and len(last) >= 5 and last not in AMBIGUOUS_LAST and f" {last} " in t:
+        if (len(cands) == 1 and len(last) >= 5 and last not in AMBIGUOUS_LAST and last not in used
+                and f" {last} " in t):
             players.setdefault(cands[0][0], cands[0][1])
     return teams, players
 
@@ -267,6 +271,22 @@ PERFORMANCE_RE = re.compile(
     r"last season|this season)\b", re.I)
 
 
+def player_fact(name: str, team: str) -> str:
+    """'Cooper Flagg plays for the Dallas Mavericks (2 NBA seasons of experience, age 19)': the model's
+    own knowledge is older than the league (8 Oct: 'logo before a single NBA bucket' about a player in
+    his second season got the account called a bot)."""
+    row = _rosters().get(_norm(name)) or []
+    exp, age = (row[2] if len(row) > 2 else None), (row[3] if len(row) > 3 else None)
+    extra = []
+    if exp == 0:
+        extra.append("rookie, first NBA season")
+    elif isinstance(exp, int):
+        extra.append(f"{exp} NBA seasons of experience")
+    if age:
+        extra.append(f"age {age}")
+    return f"{name} plays for the {TEAMS[team][0]}" + (f" ({', '.join(extra)})" if extra else "")
+
+
 def facts_for(tweet_text: str) -> list[str]:
     """Up to MAX_FACTS verified one-line facts relevant to the tweet (may be empty)."""
     try:
@@ -274,7 +294,7 @@ def facts_for(tweet_text: str) -> list[str]:
     except Exception as e:
         print(f"    Context: detection failed ({e})", flush=True)
         return []
-    facts = [f"{p} plays for the {TEAMS[t][0]}" for p, t in list(players.items())[:2] if t in TEAMS]
+    facts = [player_fact(p, t) for p, t in list(players.items())[:2] if t in TEAMS]
     involved = [c for c in list(teams | set(players.values())) if c in TEAMS][:2]
     if PERFORMANCE_RE.search(tweet_text) or re.search(r"(?i)\b(champ|champions|title|finals|ring|swept|sweep)\b", tweet_text):
         champ = champion_fact()
