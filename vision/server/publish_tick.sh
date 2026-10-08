@@ -23,6 +23,24 @@ export NBAVISION_STATE_DIR=$BASE/publish-state
 mkdir -p "$NBAVISION_STATE_DIR"
 TEXTS=$NBAVISION_STATE_DIR/texts.json
 LEDGER=$NBAVISION_STATE_DIR/attempted_games.txt   # games whose Post button was clicked at least once
+# Every 20 min: the tape summary (injuries, alert drafts, tipster picks) for the panel's Veille tab
+TAPE_LAST=$NBAVISION_STATE_DIR/tape_export_last
+if [ $(( $(date +%s) - $(cat "$TAPE_LAST" 2>/dev/null || echo 0) )) -ge 1200 ]; then
+  date +%s > "$TAPE_LAST"
+  if [ "$(NBA_TAPE_DIR=$BASE/tape python3 vision/tools/export_tape.py 2>/dev/null)" = "changed" ]; then
+    cp docs/vision/tape.json /tmp/nbatape-export.json
+    for i in 1 2 3; do
+      git fetch -q origin main && git reset -q --hard origin/main
+      cp /tmp/nbatape-export.json docs/vision/tape.json
+      git add docs/vision/tape.json
+      git diff --cached --quiet && break
+      git -c user.name="nbavision-server" -c user.email="nbavision@users.noreply.github.com" commit -q -m "Veille: tape summary"
+      git push -q origin HEAD:main && break
+      sleep $((5 + RANDOM % 10))
+    done
+  fi
+fi
+
 REQ=$(python vision/tools/publish_queue.py next "$TEXTS") || { echo "queue read failed"; exit 1; }
 [ "$REQ" = "none" ] && exit 0
 read -r RID GAME DRY <<<"$REQ"

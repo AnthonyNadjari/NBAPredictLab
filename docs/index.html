@@ -243,6 +243,7 @@ footer { color: var(--muted); font-size: 12px; padding: 0 0 30px; }
       <button role="tab" aria-selected="false" data-tab="record">Bilan</button>
       <button role="tab" aria-selected="false" data-tab="account">Compte X</button>
       <button role="tab" aria-selected="false" data-tab="replies">Réponses</button>
+      <button role="tab" aria-selected="false" data-tab="veille">Veille</button>
       <button role="tab" aria-selected="false" data-tab="control">Pilotage</button>
     </nav>
   </header>
@@ -252,6 +253,7 @@ footer { color: var(--muted); font-size: 12px; padding: 0 0 30px; }
     <section id="record" role="tabpanel" hidden></section>
     <section id="account" role="tabpanel" hidden></section>
     <section id="replies" role="tabpanel" hidden></section>
+    <section id="veille" role="tabpanel" hidden></section>
     <section id="control" role="tabpanel" hidden></section>
   </main>
   <footer id="foot"></footer>
@@ -1083,6 +1085,37 @@ document.addEventListener('click', e => {
   if (!state.pw) openLock(send); else send();
 });
 
+// ---------------- veille (docs/vision/tape.json, written by the server every 20 min) ----------------
+async function loadVeille() {
+  const el = $('#veille');
+  let t;
+  try { t = await getJSON('vision/tape.json'); } catch (e) { t = null; }
+  if (!t) { el.innerHTML = `<div class="empty"><h3>Pas encore de données</h3><p class="hint">Le serveur publie la veille toutes les 20 minutes.</p></div>`; return; }
+  const when = ts => ts ? new Date(ts).toLocaleString('fr-FR', { timeZone: 'Europe/Paris', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '';
+  const out = (t.injuries || []).filter(r => /out/i.test(r.status || ''));
+  const other = (t.injuries || []).filter(r => !/out/i.test(r.status || ''));
+  const inj = rows => rows.length ? `<table class="rtable"><thead><tr><th>Quand</th><th>Équipe</th><th>Joueur</th><th>Statut</th><th>Détail</th></tr></thead><tbody>${
+    rows.slice(0, 60).map(r => `<tr><td>${when(r.ts)}</td><td>${esc(r.team)}</td><td><b>${esc(r.player)}</b></td><td>${esc(r.status)}</td><td style="text-align:left">${esc((r.comment || '').slice(0, 140))}</td></tr>`).join('')
+  }</tbody></table>` : '<p class="hint">Aucun changement sur les 3 derniers jours.</p>';
+  const alerts = (t.alerts || []).length ? (t.alerts || []).map(a => `<article class="rp"><div class="meta"><span>${when(a.news_at)}</span>
+      <span class="chip">${Math.round(100 * a.before)} % → ${Math.round(100 * a.after)} %</span><span class="chip">brouillon, non publié</span></div>
+      <div class="mine" style="white-space:pre-line">${esc(a.text)}</div></article>`).join('')
+    : '<p class="hint">Pas encore d’alerte : il faut un joueur clé déclaré forfait avant un match ouvert sur Kalshi (dès la saison).</p>';
+  const cons = (t.tipster_consensus || []).map(c => `<span class="chip">${esc(c.pick)} · ${c.count} tipsters</span>`).join(' ');
+  const tips = (t.tipsters || []).length ? `<table class="rtable"><thead><tr><th>Vu</th><th>Compte</th><th>Pari</th><th>Type</th><th>Cote</th><th>Match</th></tr></thead><tbody>${
+    t.tipsters.slice(0, 80).map(p => `<tr><td>${when(p.seen_at)}</td><td>${p.tweet_id ? `<a href="https://x.com/${esc(p.author)}/status/${esc(p.tweet_id)}" target="_blank" rel="noopener">@${esc(p.author)}</a>` : '@' + esc(p.author)}</td>
+      <td style="text-align:left"><b>${esc(p.pick)}</b>${p.line != null ? ' ' + esc(p.line) : ''}</td><td>${esc(p.market)}</td><td>${esc(p.odds || '')}</td><td style="text-align:left">${esc(p.game || '')}</td></tr>`).join('')
+  }</tbody></table>` : '<p class="hint">Aucun pronostic relevé sur les 2 derniers jours.</p>';
+  el.innerHTML = `
+    <div class="panel" style="margin-bottom:12px"><h3>Alertes blessure</h3>
+      <p class="hint">Un joueur clé (26+ min par match) déclaré OUT avant un match : la cote juste avant l'annonce et 12 min après. En brouillon tant qu'on n'a pas validé la publication.</p>
+      <div class="grid">${alerts}</div></div>
+    <div class="panel" style="margin-bottom:12px"><h3>Forfaits (rapport officiel ESPN, 3 derniers jours)</h3>${inj(out)}</div>
+    <div class="panel" style="margin-bottom:12px"><h3>Pronostics des tipsters sur X (2 derniers jours)</h3>
+      ${cons ? `<p class="hint" style="margin-bottom:6px">Les plus joués : ${cons}</p>` : ''}${tips}</div>
+    <div class="panel"><h3>Autres changements du rapport (incertains, retours)</h3>${inj(other)}</div>`;
+}
+
 // ---------------- lock ----------------
 let afterUnlock = null;
 function openLock(cb) { afterUnlock = cb || null; $('#lockMsg').textContent = ''; $('#pw').value = ''; $('#lockDlg').showModal(); $('#pw').focus(); }
@@ -1107,12 +1140,13 @@ document.addEventListener('click', e => { if (e.target.matches('[data-close]')) 
 // ---------------- tabs + boot ----------------
 document.querySelectorAll('nav.tabs button').forEach(b => b.addEventListener('click', () => {
   document.querySelectorAll('nav.tabs button').forEach(x => x.setAttribute('aria-selected', x === b));
-  for (const id of ['slate', 'record', 'account', 'replies', 'control']) $('#' + id).hidden = id !== b.dataset.tab;
+  for (const id of ['slate', 'record', 'account', 'replies', 'veille', 'control']) $('#' + id).hidden = id !== b.dataset.tab;
   try { localStorage.setItem('pl_tab', b.dataset.tab); } catch (e) {}
   if (b.dataset.tab === 'record') renderRecord();
   if (b.dataset.tab === 'control') renderControl();
   if (b.dataset.tab === 'account') renderAccount();
   if (b.dataset.tab === 'replies') loadReplies();
+  if (b.dataset.tab === 'veille') loadVeille();
 }));
 
 async function load() {
