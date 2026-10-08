@@ -104,6 +104,38 @@ def market(code: str, at: datetime, kalshi: list[dict]) -> dict | None:
     return best
 
 
+TAGS = {"PHI": "Sixers", "GSW": "DubNation", "POR": "RipCity", "OKC": "ThunderUp", "LAL": "LakeShow",
+        "BOS": "DifferentHere", "NYK": "Knicks", "MIA": "HEATCulture"}
+MONTHS = {m: i for i, m in enumerate(("JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"), 1)}
+
+
+def _game_day(event: str) -> str:
+    """'tonight' / 'tomorrow' / 'Oct 21' from a Kalshi event ticker (KXNBAGAME-26OCT21PHINYK)."""
+    try:
+        code = event.rsplit("-", 1)[-1][:7]                     # 26OCT21
+        d = datetime(2000 + int(code[:2]), MONTHS[code[2:5]], int(code[5:7])).date()
+        today = (datetime.now(timezone.utc) - timedelta(hours=5)).date()   # US Eastern, roughly
+        return "tonight" if d == today else "tomorrow" if d == today + timedelta(days=1) else f"on {d:%b} {d.day}"
+    except Exception:
+        return "next game"
+
+
+def alert_text(a: dict, after: float, mins: int) -> str:
+    """The post: emoji-led lines, numbers first, one team hashtag + #NBA (under 280 chars)."""
+    team, opp = NICK[a["team"]], NICK.get(a["opp"], a["opp"])
+    before_p, after_p = round(100 * a["before"]), round(100 * after)
+    move = after_p - before_p
+    arrow = "📉" if move < 0 else "📈"
+    big = "🔥 " if abs(move) >= 8 else ""
+    tag = TAGS.get(a["team"], team.replace(" ", ""))
+    return (f"🚨 INJURY ALERT\n\n"
+            f"❌ {a['player']} is OUT {_game_day(a.get('event', ''))} vs the {opp}\n\n"
+            f"📊 {a['pts']} PTS · {a['min']} MIN per game (last 10)\n\n"
+            f"{arrow} {team} win chance: {before_p}% → {after_p}% {big}\n"
+            f"⏱️ market moved {abs(move)} pts in {mins} min\n\n"
+            f"#{tag} #NBA")
+
+
 def main() -> int:
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     try:
@@ -144,10 +176,7 @@ def main() -> int:
             continue
         after = round(m["price"], 3)
         mins = int((now - t0).total_seconds() // 60)
-        text = (f"🚨 {a['player']} is OUT for the {NICK[a['team']]} vs the {NICK.get(a['opp'], a['opp'])}.\n\n"
-                f"{a['pts']} pts in {a['min']} min a game over his last 10.\n\n"
-                f"📉 {NICK[a['team']]} win chance: {round(100 * a['before'])}% → {round(100 * after)}% "
-                f"(market, {mins} min after the news)")
+        text = alert_text(a, after, mins)
         with open(OUT_DIR / "drafts.jsonl", "a", encoding="utf-8") as fh:
             fh.write(json.dumps({**a, "after": after, "measured_at": now.isoformat(timespec="seconds"),
                                  "text": text}, ensure_ascii=False) + "\n")

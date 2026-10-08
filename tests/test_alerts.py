@@ -41,3 +41,32 @@ def test_injury_alert_draft_measures_the_market_move(tmp_path, monkeypatch):
     assert "62% → 47%" in drafts[0]["text"] and "76ers" in drafts[0]["text"]
     alerts.main()                                    # never twice for the same news
     assert len((tmp_path / "alerts" / "drafts.jsonl").read_text(encoding="utf-8").splitlines()) == 1
+
+
+def test_alert_text_is_clean_and_short():
+    import alerts
+    a = {"player": "Joel Embiid", "team": "PHI", "opp": "NYK", "pts": 27.5, "min": 34.0, "before": 0.62,
+         "event": "KXNBAGAME-26OCT21PHINYK"}
+    t = alerts.alert_text(a, 0.47, 12)
+    assert t.startswith("🚨 INJURY ALERT") and "62% → 47%" in t and "🔥" in t and "#Sixers #NBA" in t
+    assert len(t) <= 260
+
+
+def test_post_alerts_only_when_switched_on_fresh_and_once(tmp_path, monkeypatch):
+    import json
+    from datetime import datetime, timedelta, timezone
+    from tools import post_alerts as pa
+    monkeypatch.setattr(pa, "TAPE", tmp_path)
+    repo = tmp_path / "repo"
+    (repo / "docs").mkdir(parents=True)
+    monkeypatch.setattr(pa, "REPO", repo)
+    now = datetime.now(timezone.utc)
+    (tmp_path / "drafts.jsonl").write_text("\n".join(json.dumps(d) for d in [
+        {"tag": "a", "measured_at": (now - timedelta(minutes=5)).isoformat(), "text": "x", "player": "A"},
+        {"tag": "b", "measured_at": (now - timedelta(hours=2)).isoformat(), "text": "y", "player": "B"}]))
+    (repo / "docs" / "autopilot.json").write_text('{"injury_alerts": false}')
+    assert pa.due(now) == []
+    (repo / "docs" / "autopilot.json").write_text('{"injury_alerts": true}')
+    assert [d["tag"] for d in pa.due(now)] == ["a"]                  # stale one never posted
+    (tmp_path / "posted.jsonl").write_text(json.dumps({"tag": "a", "at": now.isoformat()}) + "\n")
+    assert pa.due(now) == []                                          # once

@@ -41,6 +41,14 @@ if [ $(( $(date +%s) - $(cat "$TAPE_LAST" 2>/dev/null || echo 0) )) -ge 1200 ]; 
   fi
 fi
 
+# Injury alerts ready to go out (docs/autopilot.json "injury_alerts": true): vision/tools/post_alerts.py
+if NBA_TAPE_DIR=$BASE/tape python vision/tools/post_alerts.py --check 2>/dev/null | grep -qv nothing; then
+  ( source vision/server/env.sh
+    [ -f "$BASE/state/state.json" ] && cp -u "$BASE/state/state.json" "$NBAVISION_STATE_DIR/state.json"
+    export NBAVISION_BROWSER_CHANNEL=chromium PYTHONIOENCODING=utf-8 BLOCK_MEDIA=0 NBA_TAPE_DIR=$BASE/tape
+    timeout 300 python vision/tools/post_alerts.py 2>&1 | tee -a "$BASE/logs/alerts.log" )
+fi
+
 REQ=$(python vision/tools/publish_queue.py next "$TEXTS") || { echo "queue read failed"; exit 1; }
 [ "$REQ" = "none" ] && exit 0
 read -r RID GAME DRY <<<"$REQ"

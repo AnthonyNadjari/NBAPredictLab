@@ -1098,7 +1098,7 @@ async function loadVeille() {
     rows.slice(0, 60).map(r => `<tr><td>${when(r.ts)}</td><td>${esc(r.team)}</td><td><b>${esc(r.player)}</b></td><td>${esc(r.status)}</td><td style="text-align:left">${esc((r.comment || '').slice(0, 140))}</td></tr>`).join('')
   }</tbody></table>` : '<p class="hint">Aucun changement sur les 3 derniers jours.</p>';
   const alerts = (t.alerts || []).length ? (t.alerts || []).map(a => `<article class="rp"><div class="meta"><span>${when(a.news_at)}</span>
-      <span class="chip">${Math.round(100 * a.before)} % → ${Math.round(100 * a.after)} %</span><span class="chip">brouillon, non publié</span></div>
+      <span class="chip">${Math.round(100 * a.before)} % → ${Math.round(100 * a.after)} %</span><span class="chip">publiée auto sur X (moins de 45 min, max 6/jour)</span></div>
       <div class="mine" style="white-space:pre-line">${esc(a.text)}</div></article>`).join('')
     : '<p class="hint">Pas encore d’alerte : il faut un joueur clé déclaré forfait avant un match ouvert sur Kalshi (dès la saison).</p>';
   const cons = (t.tipster_consensus || []).map(c => `<span class="chip">${esc(c.pick)} · ${c.count} tipsters</span>`).join(' ');
@@ -1108,7 +1108,7 @@ async function loadVeille() {
   }</tbody></table>` : '<p class="hint">Aucun pronostic relevé sur les 2 derniers jours.</p>';
   el.innerHTML = `
     <div class="panel" style="margin-bottom:12px"><h3>Alertes blessure</h3>
-      <p class="hint">Un joueur clé (26+ min par match) déclaré OUT avant un match : la cote juste avant l'annonce et 12 min après. En brouillon tant qu'on n'a pas validé la publication.</p>
+      <p class="hint">Un joueur clé (26+ min par match) déclaré OUT avant un match : la cote juste avant l'annonce et 12 min après. Publiées automatiquement sur X dans les 45 min (max 6 par jour).</p>
       <div class="grid">${alerts}</div></div>
     <div class="panel" style="margin-bottom:12px"><h3>Forfaits (rapport officiel ESPN, 3 derniers jours)</h3>${inj(out)}</div>
     <div class="panel" style="margin-bottom:12px"><h3>Pronostics des tipsters sur X (2 derniers jours)</h3>
