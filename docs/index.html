@@ -960,6 +960,7 @@ async function loadReplies() {
   state.replies = lists.flat().sort((a, b) => (b.posted_at || '').localeCompare(a.posted_at || ''));
   state.grades = await safe('vision/reply_grades.json', {});
   state.review = await safe('vision/reviews/latest.json', null);
+  state.llmcost = await safe('vision/llm_cost.json', {});
   renderReplies();
 }
 function myGrade(r) { return (state.grades[r.id] || {}).grade || null; }
@@ -1050,6 +1051,13 @@ function renderReplies() {
         <div><b>${fmt1(eng.likeRate)}</b>likes / 1000 vues</div><div><b>${fmt1(eng.replyRate)}</b>réponses / 1000 vues</div>
         <div><b>${count('good') + count('good_follow')}</b>bonnes</div><div><b>${count('normal')}</b>normales</div>
         <div><b>${count('bad') + count('wrong')}</b>mauvaises</div><div><b>${week.filter(r => r.follow).length}</b>abonnés gagnés</div>
+        ${(() => { const c = state.llmcost || {}, days = Object.keys(c).sort(), today = days[days.length - 1];
+          if (!today) return '';
+          const month = days.filter(d => d.slice(0, 7) === today.slice(0, 7)).reduce((a, d) => a + (c[d].spent_usd || 0), 0);
+          const perReply = week.length ? days.slice(-7).reduce((a, d) => a + (c[d].spent_usd || 0), 0) / week.length : null;
+          return `<div><b>${(c[today].spent_usd || 0).toFixed(2)} $</b>IA aujourd'hui (plafond ${c[today].budget_usd} $)</div>
+            <div><b>${month.toFixed(2)} $</b>IA ce mois · solde ${c[today].balance_usd} $</div>
+            ${perReply != null ? `<div><b>${(perReply * 1000).toFixed(1)} $</b>pour 1 000 réponses</div>` : ''}`; })()}
       </div>
       ${measured14.length ? `<details style="margin:4px 0 12px"><summary class="hint" style="cursor:pointer">Ce qui marche le mieux (${measured14.length} réponses mesurées, 14 j) : en vert au-dessus de la moyenne, en rouge en dessous</summary>${breakdown(measured14)}</details>` : ''}
       <div class="row" style="gap:6px;flex-wrap:wrap">${Object.entries(filters).map(([k, v]) =>

@@ -67,11 +67,13 @@ fi
 
 # push the panel data (re-applied on top of the latest remote state if someone pushed meanwhile)
 mkdir -p /tmp/nbavision-status && cp docs/vision/stats.json docs/vision/runs.json /tmp/nbavision-status/
+cp docs/vision/llm_cost.json /tmp/nbavision-status/ 2>/dev/null || true
 for i in 1 2 3; do
   git fetch -q origin main && git reset -q --hard origin/main
   python vision/tools/merge_status.py /tmp/nbavision-status
   python vision/tools/export_replies.py      # replies ledger (server state) -> docs/vision/replies/
-  git add docs/vision/stats.json docs/vision/runs.json docs/vision/replies
+  cp /tmp/nbavision-status/llm_cost.json docs/vision/ 2>/dev/null || true
+  git add docs/vision/stats.json docs/vision/runs.json docs/vision/replies docs/vision/llm_cost.json
   git diff --cached --quiet && break
   git -c user.name="nbavision-server" -c user.email="nbavision@users.noreply.github.com" \
       commit -q -m "Vision: $KIND $NBAVISION_RUN_ID"

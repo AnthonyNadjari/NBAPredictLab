@@ -89,8 +89,14 @@ def run_session(page, context, *, browser, playwright_instance):
 
     import heartbeat
     heartbeat.REPLIES = replies_posted
+    import cost_guard
     while total_replied < MAX_REPLIES and posting_failures < MAX_POSTING_FAILURES:
         heartbeat.beat()
+        cost = cost_guard.check()
+        if cost["over"]:
+            print(f"Stopping: LLM spend today {cost['spent_today']}$ reached the {cost['budget']}$ cap", flush=True)
+            events.append(_event("session_stop", {"reason": "llm_budget"}))
+            break
         if cycle_index > 0:
             # a fresh tab each cycle: X's timeline keeps growing in memory (2 GB after an hour)
             try:
@@ -241,6 +247,14 @@ def run_session(page, context, *, browser, playwright_instance):
             # names/numbers from the verified facts count as "in context" for the validator
             context_text = "\n".join([tweet.get("text") or ""] + list(llm_result.get("facts") or []))
             valid, fail_reason = validate_reply(response, session_replies, tweet_text=context_text)
+            if valid and os.getenv("VERIFY_REPLIES", "1") == "1":
+                # second pass: every factual claim must come from the tweet or our verified facts
+                from llm_client import verify_reply
+                ok, vwhy = verify_reply(tweet.get("text") or "", list(llm_result.get("facts") or []), response)
+                heartbeat.beat()
+                if not ok:
+                    valid, fail_reason = False, "fact_check"
+                    print(f"  @{author}: fact check rejected: {vwhy[:150]}", flush=True)
             if not valid:
                 total_skipped += 1
                 skip_reasons[fail_reason or "validation"] = skip_reasons.get(fail_reason or "validation", 0) + 1

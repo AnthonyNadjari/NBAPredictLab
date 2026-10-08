@@ -13,3 +13,9 @@ if [ -f vision/server/secrets.enc ] && [ -f "$BASE/state/relay.key" ]; then
   fi
   unset RELAY_PASS
 fi
+# LLM provider: DeepSeek-flash when its key is set (tested 8 Oct on 255 tweets: ~3% factual errors
+# vs ~10% for Groq's free model, no rate limit); the Groq key stays as the fallback.
+if [ -n "${DEEPSEEK_API_KEY:-}" ]; then
+  export LLM_API_KEY="$DEEPSEEK_API_KEY" LLM_BASE_URL=https://api.deepseek.com/v1 LLM_MODEL=deepseek-flash
+  export LLM_TIMEOUT_SECONDS=60 LLM_DAILY_BUDGET_USD="${LLM_DAILY_BUDGET_USD:-0.60}"
+fi
