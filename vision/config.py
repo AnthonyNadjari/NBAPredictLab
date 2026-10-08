@@ -81,7 +81,7 @@ WATCHLIST_ACCOUNTS = [
     "NBA", "ShamsCharania", "BleacherReport", "TheHoopCentral", "LegionHoops",
     "ClutchPoints", "statmuse", "espn", "TheNBACentral", "NBAonTNT", "UnderdogNBA",
 ]
-WATCHLIST_QUERIES_PER_CYCLE = 2
+WATCHLIST_QUERIES_PER_CYCLE = 4   # big accounts first: early replies there get the views
 WATCHLIST_SCORE_BONUS = 2.0      # added to the ranking score of watchlist tweets
 EARLY_REPLY_MINUTES = 20         # extra bonus while a tweet is this fresh
 
@@ -105,7 +105,7 @@ MAX_CONSECUTIVE_ERRORS = 5
 MAX_POSTING_FAILURES = 5
 
 # Filtering — engagement-based; skip image/video tweets with no real text
-MAX_MINUTES_SINCE_POST = int(os.getenv("MAX_MINUTES_SINCE_POST", "180"))  # 360 off-season (fewer fresh tweets)
+MAX_MINUTES_SINCE_POST = int(os.getenv("MAX_MINUTES_SINCE_POST", "120"))  # 360 off-season (fewer fresh tweets)
 MIN_LIKES = int(os.getenv("MIN_LIKES", "5"))  # Only reply to tweets with some traction
 MIN_TEXT_LENGTH = 20
 MAX_HASHTAGS = 5

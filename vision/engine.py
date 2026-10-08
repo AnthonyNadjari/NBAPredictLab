@@ -3,6 +3,7 @@ NBAVision Engine — Orchestration: scrape -> filter -> score -> LLM -> validate
 Batches LLM calls concurrently for speed.
 """
 from __future__ import annotations
+import json
 import os
 import random
 import re
@@ -25,6 +26,7 @@ from config import (
     MAX_POSTING_FAILURES,
     DRY_RUN,
     TZ,
+    LOCAL_STATE_DIR,
 )
 
 # Serial LLM calls with delay to stay under Groq rate limit (avoids 429)
@@ -75,7 +77,12 @@ def run_session(page, context, *, browser, playwright_instance):
     posting_failures = 0
     cycle_index = 0
     browser_gone = False
-    used_records: set[str] = set()
+    # W-L records already quoted today (all sessions): "61-20" five times a day reads like a bot
+    records_file = LOCAL_STATE_DIR / f"used_records_{datetime.now(TZ):%Y-%m-%d}.json"
+    try:
+        used_records: set[str] = set(json.loads(records_file.read_text(encoding="utf-8")))
+    except Exception:
+        used_records = set()
 
     if DRY_RUN:
         print("*** DRY RUN MODE — no replies will be posted ***", flush=True)
@@ -262,6 +269,11 @@ def run_session(page, context, *, browser, playwright_instance):
             replied_author_count[author] = replied_author_count.get(author, 0) + 1
             session_replies.append(response)
             used_records |= records
+            if records:
+                try:
+                    records_file.write_text(json.dumps(sorted(used_records)), encoding="utf-8")
+                except Exception:
+                    pass
             import poster as _poster
             posted = {
                 "tweet_url": tweet_url,
