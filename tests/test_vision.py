@@ -183,3 +183,16 @@ def test_records_only_for_result_tweets_whole_words():
 def test_record_pattern_catches_win_loss_numbers():
     from nba_context import RECORD_RE
     assert RECORD_RE.findall("49-33 last season, 2026-27 is new") == ["49-33"]
+
+
+def test_deepseek_falls_back_to_groq_instead_of_stopping(monkeypatch):
+    import llm_client
+    monkeypatch.setenv("LLM_BASE_URL", "https://api.deepseek.com/v1")
+    monkeypatch.setenv("LLM_API_KEY", "ds-key")
+    monkeypatch.setenv("LLM_MODEL", "deepseek-flash")
+    monkeypatch.setenv("GROQ_API_KEY", "groq-key")
+    assert llm_client.switch_to_fallback("daily cap") is True
+    import os
+    assert os.environ["LLM_API_KEY"] == "groq-key" and "groq" in os.environ["LLM_BASE_URL"]
+    assert os.environ["LLM_MODEL"] == "openai/gpt-oss-120b"
+    assert llm_client.switch_to_fallback("again") is False        # already on Groq

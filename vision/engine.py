@@ -94,9 +94,10 @@ def run_session(page, context, *, browser, playwright_instance):
         heartbeat.beat()
         cost = cost_guard.check()
         if cost["over"]:
-            print(f"Stopping: LLM spend today {cost['spent_today']}$ reached the {cost['budget']}$ cap", flush=True)
-            events.append(_event("session_stop", {"reason": "llm_budget"}))
-            break
+            # never stop: past the daily DeepSeek cap, continue on Groq's free tier
+            from llm_client import switch_to_fallback
+            if switch_to_fallback(f"daily cap {cost['budget']}$ reached ({cost['spent_today']}$ spent)"):
+                events.append(_event("llm_fallback", {"reason": "llm_budget", "spent": cost["spent_today"]}))
         if cycle_index > 0:
             # a fresh tab each cycle: X's timeline keeps growing in memory (2 GB after an hour)
             try:

@@ -16,6 +16,7 @@ fi
 # LLM provider: DeepSeek-flash when its key is set (tested 8 Oct on 255 tweets: ~3% factual errors
 # vs ~10% for Groq's free model, no rate limit); the Groq key stays as the fallback.
 if [ -n "${DEEPSEEK_API_KEY:-}" ]; then
+  export GROQ_API_KEY="${LLM_API_KEY:-}"   # kept: takes over past the daily cap or if DeepSeek fails
   export LLM_API_KEY="$DEEPSEEK_API_KEY" LLM_BASE_URL=https://api.deepseek.com/v1 LLM_MODEL=deepseek-flash
   export LLM_TIMEOUT_SECONDS=60 LLM_DAILY_BUDGET_USD="${LLM_DAILY_BUDGET_USD:-0.60}"
 fi

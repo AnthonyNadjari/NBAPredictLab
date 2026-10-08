@@ -71,6 +71,21 @@ Good: {"decision":"REPLY","reason":"pushback","response":"Books still have them 
 Return only the JSON."""
 
 
+GROQ_BASE_URL = "https://api.groq.com/openai/v1"
+
+
+def switch_to_fallback(why: str) -> bool:
+    """DeepSeek over budget, out of credit or down: continue on Groq (free tier) instead of stopping.
+    Returns True if the switch happened (False if already on Groq or no Groq key)."""
+    groq = os.getenv("GROQ_API_KEY", "").strip()
+    if not groq or "groq" in os.getenv("LLM_BASE_URL", GROQ_BASE_URL):
+        return False
+    os.environ.update({"LLM_API_KEY": groq, "LLM_BASE_URL": GROQ_BASE_URL, "LLM_MODEL": "openai/gpt-oss-120b",
+                       "LLM_FALLBACK_ACTIVE": why})
+    print(f"    LLM: switching to Groq ({why})", flush=True)
+    return True
+
+
 def _extract_json(text: str):
     """Try to parse JSON from LLM output (allow markdown code block)."""
     text = (text or "").strip()
@@ -203,6 +218,12 @@ def call_llm(tweet_text: str, tweet_author: str = ""):
             last_err = "timeout"
             print(f"    LLM: timeout (attempt {attempt + 1})", flush=True)
         except requests.HTTPError as e:
+            code = e.response.status_code if e.response is not None else 0
+            if (code in (401, 402, 403) or code >= 500) and switch_to_fallback(f"HTTP {code}"):
+                api_key, model = get_llm_api_key(), get_llm_model()
+                url = os.getenv("LLM_BASE_URL", GROQ_BASE_URL).rstrip("/") + "/chat/completions"
+                headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
+                continue
             if (e.response is not None and e.response.status_code in (400, 404)
                     and "model" in (e.response.text or "").lower() and model != FALLBACK_MODEL):
                 print(f"    LLM: model {model!r} unavailable -> {FALLBACK_MODEL}", flush=True)
@@ -266,6 +287,10 @@ def verify_reply(tweet_text: str, facts: list, reply: str) -> tuple[bool, str]:
                               timeout=LLM_TIMEOUT_SECONDS + 10)
             if r.status_code == 429:
                 time.sleep(min(120, max(30, int(r.headers.get("Retry-After", "60") or 60))))
+                continue
+            if (r.status_code in (401, 402, 403) or r.status_code >= 500) and switch_to_fallback(f"HTTP {r.status_code}"):
+                api_key, model = get_llm_api_key(), get_llm_model()
+                url = os.getenv("LLM_BASE_URL", GROQ_BASE_URL).rstrip("/") + "/chat/completions"
                 continue
             r.raise_for_status()
             js = _extract_json(r.json()["choices"][0]["message"].get("content") or "") or {}
