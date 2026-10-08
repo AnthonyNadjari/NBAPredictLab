@@ -115,7 +115,7 @@ MIN_TEXT_LENGTH_IF_MEDIA = 40
 TOP_N_SCORED = 40
 
 # LLM
-LLM_TIMEOUT_SECONDS = 20
+LLM_TIMEOUT_SECONDS = int(os.getenv("LLM_TIMEOUT_SECONDS", "20"))  # DeepSeek reasons before answering: 60
 LLM_RETRY_MAX = 2
 
 # Reply validation
