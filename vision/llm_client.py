@@ -253,6 +253,7 @@ def verify_reply(tweet_text: str, facts: list, reply: str) -> tuple[bool, str]:
     url = os.getenv("LLM_BASE_URL", "https://api.groq.com/openai/v1").rstrip("/") + "/chat/completions"
     model = get_llm_model()
     facts_block = "\n".join(f"- {f}" for f in (facts or [])) or "(none)"
+    last = "rate limited"
     user = f"TWEET:\n{tweet_text}\n\nVERIFIED FACTS:\n{facts_block}\n\nREPLY TO CHECK:\n{reply}"
     for attempt in range(4):
         try:
