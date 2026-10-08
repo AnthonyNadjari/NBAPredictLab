@@ -18,7 +18,8 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from config import REPO_ROOT  # noqa: E402
-from llm_client import call_llm  # noqa: E402
+from llm_client import call_llm, verify_reply  # noqa: E402
+import os  # noqa: E402
 from reply_validator import validate_reply  # noqa: E402
 
 
@@ -51,6 +52,10 @@ def main() -> int:
         if "REPLY" in (res.get("decision") or "").upper() and resp:
             ctx = "\n".join([r["tweet_text"]] + list(res.get("facts") or []))
             valid, why = validate_reply(resp, [], tweet_text=ctx)
+            if valid and os.getenv("REPLAY_VERIFY") == "1":       # second pass, as in production
+                ok, vwhy = verify_reply(r["tweet_text"], res.get("facts") or [], resp)
+                if not ok:
+                    valid, why = False, "fact_check: " + vwhy
         line = {"tweet_id": r.get("tweet_id"), "author": r.get("author"), "tweet": r["tweet_text"],
                 "old_reply": r.get("reply_text"), "old_grade": r.get("auto_grade"),
                 "decision": res.get("decision"), "reason": res.get("reason"), "reply": resp,
