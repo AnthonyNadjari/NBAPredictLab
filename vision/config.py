@@ -112,7 +112,7 @@ MAX_HASHTAGS = 5
 MIN_TEXT_LENGTH_IF_MEDIA = 40
 
 # Scoring — top N kept per cycle
-TOP_N_SCORED = 60   # DeepSeek skips more (36% of tweets answered vs 85%): look at more
+TOP_N_SCORED = 70   # DeepSeek skips more (35% of tweets answered vs 85%): look at more
 
 # LLM
 LLM_TIMEOUT_SECONDS = int(os.getenv("LLM_TIMEOUT_SECONDS", "20"))  # DeepSeek reasons before answering: 60

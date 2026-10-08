@@ -19,4 +19,7 @@ if [ -n "${DEEPSEEK_API_KEY:-}" ]; then
   export GROQ_API_KEY="${LLM_API_KEY:-}"   # kept: takes over past the daily cap or if DeepSeek fails
   export LLM_API_KEY="$DEEPSEEK_API_KEY" LLM_BASE_URL=https://api.deepseek.com/v1 LLM_MODEL=deepseek-flash
   export LLM_TIMEOUT_SECONDS=60 LLM_DAILY_BUDGET_USD="${LLM_DAILY_BUDGET_USD:-0.60}"
+  # A/B 8 Oct (80 tweets each): drafting without thinking + fact check with thinking = same quality,
+  # 28 vs 33 publishable, -42% cost per posted reply (output tokens are most of the bill)
+  export LLM_REASONING="${LLM_REASONING:-none}" VERIFY_REASONING="${VERIFY_REASONING:-high}"
 fi
