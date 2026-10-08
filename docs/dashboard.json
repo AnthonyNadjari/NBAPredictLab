@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-10-07T23:07:26+00:00",
-  "us_date": "2026-10-07",
+  "generated_at": "2026-10-08T09:15:16+00:00",
+  "us_date": "2026-10-08",
   "season": {
     "label": "2026-27",
     "since": "2026-10-01",
@@ -52,23 +52,23 @@
   },
   "previous_season": {
     "label": "2025-26 (ancien moteur)",
-    "n": 926,
-    "correct": 570,
-    "accuracy": 0.6155507559395248,
-    "brier": 0.23220661427845044,
-    "expected": 0.6228581626075417,
+    "n": 928,
+    "correct": 571,
+    "accuracy": 0.615301724137931,
+    "brier": 0.23227713608264833,
+    "expected": 0.622675073546027,
     "buckets": [
       {
         "label": "50–55%",
-        "n": 267,
-        "expected": 0.5194654447128207,
-        "actual": 0.5318352059925093
+        "n": 268,
+        "expected": 0.5194845667994685,
+        "actual": 0.5335820895522388
       },
       {
         "label": "55–60%",
-        "n": 186,
-        "expected": 0.5699255070026937,
-        "actual": 0.5860215053763441
+        "n": 187,
+        "expected": 0.5698254749448992,
+        "actual": 0.5828877005347594
       },
       {
         "label": "60–65%",
@@ -98,7 +98,7 @@
   },
   "recent": [],
   "data": {
-    "games_in_history": 10218,
+    "games_in_history": 10224,
     "last_game_date": "2026-06-13",
     "model_trained_at": "2026-10-03T17:23:27Z",
     "model_seasons": [
@@ -111,9 +111,9 @@
       "2025-26"
     ],
     "player_games": {
-      "rows": 57336,
-      "games": 2655,
-      "last_game_date": "2026-10-06"
+      "rows": 57484,
+      "games": 2660,
+      "last_game_date": "2026-10-07"
     },
     "own_model_params": {
       "fitted_through": "2025-26",
