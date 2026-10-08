@@ -63,6 +63,8 @@ def test_context_detection_and_facts(monkeypatch):
          "home": "BOS", "away": "NYK", "home_pts": "99", "away_pts": "105"},
     ])
     monkeypatch.setattr(c, "_pending", lambda: [])
+    # official records come from the ESPN standings (2026-27 = season ending 2027)
+    monkeypatch.setattr(c, "_standings", lambda year: {"NYK": [2, 0]} if year == 2027 else {})
     teams, players = c.detect("Brunson and the Knicks rolling, Williams quiet")
     assert teams == {"NYK"}
     assert players == {"Jalen Brunson": "NYK"}  # "Williams" alone is ambiguous: ignored

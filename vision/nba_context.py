@@ -115,6 +115,60 @@ def _rosters() -> dict:
     return data
 
 
+STANDINGS_CACHE = LOCAL_STATE_DIR / "standings.json"
+STANDINGS_TTL_H = 6
+
+
+def _standings(end_year: int) -> dict:
+    """Official W-L per team code for the season ending in `end_year` (ESPN standings, cached 6 h).
+    Counting our own history gave wrong records (missing games, the NBA Cup final which does
+    not count): never again."""
+    key = f"standings_{end_year}"
+    if key in _cache:
+        return _cache[key]
+    data = {}
+    try:
+        cached = json.loads(STANDINGS_CACHE.read_text(encoding="utf-8"))
+        if cached.get("year") == end_year and time.time() - cached.get("fetched", 0) < STANDINGS_TTL_H * 3600:
+            data = cached["teams"]
+    except Exception:
+        pass
+    if not data:
+        try:
+            js = requests.get("https://site.api.espn.com/apis/v2/sports/basketball/nba/standings",
+                              params={"season": end_year, "seasontype": 2}, timeout=15).json()
+            for conf in js.get("children", []):
+                for e in conf["standings"]["entries"]:
+                    st = {x["name"]: x.get("value") for x in e["stats"]}
+                    abbr = ESPN_TO_NBA.get(e["team"]["abbreviation"], e["team"]["abbreviation"])
+                    data[abbr] = [int(st.get("wins") or 0), int(st.get("losses") or 0)]
+            STANDINGS_CACHE.write_text(json.dumps({"year": end_year, "fetched": time.time(), "teams": data}),
+                                       encoding="utf-8")
+        except Exception as e:
+            print(f"    Context: standings unavailable ({e})", flush=True)
+    _cache[key] = data
+    return data
+
+
+def champion_fact() -> str | None:
+    """Last NBA Finals, from our history: the two teams of the season's last playoff games."""
+    po = [g for g in _history() if g.get("season_type") == "Playoffs"]
+    if not po:
+        return None
+    season = max(g["season"] for g in po)
+    po = sorted([g for g in po if g["season"] == season], key=lambda g: g["game_date"])
+    pair = {po[-1]["home"], po[-1]["away"]}
+    finals = []
+    for g in reversed(po):
+        if {g["home"], g["away"]} != pair:
+            break
+        finals.append(g)
+    wins = {t: sum(_result_line(t, g)[0] for g in finals) for t in pair}
+    champ, loser = sorted(pair, key=lambda t: -wins[t])
+    return (f"{TEAMS[champ][0]} won the {season[:2]}{season[-2:]} NBA title, beating the {TEAMS[loser][0]} "
+            f"{wins[champ]}-{wins[loser]} in the Finals")
+
+
 def _norm(s: str) -> str:
     return re.sub(r"[^a-z ]", "", s.lower().replace("-", " ")).strip()
 
@@ -166,14 +220,17 @@ def team_facts(code: str) -> list[str]:
         today = _now().date()
         current = f"{today.year if today.month >= 8 else today.year - 1}-{str((today.year if today.month >= 8 else today.year - 1) + 1)[2:]}"
         season = games[-1]["season"]
-        season_games = [g for g in games if g["season"] == season and g.get("season_type") == "Regular Season"]
-        if season_games:
-            w = sum(_result_line(code, g)[0] for g in season_games)
-            if season == current:
-                facts.append(f"{name} are {w}-{len(season_games) - w} so far this season ({season})")
+        # official record (ESPN standings) of the current season if it has started, else last season's
+        cur_end = int(current[:4]) + 1
+        rec_season, wl = current, _standings(cur_end).get(code)
+        if not wl or sum(wl) == 0:
+            rec_season, wl = f"{cur_end - 2}-{str(cur_end - 1)[2:]}", _standings(cur_end - 1).get(code)
+        if wl and sum(wl) > 0:
+            if rec_season == current:
+                facts.append(f"{name} are {wl[0]}-{wl[1]} so far this season ({rec_season})")
             else:
                 # Offseason / before their first game: say it is LAST season, never "this season"
-                facts.append(f"{name} finished last season ({season}) {w}-{len(season_games) - w}")
+                facts.append(f"{name} finished last season ({rec_season}) {wl[0]}-{wl[1]}")
         last_date = datetime.strptime(games[-1]["game_date"], "%Y-%m-%d").date()
         if (today - last_date).days <= 10:   # recent form only when it is actually recent
             results = [_result_line(code, g) for g in games[-5:]]
@@ -218,10 +275,14 @@ def facts_for(tweet_text: str) -> list[str]:
         print(f"    Context: detection failed ({e})", flush=True)
         return []
     facts = [f"{p} plays for the {TEAMS[t][0]}" for p, t in list(players.items())[:2] if t in TEAMS]
+    involved = [c for c in list(teams | set(players.values())) if c in TEAMS][:2]
+    if PERFORMANCE_RE.search(tweet_text) or re.search(r"(?i)\b(champ|champions|title|finals|ring|swept|sweep)\b", tweet_text):
+        champ = champion_fact()
+        if champ and any(TEAMS[c][0] in champ for c in involved):
+            facts.append(champ)
     if PERFORMANCE_RE.search(tweet_text):
-        for code in list(teams | set(players.values()))[:2]:
-            if code in TEAMS:
-                facts += team_facts(code)
+        for code in involved:
+            facts += team_facts(code)
     return facts[:MAX_FACTS]
 
 

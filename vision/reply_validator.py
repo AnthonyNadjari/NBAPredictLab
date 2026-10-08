@@ -43,6 +43,16 @@ def _count_sentences(text: str) -> int:
 
 # Phrases that often signal invented team/season facts — reject reply if present
 INVENTED_PHRASE_BLOCKLIST = [
+    # "correcting" the tweet: our facts can be stale (5 Oct: Pistons "59 wins, not 60", Hawkins
+    # "still with Memphis" after he was waived); the tweet is newer than our data
+    "actually",
+    "last i saw",
+    "last i checked",
+    "not a clean",
+    "roster says",
+    "might be a rumor",
+    "that's not true",
+    "not quite",
     "last year at",
     "last season at",
     "when he was with the",
