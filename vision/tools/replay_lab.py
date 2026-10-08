@@ -58,7 +58,8 @@ def main() -> int:
         with open(out, "a", encoding="utf-8") as fh:
             fh.write(json.dumps(line, ensure_ascii=False) + "\n")
         print(f"[{i + 1}/{len(tweets)}] {line['decision']} {('' if valid in (None, True) else 'BLOCKED ' + str(why))}", flush=True)
-        time.sleep(random.uniform(2.5, 4.0))
+        # Groq free tier: 8,000 tokens/min shared with the live bot (~2,500 per call)
+        time.sleep(float(__import__('os').getenv('REPLAY_DELAY', '20')) + random.uniform(0, 3))
     return 0
 
 
