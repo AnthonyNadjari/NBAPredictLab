@@ -228,3 +228,52 @@ def call_llm(tweet_text: str, tweet_author: str = ""):
 
     print("    LLM: all attempts failed -> None", flush=True)
     return None
+
+
+VERIFY_PROMPT = """You check a reply an NBA fan account is about to post on X, before it goes out.
+List every FACTUAL claim in the reply (numbers, records, ages, dates, schedules, who plays for which team,
+titles, injuries, stats, comparisons, places, what someone did or said). Opinions, jokes, predictions phrased
+as opinions ("could be", "should", "let's see") and plain reactions are NOT claims.
+A claim is supported only if it is stated in the TWEET or in the VERIFIED FACTS, or follows from them
+directly (same numbers, same team, same event). General knowledge does not count: our data may be newer than
+yours (trades, signings, titles) and the tweet is newer than both.
+Also unsupported: anything that contradicts or "corrects" the tweet, and misleading framing (e.g. "still no
+ring" for a player who has one, "at home" when the tweet says the game is away).
+Return JSON only: {"claims": [{"claim": "...", "supported": true/false, "why": "short"}], "verdict": "ok" or "reject"}
+verdict is "reject" if any claim is unsupported."""
+
+
+def verify_reply(tweet_text: str, facts: list, reply: str) -> tuple[bool, str]:
+    """Second pass: every factual claim of `reply` must come from the tweet or our verified facts.
+    Returns (ok, reason). Fails closed only on a clear 'reject'; an unreadable check lets the reply
+    through (the rule-based validator already ran)."""
+    api_key = get_llm_api_key()
+    if not api_key:
+        return True, "no_key"
+    url = os.getenv("LLM_BASE_URL", "https://api.groq.com/openai/v1").rstrip("/") + "/chat/completions"
+    model = get_llm_model()
+    facts_block = "\n".join(f"- {f}" for f in (facts or [])) or "(none)"
+    user = f"TWEET:\n{tweet_text}\n\nVERIFIED FACTS:\n{facts_block}\n\nREPLY TO CHECK:\n{reply}"
+    for attempt in range(4):
+        try:
+            r = requests.post(url, headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"},
+                              json={"model": model, "temperature": 0, "max_tokens": 900,
+                                    **({"reasoning_effort": "low"} if "gpt-oss" in model else {}),
+                                    "response_format": {"type": "json_object"},
+                                    "messages": [{"role": "system", "content": VERIFY_PROMPT},
+                                                 {"role": "user", "content": user}]},
+                              timeout=LLM_TIMEOUT_SECONDS + 10)
+            if r.status_code == 429:
+                time.sleep(min(120, max(30, int(r.headers.get("Retry-After", "60") or 60))))
+                continue
+            r.raise_for_status()
+            js = _extract_json(r.json()["choices"][0]["message"].get("content") or "") or {}
+            bad = [c for c in js.get("claims", []) if isinstance(c, dict) and c.get("supported") is False]
+            if (js.get("verdict") or "").lower() == "reject" or bad:
+                why = "; ".join(f"{c.get('claim')} ({c.get('why')})" for c in bad)[:240] or "rejected"
+                return False, why
+            return True, "ok"
+        except Exception as e:
+            last = str(e)
+            time.sleep(5)
+    return True, f"check_failed: {last[:80]}"
