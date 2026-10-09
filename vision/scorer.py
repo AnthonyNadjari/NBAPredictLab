@@ -28,6 +28,8 @@ def compute_score(tweet: dict) -> float:
         0.7 * engagement_velocity
         + 0.25 * freshness_score
         + 0.05 * text_quality
+        # 9 Oct, 334 measured replies: tweets at 1000+ likes gave 2,059 views per reply vs 211 under 50
+        + 0.6 * math.log10(max(likes, 1))
     )
     # Big accounts: an early reply sits near the top of a thread that thousands read
     from config import WATCHLIST_ACCOUNTS, WATCHLIST_SCORE_BONUS, EARLY_REPLY_MINUTES

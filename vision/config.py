@@ -114,7 +114,7 @@ MAX_POSTING_FAILURES = 5
 
 # Filtering — engagement-based; skip image/video tweets with no real text
 MAX_MINUTES_SINCE_POST = int(os.getenv("MAX_MINUTES_SINCE_POST", "120"))  # 360 off-season (fewer fresh tweets)
-MIN_LIKES = int(os.getenv("MIN_LIKES", "5"))  # Only reply to tweets with some traction
+MIN_LIKES = int(os.getenv("MIN_LIKES", "25"))  # Only reply to tweets with some traction
 MIN_TEXT_LENGTH = 20
 MAX_HASHTAGS = 5
 MIN_TEXT_LENGTH_IF_MEDIA = 40

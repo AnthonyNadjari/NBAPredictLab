@@ -77,6 +77,7 @@ def run_session(page, context, *, browser, playwright_instance):
     posting_failures = 0
     cycle_index = 0
     browser_gone = False
+    posts_on_tab = 0
     # W-L records already quoted today (all sessions): "61-20" five times a day reads like a bot
     records_file = LOCAL_STATE_DIR / f"used_records_{datetime.now(TZ):%Y-%m-%d}.json"
     try:
@@ -113,6 +114,7 @@ def run_session(page, context, *, browser, playwright_instance):
                 fresh = context.new_page()
                 page.close()
                 page = fresh
+                posts_on_tab = 0
             except Exception as e:
                 from scraper import browser_gone as _gone
                 if _gone(e):
@@ -283,9 +285,24 @@ def run_session(page, context, *, browser, playwright_instance):
                 events.append(_event("validation_fail", {"tweet_id": tweet_id, "reason": fail_reason}))
                 continue
 
+            if posts_on_tab >= 4:
+                # a fresh tab every 4 posts: one tab through a whole slow-paced cycle reached 2 GB and the
+                # Playwright pipe broke after ~9 replies, every session (9 Oct)
+                try:
+                    fresh = context.new_page()
+                    page.close()
+                    page = fresh
+                    posts_on_tab = 0
+                except Exception as e:
+                    from scraper import browser_gone as _gone
+                    if _gone(e):
+                        events.append(_event("session_stop", {"reason": "browser_crashed"}))
+                        browser_gone = True
+                        break
             print(f"  Posting to {tweet_url}...", flush=True)
             events.append(_event("post_attempt", {"tweet_id": tweet_id, "tweet_url": tweet_url}))
             success, err = post_reply(page, tweet_url, response)
+            posts_on_tab += 1
             if not success:
                 posting_failures += 1
                 print(f"  Post failed ({posting_failures}/{MAX_POSTING_FAILURES}): {err}", flush=True)
