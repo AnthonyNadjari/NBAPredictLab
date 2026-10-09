@@ -5,6 +5,7 @@ cutting total scrape time by ~60%.
 """
 from __future__ import annotations
 import os
+import json
 import random
 import re
 import time
@@ -208,12 +209,58 @@ def search_url(keyword: str) -> str:
     return TWITTER_SEARCH_BASE.format(query=quote_plus(q))
 
 
+DISCOVERED = None  # loaded lazily: {handle: {"hits": n, "best": likes, "seen": iso}}
+
+
+def _discovered_file():
+    from config import LOCAL_STATE_DIR
+    return LOCAL_STATE_DIR / "discovered_accounts.json"
+
+
+def _load_discovered() -> dict:
+    global DISCOVERED
+    if DISCOVERED is None:
+        try:
+            DISCOVERED = json.loads(_discovered_file().read_text(encoding="utf-8"))
+        except Exception:
+            DISCOVERED = {}
+    return DISCOVERED
+
+
+def learn_accounts(tweets: list[dict], min_likes: int = 100) -> int:
+    """Remember every account whose NBA tweet reached `min_likes`: the watchlist grows by itself."""
+    from datetime import datetime, timezone
+    d, added = _load_discovered(), 0
+    for t in tweets:
+        u, likes = (t.get("username") or "").strip(), int(t.get("likes") or 0)
+        if not u or likes < min_likes:
+            continue
+        e = d.setdefault(u, {"hits": 0, "best": 0})
+        added += e["hits"] == 0
+        e["hits"] += 1
+        e["best"] = max(e["best"], likes)
+        e["seen"] = datetime.now(timezone.utc).isoformat(timespec="minutes")
+    try:
+        _discovered_file().write_text(json.dumps(d), encoding="utf-8")
+    except Exception:
+        pass
+    return added
+
+
 def _watchlist_queries(cycle_index: int) -> list[str]:
+    """Fixed big accounts + up to 400 discovered ones (most often viral first), rotated: each cycle
+    searches WATCHLIST_QUERIES_PER_CYCLE queries of 6 accounts, a different slice every cycle."""
     from config import WATCHLIST_ACCOUNTS, WATCHLIST_QUERIES_PER_CYCLE
-    n = WATCHLIST_QUERIES_PER_CYCLE
-    chunk = max(1, -(-len(WATCHLIST_ACCOUNTS) // n))
-    groups = [WATCHLIST_ACCOUNTS[i:i + chunk] for i in range(0, len(WATCHLIST_ACCOUNTS), chunk)]
-    return ["(" + " OR ".join(f"from:{a}" for a in g) + ")" for g in groups]
+    disc = sorted(_load_discovered().items(), key=lambda kv: (-kv[1]["hits"], -kv[1]["best"]))
+    fixed = [WATCHLIST_ACCOUNTS[i:i + 6] for i in range(0, len(WATCHLIST_ACCOUNTS), 6)]
+    extra_pool = [u for u, _ in disc if u not in WATCHLIST_ACCOUNTS][:400]
+    extra = [extra_pool[i:i + 6] for i in range(0, len(extra_pool), 6)]
+    half = WATCHLIST_QUERIES_PER_CYCLE // 2 if extra else WATCHLIST_QUERIES_PER_CYCLE
+    pick = [fixed[(cycle_index * half + k) % len(fixed)] for k in range(min(half, len(fixed)))]
+    if extra:
+        n = WATCHLIST_QUERIES_PER_CYCLE - len(pick)
+        pick += [extra[(cycle_index * n + k) % len(extra)] for k in range(min(n, len(extra)))]
+    return ["(" + " OR ".join(f"from:{a}" for a in g) + ")" for g in pick]
 
 
 def _select_keywords(cycle_index: int) -> list[str]:
@@ -306,5 +353,7 @@ def scrape_all_keywords(page: Page, context: BrowserContext, cycle_index: int = 
     if empty_count > len(keywords) * 0.7:
         print(f"    WARNING: {empty_count}/{len(keywords)} keywords returned 0 tweets — session may be degraded", flush=True)
 
-    print(f"    Scrape done: {len(all_tweets)} unique tweets.", flush=True)
+    new = learn_accounts(all_tweets)
+    print(f"    Scrape done: {len(all_tweets)} unique tweets ({new} new accounts to watch, "
+          f"{len(_load_discovered())} discovered).", flush=True)
     return all_tweets
