@@ -78,10 +78,18 @@ SEARCH_SUFFIX = f" min_faves:{SEARCH_MIN_FAVES} lang:en -filter:replies"
 
 # High-reach NBA accounts: replying early under their posts is where impressions are.
 WATCHLIST_ACCOUNTS = [
-    "NBA", "ShamsCharania", "BleacherReport", "TheHoopCentral", "LegionHoops",
-    "ClutchPoints", "statmuse", "espn", "TheNBACentral", "NBAonTNT", "UnderdogNBA",
+    # media and aggregators
+    "NBA", "ShamsCharania", "BleacherReport", "TheHoopCentral", "LegionHoops", "ClutchPoints", "statmuse",
+    "espn", "ESPNNBA", "SportsCenter", "TheNBACentral", "NBAonTNT", "NBATV", "UnderdogNBA", "HoopsHype",
+    "overtime", "BallIsLife", "HoHighlights", "TheNBABase", "FullCourtPass", "NBA__Courtside", "SInow",
+    "CBSSportsNBA", "TheAthleticNBA", "PolymarketHoops", "KalshiNBA", "Thechat101", "NBAMemes",
+    # insiders and reporters
+    "ChrisBHaynes", "TheSteinLine", "JakeLFischer", "MarcJSpears", "KeithSmithNBA", "BobbyMarks42", "TommyBeer",
+    # team accounts (biggest audiences)
+    "Lakers", "warriors", "celtics", "nyknicks", "sixers", "MiamiHEAT", "okcthunder", "spurs", "dallasmavs",
+    "Bucks", "Timberwolves", "chicagobulls",
 ]
-WATCHLIST_QUERIES_PER_CYCLE = 4   # big accounts first: early replies there get the views
+WATCHLIST_QUERIES_PER_CYCLE = 8   # ~6 accounts per query: big accounts first, early replies get the views
 WATCHLIST_SCORE_BONUS = 2.0      # added to the ranking score of watchlist tweets
 EARLY_REPLY_MINUTES = 20         # extra bonus while a tweet is this fresh
 
