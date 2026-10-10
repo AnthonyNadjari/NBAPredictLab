@@ -50,6 +50,9 @@ def _event(step: str, detail: dict | None = None) -> dict:
     return {"step": step, "at": at, "detail": detail or {}}
 
 
+RELAUNCHED: dict = {}   # latest playwright/context after a browser restart (main.py closes these at the end)
+
+
 def run_session(page, context, *, browser, playwright_instance):
     """
     Run one full session: cycles until max_replies or stop conditions.
@@ -285,20 +288,29 @@ def run_session(page, context, *, browser, playwright_instance):
                 events.append(_event("validation_fail", {"tweet_id": tweet_id, "reason": fail_reason}))
                 continue
 
-            if posts_on_tab >= 4:
-                # a fresh tab every 4 posts: one tab through a whole slow-paced cycle reached 2 GB and the
-                # Playwright pipe broke after ~9 replies, every session (9 Oct)
+            if posts_on_tab >= 6:
+                # restart the whole browser every 6 posts: the Playwright driver died after 8-10 replies in
+                # every session (9-10 Oct), even with fresh tabs. The persistent profile keeps us logged in.
+                print("  Restarting the browser (every 6 posts)...", flush=True)
                 try:
-                    fresh = context.new_page()
-                    page.close()
-                    page = fresh
+                    try:
+                        context.close()
+                        playwright_instance.stop()
+                    except Exception:
+                        pass
+                    from auth import launch_and_auth
+                    res = launch_and_auth()
+                    if res[0] is None:
+                        raise RuntimeError(f"relogin failed ({res[-1]})")
+                    playwright_instance, _b, context, page = res[:4]
+                    RELAUNCHED.update(pw=playwright_instance, context=context)
                     posts_on_tab = 0
+                    heartbeat.beat()
                 except Exception as e:
-                    from scraper import browser_gone as _gone
-                    if _gone(e):
-                        events.append(_event("session_stop", {"reason": "browser_crashed"}))
-                        browser_gone = True
-                        break
+                    print(f"  Browser restart failed ({e}): ending the session", flush=True)
+                    events.append(_event("session_stop", {"reason": "browser_restart_failed"}))
+                    browser_gone = True
+                    break
             print(f"  Posting to {tweet_url}...", flush=True)
             events.append(_event("post_attempt", {"tweet_id": tweet_id, "tweet_url": tweet_url}))
             success, err = post_reply(page, tweet_url, response)
