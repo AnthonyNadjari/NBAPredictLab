@@ -175,7 +175,7 @@ def validate_reply(
 
 # Tics that made the account look like a bot (8 Oct: "full circle" twice in a row, "the most X thing
 # ever" every day, "bot spotted" reply): banned outright
-TIC_RE = re.compile(r"(?i)(full circle|most \w+ (\w+ )?ever|\w+est \w+ ever|cheat code|real test|let'?s see|peak \w+ (brain|basketball|talk)|"
+TIC_RE = re.compile(r"(?i)(full circle|most (\w+ ){1,3}ever|\w+est \w+ ever|cheat code|real test|let'?s see|peak \w+ (brain|basketball|talk)|"
                     r"stays? undefeated|is wild to (see|watch)|love (the|that) energy|can'?t wait to see)")
 _STOP = {"the", "a", "an", "and", "or", "to", "of", "in", "on", "is", "it", "that", "this", "for", "at", "with",
          "he", "his", "they", "their", "be", "was", "are", "but", "so", "just", "still", "now", "all", "up"}
