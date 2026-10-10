@@ -67,3 +67,6 @@ jobs:
         run: |
           git fetch -q origin main && git reset -q --hard origin/main
           python scripts/autopilot.py
+          # before opening night: one original post a day (power rankings, records, numbers)
+          git fetch -q origin main && git reset -q --hard origin/main
+          python scripts/daily_post.py || true
