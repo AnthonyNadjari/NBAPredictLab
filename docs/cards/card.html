@@ -85,6 +85,18 @@
   .foot b { color: var(--muted); font-weight: 600; }
 
   /* announce */
+  .rk-title { font: 900 72px/0.9 var(--display); text-transform: uppercase; margin-top: 10px; }
+  .rk-title em { font-style: normal; color: var(--ball); }
+  .rk { display: grid; grid-template-columns: 1fr 1fr; column-gap: 40px; margin-top: auto; }
+  .rk .r { display: grid; grid-template-columns: 34px 46px 1fr auto; align-items: center; gap: 12px;
+           padding: 9px 0; border-top: 1px solid var(--line); }
+  .rk .n { font: 800 22px var(--display); color: var(--dim); font-variant-numeric: tabular-nums; }
+  .rk .r.podium .n { color: var(--ball); }
+  .rk.few .r { padding: 16px 0; } .rk.few .t { font-size: 34px; } .rk.few .v { font-size: 40px; }
+  .rk img { width: 42px; height: 42px; object-fit: contain; }
+  .rk .t { font: 800 30px var(--display); text-transform: uppercase; letter-spacing: .3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .rk .t small { display: block; font: 500 15px var(--sans); color: var(--dim); text-transform: none; letter-spacing: 0; }
+  .rk .v { font: 800 34px var(--display); font-variant-numeric: tabular-nums; }
   .big2 { font: 900 150px/0.84 var(--display); text-transform: uppercase; letter-spacing: 1px; margin-top: 16px; }
   .big2 em { font-style: normal; color: var(--ball); }
   .games { display: grid; grid-template-columns: repeat(3, 1fr); margin-top: auto; border-top: 1px solid var(--line); padding-top: 18px; }
@@ -255,6 +267,22 @@ function recap(d) {
     ${foot('Every pick graded')}`;
 }
 
+// "ranking": a top list (power rankings, best records, numbers of the season), up to 10 rows in 2 columns
+function ranking(d) {
+  const rows = (d.rows || []).slice(0, 10);
+  const half = Math.ceil(rows.length / 2);
+  const row = (r, i) => `<div class="r ${i < 3 ? 'podium' : ''}"><span class="n">${d.numbered === false ? '' : i + 1}</span>
+      <img src="${logo(r.team)}" alt=""><span class="t">${esc(r.name || tname(r.team))}${r.note ? `<small>${esc(r.note)}</small>` : ''}</span>
+      <span class="v">${esc(r.value)}</span></div>`;
+  const col = list => `<div>${list.map((r, k) => row(r, rows.indexOf(r))).join('')}</div>`;
+  return `
+    <div class="top"><span>${esc(d.kicker || '')}</span>${brand()}</div>
+    <div class="eyebrow">${esc(d.eyebrow || '')}</div>
+    <div class="rk-title">${d.title_html || esc(d.title || '')}</div>
+    <div class="rk ${rows.length <= 6 ? 'few' : ''}">${col(rows.slice(0, half))}${col(rows.slice(half))}</div>
+    ${foot(d.foot)}`;
+}
+
 function decode() {
   if (window.__CARD__) return window.__CARD__;
   const h = location.hash.slice(1);
@@ -267,7 +295,7 @@ function decode() {
   const d = decode();
   const el = document.getElementById('card');
   if (!d) { el.innerHTML = '<div class="title">No data</div>'; return; }
-  el.innerHTML = d.type === 'announce' ? announce(d) : d.type === 'match' ? match(d) : d.type === 'recap' ? recap(d) : edge(d);
+  el.innerHTML = d.type === 'ranking' ? ranking(d) : d.type === 'announce' ? announce(d) : d.type === 'match' ? match(d) : d.type === 'recap' ? recap(d) : edge(d);
   await document.fonts.ready;
   await Promise.all([...document.images].map(i => i.complete ? 1 : new Promise(r => { i.onload = i.onerror = r; })));
   window.__READY__ = true;
