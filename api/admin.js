@@ -162,7 +162,7 @@ module.exports = async function handler(req, res) {
     }
 
     if (action === 'vision_schedule') {
-      // body.schedule = { enabled: bool, schedules: [{time:'HH:MM', enabled}], settings: {max_replies} }
+      // body.schedule = { mode: 'auto'?, enabled: bool, schedules: [{time:'HH:MM', enabled}], settings: {max_replies} }
       const sc = req.body.schedule || {};
       const okTime = t => typeof t === 'string' && /^([01]\d|2[0-3]):[0-5]\d$/.test(t);
       if (!Array.isArray(sc.schedules) || sc.schedules.length > 24 || !sc.schedules.every(x => okTime(x.time))) {
@@ -171,6 +171,7 @@ module.exports = async function handler(req, res) {
       const max = parseInt((sc.settings || {}).max_replies, 10);
       if (!(max >= 1 && max <= 100)) return res.status(400).json({ success: false, error: 'max_replies 1-100' });
       const clean = {
+        mode: sc.mode === 'auto' ? 'auto' : undefined,   // auto: vision/cadence.py decides, slots unused
         enabled: sc.enabled !== false,
         timezone: 'Europe/Paris',
         schedules: sc.schedules.map(x => ({ time: x.time, enabled: x.enabled !== false }))

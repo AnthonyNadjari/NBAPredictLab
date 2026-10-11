@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
-"""Decide whether a scheduled reply session is due now (Paris time).
+"""Decide whether a reply session is due now (Paris time).
+
+With "mode": "auto" in schedule.json the automatic cadence decides (vision/cadence.py). Otherwise:
 
 The vision workflow ticks every 15 minutes; this prints due=true|false and the
 slot to $GITHUB_OUTPUT. Slots come from docs/vision/schedule.json (editable from
@@ -41,6 +43,13 @@ def done_slots() -> set:
 def main() -> int:
     schedule = json.loads(SCHEDULE_FILE.read_text(encoding="utf-8"))
     now = datetime.now(TZ)
+    if schedule.get("mode") == "auto":
+        # no fixed slots: vision/cadence.py spreads the sessions over the day
+        from cadence import decide, load_runs
+        d = decide(now, load_runs(RUNS_FILE)) if schedule.get("enabled", True) else {"due": False, "why": "paused", "max": 0}
+        print(f"now={now.isoformat(timespec='minutes')} slot=auto due={d['due']} max={d['max']} why={d['why'].replace(' ', '_')} "
+              f"done={d.get('done')} target={d.get('target')} next={d.get('next_after')}")
+        return 0
     slot = due_slot(now, schedule)
     due = bool(slot) and schedule.get("enabled", True) and slot not in done_slots()
     print(f"now={now.isoformat(timespec='minutes')} slot={slot} enabled={schedule.get('enabled', True)} due={due}")

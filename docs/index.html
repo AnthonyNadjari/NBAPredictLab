@@ -82,7 +82,8 @@ header.top { padding: 22px 0 0; }
 .btn:disabled { opacity: .5; cursor: not-allowed; }
 .btn.small { padding: 5px 10px; font-size: 13px; }
 
-nav.tabs { display: flex; gap: 4px; margin: 22px 0 0; border-bottom: 1px solid var(--line); }
+nav.tabs { display: flex; gap: 4px; margin: 22px 0 0; border-bottom: 1px solid var(--line); overflow-x: auto; scrollbar-width: none; }
+nav.tabs button { flex: none; }
 nav.tabs button {
   border: 0; background: none; padding: 10px 14px; cursor: pointer; color: var(--muted);
   font: 600 19px/1 var(--display); text-transform: uppercase; letter-spacing: .6px;
@@ -242,6 +243,7 @@ footer { color: var(--muted); font-size: 12px; padding: 0 0 30px; }
       <button role="tab" aria-selected="true" data-tab="slate">Matchs</button>
       <button role="tab" aria-selected="false" data-tab="record">Bilan</button>
       <button role="tab" aria-selected="false" data-tab="account">Compte X</button>
+      <button role="tab" aria-selected="false" data-tab="stats">Stats</button>
       <button role="tab" aria-selected="false" data-tab="replies">Réponses</button>
       <button role="tab" aria-selected="false" data-tab="veille">Veille</button>
       <button role="tab" aria-selected="false" data-tab="control">Pilotage</button>
@@ -252,6 +254,7 @@ footer { color: var(--muted); font-size: 12px; padding: 0 0 30px; }
     <section id="slate" role="tabpanel"></section>
     <section id="record" role="tabpanel" hidden></section>
     <section id="account" role="tabpanel" hidden></section>
+    <section id="stats" role="tabpanel" hidden></section>
     <section id="replies" role="tabpanel" hidden></section>
     <section id="veille" role="tabpanel" hidden></section>
     <section id="control" role="tabpanel" hidden></section>
@@ -822,6 +825,8 @@ function renderAccount() {
   const replies = runs.flatMap(r => (r.replies || []).map(rp => ({ ...rp }))).reverse().slice(0, 30);
   const week = runs.filter(r => r.at && (Date.now() - new Date(r.at)) < 7 * 864e5);
   const weekReplies = week.reduce((a, r) => a + (r.replied || 0), 0);
+  const parisDay = t => new Date(t).toLocaleDateString('sv-SE', { timeZone: 'Europe/Paris' });
+  const todayReplies = runs.filter(r => r.at && !r.dry_run && parisDay(r.at) === parisDay(Date.now())).reduce((a, r) => a + (r.replied || 0), 0);
 
   const apiState = xs.ok === true ? `<span class="dot ok"></span>API X : <b>${esc(xs.handle || 'ok')}</b> · vérifiée ${ago(xs.checked_at)}`
     : xs.ok === false ? `<span class="dot bad"></span>API X : <b>erreur</b> · ${esc(xs.error || '')}`
@@ -876,20 +881,10 @@ function renderAccount() {
     </div>
     <div class="panel"><h3>Bot de réponses</h3>
       <p class="hint">${week.length} session${week.length > 1 ? 's' : ''} et ${weekReplies} réponses sur 7 jours${lastOkRun && lastOkRun.top_skips ? ` · principaux rejets : ${Object.keys(lastOkRun.top_skips).slice(0, 3).map(esc).join(', ')}` : ''}.</p>
-      <form id="schedVision">
-        <label class="row" style="gap:6px;margin-bottom:10px"><input type="checkbox" id="vEnabled" ${sched.enabled !== false ? 'checked' : ''}> Sessions automatiques activées</label>
-        <div class="hint" style="margin:0 0 6px">Horaires (heure de Paris) :</div>
-        <div class="row" id="vTimes">${(sched.schedules || []).map((t, i) => `
-          <span class="pill"><input type="checkbox" data-i="${i}" ${t.enabled !== false ? 'checked' : ''} aria-label="Activer ${t.time}"> ${esc(t.time)}
-          <button type="button" class="btn small" data-del="${i}" aria-label="Supprimer ${t.time}" style="padding:0 6px">×</button></span>`).join('')}
-        </div>
-        <div class="row" style="margin-top:8px"><input type="time" id="vNew"><button class="btn small" type="button" id="vAdd">Ajouter</button></div>
-        <div class="row" style="margin-top:10px"><label>Réponses max par session <input type="number" id="vMax" min="1" max="100" value="${(sched.settings || {}).max_replies || 25}" style="width:70px;padding:6px;border:1px solid var(--line);border-radius:8px;background:var(--wash)"></label></div>
-        <div class="row" style="margin-top:12px"><button class="btn" type="submit">Enregistrer</button>
-          <button class="btn primary" type="button" id="vRun">Lancer une session</button>
-          <button class="btn" type="button" id="vDry">Essai à blanc</button></div>
-        <div class="msg" id="vMsg"></div>
-      </form>
+      <p class="hint">Cadence automatique, 24 h/24 : 100 à 140 réponses par jour, davantage pendant le prime time américain (21 h-6 h à Paris), pause pendant la nuit américaine (vers 8 h 30-13 h 30), sessions et pauses de durée variable. Aujourd'hui : <b>${todayReplies}</b> réponses${lastRun ? `, dernière session ${ago(lastRun.at)}` : ''}.</p>
+      <label class="row" style="gap:6px;margin:10px 0"><input type="checkbox" id="vEnabled" ${sched.enabled !== false ? 'checked' : ''}> Bot actif (décocher = pause)</label>
+      <div class="row"><button class="btn" type="button" id="vDry">Essai à blanc</button></div>
+      <div class="msg" id="vMsg"></div>
     </div>
   </div>
 
@@ -924,32 +919,116 @@ function renderAccount() {
     try { await api('admin', { action: 'vision_run', login_check: true }); msg('#cookiesMsg', 'ok', 'Vérification demandée : le serveur la lance dans les 5 minutes, résultat ici 3 minutes plus tard (recharge la page).'); }
     catch (err) { msg('#cookiesMsg', 'err', err.message); }
   });
-  const draft = JSON.parse(JSON.stringify(sched));
-  draft.schedules = draft.schedules || [];
-  $('#vTimes').addEventListener('change', e => { const i = e.target.dataset.i; if (i != null) draft.schedules[i].enabled = e.target.checked; });
-  $('#vTimes').addEventListener('click', e => {
-    const i = e.target.dataset.del; if (i == null) return;
-    draft.schedules.splice(+i, 1); state.vscheduleDirty = true; state.vschedule = { ...draft, enabled: $('#vEnabled').checked }; renderAccount();
+  $('#vEnabled').onchange = needPw(async () => {
+    const body = { ...sched, mode: 'auto', enabled: $('#vEnabled').checked };
+    try { const r = await api('admin', { action: 'vision_schedule', schedule: body }); state.vschedule = r.schedule; msg('#vMsg', 'ok', body.enabled ? 'Bot réactivé.' : 'Bot en pause.'); }
+    catch (err) { msg('#vMsg', 'err', err.message); $('#vEnabled').checked = !body.enabled; }
   });
-  $('#vAdd').onclick = () => {
-    const t = $('#vNew').value; if (!t || draft.schedules.some(s => s.time === t)) return;
-    draft.schedules.push({ time: t, enabled: true }); draft.schedules.sort((a, b) => a.time.localeCompare(b.time)); state.vscheduleDirty = true;
-    state.vschedule = { ...draft, enabled: $('#vEnabled').checked }; renderAccount();
-  };
-  $('#schedVision').onsubmit = needPw(async e => {
-    e && e.preventDefault && e.preventDefault();
-    const body = { ...draft, enabled: $('#vEnabled').checked, settings: { max_replies: parseInt($('#vMax').value, 10) } };
-    try { const r = await api('admin', { action: 'vision_schedule', schedule: body }); state.vschedule = r.schedule; state.vscheduleDirty = false; msg('#vMsg', 'ok', 'Horaires enregistrés. Visibles par le bot au prochain créneau.'); }
+  $('#vDry').onclick = needPw(async () => {
+    try { await api('admin', { action: 'vision_run', dry_run: true }); msg('#vMsg', 'ok', 'Essai demandé : le serveur le lance dans les 5 minutes (cherche et rédige sans poster).'); }
     catch (err) { msg('#vMsg', 'err', err.message); }
   });
-  const run = dry => needPw(async () => {
-    try {
-      await api('admin', { action: 'vision_run', dry_run: dry, max_replies: parseInt($('#vMax').value, 10) });
-      msg('#vMsg', 'ok', dry ? 'Essai demandé : le serveur le lance dans les 5 minutes (cherche et rédige sans poster).' : 'Session demandée : le serveur la lance dans les 5 minutes.');
-    } catch (err) { msg('#vMsg', 'err', err.message); }
-  });
-  $('#vRun').onclick = run(false);
-  $('#vDry').onclick = run(true);
+}
+
+// ---------------- stats (evolution day by day since the relaunch) ----------------
+async function loadStats() {
+  const el = $('#stats');
+  el.innerHTML = `<div class="empty"><h3>Chargement…</h3></div>`;
+  const safe = async (path, dflt) => { try { return (await getJSON(path)) ?? dflt; } catch (e) { return dflt; } };
+  const months = await safe('vision/replies/index.json', []);
+  const replies = (await Promise.all(months.map(m => safe('vision/replies/' + m, [])))).flat();
+  const [vstats, vruns, cost] = await Promise.all([safe('vision/stats.json', []), safe('vision/runs.json', []), safe('vision/llm_cost.json', {})]);
+  renderStats(el, replies, vstats, vruns, cost);
+}
+
+function statsByDay(replies, vstats, runs, cost) {
+  const day = t => new Date(t).toLocaleDateString('sv-SE', { timeZone: 'Europe/Paris' });
+  const days = {};
+  const get = d => days[d] || (days[d] = { d, replies: 0, views: 0, likes: 0, measured: 0, graded: 0, bad: 0, answered: 0, follows: new Set(), sessions: 0, crashed: 0, cost: null, followers: null });
+  for (const r of replies) {
+    if (!r.posted_at || r.removed) continue;
+    const x = get(day(r.posted_at)); x.replies++;
+    const m = (r.metrics || {}).last;
+    if (m) { x.measured++; x.views += m.views || 0; x.likes += m.likes || 0; }
+    if (r.auto_grade) { x.graded++; if (['bad', 'wrong'].includes(r.auto_grade)) x.bad++; }
+    if (r.author_replied) x.answered++;
+    if (r.follow && r.follow.by) x.follows.add(r.follow.by);
+  }
+  for (const r of runs) if (r.at && !r.dry_run && r.auth === 'ok' && r.at.slice(0, 10) >= RELAUNCH) {
+    const x = get(day(r.at)); x.sessions++; if (['browser_crashed', 'stalled'].includes(r.stop_reason)) x.crashed++;
+  }
+  for (const [d, c] of Object.entries(cost || {})) if (d >= RELAUNCH) get(d).cost = c.spent_usd;
+  for (const s of vstats) if (s.followers != null && s.date >= RELAUNCH) get(s.date).followers = s.followers;
+  const out = Object.values(days).filter(x => x.d >= RELAUNCH).sort((a, b) => a.d.localeCompare(b.d));
+  let prev = null;
+  for (const x of out) { x.gained = x.followers != null && prev != null ? x.followers - prev : null; if (x.followers != null) prev = x.followers; }
+  return out;
+}
+
+// one small chart = one measure (never two scales on one chart); hover a day for its value
+function miniChart(title, rows, value, fmt, kind = 'line', hint = '') {
+  const pts = rows.map(r => ({ d: r.d, v: value(r) })).filter(p => p.v != null && isFinite(p.v));
+  if (pts.length < 2) return `<div class="panel"><h3>${title}</h3><p class="hint">Pas encore assez de jours.</p></div>`;
+  const W = 360, H = 150, L = 46, R = 8, T = 10, B = 22;
+  const vals = pts.map(p => p.v);
+  let lo = kind === 'bar' ? 0 : Math.min(...vals), hi = Math.max(...vals);
+  if (hi === lo) { hi += 1; lo = Math.max(0, lo - 1); }
+  const pad = (hi - lo) * 0.08; if (kind !== 'bar') lo = Math.min(...vals) >= 0 ? Math.max(0, lo - pad) : lo - pad; hi += pad;
+  const n = pts.length, step = (W - L - R) / n;
+  const x = i => L + step * (i + 0.5), y = v => T + (1 - (v - lo) / (hi - lo)) * (H - T - B);
+  let s = `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(title)}">`;
+  for (const v of [lo, (lo + hi) / 2, hi]) s += `<line x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)"/><text x="${L - 5}" y="${y(v) + 4}" text-anchor="end">${fmt(v, true)}</text>`;
+  if (kind === 'bar') {
+    const bw = Math.max(3, step - 4);
+    pts.forEach((p, i) => { const h = Math.max(1, y(lo) - y(p.v)); s += `<rect x="${x(i) - bw / 2}" y="${y(p.v)}" width="${bw}" height="${h}" rx="2" fill="var(--ball)" opacity=".85"/>`; });
+  } else {
+    s += `<polyline fill="none" stroke="var(--ball)" stroke-width="2" stroke-linejoin="round" points="${pts.map((p, i) => `${x(i).toFixed(1)},${y(p.v).toFixed(1)}`).join(' ')}"/>`;
+    s += `<circle cx="${x(n - 1)}" cy="${y(pts[n - 1].v)}" r="4" fill="var(--ball)"/>`;
+  }
+  pts.forEach((p, i) => { s += `<rect x="${x(i) - step / 2}" y="${T}" width="${step}" height="${H - T - B}" fill="transparent"><title>${p.d.slice(5).split('-').reverse().join('/')} : ${fmt(p.v)}</title></rect>`; });
+  s += `<text x="${x(0)}" y="${H - 5}" text-anchor="start">${pts[0].d.slice(5).split('-').reverse().join('/')}</text><text x="${x(n - 1)}" y="${H - 5}" text-anchor="end">${pts[n - 1].d.slice(5).split('-').reverse().join('/')}</text>`;
+  return `<div class="panel"><h3>${title} <span style="font:600 15px var(--mono);float:right">${fmt(pts[n - 1].v)}</span></h3>${hint ? `<p class="hint" style="margin:0 0 6px">${hint}</p>` : ''}${s}</svg></div>`;
+}
+
+function renderStats(el, replies, vstats, runs, cost) {
+  const rows = statsByDay(replies, vstats, runs, cost);
+  const int = v => Math.round(v).toLocaleString('fr-FR');
+  const k = v => v >= 1000 ? (v / 1000).toLocaleString('fr-FR', { maximumFractionDigits: 1 }) + ' k' : int(v);
+  const dec = (v, short) => v.toLocaleString('fr-FR', { maximumFractionDigits: short ? 0 : 1 });
+  const pct = (v, short) => dec(v, short) + ' %';
+  const usd = v => v.toFixed(2).replace('.', ',') + ' $';
+  const sum = (list, f) => list.reduce((a, r) => a + (f(r) || 0), 0);
+  const last7 = rows.slice(-7), prev7 = rows.slice(-14, -7).some(r => r.replies) ? rows.slice(-14, -7) : [];
+  const conv = list => { const v = sum(list, r => r.views), g = sum(list, r => r.gained); return v ? 10000 * g / v : null; };
+  const tile = (label, now, before, fmt) => `<div class="panel" style="flex:1;min-width:150px"><div class="hint" style="margin:0">${label}</div>
+    <div style="font:700 26px var(--display)">${now == null ? '–' : fmt(now)}</div>
+    <div class="hint" style="margin:0">${before == null ? '' : `7 j avant : ${fmt(before)}`}</div></div>`;
+  el.innerHTML = `
+    <p class="hint">Jour par jour depuis la relance du compte (4 oct.). Les vues des 2 derniers jours montent encore (relevé toutes les 6 h). Survole un graphique pour la valeur d'un jour.</p>
+    <div class="row" style="gap:12px;align-items:stretch;margin-bottom:12px">
+      ${tile('Nouveaux followers (7 j)', sum(last7, r => r.gained), prev7.length ? sum(prev7, r => r.gained) : null, v => (v >= 0 ? '+' : '') + v)}
+      ${tile('Réponses postées (7 j)', sum(last7, r => r.replies), prev7.length ? sum(prev7, r => r.replies) : null, int)}
+      ${tile('Vues des réponses (7 j)', sum(last7, r => r.views), prev7.length ? sum(prev7, r => r.views) : null, k)}
+      ${tile('Followers pour 10 000 vues', conv(last7), prev7.length ? conv(prev7) : null, v => dec(v))}
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px">
+      ${miniChart('Followers', rows, r => r.followers, (v, s) => int(v))}
+      ${miniChart('Nouveaux followers par jour', rows, r => r.gained, (v, s) => (v > 0 && !s ? '+' : '') + int(v), 'bar')}
+      ${miniChart('Réponses postées', rows, r => r.replies || null, (v, s) => int(v), 'bar', 'Le volume (cadence automatique).')}
+      ${miniChart('Vues des réponses', rows, r => r.measured ? r.views : null, (v, s) => k(v), 'bar', 'Total des vues des réponses postées ce jour-là.')}
+      ${miniChart('Vues par réponse', rows, r => r.measured ? r.views / r.measured : null, (v, s) => int(v), 'line', 'Moyenne : la portée de chaque réponse.')}
+      ${miniChart('Likes pour 1 000 vues', rows, r => r.views > 300 ? 1000 * r.likes / r.views : null, dec, 'line', 'La qualité perçue.')}
+      ${miniChart('Followers pour 10 000 vues', rows, r => r.views > 300 && r.gained != null ? 10000 * r.gained / r.views : null, dec, 'line', 'La conversion : ce qui compte pour grandir.')}
+      ${miniChart('Râteaux', rows, r => r.graded >= 5 ? 100 * r.bad / r.graded : null, pct, 'line', 'Part des réponses notées mauvaises ou hors sujet.')}
+      ${miniChart('L’auteur nous répond', rows, r => r.measured >= 5 ? 100 * r.answered / r.measured : null, pct, 'line', 'Part des réponses où le compte d’origine nous a répondu.')}
+      ${miniChart('Coût IA par jour', rows, r => r.cost, (v, s) => usd(v), 'bar', 'DeepSeek, mesuré sur le solde.')}
+      ${miniChart('Réponses par session', rows, r => r.sessions && r.replies ? r.replies / r.sessions : null, dec, 'line', 'Bas = sessions coupées par un plantage du navigateur.')}
+    </div>
+    <details class="panel" style="margin-top:12px"><summary style="cursor:pointer;font-weight:600">Tableau jour par jour</summary>
+      <div style="overflow-x:auto"><table class="rtable"><thead><tr><th>Jour</th><th>Followers</th><th>+/-</th><th>Réponses</th><th>Vues</th><th>Likes/1k</th><th>Râteaux</th><th>Sessions</th><th>Coût</th></tr></thead><tbody>${
+        rows.slice().reverse().map(r => `<tr><td>${r.d.slice(5).split('-').reverse().join('/')}</td><td>${r.followers ?? ''}</td><td>${r.gained ?? ''}</td><td>${r.replies}</td><td>${r.measured ? int(r.views) : ''}</td>
+          <td>${r.views ? dec(1000 * r.likes / r.views) : ''}</td><td>${r.graded ? pct(100 * r.bad / r.graded, true) : ''}</td><td>${r.sessions}${r.crashed ? ` (${r.crashed} coupées)` : ''}</td><td>${r.cost != null ? usd(r.cost) : ''}</td></tr>`).join('')
+      }</tbody></table></div></details>`;
 }
 
 // ---------------- replies ledger (docs/vision/replies, written by the server's tracker) ----------------
@@ -1141,12 +1220,13 @@ document.addEventListener('click', e => { if (e.target.matches('[data-close]')) 
 // ---------------- tabs + boot ----------------
 document.querySelectorAll('nav.tabs button').forEach(b => b.addEventListener('click', () => {
   document.querySelectorAll('nav.tabs button').forEach(x => x.setAttribute('aria-selected', x === b));
-  for (const id of ['slate', 'record', 'account', 'replies', 'veille', 'control']) $('#' + id).hidden = id !== b.dataset.tab;
+  for (const id of ['slate', 'record', 'account', 'stats', 'replies', 'veille', 'control']) $('#' + id).hidden = id !== b.dataset.tab;
   try { localStorage.setItem('pl_tab', b.dataset.tab); } catch (e) {}
   if (b.dataset.tab === 'record') renderRecord();
   if (b.dataset.tab === 'control') renderControl();
   if (b.dataset.tab === 'account') renderAccount();
   if (b.dataset.tab === 'replies') loadReplies();
+  if (b.dataset.tab === 'stats') loadStats();
   if (b.dataset.tab === 'veille') loadVeille();
 }));
 

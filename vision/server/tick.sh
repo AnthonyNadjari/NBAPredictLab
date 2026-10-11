@@ -34,7 +34,7 @@ if [ "$KIND" = "none" ]; then
   OUT=$(python vision/tools/schedule_gate.py)
   echo "$OUT"
   case "$OUT" in
-    *"due=True"*) KIND=session; MAX="";;
+    *"due=True"*) KIND=session; MAX=$(echo "$OUT" | sed -n 's/.* max=\([0-9]*\).*/\1/p'); [ "$MAX" = "0" ] && MAX="";;
     *)  # between sessions: measure how the posted replies did, every 6 h (vision/tracker.py)
         LAST=$(cat "$BASE/state/tracker_last" 2>/dev/null || echo 0)
         if [ $(( $(date +%s) - LAST )) -ge 21600 ] && { ls "$BASE/state/replies/"*.json >/dev/null 2>&1 || [ -s docs/vision/runs.json ]; }; then
