@@ -176,7 +176,11 @@ def validate_reply(
 # Tics that made the account look like a bot (8 Oct: "full circle" twice in a row, "the most X thing
 # ever" every day, "bot spotted" reply): banned outright
 TIC_RE = re.compile(r"(?i)(full circle|most (\w+ ){1,3}ever|\w+est \w+ ever|cheat code|real test|let'?s see|peak \w+ (brain|basketball|talk)|"
-                    r"stays? undefeated|is wild to (see|watch)|love (the|that) energy|can'?t wait to see)")
+                    r"stays? undefeated|is wild to (see|watch)|love (the|that) energy|can'?t wait to see|"
+                    # the review of 11 Oct: career-stage openers on every other reply, and history claims
+                    # stated as fact ("Smart never played a game for the Lakers": he did)
+                    r"\b(in )?(year|season) \d+\b|\b\d+ (years|seasons) (in|old)\b|"
+                    r"\bnever (played|suited up|won|made|had|been)\b|is going to be a problem|that'?s not \w+( \w+)?, that'?s)")
 _STOP = {"the", "a", "an", "and", "or", "to", "of", "in", "on", "is", "it", "that", "this", "for", "at", "with",
          "he", "his", "they", "their", "be", "was", "are", "but", "so", "just", "still", "now", "all", "up"}
 
