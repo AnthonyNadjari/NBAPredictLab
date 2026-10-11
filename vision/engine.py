@@ -478,5 +478,10 @@ def run_session(page, context, *, browser, playwright_instance):
         events=events,
     )
     log_data["browser_gone"] = browser_gone
+    try:
+        import conversations
+        log_data["bot_flags"] = list(conversations.LAST_FLAGS)
+    except Exception:
+        pass
     write_session_log(log_data)
     return log_data

@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import json
 import random
+import re
 import time
 from datetime import datetime, timedelta, timezone
 
@@ -23,6 +24,9 @@ MAX_PER_SESSION = 3
 MAX_PER_DAY = 15
 MAX_AGE = timedelta(hours=6)
 STATE = LOCAL_STATE_DIR / "conversations.json"
+# people calling us a bot / an AI: counted for the panel (one per tweet), never answered
+BOT_RE = re.compile(r"(?i)\b(bots?|ai|a\.i|chatgpt|gpt|grok|clanker|automated|llm|robot)\b")
+LAST_FLAGS: list[dict] = []
 
 
 def _load() -> dict:
@@ -39,6 +43,7 @@ def _load() -> dict:
 
 def _save(st: dict) -> None:
     st["answered"] = st["answered"][-1000:]
+    st["flagged"] = st.get("flagged", [])[-1000:]
     STATE.write_text(json.dumps(st), encoding="utf-8")
 
 
@@ -55,11 +60,17 @@ def _articles(page, url: str) -> list[dict]:
 def mentions(page, st: dict, now: datetime) -> list[dict]:
     """Recent answers to us, newest first, not handled yet."""
     out = []
+    st.setdefault("flagged", [])
     for a in _articles(page, "https://x.com/notifications/mentions"):
         sid, user = _sid(a.get("link")), a.get("user") or ""
         try:
             at = datetime.fromisoformat((a.get("at") or "").replace("Z", "+00:00"))
         except ValueError:
+            continue
+        if sid and user.lower() != HANDLE.lower() and sid not in st["flagged"] and BOT_RE.search(a.get("text") or ""):
+            st["flagged"].append(sid)
+            st["answered"].append(sid)
+            LAST_FLAGS.append({"user": user, "text": (a.get("text") or "")[:200], "at": at.isoformat(), "id": sid})
             continue
         if (not sid or not user or user.lower() == HANDLE.lower() or sid in st["answered"]
                 or now - at > MAX_AGE or st["people"].get(user.lower(), 0) >= 1 or len((a.get("text") or "").split()) < 3):
@@ -87,7 +98,10 @@ def answer_mentions(page, *, recent: list[str], dry_run: bool = False, run_id: s
     from reply_validator import humanize, repeats_recent, validate_reply
 
     st = _load()
+    LAST_FLAGS.clear()
     if st["count"] >= MAX_PER_DAY:
+        mentions(page, st, datetime.now(timezone.utc))      # still count the bot accusations
+        _save(st)
         return []
     now = datetime.now(timezone.utc)
     posted: list[dict] = []

@@ -36,10 +36,12 @@ def test_mentions_filters(monkeypatch):
         art("fan2", "3", "lol", 10),                                   # too short
         art("fan3", "4", "this aged badly my friend trust me", 60 * 8),  # too old
         art("fan4", "5", "already answered this one before ok", 5),
+        art("hater", "6", "Ai account based out of France get outta here", 5),
     ]})
     st = {"answered": ["5"], "people": {}, "count": 0}
     got = conversations.mentions(page, st, datetime.now(timezone.utc))
     assert [m["id"] for m in got] == ["1"]
+    assert [f["user"] for f in conversations.LAST_FLAGS] == ["hater"] and st["flagged"] == ["6"]
 
 
 def test_thread_needs_our_reply_just_above(monkeypatch):
