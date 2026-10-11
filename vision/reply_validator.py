@@ -201,3 +201,27 @@ def repeats_recent(response: str, recent: list[str]) -> str | None:
         if common:
             return " ".join(sorted(common)[0])
     return None
+
+
+# What gave us away (11 Oct): 196/200 replies ended with a period, a quarter opened on a stat line.
+_CASUAL_FIRST = {"the", "that", "this", "these", "those", "if", "no", "nobody", "zero", "one", "two", "three", "not",
+                 "still", "now", "only", "just", "every", "being", "back", "and", "but", "so", "yeah", "honestly"}
+
+
+def stat_opener_again(response: str, recent: list[str], window: int = 4) -> bool:
+    """Opening on a number again when one of the last `window` replies already did: the stat-line template."""
+    starts = lambda t: bool(re.match(r"\s*[\d$+]", t or ""))
+    return starts(response) and any(starts(r) for r in recent[-window:])
+
+
+def humanize(text: str, rng=None) -> str:
+    """How people type on X: usually no final period, sometimes no capital on a common first word."""
+    import random
+    rng = rng or random
+    t = (text or "").strip()
+    if t.endswith(".") and not t.endswith("..") and rng.random() < 0.85:
+        t = t[:-1]
+    first = t.split(" ", 1)[0]
+    if first and first.lower() in _CASUAL_FIRST and first[0].isupper() and rng.random() < 0.3:
+        t = first.lower() + t[len(first):]
+    return t

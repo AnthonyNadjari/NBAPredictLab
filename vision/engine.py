@@ -12,7 +12,7 @@ from datetime import datetime
 from filter_tweets import filter_tweets, minutes_since_post
 from scorer import rank_and_top
 from llm_client import call_llm
-from reply_validator import validate_reply
+from reply_validator import humanize, validate_reply
 from poster import post_reply, wait_before_next_tweet
 from session_log import write_session_log, build_session_log
 from auth import save_session_state, check_session_alive
@@ -329,11 +329,14 @@ def run_session(page, context, *, browser, playwright_instance):
             context_text = "\n".join([tweet.get("text") or ""] + list(llm_result.get("facts") or []))
             valid, fail_reason = validate_reply(response, session_replies, tweet_text=context_text)
             if valid:
-                from reply_validator import repeats_recent
+                from reply_validator import repeats_recent, stat_opener_again
                 rep = repeats_recent(response, recent_replies + session_replies)
                 if rep:
                     valid, fail_reason = False, "repeated_phrase"
                     print(f"  @{author}: repeats an earlier reply ({rep!r})", flush=True)
+                elif stat_opener_again(response, recent_replies + session_replies):
+                    valid, fail_reason = False, "stat_opener"
+                    print(f"  @{author}: opens on a stat line again", flush=True)
             if valid and os.getenv("VERIFY_REPLIES", "1") == "1":
                 # second pass: every factual claim must come from the tweet or our verified facts
                 from llm_client import verify_reply
@@ -361,6 +364,7 @@ def run_session(page, context, *, browser, playwright_instance):
                     events.append(_event("session_stop", {"reason": "browser_restart_failed"}))
                     browser_gone = True
                     break
+            response = humanize(response)
             print(f"  Posting to {tweet_url}...", flush=True)
             events.append(_event("post_attempt", {"tweet_id": tweet_id, "tweet_url": tweet_url}))
             success, err = post_reply(page, tweet_url, response)

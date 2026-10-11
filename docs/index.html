@@ -241,21 +241,23 @@ footer { color: var(--muted); font-size: 12px; padding: 0 0 30px; }
     <div class="health" id="health"></div>
     <nav class="tabs" role="tablist">
       <button role="tab" aria-selected="true" data-tab="today">Aujourd'hui</button>
+      <button role="tab" aria-selected="false" data-tab="stats">Stats</button>
       <button role="tab" aria-selected="false" data-tab="slate">Matchs</button>
       <button role="tab" aria-selected="false" data-tab="record">Bilan</button>
-      <button role="tab" aria-selected="false" data-tab="settings">Réglages</button>
     </nav>
   </header>
 
   <main>
-    <section id="today" role="tabpanel"></section>
+    <section id="today" role="tabpanel">
+      <div id="todayBody"></div>
+      <details class="panel" id="settings" style="margin-top:12px"><summary style="cursor:pointer;font-weight:600">Connexion et pause du bot (seulement si l'encadré du haut le demande)</summary>
+        <div id="account" style="margin-top:10px"></div>
+        <div id="control" style="margin-top:12px"></div>
+      </details>
+    </section>
+    <section id="stats" role="tabpanel" hidden></section>
     <section id="slate" role="tabpanel" hidden></section>
     <section id="record" role="tabpanel" hidden></section>
-    <section id="settings" role="tabpanel" hidden>
-      <p class="hint">Rien à faire ici en temps normal : tout tourne tout seul. Cette page sert seulement si l'accueil signale un problème.</p>
-      <div id="account"></div>
-      <div id="control" style="margin-top:12px"></div>
-    </section>
   </main>
   <footer id="foot"></footer>
 </div>
@@ -930,7 +932,7 @@ function renderAccount() {
 // ---------------- today: the home page, in sentences ----------------
 state.today = null;
 async function loadToday() {
-  const el = $('#today');
+  const el = $('#todayBody');
   if (!state.today) el.innerHTML = `<div class="empty"><h3>Chargement…</h3></div>`;
   const safe = async (path, dflt) => { try { return (await getJSON(path)) ?? dflt; } catch (e) { return dflt; } };
   const months = await safe('vision/replies/index.json', []);
@@ -941,7 +943,7 @@ async function loadToday() {
 }
 
 function renderToday() {
-  const el = $('#today'), T = state.today;
+  const el = $('#todayBody'), T = state.today;
   if (!T) return;
   const now = Date.now(), H = 3600e3;
   const parisDay = t => new Date(t).toLocaleDateString('sv-SE', { timeZone: 'Europe/Paris' });
@@ -967,11 +969,11 @@ function renderToday() {
 
   // what needs the owner (nothing, most days)
   const todo = [];
-  if (lastRun && lastRun.auth && lastRun.auth !== 'ok') todo.push(`Le bot est déconnecté de X (${esc(AUTH_LABELS[lastRun.auth] || lastRun.auth)}) : Réglages, « Connecter le bot de réponses à X ».`);
+  if (lastRun && lastRun.auth && lastRun.auth !== 'ok') todo.push(`Le bot est déconnecté de X (${esc(AUTH_LABELS[lastRun.auth] || lastRun.auth)}) : encadré « Connexion et pause du bot » en bas, « Connecter le bot de réponses à X ».`);
   const h = +new Date(now).toLocaleString('en-GB', { timeZone: 'Europe/Paris', hour: '2-digit', hour12: false });
   if (lastReply && now - Date.parse(lastReply) > 4 * H && !(h >= 9 && h < 14) && state.vschedule?.enabled !== false)
     todo.push(`Le bot n'a rien posté depuis ${ago(lastReply).replace('il y a ', '')}. Je regarde ça au prochain point ; rien à faire de ton côté.`);
-  if (state.vschedule?.enabled === false) todo.push('Le bot de réponses est en pause (Réglages pour le relancer).');
+  if (state.vschedule?.enabled === false) todo.push('Le bot de réponses est en pause (encadré « Connexion et pause du bot » en bas pour le relancer).');
   if (lastCost && lastCost.balance_usd < 1.5) todo.push(`Crédit DeepSeek presque vide (${lastCost.balance_usd.toFixed(2)} $) : à recharger sur platform.deepseek.com. En attendant, Groq prend le relais gratuitement.`);
   const lastPub = (state.publog || []).slice(-1)[0];
   if (lastPub && !lastPub.ok && now - Date.parse(lastPub.at) < 24 * H) todo.push(`Une publication a échoué ${ago(lastPub.at)} (${esc(lastPub.error || 'voir le serveur')}).`);
@@ -1019,9 +1021,8 @@ function renderToday() {
         <p style="margin:0">${lastCost ? `${perDay.toFixed(2).replace('.', ',')} $ par jour en moyenne · solde ${lastCost.balance_usd.toFixed(2).replace('.', ',')} $${daysLeft != null ? `, soit environ ${daysLeft} jours` : ''}.` : 'Pas encore mesuré.'}</p>
       </div>
     </div>
-    <details class="panel" style="margin-top:12px" id="moreStats"><summary style="cursor:pointer;font-weight:600">Tous les graphiques (pour creuser)</summary><div id="stats" style="margin-top:10px"></div></details>
     <details class="panel" style="margin-top:12px" id="moreVeille"><summary style="cursor:pointer;font-weight:600">Veille blessures et pronostics</summary><div id="veille" style="margin-top:10px"></div></details>`;
-  $('#moreStats').ontoggle = e => { if (e.target.open) loadStats(); };
+  $('#settings').ontoggle = e => { if (e.target.open) { renderAccount(); renderControl(); } };
   $('#moreVeille').ontoggle = e => { if (e.target.open) loadVeille(); };
 }
 
@@ -1082,7 +1083,15 @@ function miniChart(title, rows, value, fmt, kind = 'line', hint = '') {
   }
   pts.forEach((p, i) => { s += `<rect x="${x(i) - step / 2}" y="${T}" width="${step}" height="${H - T - B}" fill="transparent"><title>${p.d.slice(5).split('-').reverse().join('/')} : ${fmt(p.v)}</title></rect>`; });
   s += `<text x="${x(0)}" y="${H - 5}" text-anchor="start">${pts[0].d.slice(5).split('-').reverse().join('/')}</text><text x="${x(n - 1)}" y="${H - 5}" text-anchor="end">${pts[n - 1].d.slice(5).split('-').reverse().join('/')}</text>`;
-  return `<div class="panel"><h3>${title} <span style="font:600 15px var(--mono);float:right">${fmt(pts[n - 1].v)}</span></h3>${hint ? `<p class="hint" style="margin:0 0 6px">${hint}</p>` : ''}${s}</svg></div>`;
+  // the trend in words: last 3 days against the 3 before
+  let trend = '';
+  if (n >= 6) {
+    const avg = a => a.reduce((x, p) => x + p.v, 0) / a.length;
+    const now3 = avg(pts.slice(-3)), was3 = avg(pts.slice(-6, -3));
+    const ch = was3 ? (now3 - was3) / Math.abs(was3) : 0;
+    trend = Math.abs(ch) < 0.1 || fmt(now3) === fmt(was3) ? 'Stable sur les derniers jours.' : `${ch > 0 ? 'En hausse' : 'En baisse'} : ${fmt(now3)} en moyenne sur 3 jours, contre ${fmt(was3)} avant.`;
+  }
+  return `<div class="panel"><h3>${title} <span style="font:600 15px var(--mono);float:right">${fmt(pts[n - 1].v)}</span></h3>${hint ? `<p class="hint" style="margin:0 0 4px">${hint}</p>` : ''}${trend ? `<p style="margin:0 0 6px;font-size:14px;font-weight:600">${trend}</p>` : ''}${s}</svg></div>`;
 }
 
 function renderStats(el, replies, vstats, runs, cost) {
@@ -1315,11 +1324,11 @@ document.addEventListener('click', e => { if (e.target.matches('[data-close]')) 
 // ---------------- tabs + boot ----------------
 document.querySelectorAll('nav.tabs button').forEach(b => b.addEventListener('click', () => {
   document.querySelectorAll('nav.tabs button').forEach(x => x.setAttribute('aria-selected', x === b));
-  for (const id of ['today', 'slate', 'record', 'settings']) $('#' + id).hidden = id !== b.dataset.tab;
+  for (const id of ['today', 'stats', 'slate', 'record']) $('#' + id).hidden = id !== b.dataset.tab;
   try { localStorage.setItem('pl_tab', b.dataset.tab); } catch (e) {}
   if (b.dataset.tab === 'today') loadToday();
   if (b.dataset.tab === 'record') renderRecord();
-  if (b.dataset.tab === 'settings') { renderAccount(); renderControl(); }
+  if (b.dataset.tab === 'stats') loadStats();
 }));
 
 async function load() {
@@ -1347,8 +1356,8 @@ async function load() {
   saveLaunched();
   renderHealth(); renderSlate();
   if (!$('#record').hidden) renderRecord();
-  if (!$('#settings').hidden && !document.activeElement?.closest?.('#settings')) { renderControl(); renderAccount(); }
-  if (!$('#today').hidden && !document.querySelector('#today details[open]')) loadToday();
+  if ($('#settings').open && !document.activeElement?.closest?.('#settings')) { renderControl(); renderAccount(); }
+  if (!$('#today').hidden && !document.querySelector('#todayBody details[open]')) loadToday();
   $('#foot').innerHTML = `Données du ${state.games.generated_at ? new Date(state.games.generated_at).toLocaleString('fr-FR', { timeZone: 'Europe/Paris' }) : '–'} · <a href="${REPO_URL}" target="_blank" rel="noopener">dépôt</a>`;
 }
 

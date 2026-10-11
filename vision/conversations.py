@@ -84,7 +84,7 @@ def answer_mentions(page, *, recent: list[str], dry_run: bool = False, run_id: s
     from llm_client import CONVO_PROMPT, call_llm, verify_reply
     from poster import post_reply, wait_before_next_tweet
     import poster
-    from reply_validator import repeats_recent, validate_reply
+    from reply_validator import humanize, repeats_recent, validate_reply
 
     st = _load()
     if st["count"] >= MAX_PER_DAY:
@@ -112,6 +112,7 @@ def answer_mentions(page, *, recent: list[str], dry_run: bool = False, run_id: s
         if not ok or rep:
             print(f"  convo @{m['user']}: rejected ({rep or why})", flush=True)
             continue
+        text = humanize(text)
         url = f"https://x.com/{m['user']}/status/{m['id']}"
         print(f"  convo @{m['user']}: {text!r}", flush=True)
         if not dry_run:
