@@ -758,8 +758,9 @@ const AUTH_LABELS = {
   no_llm_key: 'clé LLM (Groq) manquante',
 };
 
+const RELAUNCH = '2026-10-04';   // account relaunched: the months before are a flat line
 function followersSVG(stats, runs) {
-  const pts = stats.filter(s => s.followers != null);
+  const pts = stats.filter(s => s.followers != null && s.date >= RELAUNCH);
   if (pts.length < 2) return '<p class="hint">La courbe apparaît dès qu’il y a deux relevés.</p>';
   const W = 760, H = 230, L = 40, R = 10, T = 12, B = 48;
   const d0 = new Date(pts[0].date + 'T00:00:00Z'), d1 = new Date(pts[pts.length - 1].date + 'T00:00:00Z');
