@@ -64,12 +64,25 @@ Facts: New York Knicks are 52-29 so far this season (2025-26)
 Good: {"decision":"REPLY","reason":"agree_with_number","response":"52-29 and nobody wants that matchup in May. Hard to argue.","fact_used":"New York Knicks are 52-29 so far this season (2025-26)"}
 Tweet: "LeBron still looks smooth in practice at 41"
 Facts: LeBron James plays for the Philadelphia 76ers; Philadelphia 76ers finished last season (2025-26) 45-37
-Good: {"decision":"REPLY","reason":"agree","response":"41 and still moving like he's got a Finals to win. Wild.","fact_used":""}
+Good: {"decision":"REPLY","reason":"agree","response":"Moving like a guy who still has a Finals in mind.","fact_used":""}
 Tweet: "this man is HIM"  (no names, likely a video)
 Good: {"decision":"SKIP","reason":"likely_media_caption","response":"","fact_used":""}
 Tweet: "Spurs fans acting like they already won a ring"
 Facts: San Antonio Spurs next: vs DAL Wed Oct 21 8:30 PM ET; betting market win chance 71%
 Good: {"decision":"REPLY","reason":"pushback","response":"Books still have them at 71% tomorrow night. Confidence is earned, rings aren't.","fact_used":"San Antonio Spurs next: vs DAL Wed Oct 21 8:30 PM ET; betting market win chance 71%"}
+
+Return only the JSON."""
+
+# Someone answered one of our replies: a short answer back keeps the conversation going (people who
+# talk with the account open its profile). Same JSON and truth rules as SYSTEM_PROMPT.
+CONVO_PROMPT = SYSTEM_PROMPT.split("A GOOD REPLY:")[0].replace(
+    "You reply to tweets as @NBAPredictLab", "You answer people who replied to @NBAPredictLab") + """A GOOD ANSWER:
+- you get the original tweet, what we replied, and what this person answered us: answer THEM, like a fan chatting back
+- SKIP with "hostile" if they insult us, call us a bot/AI, or troll; SKIP with "nothing_to_add" if their answer is just an emoji,
+  "facts", "lol", agreement with nothing to build on, or a question you cannot answer from the tweet and the facts
+- agree and add one thing, or hold our point with one reason; never apologise, never repeat our first reply
+- 30-80 characters, one sentence, casual, no hashtags, no links, no emoji, no em dashes, never mention being a model or account
+- never ask them to follow, never mention our predictions unless they asked
 
 Return only the JSON."""
 
@@ -143,7 +156,7 @@ def _should_skip_template(text: str) -> bool:
     return any(w in t for w in skip_words)
 
 
-def call_llm(tweet_text: str, tweet_author: str = ""):
+def call_llm(tweet_text: str, tweet_author: str = "", system: str | None = None):
     """
     Returns {"decision": "REPLY"|"SKIP", "reason": "...", "response": "..."}.
     Without API key: uses template replies. With key: calls Groq.
@@ -193,7 +206,7 @@ def call_llm(tweet_text: str, tweet_author: str = ""):
                 json={
                     "model": model,
                     "messages": [
-                        {"role": "system", "content": SYSTEM_PROMPT},
+                        {"role": "system", "content": system or SYSTEM_PROMPT},
                         {"role": "user", "content": user_content},
                     ],
                     # reasoning models spend tokens thinking before the JSON: keep it short

@@ -255,6 +255,35 @@ def post_thread(context: BrowserContext, posts: list[dict], dry_run: bool = Fals
     return ids, error
 
 
+def pin_tweet(context: BrowserContext, tweet_id: str) -> bool:
+    """Pin one of our tweets to the profile (its "..." menu > Pin to your profile > Pin)."""
+    page = context.new_page()
+    try:
+        page.goto(f"https://x.com/{BOT_HANDLE}/status/{tweet_id}", wait_until="domcontentloaded", timeout=45000)
+        art = page.locator(f'article:has(a[href*="/status/{tweet_id}"])').first
+        art.locator('[data-testid="caret"]').first.click(timeout=20000)
+        item = page.get_by_role("menuitem").filter(has_text=re.compile(r"^Pin", re.I)).first
+        if not _visible(item, 8000):
+            print("Pin: menu item not found (already pinned?)", flush=True)
+            return False
+        item.click()
+        confirm = page.locator('[data-testid="confirmationSheetConfirm"]')
+        if _visible(confirm, 8000):
+            confirm.click()
+        time.sleep(3)
+        print(f"Pin: {tweet_id} pinned", flush=True)
+        return True
+    except Exception as e:
+        print(f"Pin failed: {e}", flush=True)
+        _screenshot(page)
+        return False
+    finally:
+        try:
+            page.close()
+        except Exception:
+            pass
+
+
 def _screenshot(page: Page) -> None:
     try:
         LOGS_DIR.mkdir(exist_ok=True)

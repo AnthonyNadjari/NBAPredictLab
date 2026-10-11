@@ -125,6 +125,25 @@ def run_session(page, context, *, browser, playwright_instance):
     import heartbeat
     heartbeat.REPLIES = replies_posted
     import cost_guard
+    # first, answer the people who answered us (vision/conversations.py)
+    if os.getenv("CONVERSATIONS", "1") == "1":
+        try:
+            import conversations
+            convo = conversations.answer_mentions(page, recent=recent_replies, dry_run=DRY_RUN, run_id=run_id)
+            replies_posted.extend(convo)
+            session_replies.extend(c["reply_text"] for c in convo)
+            total_replied += len(convo)
+            posts_on_tab += len(convo)
+            heartbeat.beat()
+        except Exception as e:
+            from scraper import browser_gone as _gone
+            print(f"Conversations skipped ({e})", flush=True)
+            if _gone(e):
+                try:
+                    playwright_instance, context, page = _relaunch(playwright_instance, context)
+                    posts_on_tab = 0
+                except Exception as e2:
+                    print(f"  Relaunch failed ({e2})", flush=True)
     while total_replied < MAX_REPLIES and posting_failures < MAX_POSTING_FAILURES:
         heartbeat.beat()
         cost = cost_guard.check()

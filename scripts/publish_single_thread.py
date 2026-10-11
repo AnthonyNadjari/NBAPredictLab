@@ -340,11 +340,11 @@ def apply_text_overrides(posts: list) -> list:
 BROWSER_OUTCOME: Dict = {}
 
 
-def post_thread_browser(posts: list, image_paths: list, dry_run: bool) -> list:
+def post_thread_browser(posts: list, image_paths: list, dry_run: bool, pin: bool = False) -> list:
     """Post through the logged-in browser (vision/publisher.py): no API, no per-post cost."""
     sys.path.insert(0, str(PROJECT_ROOT / 'vision'))
     from auth import launch_and_auth
-    from publisher import post_thread as browser_post_thread, write_progress, UncertainPost
+    from publisher import post_thread as browser_post_thread, write_progress, UncertainPost, pin_tweet
     res = launch_and_auth()
     if res[0] is None:
         raise RuntimeError(f"X login failed in the browser ({res[-1]})")
@@ -362,6 +362,9 @@ def post_thread_browser(posts: list, image_paths: list, dry_run: bool) -> list:
             ids = json.loads(Path(result_file).read_text()).get('ids') or []
         except (OSError, ValueError):
             ids = []
+    else:
+        if pin and ids and not error and not dry_run:
+            pin_tweet(context, ids[0])     # e.g. the intro post that sits on top of the profile
     finally:
         try:
             context.close()
@@ -374,10 +377,10 @@ def post_thread_browser(posts: list, image_paths: list, dry_run: bool) -> list:
     return [f"dry{i}" for i in range(len(posts))] if dry_run and not error else ids
 
 
-def post_thread(posts: list, image_paths: list, dry_run: bool) -> list:
+def post_thread(posts: list, image_paths: list, dry_run: bool, pin: bool = False) -> list:
     """Post tweet by tweet; returns posted tweet ids (stops at the first failure)."""
     if os.getenv('PUBLISH_BACKEND', 'api') == 'browser':
-        return post_thread_browser(posts, image_paths, dry_run)
+        return post_thread_browser(posts, image_paths, dry_run, pin)
     if dry_run:
         for i, p in enumerate(posts):
             logger.info(f"[DRY RUN] tweet {i + 1}/{len(posts)} ({len(p['text'])} chars, "
@@ -453,7 +456,7 @@ def publish_thread(game_id: str) -> bool:
         for var in ('TW_API_KEY', 'TW_API_SECRET', 'TW_ACCESS_TOKEN', 'TW_ACCESS_SECRET'):
             logger.info(f"   {var}: {'set' if os.getenv(var) else 'MISSING'}")
     dry = os.getenv('TW_DRY_RUN', 'false').lower() in ('1', 'true', 'yes')
-    ids = post_thread(posts, image_paths, dry)
+    ids = post_thread(posts, image_paths, dry, pin=bool(game.get('pin')))
 
     result = {'posted': len(ids), 'total': len(posts), 'first_id': ids[0] if ids else None,
               'ids': ids, 'sending': None, 'dry_run': dry, 'error': BROWSER_OUTCOME.get('error'),
