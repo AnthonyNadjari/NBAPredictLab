@@ -200,6 +200,8 @@ def open_profile(pw, headless: bool = True) -> BrowserContext:
         viewport=BROWSER_VIEWPORT,
         locale="en-US",
         args=["--disable-blink-features=AutomationControlled", "--no-sandbox", "--disable-dev-shm-usage",
+              *(["--blink-settings=imagesEnabled=false", "--autoplay-policy=user-gesture-required", "--mute-audio"]
+                if os.getenv("BLOCK_MEDIA", "0") == "1" else []),
               *(os.getenv("CHROME_EXTRA_ARGS", "").split())],
     )
     if headless:
@@ -260,9 +262,11 @@ def launch_and_auth() -> tuple:
         return None, None, None, None, "browser_launch_failed"
     context.add_init_script(STEALTH_JS)
     if os.getenv("BLOCK_MEDIA", "0") == "1":
-        # Text is all the bot reads: skip images/video/fonts (big memory and bandwidth saving)
-        context.route("**/*", lambda route: route.abort()
-                      if route.request.resource_type in ("image", "media", "font") else route.continue_())
+        # Text is all the bot reads: skip images and video. Only the media hosts are routed: routing
+        # "**/*" sent every request through the Playwright driver pipe, which died after 4-10 posts
+        # ("Route.continue_: Target closed", "Connection closed while reading from the driver", 11 Oct).
+        for host in ("https://pbs.twimg.com/**", "https://video.twimg.com/**", "https://abs.twimg.com/**/*.woff2"):
+            context.route(host, lambda route: route.abort())
     page: Page = context.pages[0] if context.pages else context.new_page()
 
     def _goto_home():

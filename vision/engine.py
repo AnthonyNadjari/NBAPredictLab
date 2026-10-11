@@ -53,6 +53,27 @@ def _event(step: str, detail: dict | None = None) -> dict:
 RELAUNCHED: dict = {}   # latest playwright/context after a browser restart (main.py closes these at the end)
 
 
+def _relaunch(playwright_instance, context):
+    """Close what is left of the browser and start a fresh one on the same logged-in profile."""
+    try:
+        context.close()
+    except Exception:
+        pass
+    try:
+        playwright_instance.stop()
+    except Exception:
+        pass
+    import heartbeat
+    from auth import launch_and_auth
+    res = launch_and_auth()
+    if res[0] is None:
+        raise RuntimeError(f"relogin failed ({res[-1]})")
+    pw, _b, context, page = res[:4]
+    RELAUNCHED.update(pw=pw, context=context)
+    heartbeat.beat()
+    return pw, context, page
+
+
 def run_session(page, context, *, browser, playwright_instance):
     """
     Run one full session: cycles until max_replies or stop conditions.
@@ -81,6 +102,7 @@ def run_session(page, context, *, browser, playwright_instance):
     cycle_index = 0
     browser_gone = False
     posts_on_tab = 0
+    crash_relaunches = 0
     # W-L records already quoted today (all sessions): "61-20" five times a day reads like a bot
     records_file = LOCAL_STATE_DIR / f"used_records_{datetime.now(TZ):%Y-%m-%d}.json"
     try:
@@ -120,7 +142,16 @@ def run_session(page, context, *, browser, playwright_instance):
                 posts_on_tab = 0
             except Exception as e:
                 from scraper import browser_gone as _gone
-                if _gone(e):
+                relaunched = False
+                if _gone(e) and crash_relaunches < 3:
+                    crash_relaunches += 1
+                    print(f"[Cycle {cycle_index}] Browser gone ({e}): relaunching ({crash_relaunches}/3)", flush=True)
+                    try:
+                        playwright_instance, context, page = _relaunch(playwright_instance, context)
+                        posts_on_tab, relaunched = 0, True
+                    except Exception as e2:
+                        print(f"  Relaunch failed ({e2})", flush=True)
+                if _gone(e) and not relaunched:
                     print(f"[Cycle {cycle_index}] Browser gone ({e}): ending the session", flush=True)
                     events.append(_event("session_stop", {"reason": "browser_crashed"}))
                     browser_gone = True
@@ -149,6 +180,17 @@ def run_session(page, context, *, browser, playwright_instance):
             consecutive_errors = max(0, consecutive_errors - 1)
         except Exception as e:
             from scraper import BrowserGone
+            if isinstance(e, BrowserGone) and crash_relaunches < 3:
+                # a dead browser costs the rest of a session (sessions ended at 4-6 replies): relaunch it
+                crash_relaunches += 1
+                print(f"[Cycle {cycle_index}] Browser gone ({e}): relaunching ({crash_relaunches}/3)", flush=True)
+                try:
+                    playwright_instance, context, page = _relaunch(playwright_instance, context)
+                    posts_on_tab = 0
+                    cycle_index += 1
+                    continue
+                except Exception as e2:
+                    print(f"  Relaunch failed ({e2})", flush=True)
             if isinstance(e, BrowserGone):
                 print(f"[Cycle {cycle_index}] Browser gone ({e}): ending the session", flush=True)
                 events.append(_event("session_stop", {"reason": "browser_crashed"}))
@@ -293,19 +335,8 @@ def run_session(page, context, *, browser, playwright_instance):
                 # every session (9-10 Oct), even with fresh tabs. The persistent profile keeps us logged in.
                 print("  Restarting the browser (every 6 posts)...", flush=True)
                 try:
-                    try:
-                        context.close()
-                        playwright_instance.stop()
-                    except Exception:
-                        pass
-                    from auth import launch_and_auth
-                    res = launch_and_auth()
-                    if res[0] is None:
-                        raise RuntimeError(f"relogin failed ({res[-1]})")
-                    playwright_instance, _b, context, page = res[:4]
-                    RELAUNCHED.update(pw=playwright_instance, context=context)
+                    playwright_instance, context, page = _relaunch(playwright_instance, context)
                     posts_on_tab = 0
-                    heartbeat.beat()
                 except Exception as e:
                     print(f"  Browser restart failed ({e}): ending the session", flush=True)
                     events.append(_event("session_stop", {"reason": "browser_restart_failed"}))
