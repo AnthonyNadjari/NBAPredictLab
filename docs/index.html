@@ -240,24 +240,22 @@ footer { color: var(--muted); font-size: 12px; padding: 0 0 30px; }
     </div>
     <div class="health" id="health"></div>
     <nav class="tabs" role="tablist">
-      <button role="tab" aria-selected="true" data-tab="slate">Matchs</button>
+      <button role="tab" aria-selected="true" data-tab="today">Aujourd'hui</button>
+      <button role="tab" aria-selected="false" data-tab="slate">Matchs</button>
       <button role="tab" aria-selected="false" data-tab="record">Bilan</button>
-      <button role="tab" aria-selected="false" data-tab="account">Compte X</button>
-      <button role="tab" aria-selected="false" data-tab="stats">Stats</button>
-      <button role="tab" aria-selected="false" data-tab="replies">Réponses</button>
-      <button role="tab" aria-selected="false" data-tab="veille">Veille</button>
-      <button role="tab" aria-selected="false" data-tab="control">Pilotage</button>
+      <button role="tab" aria-selected="false" data-tab="settings">Réglages</button>
     </nav>
   </header>
 
   <main>
-    <section id="slate" role="tabpanel"></section>
+    <section id="today" role="tabpanel"></section>
+    <section id="slate" role="tabpanel" hidden></section>
     <section id="record" role="tabpanel" hidden></section>
-    <section id="account" role="tabpanel" hidden></section>
-    <section id="stats" role="tabpanel" hidden></section>
-    <section id="replies" role="tabpanel" hidden></section>
-    <section id="veille" role="tabpanel" hidden></section>
-    <section id="control" role="tabpanel" hidden></section>
+    <section id="settings" role="tabpanel" hidden>
+      <p class="hint">Rien à faire ici en temps normal : tout tourne tout seul. Cette page sert seulement si l'accueil signale un problème.</p>
+      <div id="account"></div>
+      <div id="control" style="margin-top:12px"></div>
+    </section>
   </main>
   <footer id="foot"></footer>
 </div>
@@ -395,7 +393,6 @@ function renderHealth() {
     const dd = delta(fol, 7);
     pills.push(`<span class="pill">Followers <b>${fol[fol.length - 1].followers}</b>${dd != null ? ` · ${dd >= 0 ? '+' : ''}${dd} sur 7 j` : ''}</span>`);
   }
-  if (state.xstatus && state.xstatus.ok === false) pills.push(`<span class="pill"><span class="dot bad"></span>API X en erreur</span>`);
   if (d?.season?.n) pills.push(`<span class="pill">Saison <b>${d.season.correct}–${d.season.n - d.season.correct}</b> · ${pct(d.season.accuracy, 1)}</span>`);
   if (d?.next_slate && !(g?.games || []).length) pills.push(`<span class="pill">Prochaine soirée <b>${longDay(d.next_slate.date)}</b></span>`);
   el.innerHTML = pills.join('');
@@ -840,7 +837,7 @@ function renderAccount() {
   const needsKey = lastRun && lastRun.auth === 'no_llm_key';
 
   el.innerHTML = `
-  <div class="panel">
+  <div class="panel" hidden>
     <div class="scoreline" style="justify-content:space-between">
       <div class="scoreline"><div class="big">${last ? last.followers : '–'}</div>
         <div><div class="hint" style="margin:0">followers${last ? ` au ${longDay(last.date)}` : ''}</div>
@@ -850,7 +847,7 @@ function renderAccount() {
     <div style="margin-top:12px">${followersSVG(state.vstats || [], runs)}</div>
   </div>
 
-  <div class="cols" style="margin-top:12px">
+  <div class="cols">
     <div class="panel"><h3>Connexion au compte</h3>
       <p class="hint">Deux accès distincts : l'API officielle (threads + relevé quotidien des followers) et la session navigateur du bot de réponses (sur le serveur IONOS).</p>
       <div class="runs"><div style="display:flex;gap:8px;align-items:center;padding:6px 0">${apiState}</div>
@@ -888,7 +885,7 @@ function renderAccount() {
     </div>
   </div>
 
-  <div class="panel" style="margin-top:12px"><h3>Dernières réponses</h3>
+  <div class="panel" style="margin-top:12px" hidden><h3>Dernières réponses</h3>
     <p class="hint">Le tweet d'origine et ce que le bot a répondu. Badge « fait » : la réponse cite une donnée vérifiée (bilan, série, prochain match).</p>
     ${replies.length ? `<ul class="results">${replies.map(rp => `
       <li style="grid-template-columns:1fr auto;align-items:start">
@@ -928,6 +925,104 @@ function renderAccount() {
     try { await api('admin', { action: 'vision_run', dry_run: true }); msg('#vMsg', 'ok', 'Essai demandé : le serveur le lance dans les 5 minutes (cherche et rédige sans poster).'); }
     catch (err) { msg('#vMsg', 'err', err.message); }
   });
+}
+
+// ---------------- today: the home page, in sentences ----------------
+state.today = null;
+async function loadToday() {
+  const el = $('#today');
+  if (!state.today) el.innerHTML = `<div class="empty"><h3>Chargement…</h3></div>`;
+  const safe = async (path, dflt) => { try { return (await getJSON(path)) ?? dflt; } catch (e) { return dflt; } };
+  const months = await safe('vision/replies/index.json', []);
+  const replies = (await Promise.all(months.slice(-2).map(m => safe('vision/replies/' + m, [])))).flat();
+  const [cost, queue] = await Promise.all([safe('vision/llm_cost.json', {}), safe('vision/publish_queue.json', { requests: [] })]);
+  state.today = { replies, cost, queue };
+  renderToday();
+}
+
+function renderToday() {
+  const el = $('#today'), T = state.today;
+  if (!T) return;
+  const now = Date.now(), H = 3600e3;
+  const parisDay = t => new Date(t).toLocaleDateString('sv-SE', { timeZone: 'Europe/Paris' });
+  const today = parisDay(now);
+  const int = v => Math.round(v).toLocaleString('fr-FR');
+  const k = v => v >= 10000 ? int(v / 1000) + ' 000' : int(v);
+  const runs = (state.vruns || []).filter(r => !r.dry_run);
+  const fol = (state.vstats || []).filter(x => x.followers != null && x.date >= RELAUNCH);
+  const lastF = fol[fol.length - 1], d7 = delta(fol, 7);
+  const prevF = fol.find(x => x.date === parisDay(now - 864e5));
+  const reps = T.replies.filter(r => r.posted_at && !r.removed);
+  const week = reps.filter(r => now - Date.parse(r.posted_at) < 7 * 864e5);
+  const views = rs => rs.reduce((a, r) => a + (((r.metrics || {}).last || {}).views || 0), 0);
+  const weekViews = views(week);
+  const todayReps = reps.filter(r => parisDay(r.posted_at) === today);
+  const convos = todayReps.filter(r => r.reason === 'conversation').length;
+  const lastReply = reps.reduce((a, r) => r.posted_at > a ? r.posted_at : a, '');
+  const lastRun = runs[runs.length - 1];
+  const days = Object.keys(T.cost || {}).sort(), lastCost = T.cost[days[days.length - 1]] || null;
+  const spent = days.slice(-7).map(d => T.cost[d].spent_usd || 0);
+  const perDay = spent.length ? spent.reduce((a, b) => a + b, 0) / spent.length : 0;
+  const daysLeft = lastCost && perDay > 0 ? Math.floor(lastCost.balance_usd / perDay) : null;
+
+  // what needs the owner (nothing, most days)
+  const todo = [];
+  if (lastRun && lastRun.auth && lastRun.auth !== 'ok') todo.push(`Le bot est déconnecté de X (${esc(AUTH_LABELS[lastRun.auth] || lastRun.auth)}) : Réglages, « Connecter le bot de réponses à X ».`);
+  const h = +new Date(now).toLocaleString('en-GB', { timeZone: 'Europe/Paris', hour: '2-digit', hour12: false });
+  if (lastReply && now - Date.parse(lastReply) > 4 * H && !(h >= 9 && h < 14) && state.vschedule?.enabled !== false)
+    todo.push(`Le bot n'a rien posté depuis ${ago(lastReply).replace('il y a ', '')}. Je regarde ça au prochain point ; rien à faire de ton côté.`);
+  if (state.vschedule?.enabled === false) todo.push('Le bot de réponses est en pause (Réglages pour le relancer).');
+  if (lastCost && lastCost.balance_usd < 1.5) todo.push(`Crédit DeepSeek presque vide (${lastCost.balance_usd.toFixed(2)} $) : à recharger sur platform.deepseek.com. En attendant, Groq prend le relais gratuitement.`);
+  const lastPub = (state.publog || []).slice(-1)[0];
+  if (lastPub && !lastPub.ok && now - Date.parse(lastPub.at) < 24 * H) todo.push(`Une publication a échoué ${ago(lastPub.at)} (${esc(lastPub.error || 'voir le serveur')}).`);
+
+  // best replies of the week
+  const top = week.filter(r => (r.metrics || {}).last).sort((a, b) => b.metrics.last.views - a.metrics.last.views).slice(0, 3);
+  // what goes out next
+  const specials = (state.games?.specials || []).filter(x => !x.published);
+  const games = (state.games?.games || []).filter(g => !g.published);
+  const conv = (() => {
+    const g = d7, v = weekViews;
+    if (g == null || !v) return null;
+    return g > 0 ? `1 nouvel abonné toutes les ${k(v / g)} vues` : `aucun abonné net pour ${k(v)} vues`;
+  })();
+
+  const card = (label, big, line) => `<div class="panel" style="flex:1;min-width:200px"><div class="hint" style="margin:0">${label}</div>
+    <div style="font:700 30px var(--display);margin:2px 0">${big}</div><div style="font-size:14px">${line}</div></div>`;
+  el.innerHTML = `
+    <div class="panel" style="margin-bottom:12px;border-left:4px solid ${todo.length ? 'var(--ball)' : 'var(--win)'}">
+      ${todo.length ? `<h3>À regarder</h3><ul style="margin:6px 0 0;padding-left:18px">${todo.map(t => `<li>${t}</li>`).join('')}</ul>`
+        : `<h3 style="margin:0">Tout tourne tout seul. Rien à faire.</h3><p class="hint" style="margin:4px 0 0">Bot de réponses, posts du jour, threads et alertes blessure partent automatiquement.</p>`}
+    </div>
+    <div class="row" style="gap:12px;align-items:stretch;margin-bottom:12px">
+      ${card('Abonnés', lastF ? lastF.followers : '–', `${prevF && lastF ? `${lastF.followers - prevF.followers >= 0 ? '+' : ''}${lastF.followers - prevF.followers} depuis hier · ` : ''}${d7 != null ? `${d7 >= 0 ? '+' : ''}${d7} en 7 jours` : ''}`)}
+      ${card('Vues de nos réponses, 7 jours', k(weekViews), `${int(week.length)} réponses, environ ${k(weekViews / 7)} vues par jour`)}
+      ${card('Ce que ça rapporte', conv ? conv.split(' toutes')[0].replace('1 nouvel abonné', '1 abonné') : '–', conv ? conv.replace(/^1 nouvel abonné /, '') + ' (7 jours)' : 'pas encore assez de recul')}
+      ${card('Aujourd’hui', `${todayReps.length} réponses`, `${convos ? `dont ${convos} conversation${convos > 1 ? 's' : ''} · ` : ''}${lastReply ? `dernière ${ago(lastReply)}` : ''}`)}
+    </div>
+    <div class="panel" style="margin-bottom:12px"><h3>Abonnés depuis la relance</h3>${followersSVG(state.vstats || [], state.vruns || [])}</div>
+    <div class="cols">
+      <div class="panel"><h3>Ce qui a marché cette semaine</h3>
+        ${top.length ? `<ul class="results">${top.map(r => `<li style="grid-template-columns:1fr auto;align-items:start"><div>
+          <div class="hint" style="margin:0"><b>${int(r.metrics.last.views)} vues</b> · ${int(r.metrics.last.likes || 0)} likes · réponse à @${esc(r.author)}</div>
+          <div>${esc(r.reply_text)}</div></div><a class="btn small" href="${esc(r.reply_url || r.tweet_url)}" target="_blank" rel="noopener">Voir</a></li>`).join('')}</ul>`
+          : '<p class="hint">Les vues arrivent quelques heures après les réponses.</p>'}
+      </div>
+      <div class="panel"><h3>Ce qui part ensuite</h3>
+        <ul style="margin:0;padding-left:18px">
+          ${specials.map(x => `<li>${esc(x.matchup || x.title)}${x.pin ? ' (épinglé en haut du profil)' : ''}</li>`).join('')}
+          ${games.length ? `<li>${games.length} thread${games.length > 1 ? 's' : ''} de match ce soir, choisis par l'autopilote</li>` : ''}
+          <li>Un post original chaque soir jusqu'au 20 octobre, puis les threads de match chaque soir</li>
+          <li>Alertes blessure dès qu'un titulaire est forfait (saison)</li>
+        </ul>
+        <h3 style="margin-top:16px">Coût de l'IA</h3>
+        <p style="margin:0">${lastCost ? `${perDay.toFixed(2).replace('.', ',')} $ par jour en moyenne · solde ${lastCost.balance_usd.toFixed(2).replace('.', ',')} $${daysLeft != null ? `, soit environ ${daysLeft} jours` : ''}.` : 'Pas encore mesuré.'}</p>
+      </div>
+    </div>
+    <details class="panel" style="margin-top:12px" id="moreStats"><summary style="cursor:pointer;font-weight:600">Tous les graphiques (pour creuser)</summary><div id="stats" style="margin-top:10px"></div></details>
+    <details class="panel" style="margin-top:12px" id="moreVeille"><summary style="cursor:pointer;font-weight:600">Veille blessures et pronostics</summary><div id="veille" style="margin-top:10px"></div></details>`;
+  $('#moreStats').ontoggle = e => { if (e.target.open) loadStats(); };
+  $('#moreVeille').ontoggle = e => { if (e.target.open) loadVeille(); };
 }
 
 // ---------------- stats (evolution day by day since the relaunch) ----------------
@@ -1220,14 +1315,11 @@ document.addEventListener('click', e => { if (e.target.matches('[data-close]')) 
 // ---------------- tabs + boot ----------------
 document.querySelectorAll('nav.tabs button').forEach(b => b.addEventListener('click', () => {
   document.querySelectorAll('nav.tabs button').forEach(x => x.setAttribute('aria-selected', x === b));
-  for (const id of ['slate', 'record', 'account', 'stats', 'replies', 'veille', 'control']) $('#' + id).hidden = id !== b.dataset.tab;
+  for (const id of ['today', 'slate', 'record', 'settings']) $('#' + id).hidden = id !== b.dataset.tab;
   try { localStorage.setItem('pl_tab', b.dataset.tab); } catch (e) {}
+  if (b.dataset.tab === 'today') loadToday();
   if (b.dataset.tab === 'record') renderRecord();
-  if (b.dataset.tab === 'control') renderControl();
-  if (b.dataset.tab === 'account') renderAccount();
-  if (b.dataset.tab === 'replies') loadReplies();
-  if (b.dataset.tab === 'stats') loadStats();
-  if (b.dataset.tab === 'veille') loadVeille();
+  if (b.dataset.tab === 'settings') { renderAccount(); renderControl(); }
 }));
 
 async function load() {
@@ -1255,17 +1347,17 @@ async function load() {
   saveLaunched();
   renderHealth(); renderSlate();
   if (!$('#record').hidden) renderRecord();
-  if (!$('#control').hidden) renderControl();
-  if (!$('#account').hidden && !document.activeElement?.closest?.('#account')) renderAccount();
+  if (!$('#settings').hidden && !document.activeElement?.closest?.('#settings')) { renderControl(); renderAccount(); }
+  if (!$('#today').hidden && !document.querySelector('#today details[open]')) loadToday();
   $('#foot').innerHTML = `Données du ${state.games.generated_at ? new Date(state.games.generated_at).toLocaleString('fr-FR', { timeZone: 'Europe/Paris' }) : '–'} · <a href="${REPO_URL}" target="_blank" rel="noopener">dépôt</a>`;
 }
 
 setPw(state.pw);
 let saved = null;
 try { saved = localStorage.getItem('pl_tab'); } catch (e) {}
-if (saved && saved !== 'slate') document.querySelector(`nav.tabs button[data-tab="${saved}"]`)?.click();
+if (saved && saved !== 'today' && document.querySelector(`nav.tabs button[data-tab="${saved}"]`)) document.querySelector(`nav.tabs button[data-tab="${saved}"]`).click();
 renderSlate();
-load().then(loadStatus);
+load().then(() => { loadStatus(); if (!$('#today').hidden) loadToday(); });
 setInterval(load, 120000);
 </script>
 </body>
