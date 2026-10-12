@@ -225,6 +225,12 @@ def run_session(page, context, *, browser, playwright_instance):
         total_filtered += len(accepted)
         skip_detail = ", ".join(f"{k}={v}" for k, v in sorted(cycle_skip.items())) if cycle_skip else "none"
         print(f"[Cycle {cycle_index}] Scraped {len(raw)}, accepted {len(accepted)} (filter out: {skip_detail})", flush=True)
+        from filter_tweets import _minutes_since_post
+        ages = [None if not t.get("timestamp") else _minutes_since_post(t["timestamp"]) for t in raw]
+        print(f"[Cycle {cycle_index}] Tweet ages: no time={sum(a is None for a in ages)}, "
+              f"<2h={sum(a is not None and a < 120 for a in ages)}, 2-6h={sum(a is not None and 120 <= a < 360 for a in ages)}, "
+              f"6-24h={sum(a is not None and 360 <= a < 1440 for a in ages)}, >24h={sum(a is not None and a >= 1440 for a in ages)}; "
+              f"100+ likes under 6h={sum(1 for t, a in zip(raw, ages) if a is not None and a < 360 and (t.get('likes') or 0) >= 100)}", flush=True)
         for k, v in cycle_skip.items():
             skip_reasons[k] = skip_reasons.get(k, 0) + v
         events.append(_event("filter_done", {"accepted_count": len(accepted), "cycle_skip_reasons": cycle_skip}))
