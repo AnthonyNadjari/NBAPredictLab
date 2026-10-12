@@ -27,7 +27,7 @@ def simulate(days=5):
 def test_daily_volume_and_quiet_hours():
     runs, per_day, hours = simulate()
     full_days = list(per_day.values())[1:-1]
-    assert all(80 <= v <= 170 for v in full_days), per_day
+    assert all(45 <= v <= 130 for v in full_days), per_day
     assert sum(hours[h] for h in (9, 10, 11, 12)) == 0      # US night: nothing
     # never more than the hourly cap inside any hour after a session ended
     for r in runs:

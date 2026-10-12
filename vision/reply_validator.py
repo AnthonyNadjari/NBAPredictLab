@@ -179,7 +179,7 @@ TIC_RE = re.compile(r"(?i)(full circle|most (\w+ ){1,3}ever|\w+est \w+ ever|chea
                     r"stays? undefeated|is wild to (see|watch)|love (the|that) energy|can'?t wait to see|"
                     # the review of 11 Oct: career-stage openers on every other reply, and history claims
                     # stated as fact ("Smart never played a game for the Lakers": he did)
-                    r"\b(in )?(year|season) \d+\b|\b\d+ (years|seasons) (in|old)\b|"
+                    r"\b(in )?(year|season) \d+\b|\b(\d+|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty) (years|seasons|szns?) (in|old|of|under)\b|"
                     r"\bnever (played|suited up|won|made|had|been)\b|is going to be a problem|that'?s not \w+( \w+)?, that'?s)")
 _STOP = {"the", "a", "an", "and", "or", "to", "of", "in", "on", "is", "it", "that", "this", "for", "at", "with",
          "he", "his", "they", "their", "be", "was", "are", "but", "so", "just", "still", "now", "all", "up"}

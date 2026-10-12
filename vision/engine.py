@@ -100,6 +100,7 @@ def run_session(page, context, *, browser, playwright_instance):
     consecutive_errors = 0
     posting_failures = 0
     cycle_index = 0
+    pushbacks_this_session = 0
     browser_gone = False
     posts_on_tab = 0
     crash_relaunches = 0
@@ -330,6 +331,9 @@ def run_session(page, context, *, browser, playwright_instance):
                 elif stat_opener_again(response, recent_replies + session_replies):
                     valid, fail_reason = False, "stat_opener"
                     print(f"  @{author}: opens on a stat line again", flush=True)
+                elif reason.lower().startswith("pushback") and pushbacks_this_session >= 1:
+                    valid, fail_reason = False, "pushback_quota"
+                    print(f"  @{author}: one pushback per session is enough", flush=True)
             if valid and os.getenv("VERIFY_REPLIES", "1") == "1":
                 # second pass: every factual claim must come from the tweet or our verified facts
                 from llm_client import verify_reply
@@ -377,6 +381,7 @@ def run_session(page, context, *, browser, playwright_instance):
                     continue
 
             total_replied += 1
+            pushbacks_this_session += reason.lower().startswith("pushback")
             replied_author_count[author] = replied_author_count.get(author, 0) + 1
             session_replies.append(response)
             day_authors[author.lower()] = day_authors.get(author.lower(), 0) + 1

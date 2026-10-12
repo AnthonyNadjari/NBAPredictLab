@@ -6,7 +6,7 @@ What it decides, from docs/vision/runs.json (when each session ended and how man
   * a quiet stretch each day while the US sleeps (08:30-13:30 Paris, edges moved by up to 40 min
     a day): measured on 450 replies, 09:00-15:00 Paris gets the fewest views, and an account that
     replies at every hour of the day is what bot-spotters look for;
-  * a daily total that changes from day to day (100-140 replies), spread over the waking hours with
+  * a daily total that changes from day to day (60-80 replies), spread over the waking hours with
     twice the weight on US prime time (21:00-06:00 Paris, the most views and likes per view), so the
     budget is not spent by the afternoon; never more than 20 in an hour;
   * a random pause between sessions (shorter during US prime time, 21:00-06:00 Paris) and a random
@@ -20,7 +20,7 @@ import random
 from datetime import datetime, timedelta
 from pathlib import Path
 
-DAILY = (100, 140)            # replies per 24 h
+DAILY = (60, 80)            # replies per 24 h
 HOURLY_MAX = 20
 QUIET = ((8, 30), (13, 30))   # Paris time, US night
 QUIET_JITTER_MIN = 40
