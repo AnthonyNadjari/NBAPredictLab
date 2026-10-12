@@ -56,7 +56,10 @@ def filter_tweet(
         return False, "already_seen"
 
     minutes = _minutes_since_post(tweet.get("timestamp") or "")
-    if minutes > MAX_MINUTES_SINCE_POST:
+    # a big tweet keeps its audience for hours: twice the age limit from 500 likes (12 Oct: 90% of the
+    # scraped tweets were "too old" on a US morning, 1 reply in 2 hours)
+    limit = MAX_MINUTES_SINCE_POST * (2 if (tweet.get("likes") or 0) >= 500 else 1)
+    if minutes > limit:
         return False, "too_old"
 
     if (tweet.get("likes") or 0) < MIN_LIKES:
