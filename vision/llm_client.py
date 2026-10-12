@@ -87,6 +87,39 @@ CONVO_PROMPT = SYSTEM_PROMPT.split("A GOOD REPLY:")[0].replace(
 
 Return only the JSON."""
 
+# A share of the replies in the short style real fans use (12 Oct: 13 of 488 replies were under
+# 60 characters, every reply the same polished sentence, and people called the account a bot)
+SHORT_PROMPT = SYSTEM_PROMPT.split("A GOOD REPLY:")[0] + """A GOOD REPLY (short style):
+- 2 to 8 words, under 45 characters, the way a fan reacts on their phone
+- react to the moment, the player or the person in THIS tweet; no stats, no numbers, no facts (fact_used "")
+- lowercase is fine; at most one light slang word (nah, lowkey, man, bro, lmao, fr) and only when natural
+- at most one emoji, usually none; no hashtags, no links, no questions, no em dashes
+- never something that fits any tweet ("this is huge", "let's go", "facts", "W", "big if true"): it must point at something specific here
+- if nothing natural comes, SKIP with "nothing_to_add"
+
+Examples
+Tweet: "Reporter: 'JJ talks a lot about playing hard.' Luka: 'He talks a lot, yeah.'"
+Good: {"decision":"REPLY","reason":"react","response":"luka's deadpan never misses 😭","fact_used":""}
+Tweet: "Tee Morant on the city of Memphis after the Grizzlies traded Ja: 'Memphis will always be home'"
+Good: {"decision":"REPLY","reason":"react","response":"Tee a real one for that","fact_used":""}
+Tweet: "Wemby blocked 3 straight shots on one possession last night"
+Good: {"decision":"REPLY","reason":"react","response":"nah that possession was rude","fact_used":""}
+
+Return only the JSON."""
+
+# Our own posts between the replies (vision/opinions.py)
+OPINION_PROMPT = SYSTEM_PROMPT.split("A GOOD REPLY:")[0].replace(
+    "You reply to tweets as @NBAPredictLab", "You write an original post for @NBAPredictLab, inspired by a tweet you were shown").replace(
+    "Most tweets deserve no reply.", "Most tweets are not worth a post.") + """A GOOD POST:
+- your own take on the topic of the tweet, as a standalone post: never reply to it, quote it, mention its author or any @handle
+- it must make sense to someone who never saw the tweet: name the player or team
+- an opinion a fan would argue about, not news: no "BREAKING", no recap of the tweet, no stats unless from the facts
+- 60-180 characters, one or two short sentences, casual, no hashtags, no links, no questions, no em dashes, at most one emoji
+- never mention predictions, our model or the account
+- SKIP with "nothing_to_add" if the topic is just news with no angle, or sensitive
+
+Return only the JSON."""
+
 
 GROQ_BASE_URL = "https://api.groq.com/openai/v1"
 

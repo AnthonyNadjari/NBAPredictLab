@@ -12,6 +12,8 @@ from datetime import datetime
 from filter_tweets import filter_tweets, minutes_since_post
 from scorer import rank_and_top
 from llm_client import call_llm
+from llm_client import SHORT_PROMPT
+SHORT_SHARE = float(os.getenv("SHORT_SHARE", "0.4"))   # replies in the short fan style
 from reply_validator import humanize, validate_reply
 from poster import post_reply, wait_before_next_tweet
 from session_log import write_session_log, build_session_log
@@ -273,7 +275,11 @@ def run_session(page, context, *, browser, playwright_instance):
             total_llm_calls += 1
             tid = tweet.get("tweet_id")
             try:
-                llm_results[tid] = call_llm(tweet.get("text") or "", tweet.get("username") or "")
+                short = random.random() < SHORT_SHARE
+                llm_results[tid] = call_llm(tweet.get("text") or "", tweet.get("username") or "",
+                                            system=SHORT_PROMPT if short else None)
+                if llm_results[tid] is not None:
+                    llm_results[tid]["short"] = short
                 heartbeat.beat()
             except Exception:
                 llm_results[tid] = None
@@ -427,6 +433,15 @@ def run_session(page, context, *, browser, playwright_instance):
 
             heartbeat.beat()
             wait_before_next_tweet()
+
+        # one of our own takes now and then (vision/opinions.py): not only replies on the profile
+        try:
+            import opinions
+            take = opinions.maybe_post(context, raw, recent=recent_replies + session_replies, dry_run=DRY_RUN)
+            if take:
+                session_replies.append(take)
+        except Exception as e:
+            print(f"  Take skipped ({e})", flush=True)
 
         # Save session state after each cycle so cookies stay fresh
         try:
