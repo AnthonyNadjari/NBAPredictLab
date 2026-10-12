@@ -1009,7 +1009,7 @@ function renderToday() {
       ${card('Vues de nos réponses, 7 jours', k(weekViews), `${int(week.length)} réponses, environ ${k(weekViews / 7)} vues par jour`, 'var(--c-blue)')}
       ${card('Ce que ça rapporte', conv ? conv.split(' toutes')[0].replace('1 nouvel abonné', '1 abonné') : '–', conv ? conv.replace(/^1 nouvel abonné /, '') + ' (7 jours)' : 'pas encore assez de recul', 'var(--c-violet)')}
       ${card('Aujourd’hui', `${todayReps.length} réponses`, `${convos ? `dont ${convos} conversation${convos > 1 ? 's' : ''} · ` : ''}${lastReply ? `dernière ${ago(lastReply)}` : ''}`, 'var(--ball)')}
-      ${card('Traité de bot, 7 jours', flags.length, flags.length ? `dernier : @${esc(flags[flags.length - 1].user)} « ${esc(flags[flags.length - 1].text.slice(0, 60))} »` : 'personne (compté depuis le 12 oct.)', flags.length ? 'var(--loss)' : 'var(--c-teal)')}
+      ${card('Traité de bot, 7 jours', flags.length, flags.length ? `dernier : @${esc(flags[flags.length - 1].user)} « ${esc(flags[flags.length - 1].text.slice(0, 60))} »` : 'personne (compté depuis le 11 oct.)', flags.length ? 'var(--loss)' : 'var(--c-teal)')}
     </div>
     <div class="panel" style="margin-bottom:12px"><h3>Abonnés depuis la relance</h3>${followersSVG(state.vstats || [], state.vruns || [])}</div>
     <div class="panel" style="margin-bottom:12px"><h3>Crédit IA (DeepSeek)</h3>
@@ -1049,7 +1049,7 @@ function statsByDay(replies, vstats, runs, cost, flags = []) {
   }
   for (const r of runs) if (r.at && !r.dry_run && r.auth === 'ok' && r.at.slice(0, 10) >= RELAUNCH) {
     const x = get(day(r.at)); x.sessions++; if (['browser_crashed', 'stalled'].includes(r.stop_reason)) x.crashed++;
-    if (r.at >= '2026-10-12T12') x.flags = x.flags || 0;
+    if (r.at >= '2026-10-11') x.flags = x.flags || 0;
   }
   for (const f of flags) { const y = get(day(f.at)); y.flags = (y.flags || 0) + 1; }
   for (const [d, c] of Object.entries(cost || {})) if (d >= RELAUNCH) get(d).cost = c.spent_usd;
@@ -1063,6 +1063,7 @@ function statsByDay(replies, vstats, runs, cost, flags = []) {
 // one small chart = one measure (never two scales on one chart); hover a day for its value
 function miniChart(title, rows, value, fmt, kind = 'line', hint = '', color = 'var(--ball)') {
   const pts = rows.map(r => ({ d: r.d, v: value(r) })).filter(p => p.v != null && isFinite(p.v));
+  if (pts.length === 1) return `<div class="panel" style="border-top:4px solid ${color}"><h3 style="color:${color}">${title}</h3>${hint ? `<p class="hint" style="margin:0 0 4px">${hint}</p>` : ''}<div style="font:700 32px var(--display);color:${color}">${fmt(pts[0].v)}</div><p class="hint" style="margin:0">le ${pts[0].d.slice(5).split('-').reverse().join('/')} ; la courbe démarre demain.</p></div>`;
   if (pts.length < 2) return `<div class="panel"><h3>${title}</h3><p class="hint">Pas encore assez de jours.</p></div>`;
   const W = 360, H = 150, L = 46, R = 8, T = 10, B = 22;
   const vals = pts.map(p => p.v);
@@ -1118,7 +1119,7 @@ function renderStats(el, replies, vstats, runs, cost, flags) {
       ${miniChart('Abonnés', rows, r => r.followers, (v, s) => int(v), 'line', 'Le chiffre qui compte.', 'var(--win)')}
       ${miniChart('Vues de nos réponses par jour', rows, r => r.measured ? r.views : null, (v, s) => k(v), 'bar', 'La portée totale du jour.', 'var(--c-blue)')}
       ${miniChart('Abonnés gagnés pour 10 000 vues', rows, r => r.views > 300 && r.gained != null ? 10000 * r.gained / r.views : null, dec, 'line', 'La conversion : plus haut = les vues rapportent plus.', 'var(--c-violet)')}
-      ${miniChart('Traité de bot', rows, r => r.flags, (v, s) => int(v), 'bar', 'Réponses qui nous accusent d’être un bot (compté depuis le 12 oct.).', 'var(--loss)')}
+      ${miniChart('Traité de bot', rows, r => r.flags, (v, s) => int(v), 'bar', 'Réponses qui nous accusent d’être un bot (compté depuis le 11 oct.).', 'var(--loss)')}
     </div>
     <details class="panel" style="margin-top:12px"><summary style="cursor:pointer;font-weight:600">Tableau jour par jour</summary>
       <div style="overflow-x:auto"><table class="rtable"><thead><tr><th>Jour</th><th>Followers</th><th>+/-</th><th>Réponses</th><th>Vues</th><th>Likes/1k</th><th>Râteaux</th><th>Sessions</th><th>Coût</th></tr></thead><tbody>${
