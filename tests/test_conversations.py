@@ -52,3 +52,14 @@ def test_thread_needs_our_reply_just_above(monkeypatch):
     assert conversations.thread(FakePage({url: ours}), m)["ours"] == "our take"
     other = [art("ShamsCharania", "7", "big news", 90), art("someone", "8", "x", 60), art("fan1", "9", "nah", 30)]
     assert conversations.thread(FakePage({url: other}), m) is None
+
+
+def test_avoided_accounts(tmp_path, monkeypatch):
+    import json
+    monkeypatch.setattr(conversations, "FLAGS", tmp_path / "f.json")
+    now = datetime.now(timezone.utc)
+    (tmp_path / "f.json").write_text(json.dumps([
+        {"user": "MUTHYPE", "thread_of": "SixersAdamClips", "at": now.isoformat()},
+        {"user": "old", "thread_of": None, "at": (now - timedelta(days=30)).isoformat()},
+    ]))
+    assert conversations.avoided_accounts(now) == {"muthype", "sixersadamclips"}

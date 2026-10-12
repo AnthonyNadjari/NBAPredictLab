@@ -24,6 +24,8 @@ MAX_PER_SESSION = 3
 MAX_PER_DAY = 15
 MAX_AGE = timedelta(hours=6)
 STATE = LOCAL_STATE_DIR / "conversations.json"
+FLAGS = LOCAL_STATE_DIR / "bot_flags.json"      # [{user, text, at, id, thread_of}], copied to docs/vision
+AVOID_DAYS = 14
 # people calling us a bot / an AI: counted for the panel (one per tweet), never answered
 BOT_RE = re.compile(r"(?i)\b(bots?|ai|a\.i|chatgpt|gpt|grok|clanker|automated|llm|robot)\b")
 LAST_FLAGS: list[dict] = []
@@ -90,6 +92,40 @@ def thread(page, m: dict) -> dict | None:
             "ours_id": _sid(arts[idx - 1].get("link"))}
 
 
+def load_flags() -> list[dict]:
+    try:
+        return json.loads(FLAGS.read_text(encoding="utf-8"))
+    except Exception:
+        return []
+
+
+def avoided_accounts(now: datetime | None = None) -> set[str]:
+    """People who called us a bot, and the accounts whose threads it happened in: stay away for a while."""
+    now = now or datetime.now(timezone.utc)
+    out = set()
+    for f in load_flags():
+        try:
+            if now - datetime.fromisoformat(f["at"]) > timedelta(days=AVOID_DAYS):
+                continue
+        except (KeyError, ValueError):
+            continue
+        out.update(u.lower() for u in (f.get("user"), f.get("thread_of")) if u)
+    return out
+
+
+def _record_flags(page) -> None:
+    if not LAST_FLAGS:
+        return
+    for f in LAST_FLAGS[:3]:
+        try:
+            t = thread(page, {"user": f["user"], "id": f["id"]})
+            f["thread_of"] = (t or {}).get("origin", {}).get("user") or None
+        except Exception:
+            f["thread_of"] = None
+        print(f"  bot accusation from @{f['user']} (thread of @{f.get('thread_of')}): {f['text'][:80]!r}", flush=True)
+    FLAGS.write_text(json.dumps((load_flags() + LAST_FLAGS)[-500:], ensure_ascii=False), encoding="utf-8")
+
+
 def answer_mentions(page, *, recent: list[str], dry_run: bool = False, run_id: str = "") -> list[dict]:
     """Answer up to MAX_PER_SESSION people. Returns the posted answers (reply dicts like engine's)."""
     from llm_client import CONVO_PROMPT, call_llm, verify_reply
@@ -99,13 +135,13 @@ def answer_mentions(page, *, recent: list[str], dry_run: bool = False, run_id: s
 
     st = _load()
     LAST_FLAGS.clear()
+    found = mentions(page, st, datetime.now(timezone.utc))
+    _record_flags(page)
     if st["count"] >= MAX_PER_DAY:
-        mentions(page, st, datetime.now(timezone.utc))      # still count the bot accusations
         _save(st)
         return []
-    now = datetime.now(timezone.utc)
     posted: list[dict] = []
-    for m in mentions(page, st, now)[:MAX_PER_SESSION * 3]:
+    for m in found[:MAX_PER_SESSION * 3]:
         if len(posted) >= MAX_PER_SESSION or st["count"] >= MAX_PER_DAY:
             break
         st["answered"].append(m["id"])          # looked at once, answered or not

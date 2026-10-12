@@ -123,6 +123,8 @@ def _scrape_single_tab(page: Page, keyword: str) -> list[dict]:
     try:
         page.goto(url, wait_until="domcontentloaded", timeout=30000)
     except Exception as e:
+        if browser_gone(e) or "ERR_ABORTED" in str(e):
+            raise BrowserGone(str(e)) from e
         print(f"      Navigation timeout for {keyword!r}: {e}", flush=True)
         return []
 
@@ -171,6 +173,8 @@ def _scrape_batch_parallel(context: BrowserContext, main_page: Page, keywords: l
         try:
             pg.goto(url, wait_until="domcontentloaded", timeout=30000)
         except Exception as e:
+            if browser_gone(e):
+                raise BrowserGone(str(e)) from e
             print(f"      Navigation timeout for {kw!r}: {e}", flush=True)
 
     # Single shared wait (all pages are loading simultaneously)
@@ -343,7 +347,7 @@ def scrape_all_keywords(page: Page, context: BrowserContext, cycle_index: int = 
                 consecutive_kw_errors = 0
 
         except Exception as ex:
-            if browser_gone(ex):
+            if isinstance(ex, BrowserGone) or browser_gone(ex):
                 # The Playwright driver or the browser died: every next call would hang, stop now
                 raise BrowserGone(str(ex)) from ex
             consecutive_kw_errors += len(batch)

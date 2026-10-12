@@ -153,28 +153,16 @@ def run_session(page, context, *, browser, playwright_instance):
             if switch_to_fallback(f"daily cap {cost['budget']}$ reached ({cost['spent_today']}$ spent)"):
                 events.append(_event("llm_fallback", {"reason": "llm_budget", "spent": cost["spent_today"]}))
         if cycle_index > 0:
-            # a fresh tab each cycle: X's timeline keeps growing in memory (2 GB after an hour)
+            # a whole new browser each cycle: Chromium grew to the 2 GB cap within a cycle and was
+            # killed mid-search, then the session hung until the watchdog (11-12 Oct)
             try:
-                fresh = context.new_page()
-                page.close()
-                page = fresh
+                playwright_instance, context, page = _relaunch(playwright_instance, context)
                 posts_on_tab = 0
             except Exception as e:
-                from scraper import browser_gone as _gone
-                relaunched = False
-                if _gone(e) and crash_relaunches < 3:
-                    crash_relaunches += 1
-                    print(f"[Cycle {cycle_index}] Browser gone ({e}): relaunching ({crash_relaunches}/3)", flush=True)
-                    try:
-                        playwright_instance, context, page = _relaunch(playwright_instance, context)
-                        posts_on_tab, relaunched = 0, True
-                    except Exception as e2:
-                        print(f"  Relaunch failed ({e2})", flush=True)
-                if _gone(e) and not relaunched:
-                    print(f"[Cycle {cycle_index}] Browser gone ({e}): ending the session", flush=True)
-                    events.append(_event("session_stop", {"reason": "browser_crashed"}))
-                    browser_gone = True
-                    break
+                print(f"[Cycle {cycle_index}] Browser restart failed ({e}): ending the session", flush=True)
+                events.append(_event("session_stop", {"reason": "browser_crashed"}))
+                browser_gone = True
+                break
         if consecutive_errors >= MAX_CONSECUTIVE_ERRORS:
             events.append(_event("session_stop", {"reason": "max_consecutive_errors"}))
             print(f"Stopping: {consecutive_errors} consecutive errors reached limit", flush=True)
@@ -254,6 +242,11 @@ def run_session(page, context, *, browser, playwright_instance):
         # Filter candidates (author limit, already seen)
         candidates = []
         chosen_authors: set[str] = set()
+        try:
+            from conversations import avoided_accounts
+            avoided = avoided_accounts()
+        except Exception:
+            avoided = set()
         for tweet in top:
             if len(candidates) + total_replied >= MAX_REPLIES + 10:
                 break
@@ -262,7 +255,7 @@ def run_session(page, context, *, browser, playwright_instance):
             # one reply per account per session, two per day: a profile full of replies to the
             # same account a minute apart is how people spot a bot ("bot spotted", 8 Oct)
             if (replied_author_count.get(author, 0) >= MAX_REPLIES_PER_AUTHOR or author.lower() in chosen_authors
-                    or day_authors.get(author.lower(), 0) >= 2):
+                    or day_authors.get(author.lower(), 0) >= 2 or author.lower() in avoided):
                 total_skipped += 1
                 skip_reasons["max_per_author"] = skip_reasons.get("max_per_author", 0) + 1
                 events.append(_event("skip", {"tweet_id": tweet_id, "reason": "max_per_author", "author": author}))

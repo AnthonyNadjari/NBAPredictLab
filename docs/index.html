@@ -940,8 +940,8 @@ async function loadToday() {
   const safe = async (path, dflt) => { try { return (await getJSON(path)) ?? dflt; } catch (e) { return dflt; } };
   const months = await safe('vision/replies/index.json', []);
   const replies = (await Promise.all(months.slice(-2).map(m => safe('vision/replies/' + m, [])))).flat();
-  const [cost, queue] = await Promise.all([safe('vision/llm_cost.json', {}), safe('vision/publish_queue.json', { requests: [] })]);
-  state.today = { replies, cost, queue };
+  const [cost, queue, flags] = await Promise.all([safe('vision/llm_cost.json', {}), safe('vision/publish_queue.json', { requests: [] }), safe('vision/bot_flags.json', [])]);
+  state.today = { replies, cost, queue, flags };
   renderToday();
 }
 
@@ -990,7 +990,7 @@ function renderToday() {
   const card = (label, big, line, c) => `<div class="panel" style="flex:1;min-width:200px;border-top:5px solid ${c};background:color-mix(in srgb, ${c} 9%, var(--card))"><div class="hint" style="margin:0;color:${c};font-weight:700">${label}</div>
     <div style="font:700 32px var(--display);margin:2px 0;color:${c}">${big}</div><div style="font-size:14px">${line}</div></div>`;
   // bot accusations seen in our mentions (vision/conversations.py), last 7 days
-  const flags = runs.flatMap(r => r.bot_flags || []).filter(f => now - Date.parse(f.at) < 7 * 864e5);
+  const flags = (T.flags || []).filter(f => now - Date.parse(f.at) < 7 * 864e5);
   // AI credit: share left of the last top-up, and when it runs out at the 7-day pace
   const tops = days.map(d => T.cost[d].balance_usd).filter(v => v != null);
   let topUp = tops[0] || 0;
@@ -1009,7 +1009,7 @@ function renderToday() {
       ${card('Vues de nos réponses, 7 jours', k(weekViews), `${int(week.length)} réponses, environ ${k(weekViews / 7)} vues par jour`, 'var(--c-blue)')}
       ${card('Ce que ça rapporte', conv ? conv.split(' toutes')[0].replace('1 nouvel abonné', '1 abonné') : '–', conv ? conv.replace(/^1 nouvel abonné /, '') + ' (7 jours)' : 'pas encore assez de recul', 'var(--c-violet)')}
       ${card('Aujourd’hui', `${todayReps.length} réponses`, `${convos ? `dont ${convos} conversation${convos > 1 ? 's' : ''} · ` : ''}${lastReply ? `dernière ${ago(lastReply)}` : ''}`, 'var(--ball)')}
-      ${card('Traité de bot, 7 jours', flags.length, flags.length ? `dernier : @${esc(flags[flags.length - 1].user)} « ${esc(flags[flags.length - 1].text.slice(0, 60))} »` : 'personne (compté depuis le 11 oct.)', flags.length ? 'var(--loss)' : 'var(--c-teal)')}
+      ${card('Traité de bot, 7 jours', flags.length, flags.length ? `dernier : @${esc(flags[flags.length - 1].user)} « ${esc(flags[flags.length - 1].text.slice(0, 60))} »` : 'personne (compté depuis le 12 oct.)', flags.length ? 'var(--loss)' : 'var(--c-teal)')}
     </div>
     <div class="panel" style="margin-bottom:12px"><h3>Abonnés depuis la relance</h3>${followersSVG(state.vstats || [], state.vruns || [])}</div>
     <div class="panel" style="margin-bottom:12px"><h3>Crédit IA (DeepSeek)</h3>
@@ -1030,11 +1030,11 @@ async function loadStats() {
   const safe = async (path, dflt) => { try { return (await getJSON(path)) ?? dflt; } catch (e) { return dflt; } };
   const months = await safe('vision/replies/index.json', []);
   const replies = (await Promise.all(months.map(m => safe('vision/replies/' + m, [])))).flat();
-  const [vstats, vruns, cost] = await Promise.all([safe('vision/stats.json', []), safe('vision/runs.json', []), safe('vision/llm_cost.json', {})]);
-  renderStats(el, replies, vstats, vruns, cost);
+  const [vstats, vruns, cost, flags] = await Promise.all([safe('vision/stats.json', []), safe('vision/runs.json', []), safe('vision/llm_cost.json', {}), safe('vision/bot_flags.json', [])]);
+  renderStats(el, replies, vstats, vruns, cost, flags);
 }
 
-function statsByDay(replies, vstats, runs, cost) {
+function statsByDay(replies, vstats, runs, cost, flags = []) {
   const day = t => new Date(t).toLocaleDateString('sv-SE', { timeZone: 'Europe/Paris' });
   const days = {};
   const get = d => days[d] || (days[d] = { d, replies: 0, views: 0, likes: 0, measured: 0, graded: 0, bad: 0, answered: 0, follows: new Set(), sessions: 0, crashed: 0, cost: null, followers: null, flags: null });
@@ -1049,9 +1049,9 @@ function statsByDay(replies, vstats, runs, cost) {
   }
   for (const r of runs) if (r.at && !r.dry_run && r.auth === 'ok' && r.at.slice(0, 10) >= RELAUNCH) {
     const x = get(day(r.at)); x.sessions++; if (['browser_crashed', 'stalled'].includes(r.stop_reason)) x.crashed++;
-    if (r.bot_flags) for (const f of r.bot_flags) { const y = get(day(f.at)); y.flags = (y.flags || 0) + 1; }
-    else if (r.at >= '2026-10-11T20') x.flags = x.flags || 0;
+    if (r.at >= '2026-10-12T12') x.flags = x.flags || 0;
   }
+  for (const f of flags) { const y = get(day(f.at)); y.flags = (y.flags || 0) + 1; }
   for (const [d, c] of Object.entries(cost || {})) if (d >= RELAUNCH) get(d).cost = c.spent_usd;
   for (const s of vstats) if (s.followers != null && s.date >= RELAUNCH) get(s.date).followers = s.followers;
   const out = Object.values(days).filter(x => x.d >= RELAUNCH).sort((a, b) => a.d.localeCompare(b.d));
@@ -1093,8 +1093,8 @@ function miniChart(title, rows, value, fmt, kind = 'line', hint = '', color = 'v
   return `<div class="panel" style="border-top:4px solid ${color}"><h3 style="color:${color}">${title} <span style="font:600 15px var(--mono);float:right;color:var(--ink)">${fmt(pts[n - 1].v)}</span></h3>${hint ? `<p class="hint" style="margin:0 0 4px">${hint}</p>` : ''}${trend ? `<p style="margin:0 0 6px;font-size:14px;font-weight:600">${trend}</p>` : ''}${s}</svg></div>`;
 }
 
-function renderStats(el, replies, vstats, runs, cost) {
-  const rows = statsByDay(replies, vstats, runs, cost);
+function renderStats(el, replies, vstats, runs, cost, flags) {
+  const rows = statsByDay(replies, vstats, runs, cost, flags);
   const int = v => Math.round(v).toLocaleString('fr-FR');
   const k = v => v >= 1000 ? (v / 1000).toLocaleString('fr-FR', { maximumFractionDigits: 1 }) + ' k' : int(v);
   const dec = (v, short) => v.toLocaleString('fr-FR', { maximumFractionDigits: short ? 0 : 1 });
@@ -1118,7 +1118,7 @@ function renderStats(el, replies, vstats, runs, cost) {
       ${miniChart('Abonnés', rows, r => r.followers, (v, s) => int(v), 'line', 'Le chiffre qui compte.', 'var(--win)')}
       ${miniChart('Vues de nos réponses par jour', rows, r => r.measured ? r.views : null, (v, s) => k(v), 'bar', 'La portée totale du jour.', 'var(--c-blue)')}
       ${miniChart('Abonnés gagnés pour 10 000 vues', rows, r => r.views > 300 && r.gained != null ? 10000 * r.gained / r.views : null, dec, 'line', 'La conversion : plus haut = les vues rapportent plus.', 'var(--c-violet)')}
-      ${miniChart('Traité de bot', rows, r => r.flags, (v, s) => int(v), 'bar', 'Réponses qui nous accusent d’être un bot (compté depuis le 11 oct.).', 'var(--loss)')}
+      ${miniChart('Traité de bot', rows, r => r.flags, (v, s) => int(v), 'bar', 'Réponses qui nous accusent d’être un bot (compté depuis le 12 oct.).', 'var(--loss)')}
     </div>
     <details class="panel" style="margin-top:12px"><summary style="cursor:pointer;font-weight:600">Tableau jour par jour</summary>
       <div style="overflow-x:auto"><table class="rtable"><thead><tr><th>Jour</th><th>Followers</th><th>+/-</th><th>Réponses</th><th>Vues</th><th>Likes/1k</th><th>Râteaux</th><th>Sessions</th><th>Coût</th></tr></thead><tbody>${
