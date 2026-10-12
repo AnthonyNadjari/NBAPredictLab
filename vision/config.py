@@ -75,7 +75,7 @@ NBA_TEXT_KEYWORDS = frozenset([
 # were dropped for too few likes), in English, and not replies themselves.
 # = MIN_LIKES: "Latest" search lists the newest tweets above this bar, so a lower bar fills the page with
 # fresh tweets we then drop as too small, and the big ones are already hours old (12 Oct: 88% "too old")
-SEARCH_MIN_FAVES = int(os.getenv("SEARCH_MIN_FAVES", "100"))
+SEARCH_MIN_FAVES = int(os.getenv("SEARCH_MIN_FAVES", "50"))
 SEARCH_SUFFIX = f" min_faves:{SEARCH_MIN_FAVES} lang:en -filter:replies"
 
 # High-reach NBA accounts: replying early under their posts is where impressions are.
@@ -116,7 +116,7 @@ MAX_POSTING_FAILURES = 5
 
 # Filtering — engagement-based; skip image/video tweets with no real text
 MAX_MINUTES_SINCE_POST = int(os.getenv("MAX_MINUTES_SINCE_POST", "120"))  # 360 off-season (fewer fresh tweets)
-MIN_LIKES = int(os.getenv("MIN_LIKES", "100"))  # Only reply to tweets with some traction
+MIN_LIKES = int(os.getenv("MIN_LIKES", "50"))  # Only reply to tweets with some traction
 MIN_TEXT_LENGTH = 20
 MAX_HASHTAGS = 5
 MIN_TEXT_LENGTH_IF_MEDIA = 40
