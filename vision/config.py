@@ -73,7 +73,9 @@ NBA_TEXT_KEYWORDS = frozenset([
 # Search targeting: X operators appended to every keyword search so the "Latest"
 # tab returns tweets that already have traction (before: 166k of 225k scraped tweets
 # were dropped for too few likes), in English, and not replies themselves.
-SEARCH_MIN_FAVES = int(os.getenv("SEARCH_MIN_FAVES", "15"))
+# = MIN_LIKES: "Latest" search lists the newest tweets above this bar, so a lower bar fills the page with
+# fresh tweets we then drop as too small, and the big ones are already hours old (12 Oct: 88% "too old")
+SEARCH_MIN_FAVES = int(os.getenv("SEARCH_MIN_FAVES", "100"))
 SEARCH_SUFFIX = f" min_faves:{SEARCH_MIN_FAVES} lang:en -filter:replies"
 
 # High-reach NBA accounts: replying early under their posts is where impressions are.

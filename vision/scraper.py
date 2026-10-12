@@ -207,9 +207,9 @@ def _scrape_batch_parallel(context: BrowserContext, main_page: Page, keywords: l
 
 
 def search_url(keyword: str) -> str:
-    """Live search URL. Watchlist queries (from:...) skip the min_faves filter: we want them fresh."""
-    from config import SEARCH_SUFFIX
-    q = keyword if keyword.startswith("(from:") else keyword + SEARCH_SUFFIX
+    """Live search URL. Watchlist queries (from:...) get the same likes bar, minus the language filter."""
+    from config import SEARCH_MIN_FAVES, SEARCH_SUFFIX
+    q = keyword + (f" min_faves:{SEARCH_MIN_FAVES} -filter:replies" if keyword.startswith("(from:") else SEARCH_SUFFIX)
     return TWITTER_SEARCH_BASE.format(query=quote_plus(q))
 
 
