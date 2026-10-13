@@ -46,7 +46,8 @@ def main() -> int:
     if schedule.get("mode") == "auto":
         # no fixed slots: vision/cadence.py spreads the sessions over the day
         from cadence import decide, load_runs
-        d = decide(now, load_runs(RUNS_FILE)) if schedule.get("enabled", True) else {"due": False, "why": "paused", "max": 0}
+        paused = not schedule.get("enabled", True) or str(schedule.get("paused_until") or "") > now.isoformat()
+        d = {"due": False, "why": f"paused until {schedule.get('paused_until')}", "max": 0} if paused else decide(now, load_runs(RUNS_FILE))
         print(f"now={now.isoformat(timespec='minutes')} slot=auto due={d['due']} max={d['max']} why={d['why'].replace(' ', '_')} "
               f"done={d.get('done')} target={d.get('target')} next={d.get('next_after')}")
         return 0
