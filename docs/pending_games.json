@@ -1,7 +1,7 @@
 {
   "specials": [],
   "date": "2026-10-20",
-  "generated_at": "2026-10-20T21:17:08.768769",
+  "generated_at": "2026-10-20T23:07:09.514305",
   "today": "2026-10-20",
   "tomorrow": "2026-10-21",
   "games": [
@@ -18,6 +18,7 @@
       "confidence": 0.6290907748322478,
       "date": "2026-10-20",
       "published": true,
+      "published_at": "2026-10-20T21:21:45.769392",
       "home_code": "NYK",
       "away_code": "PHI",
       "start_utc": "2026-10-20T23:00:00+00:00",
@@ -177,9 +178,167 @@
           "text": "📈 Our probabilities hit 68.6% of winners over 4 seasons of backtests.\n\nEvery pick is posted before tip-off and graded after the final buzzer. No deleting the misses.\n\n🔔 Follow for the full slate every game day.",
           "card": null
         }
-      ],
-      "published_at": "2026-10-20T21:21:45.769392",
-      "tweet_url": "https://x.com/NBAPredictLab/status/2112654806867378267"
+      ]
+    },
+    {
+      "id": "Oklahoma_City_Thunder_vs_San_Antonio_Spurs_2026-10-20",
+      "matchup": "Oklahoma City Thunder @ San Antonio Spurs",
+      "home_team": "San Antonio Spurs",
+      "away_team": "Oklahoma City Thunder",
+      "predicted_winner": "Oklahoma City Thunder",
+      "predicted_home_prob": 0.4906600805576132,
+      "predicted_away_prob": 0.5093399194423869,
+      "home_odds": 1.98,
+      "away_odds": 1.85,
+      "confidence": 0.5093399194423869,
+      "date": "2026-10-20",
+      "published": false,
+      "home_code": "SAS",
+      "away_code": "OKC",
+      "start_utc": "2026-10-21T01:30:00+00:00",
+      "model_home_prob": 0.5743,
+      "market_home_prob": 0.4826,
+      "probability_source": "blend",
+      "own_home_prob": 0.5361,
+      "own_away_prob": 0.4639,
+      "own_model_mode": "full",
+      "market_books": 1,
+      "refreshed_at": "2026-10-20T23:07+00:00",
+      "key_out": {
+        "home": [],
+        "away": []
+      },
+      "thread": [
+        {
+          "text": "🏀 Oklahoma City Thunder at San Antonio Spurs\n🕗 Tue Oct 20, 9:30 PM ET\n\n🎯 Pick: Oklahoma City Thunder (51%)\n📊 Our model 46% · books 52%\n💰 Odds 1.85 · books’ consensus\n\nThe case, and the risk 🧵",
+          "card": {
+            "type": "match",
+            "when": "TUE OCT 20 · 9:30 PM ET",
+            "away": "OKC",
+            "home": "SAS",
+            "away_prob": 0.5093399194423869,
+            "away_sub": "away",
+            "home_sub": "home",
+            "pick_name": "Thunder",
+            "odds": "1.85",
+            "source": "Our model 46% + books 52%",
+            "tape": [
+              {
+                "label": "Last 10",
+                "away": "6-4",
+                "home": "4-6"
+              },
+              {
+                "label": "Net rtg L10",
+                "away": "+2.3",
+                "home": "+1.6"
+              },
+              {
+                "label": "Rest",
+                "away": "6d",
+                "home": "6d"
+              },
+              {
+                "label": "Elo",
+                "away": "1724",
+                "home": "1752"
+              }
+            ]
+          }
+        },
+        {
+          "text": "🏟️ HOME AND AWAY\n\nThunder have won 75% of recent road games; Spurs 65% at home.",
+          "card": {
+            "type": "edge",
+            "away": "OKC",
+            "home": "SAS",
+            "matchup": "Thunder at Spurs · TUE OCT 20 · 9:30 PM ET",
+            "eyebrow": "Reason 1 of 3 · Thunder",
+            "title": "Home and away",
+            "sub": "Thunder have won 75% of recent road games; Spurs 65% at home.",
+            "rows": [
+              {
+                "label": "Win % (road vs home)",
+                "lower_is_better": false,
+                "a": {
+                  "team": "OKC",
+                  "value": 0.75,
+                  "label": "75%"
+                },
+                "b": {
+                  "team": "SAS",
+                  "value": 0.65,
+                  "label": "65%"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "text": "🎯 OFFENSE\n\nThunder score 113.8 points per 100 possessions over their last 10, Spurs 107.6.",
+          "card": {
+            "type": "edge",
+            "away": "OKC",
+            "home": "SAS",
+            "matchup": "Thunder at Spurs · TUE OCT 20 · 9:30 PM ET",
+            "eyebrow": "Reason 2 of 3 · Thunder",
+            "title": "Offense",
+            "sub": "Thunder score 113.8 points per 100 possessions over their last 10, Spurs 107.6.",
+            "rows": [
+              {
+                "label": "Offensive rating",
+                "lower_is_better": false,
+                "a": {
+                  "team": "OKC",
+                  "value": 113.79,
+                  "label": "113.8"
+                },
+                "b": {
+                  "team": "SAS",
+                  "value": 107.5772,
+                  "label": "107.6"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "text": "🏹 FROM DEEP\n\nThunder are hitting 35.9% from three over their last 10, Spurs 33.8%.",
+          "card": {
+            "type": "edge",
+            "away": "OKC",
+            "home": "SAS",
+            "matchup": "Thunder at Spurs · TUE OCT 20 · 9:30 PM ET",
+            "eyebrow": "Reason 3 of 3 · Thunder",
+            "title": "From deep",
+            "sub": "Thunder are hitting 35.9% from three over their last 10, Spurs 33.8%.",
+            "rows": [
+              {
+                "label": "3P%, last 10",
+                "lower_is_better": false,
+                "a": {
+                  "team": "OKC",
+                  "value": 0.359,
+                  "label": "35.9%"
+                },
+                "b": {
+                  "team": "SAS",
+                  "value": 0.3381,
+                  "label": "33.8%"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "text": "⚠️ THE RISK\n\nThunder allow 111.5 per 100 possessions lately, Spurs 106.0.\n\nTeams priced like Spurs tonight still win about 49 times in 100.",
+          "card": null
+        },
+        {
+          "text": "📈 Our probabilities hit 68.6% of winners over 4 seasons of backtests.\n\nEvery pick is posted before tip-off and graded after the final buzzer. No deleting the misses.\n\n🔔 Follow for the full slate every game day.",
+          "card": null
+        }
+      ]
     },
     {
       "id": "Boston_Celtics_vs_Detroit_Pistons_2026-10-20",
@@ -319,166 +478,6 @@
         },
         {
           "text": "⚠️ THE RISK\n\nCeltics are hitting 35.9% from three over their last 10, Pistons 39.4%.\n\nTeams priced like Pistons tonight still win about 49 times in 100.",
-          "card": null
-        },
-        {
-          "text": "📈 Our probabilities hit 68.6% of winners over 4 seasons of backtests.\n\nEvery pick is posted before tip-off and graded after the final buzzer. No deleting the misses.\n\n🔔 Follow for the full slate every game day.",
-          "card": null
-        }
-      ]
-    },
-    {
-      "id": "Oklahoma_City_Thunder_vs_San_Antonio_Spurs_2026-10-20",
-      "matchup": "Oklahoma City Thunder @ San Antonio Spurs",
-      "home_team": "San Antonio Spurs",
-      "away_team": "Oklahoma City Thunder",
-      "predicted_winner": "Oklahoma City Thunder",
-      "predicted_home_prob": 0.4962139686181328,
-      "predicted_away_prob": 0.5037860313818672,
-      "home_odds": 1.95,
-      "away_odds": 1.87,
-      "confidence": 0.5037860313818672,
-      "date": "2026-10-20",
-      "published": false,
-      "home_code": "SAS",
-      "away_code": "OKC",
-      "start_utc": "2026-10-21T01:30:00+00:00",
-      "model_home_prob": 0.5743,
-      "market_home_prob": 0.4892,
-      "probability_source": "blend",
-      "own_home_prob": 0.5361,
-      "own_away_prob": 0.4639,
-      "own_model_mode": "full",
-      "market_books": 1,
-      "refreshed_at": "2026-10-20T21:17+00:00",
-      "key_out": {
-        "home": [],
-        "away": []
-      },
-      "thread": [
-        {
-          "text": "🏀 Oklahoma City Thunder at San Antonio Spurs\n🕗 Tue Oct 20, 9:30 PM ET\n\n🎯 Pick: Oklahoma City Thunder (50%)\n📊 Our model 46% · books 51%\n💰 Odds 1.87 · books’ consensus\n\nThe case, and the risk 🧵",
-          "card": {
-            "type": "match",
-            "when": "TUE OCT 20 · 9:30 PM ET",
-            "away": "OKC",
-            "home": "SAS",
-            "away_prob": 0.5037860313818672,
-            "away_sub": "away",
-            "home_sub": "home",
-            "pick_name": "Thunder",
-            "odds": "1.87",
-            "source": "Our model 46% + books 51%",
-            "tape": [
-              {
-                "label": "Last 10",
-                "away": "6-4",
-                "home": "4-6"
-              },
-              {
-                "label": "Net rtg L10",
-                "away": "+2.3",
-                "home": "+1.6"
-              },
-              {
-                "label": "Rest",
-                "away": "6d",
-                "home": "6d"
-              },
-              {
-                "label": "Elo",
-                "away": "1724",
-                "home": "1752"
-              }
-            ]
-          }
-        },
-        {
-          "text": "🏟️ HOME AND AWAY\n\nThunder have won 75% of recent road games; Spurs 65% at home.",
-          "card": {
-            "type": "edge",
-            "away": "OKC",
-            "home": "SAS",
-            "matchup": "Thunder at Spurs · TUE OCT 20 · 9:30 PM ET",
-            "eyebrow": "Reason 1 of 3 · Thunder",
-            "title": "Home and away",
-            "sub": "Thunder have won 75% of recent road games; Spurs 65% at home.",
-            "rows": [
-              {
-                "label": "Win % (road vs home)",
-                "lower_is_better": false,
-                "a": {
-                  "team": "OKC",
-                  "value": 0.75,
-                  "label": "75%"
-                },
-                "b": {
-                  "team": "SAS",
-                  "value": 0.65,
-                  "label": "65%"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "text": "🎯 OFFENSE\n\nThunder score 113.8 points per 100 possessions over their last 10, Spurs 107.6.",
-          "card": {
-            "type": "edge",
-            "away": "OKC",
-            "home": "SAS",
-            "matchup": "Thunder at Spurs · TUE OCT 20 · 9:30 PM ET",
-            "eyebrow": "Reason 2 of 3 · Thunder",
-            "title": "Offense",
-            "sub": "Thunder score 113.8 points per 100 possessions over their last 10, Spurs 107.6.",
-            "rows": [
-              {
-                "label": "Offensive rating",
-                "lower_is_better": false,
-                "a": {
-                  "team": "OKC",
-                  "value": 113.79,
-                  "label": "113.8"
-                },
-                "b": {
-                  "team": "SAS",
-                  "value": 107.5772,
-                  "label": "107.6"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "text": "🏹 FROM DEEP\n\nThunder are hitting 35.9% from three over their last 10, Spurs 33.8%.",
-          "card": {
-            "type": "edge",
-            "away": "OKC",
-            "home": "SAS",
-            "matchup": "Thunder at Spurs · TUE OCT 20 · 9:30 PM ET",
-            "eyebrow": "Reason 3 of 3 · Thunder",
-            "title": "From deep",
-            "sub": "Thunder are hitting 35.9% from three over their last 10, Spurs 33.8%.",
-            "rows": [
-              {
-                "label": "3P%, last 10",
-                "lower_is_better": false,
-                "a": {
-                  "team": "OKC",
-                  "value": 0.359,
-                  "label": "35.9%"
-                },
-                "b": {
-                  "team": "SAS",
-                  "value": 0.3381,
-                  "label": "33.8%"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "text": "⚠️ THE RISK\n\nThunder allow 111.5 per 100 possessions lately, Spurs 106.0.\n\nTeams priced like Spurs tonight still win about 50 times in 100.",
           "card": null
         },
         {
@@ -2186,6 +2185,7 @@
       "confidence": 0.6290907748322478,
       "date": "2026-10-20",
       "published": true,
+      "published_at": "2026-10-20T21:21:45.769392",
       "home_code": "NYK",
       "away_code": "PHI",
       "start_utc": "2026-10-20T23:00:00+00:00",
@@ -2345,9 +2345,167 @@
           "text": "📈 Our probabilities hit 68.6% of winners over 4 seasons of backtests.\n\nEvery pick is posted before tip-off and graded after the final buzzer. No deleting the misses.\n\n🔔 Follow for the full slate every game day.",
           "card": null
         }
-      ],
-      "published_at": "2026-10-20T21:21:45.769392",
-      "tweet_url": "https://x.com/NBAPredictLab/status/2112654806867378267"
+      ]
+    },
+    {
+      "id": "Oklahoma_City_Thunder_vs_San_Antonio_Spurs_2026-10-20",
+      "matchup": "Oklahoma City Thunder @ San Antonio Spurs",
+      "home_team": "San Antonio Spurs",
+      "away_team": "Oklahoma City Thunder",
+      "predicted_winner": "Oklahoma City Thunder",
+      "predicted_home_prob": 0.4906600805576132,
+      "predicted_away_prob": 0.5093399194423869,
+      "home_odds": 1.98,
+      "away_odds": 1.85,
+      "confidence": 0.5093399194423869,
+      "date": "2026-10-20",
+      "published": false,
+      "home_code": "SAS",
+      "away_code": "OKC",
+      "start_utc": "2026-10-21T01:30:00+00:00",
+      "model_home_prob": 0.5743,
+      "market_home_prob": 0.4826,
+      "probability_source": "blend",
+      "own_home_prob": 0.5361,
+      "own_away_prob": 0.4639,
+      "own_model_mode": "full",
+      "market_books": 1,
+      "refreshed_at": "2026-10-20T23:07+00:00",
+      "key_out": {
+        "home": [],
+        "away": []
+      },
+      "thread": [
+        {
+          "text": "🏀 Oklahoma City Thunder at San Antonio Spurs\n🕗 Tue Oct 20, 9:30 PM ET\n\n🎯 Pick: Oklahoma City Thunder (51%)\n📊 Our model 46% · books 52%\n💰 Odds 1.85 · books’ consensus\n\nThe case, and the risk 🧵",
+          "card": {
+            "type": "match",
+            "when": "TUE OCT 20 · 9:30 PM ET",
+            "away": "OKC",
+            "home": "SAS",
+            "away_prob": 0.5093399194423869,
+            "away_sub": "away",
+            "home_sub": "home",
+            "pick_name": "Thunder",
+            "odds": "1.85",
+            "source": "Our model 46% + books 52%",
+            "tape": [
+              {
+                "label": "Last 10",
+                "away": "6-4",
+                "home": "4-6"
+              },
+              {
+                "label": "Net rtg L10",
+                "away": "+2.3",
+                "home": "+1.6"
+              },
+              {
+                "label": "Rest",
+                "away": "6d",
+                "home": "6d"
+              },
+              {
+                "label": "Elo",
+                "away": "1724",
+                "home": "1752"
+              }
+            ]
+          }
+        },
+        {
+          "text": "🏟️ HOME AND AWAY\n\nThunder have won 75% of recent road games; Spurs 65% at home.",
+          "card": {
+            "type": "edge",
+            "away": "OKC",
+            "home": "SAS",
+            "matchup": "Thunder at Spurs · TUE OCT 20 · 9:30 PM ET",
+            "eyebrow": "Reason 1 of 3 · Thunder",
+            "title": "Home and away",
+            "sub": "Thunder have won 75% of recent road games; Spurs 65% at home.",
+            "rows": [
+              {
+                "label": "Win % (road vs home)",
+                "lower_is_better": false,
+                "a": {
+                  "team": "OKC",
+                  "value": 0.75,
+                  "label": "75%"
+                },
+                "b": {
+                  "team": "SAS",
+                  "value": 0.65,
+                  "label": "65%"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "text": "🎯 OFFENSE\n\nThunder score 113.8 points per 100 possessions over their last 10, Spurs 107.6.",
+          "card": {
+            "type": "edge",
+            "away": "OKC",
+            "home": "SAS",
+            "matchup": "Thunder at Spurs · TUE OCT 20 · 9:30 PM ET",
+            "eyebrow": "Reason 2 of 3 · Thunder",
+            "title": "Offense",
+            "sub": "Thunder score 113.8 points per 100 possessions over their last 10, Spurs 107.6.",
+            "rows": [
+              {
+                "label": "Offensive rating",
+                "lower_is_better": false,
+                "a": {
+                  "team": "OKC",
+                  "value": 113.79,
+                  "label": "113.8"
+                },
+                "b": {
+                  "team": "SAS",
+                  "value": 107.5772,
+                  "label": "107.6"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "text": "🏹 FROM DEEP\n\nThunder are hitting 35.9% from three over their last 10, Spurs 33.8%.",
+          "card": {
+            "type": "edge",
+            "away": "OKC",
+            "home": "SAS",
+            "matchup": "Thunder at Spurs · TUE OCT 20 · 9:30 PM ET",
+            "eyebrow": "Reason 3 of 3 · Thunder",
+            "title": "From deep",
+            "sub": "Thunder are hitting 35.9% from three over their last 10, Spurs 33.8%.",
+            "rows": [
+              {
+                "label": "3P%, last 10",
+                "lower_is_better": false,
+                "a": {
+                  "team": "OKC",
+                  "value": 0.359,
+                  "label": "35.9%"
+                },
+                "b": {
+                  "team": "SAS",
+                  "value": 0.3381,
+                  "label": "33.8%"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "text": "⚠️ THE RISK\n\nThunder allow 111.5 per 100 possessions lately, Spurs 106.0.\n\nTeams priced like Spurs tonight still win about 49 times in 100.",
+          "card": null
+        },
+        {
+          "text": "📈 Our probabilities hit 68.6% of winners over 4 seasons of backtests.\n\nEvery pick is posted before tip-off and graded after the final buzzer. No deleting the misses.\n\n🔔 Follow for the full slate every game day.",
+          "card": null
+        }
+      ]
     },
     {
       "id": "Boston_Celtics_vs_Detroit_Pistons_2026-10-20",
@@ -2487,166 +2645,6 @@
         },
         {
           "text": "⚠️ THE RISK\n\nCeltics are hitting 35.9% from three over their last 10, Pistons 39.4%.\n\nTeams priced like Pistons tonight still win about 49 times in 100.",
-          "card": null
-        },
-        {
-          "text": "📈 Our probabilities hit 68.6% of winners over 4 seasons of backtests.\n\nEvery pick is posted before tip-off and graded after the final buzzer. No deleting the misses.\n\n🔔 Follow for the full slate every game day.",
-          "card": null
-        }
-      ]
-    },
-    {
-      "id": "Oklahoma_City_Thunder_vs_San_Antonio_Spurs_2026-10-20",
-      "matchup": "Oklahoma City Thunder @ San Antonio Spurs",
-      "home_team": "San Antonio Spurs",
-      "away_team": "Oklahoma City Thunder",
-      "predicted_winner": "Oklahoma City Thunder",
-      "predicted_home_prob": 0.4962139686181328,
-      "predicted_away_prob": 0.5037860313818672,
-      "home_odds": 1.95,
-      "away_odds": 1.87,
-      "confidence": 0.5037860313818672,
-      "date": "2026-10-20",
-      "published": false,
-      "home_code": "SAS",
-      "away_code": "OKC",
-      "start_utc": "2026-10-21T01:30:00+00:00",
-      "model_home_prob": 0.5743,
-      "market_home_prob": 0.4892,
-      "probability_source": "blend",
-      "own_home_prob": 0.5361,
-      "own_away_prob": 0.4639,
-      "own_model_mode": "full",
-      "market_books": 1,
-      "refreshed_at": "2026-10-20T21:17+00:00",
-      "key_out": {
-        "home": [],
-        "away": []
-      },
-      "thread": [
-        {
-          "text": "🏀 Oklahoma City Thunder at San Antonio Spurs\n🕗 Tue Oct 20, 9:30 PM ET\n\n🎯 Pick: Oklahoma City Thunder (50%)\n📊 Our model 46% · books 51%\n💰 Odds 1.87 · books’ consensus\n\nThe case, and the risk 🧵",
-          "card": {
-            "type": "match",
-            "when": "TUE OCT 20 · 9:30 PM ET",
-            "away": "OKC",
-            "home": "SAS",
-            "away_prob": 0.5037860313818672,
-            "away_sub": "away",
-            "home_sub": "home",
-            "pick_name": "Thunder",
-            "odds": "1.87",
-            "source": "Our model 46% + books 51%",
-            "tape": [
-              {
-                "label": "Last 10",
-                "away": "6-4",
-                "home": "4-6"
-              },
-              {
-                "label": "Net rtg L10",
-                "away": "+2.3",
-                "home": "+1.6"
-              },
-              {
-                "label": "Rest",
-                "away": "6d",
-                "home": "6d"
-              },
-              {
-                "label": "Elo",
-                "away": "1724",
-                "home": "1752"
-              }
-            ]
-          }
-        },
-        {
-          "text": "🏟️ HOME AND AWAY\n\nThunder have won 75% of recent road games; Spurs 65% at home.",
-          "card": {
-            "type": "edge",
-            "away": "OKC",
-            "home": "SAS",
-            "matchup": "Thunder at Spurs · TUE OCT 20 · 9:30 PM ET",
-            "eyebrow": "Reason 1 of 3 · Thunder",
-            "title": "Home and away",
-            "sub": "Thunder have won 75% of recent road games; Spurs 65% at home.",
-            "rows": [
-              {
-                "label": "Win % (road vs home)",
-                "lower_is_better": false,
-                "a": {
-                  "team": "OKC",
-                  "value": 0.75,
-                  "label": "75%"
-                },
-                "b": {
-                  "team": "SAS",
-                  "value": 0.65,
-                  "label": "65%"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "text": "🎯 OFFENSE\n\nThunder score 113.8 points per 100 possessions over their last 10, Spurs 107.6.",
-          "card": {
-            "type": "edge",
-            "away": "OKC",
-            "home": "SAS",
-            "matchup": "Thunder at Spurs · TUE OCT 20 · 9:30 PM ET",
-            "eyebrow": "Reason 2 of 3 · Thunder",
-            "title": "Offense",
-            "sub": "Thunder score 113.8 points per 100 possessions over their last 10, Spurs 107.6.",
-            "rows": [
-              {
-                "label": "Offensive rating",
-                "lower_is_better": false,
-                "a": {
-                  "team": "OKC",
-                  "value": 113.79,
-                  "label": "113.8"
-                },
-                "b": {
-                  "team": "SAS",
-                  "value": 107.5772,
-                  "label": "107.6"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "text": "🏹 FROM DEEP\n\nThunder are hitting 35.9% from three over their last 10, Spurs 33.8%.",
-          "card": {
-            "type": "edge",
-            "away": "OKC",
-            "home": "SAS",
-            "matchup": "Thunder at Spurs · TUE OCT 20 · 9:30 PM ET",
-            "eyebrow": "Reason 3 of 3 · Thunder",
-            "title": "From deep",
-            "sub": "Thunder are hitting 35.9% from three over their last 10, Spurs 33.8%.",
-            "rows": [
-              {
-                "label": "3P%, last 10",
-                "lower_is_better": false,
-                "a": {
-                  "team": "OKC",
-                  "value": 0.359,
-                  "label": "35.9%"
-                },
-                "b": {
-                  "team": "SAS",
-                  "value": 0.3381,
-                  "label": "33.8%"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "text": "⚠️ THE RISK\n\nThunder allow 111.5 per 100 possessions lately, Spurs 106.0.\n\nTeams priced like Spurs tonight still win about 50 times in 100.",
           "card": null
         },
         {
