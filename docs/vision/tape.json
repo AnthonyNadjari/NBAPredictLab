@@ -1,6 +1,27 @@
 {
  "injuries": [
   {
+   "ts": "2026-10-20T21:46:07+00:00",
+   "team": "Indiana Pacers",
+   "player": "T.J. McConnell",
+   "status": "Out",
+   "comment": "McConnell won't play Wednesday in New Orleans due to a right hamstring strain."
+  },
+  {
+   "ts": "2026-10-20T21:46:07+00:00",
+   "team": "Indiana Pacers",
+   "player": "Aaron Nesmith",
+   "status": "Out",
+   "comment": "Nesmith (hamstring) has been ruled out for Wednesday's game against New Orleans."
+  },
+  {
+   "ts": "2026-10-20T21:46:07+00:00",
+   "team": "Phoenix Suns",
+   "player": "Luke Kennard",
+   "status": "Day-To-Day",
+   "comment": "Kennard (knee) increased his activity in practice Monday, Duane Rankin of the Arizona Republic reports."
+  },
+  {
    "ts": "2026-10-20T21:08:47+00:00",
    "team": "Charlotte Hornets",
    "player": "Kylan Boswell",
@@ -1028,30 +1049,18 @@
    "player": "Pelle Larsson",
    "status": "Day-To-Day",
    "comment": "Larsson (illness) participated in Sunday's practice, Anthony Chiang of the Miami Herald reports."
-  },
-  {
-   "ts": "2026-10-18T17:11:00+00:00",
-   "team": "Miami Heat",
-   "player": "Bam Adebayo",
-   "status": "Day-To-Day",
-   "comment": "Adebayo (groin) participated in Sunday's practice, Ira Winderman of the South Florida Sun Sentinel reports."
-  },
-  {
-   "ts": "2026-10-18T17:07:59+00:00",
-   "team": "Washington Wizards",
-   "player": "AJ Dybantsa",
-   "status": "Day-To-Day",
-   "comment": "Head coach Brian Keefe said Sunday that Dybantsa is day-to-day with an ankle sprain, Kyle Williams of the Chicago Sun-Times reports."
-  },
-  {
-   "ts": "2026-10-18T17:01:47+00:00",
-   "team": "Phoenix Suns",
-   "player": "Luke Kennard",
-   "status": "Day-To-Day",
-   "comment": "Kennard (knee) has been ruled out for the Suns' final game of the preseason Friday against Utah, John Gambadoro of Arizona Sports 98.7 FM reports."
   }
  ],
  "alerts": [
+  {
+   "news_at": "2026-10-20T21:46:07+00:00",
+   "player": "Aaron Nesmith",
+   "team": "IND",
+   "opp": "NOP",
+   "before": 0.585,
+   "after": 0.585,
+   "text": "🚨 INJURY ALERT\n\n❌ Aaron Nesmith is OUT tomorrow vs the Pelicans\n\n📊 17.5 PTS · 30.0 MIN per game (last 10)\n\n📈 Pacers win chance: 58% → 58% \n⏱️ market moved 0 pts in 12 min\n\n#Pacers #NBA"
+  },
   {
    "news_at": "2026-10-20T20:37:01+00:00",
    "player": "Kon Knueppel",
