@@ -1,502 +1,21 @@
 {
   "specials": [],
-  "date": "2026-10-20",
-  "generated_at": "2026-10-20T23:07:09.514305",
-  "today": "2026-10-20",
-  "tomorrow": "2026-10-21",
+  "date": "2026-10-21",
+  "generated_at": "2026-10-21T09:12:20.859920",
+  "today": "2026-10-21",
+  "tomorrow": "2026-10-22",
   "games": [
-    {
-      "id": "Philadelphia_76ers_vs_New_York_Knicks_2026-10-20",
-      "matchup": "Philadelphia 76ers @ New York Knicks",
-      "home_team": "New York Knicks",
-      "away_team": "Philadelphia 76ers",
-      "predicted_winner": "New York Knicks",
-      "predicted_home_prob": 0.6290907748322478,
-      "predicted_away_prob": 0.37090922516775215,
-      "home_odds": 1.56,
-      "away_odds": 2.5,
-      "confidence": 0.6290907748322478,
-      "date": "2026-10-20",
-      "published": true,
-      "published_at": "2026-10-20T21:21:45.769392",
-      "home_code": "NYK",
-      "away_code": "PHI",
-      "start_utc": "2026-10-20T23:00:00+00:00",
-      "model_home_prob": 0.6822,
-      "market_home_prob": 0.6164,
-      "probability_source": "blend",
-      "own_home_prob": 0.6971,
-      "own_away_prob": 0.3029,
-      "own_model_mode": "full",
-      "market_books": 1,
-      "refreshed_at": "2026-10-20T21:17+00:00",
-      "key_out": {
-        "home": [],
-        "away": []
-      },
-      "thread": [
-        {
-          "text": "🏀 Philadelphia 76ers at New York Knicks\n🕗 Tue Oct 20, 7:00 PM ET\n\n🎯 Pick: New York Knicks (63%)\n📊 Our model 70% · books 62%\n💰 Odds 1.56 · books’ consensus\n\nThe case, and the risk 🧵",
-          "card": {
-            "type": "match",
-            "when": "TUE OCT 20 · 7:00 PM ET",
-            "away": "PHI",
-            "home": "NYK",
-            "away_prob": 0.37090922516775215,
-            "away_sub": "away",
-            "home_sub": "home",
-            "pick_name": "Knicks",
-            "odds": "1.56",
-            "source": "Our model 70% + books 62%",
-            "tape": [
-              {
-                "label": "Last 10",
-                "away": "4-6",
-                "home": "9-1"
-              },
-              {
-                "label": "Net rtg L10",
-                "away": "-7.9",
-                "home": "+12.0"
-              },
-              {
-                "label": "Rest",
-                "away": "6d",
-                "home": "6d"
-              },
-              {
-                "label": "Elo",
-                "away": "1570",
-                "home": "1806"
-              }
-            ]
-          }
-        },
-        {
-          "text": "🛡️ DEFENSE\n\nKnicks allow 103.8 per 100 possessions lately, 76ers 117.9.",
-          "card": {
-            "type": "edge",
-            "away": "PHI",
-            "home": "NYK",
-            "matchup": "76ers at Knicks · TUE OCT 20 · 7:00 PM ET",
-            "eyebrow": "Reason 1 of 3 · Knicks",
-            "title": "Defense",
-            "sub": "Knicks allow 103.8 per 100 possessions lately, 76ers 117.9.",
-            "rows": [
-              {
-                "label": "Defensive rating (lower is better)",
-                "lower_is_better": true,
-                "a": {
-                  "team": "NYK",
-                  "value": 103.7703,
-                  "label": "103.8"
-                },
-                "b": {
-                  "team": "PHI",
-                  "value": 117.8805,
-                  "label": "117.9"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "text": "🔥 RECENT FORM\n\nLast 10 games: Knicks 9-1, net rating +12.0. 76ers 4-6, -7.9.",
-          "card": {
-            "type": "edge",
-            "away": "PHI",
-            "home": "NYK",
-            "matchup": "76ers at Knicks · TUE OCT 20 · 7:00 PM ET",
-            "eyebrow": "Reason 2 of 3 · Knicks",
-            "title": "Recent form",
-            "sub": "Last 10 games: Knicks 9-1, net rating +12.0. 76ers 4-6, -7.9.",
-            "rows": [
-              {
-                "label": "Net rating, last 10",
-                "lower_is_better": false,
-                "a": {
-                  "team": "NYK",
-                  "value": 12.0214,
-                  "label": "+12.0"
-                },
-                "b": {
-                  "team": "PHI",
-                  "value": -7.8983,
-                  "label": "-7.9"
-                }
-              },
-              {
-                "label": "Record, last 10",
-                "lower_is_better": false,
-                "a": {
-                  "team": "NYK",
-                  "value": 0.9,
-                  "label": "9-1"
-                },
-                "b": {
-                  "team": "PHI",
-                  "value": 0.4,
-                  "label": "4-6"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "text": "🏟️ HOME AND AWAY\n\nKnicks have won 80% at home lately; 76ers 45% on the road.",
-          "card": {
-            "type": "edge",
-            "away": "PHI",
-            "home": "NYK",
-            "matchup": "76ers at Knicks · TUE OCT 20 · 7:00 PM ET",
-            "eyebrow": "Reason 3 of 3 · Knicks",
-            "title": "Home and away",
-            "sub": "Knicks have won 80% at home lately; 76ers 45% on the road.",
-            "rows": [
-              {
-                "label": "Win % (home vs road)",
-                "lower_is_better": false,
-                "a": {
-                  "team": "NYK",
-                  "value": 0.8,
-                  "label": "80%"
-                },
-                "b": {
-                  "team": "PHI",
-                  "value": 0.45,
-                  "label": "45%"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "text": "⚠️ THE RISK\n\nNothing big flags against the Knicks. But 63% is not 100%: priced like this, 76ers win about 37 times in 100.",
-          "card": null
-        },
-        {
-          "text": "📈 Our probabilities hit 68.6% of winners over 4 seasons of backtests.\n\nEvery pick is posted before tip-off and graded after the final buzzer. No deleting the misses.\n\n🔔 Follow for the full slate every game day.",
-          "card": null
-        }
-      ]
-    },
-    {
-      "id": "Oklahoma_City_Thunder_vs_San_Antonio_Spurs_2026-10-20",
-      "matchup": "Oklahoma City Thunder @ San Antonio Spurs",
-      "home_team": "San Antonio Spurs",
-      "away_team": "Oklahoma City Thunder",
-      "predicted_winner": "Oklahoma City Thunder",
-      "predicted_home_prob": 0.4906600805576132,
-      "predicted_away_prob": 0.5093399194423869,
-      "home_odds": 1.98,
-      "away_odds": 1.85,
-      "confidence": 0.5093399194423869,
-      "date": "2026-10-20",
-      "published": false,
-      "home_code": "SAS",
-      "away_code": "OKC",
-      "start_utc": "2026-10-21T01:30:00+00:00",
-      "model_home_prob": 0.5743,
-      "market_home_prob": 0.4826,
-      "probability_source": "blend",
-      "own_home_prob": 0.5361,
-      "own_away_prob": 0.4639,
-      "own_model_mode": "full",
-      "market_books": 1,
-      "refreshed_at": "2026-10-20T23:07+00:00",
-      "key_out": {
-        "home": [],
-        "away": []
-      },
-      "thread": [
-        {
-          "text": "🏀 Oklahoma City Thunder at San Antonio Spurs\n🕗 Tue Oct 20, 9:30 PM ET\n\n🎯 Pick: Oklahoma City Thunder (51%)\n📊 Our model 46% · books 52%\n💰 Odds 1.85 · books’ consensus\n\nThe case, and the risk 🧵",
-          "card": {
-            "type": "match",
-            "when": "TUE OCT 20 · 9:30 PM ET",
-            "away": "OKC",
-            "home": "SAS",
-            "away_prob": 0.5093399194423869,
-            "away_sub": "away",
-            "home_sub": "home",
-            "pick_name": "Thunder",
-            "odds": "1.85",
-            "source": "Our model 46% + books 52%",
-            "tape": [
-              {
-                "label": "Last 10",
-                "away": "6-4",
-                "home": "4-6"
-              },
-              {
-                "label": "Net rtg L10",
-                "away": "+2.3",
-                "home": "+1.6"
-              },
-              {
-                "label": "Rest",
-                "away": "6d",
-                "home": "6d"
-              },
-              {
-                "label": "Elo",
-                "away": "1724",
-                "home": "1752"
-              }
-            ]
-          }
-        },
-        {
-          "text": "🏟️ HOME AND AWAY\n\nThunder have won 75% of recent road games; Spurs 65% at home.",
-          "card": {
-            "type": "edge",
-            "away": "OKC",
-            "home": "SAS",
-            "matchup": "Thunder at Spurs · TUE OCT 20 · 9:30 PM ET",
-            "eyebrow": "Reason 1 of 3 · Thunder",
-            "title": "Home and away",
-            "sub": "Thunder have won 75% of recent road games; Spurs 65% at home.",
-            "rows": [
-              {
-                "label": "Win % (road vs home)",
-                "lower_is_better": false,
-                "a": {
-                  "team": "OKC",
-                  "value": 0.75,
-                  "label": "75%"
-                },
-                "b": {
-                  "team": "SAS",
-                  "value": 0.65,
-                  "label": "65%"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "text": "🎯 OFFENSE\n\nThunder score 113.8 points per 100 possessions over their last 10, Spurs 107.6.",
-          "card": {
-            "type": "edge",
-            "away": "OKC",
-            "home": "SAS",
-            "matchup": "Thunder at Spurs · TUE OCT 20 · 9:30 PM ET",
-            "eyebrow": "Reason 2 of 3 · Thunder",
-            "title": "Offense",
-            "sub": "Thunder score 113.8 points per 100 possessions over their last 10, Spurs 107.6.",
-            "rows": [
-              {
-                "label": "Offensive rating",
-                "lower_is_better": false,
-                "a": {
-                  "team": "OKC",
-                  "value": 113.79,
-                  "label": "113.8"
-                },
-                "b": {
-                  "team": "SAS",
-                  "value": 107.5772,
-                  "label": "107.6"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "text": "🏹 FROM DEEP\n\nThunder are hitting 35.9% from three over their last 10, Spurs 33.8%.",
-          "card": {
-            "type": "edge",
-            "away": "OKC",
-            "home": "SAS",
-            "matchup": "Thunder at Spurs · TUE OCT 20 · 9:30 PM ET",
-            "eyebrow": "Reason 3 of 3 · Thunder",
-            "title": "From deep",
-            "sub": "Thunder are hitting 35.9% from three over their last 10, Spurs 33.8%.",
-            "rows": [
-              {
-                "label": "3P%, last 10",
-                "lower_is_better": false,
-                "a": {
-                  "team": "OKC",
-                  "value": 0.359,
-                  "label": "35.9%"
-                },
-                "b": {
-                  "team": "SAS",
-                  "value": 0.3381,
-                  "label": "33.8%"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "text": "⚠️ THE RISK\n\nThunder allow 111.5 per 100 possessions lately, Spurs 106.0.\n\nTeams priced like Spurs tonight still win about 49 times in 100.",
-          "card": null
-        },
-        {
-          "text": "📈 Our probabilities hit 68.6% of winners over 4 seasons of backtests.\n\nEvery pick is posted before tip-off and graded after the final buzzer. No deleting the misses.\n\n🔔 Follow for the full slate every game day.",
-          "card": null
-        }
-      ]
-    },
-    {
-      "id": "Boston_Celtics_vs_Detroit_Pistons_2026-10-20",
-      "matchup": "Boston Celtics @ Detroit Pistons",
-      "home_team": "Detroit Pistons",
-      "away_team": "Boston Celtics",
-      "predicted_winner": "Boston Celtics",
-      "predicted_home_prob": 0.4942120895204795,
-      "predicted_away_prob": 0.5057879104795204,
-      "home_odds": 1.95,
-      "away_odds": 1.87,
-      "confidence": 0.5057879104795204,
-      "date": "2026-10-20",
-      "published": false,
-      "home_code": "DET",
-      "away_code": "BOS",
-      "start_utc": "2026-10-20T19:00:00+00:00",
-      "model_home_prob": 0.5685,
-      "market_home_prob": 0.4892,
-      "probability_source": "blend",
-      "own_home_prob": 0.5228,
-      "own_away_prob": 0.4772,
-      "own_model_mode": "full",
-      "market_books": 1,
-      "refreshed_at": "2026-10-20T09:11+00:00",
-      "key_out": {
-        "home": [],
-        "away": []
-      },
-      "thread": [
-        {
-          "text": "🏀 Boston Celtics at Detroit Pistons\n🕗 Tue Oct 20, 3:00 PM ET\n\n🎯 Pick: Boston Celtics (51%)\n📊 Our model 48% · books 51%\n💰 Odds 1.87 · books’ consensus\n\nThe case, and the risk 🧵",
-          "card": {
-            "type": "match",
-            "when": "TUE OCT 20 · 3:00 PM ET",
-            "away": "BOS",
-            "home": "DET",
-            "away_prob": 0.5057879104795204,
-            "away_sub": "away",
-            "home_sub": "home",
-            "pick_name": "Celtics",
-            "odds": "1.87",
-            "source": "Our model 48% + books 51%",
-            "tape": [
-              {
-                "label": "Last 10",
-                "away": "5-5",
-                "home": "6-4"
-              },
-              {
-                "label": "Net rtg L10",
-                "away": "+4.1",
-                "home": "+3.9"
-              },
-              {
-                "label": "Rest",
-                "away": "6d",
-                "home": "6d"
-              },
-              {
-                "label": "Elo",
-                "away": "1604",
-                "home": "1622"
-              }
-            ]
-          }
-        },
-        {
-          "text": "🎯 OFFENSE\n\nCeltics score 114.1 points per 100 possessions over their last 10, Pistons 113.3.",
-          "card": {
-            "type": "edge",
-            "away": "BOS",
-            "home": "DET",
-            "matchup": "Celtics at Pistons · TUE OCT 20 · 3:00 PM ET",
-            "eyebrow": "Reason 1 of 2 · Celtics",
-            "title": "Offense",
-            "sub": "Celtics score 114.1 points per 100 possessions over their last 10, Pistons 113.3.",
-            "rows": [
-              {
-                "label": "Offensive rating",
-                "lower_is_better": false,
-                "a": {
-                  "team": "BOS",
-                  "value": 114.0718,
-                  "label": "114.1"
-                },
-                "b": {
-                  "team": "DET",
-                  "value": 113.2857,
-                  "label": "113.3"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "text": "🔥 RECENT FORM\n\nLast 10 games: Celtics 5-5, net rating +4.1. Pistons 6-4, +3.9.",
-          "card": {
-            "type": "edge",
-            "away": "BOS",
-            "home": "DET",
-            "matchup": "Celtics at Pistons · TUE OCT 20 · 3:00 PM ET",
-            "eyebrow": "Reason 2 of 2 · Celtics",
-            "title": "Recent form",
-            "sub": "Last 10 games: Celtics 5-5, net rating +4.1. Pistons 6-4, +3.9.",
-            "rows": [
-              {
-                "label": "Net rating, last 10",
-                "lower_is_better": false,
-                "a": {
-                  "team": "BOS",
-                  "value": 4.0573,
-                  "label": "+4.1"
-                },
-                "b": {
-                  "team": "DET",
-                  "value": 3.9457,
-                  "label": "+3.9"
-                }
-              },
-              {
-                "label": "Record, last 10",
-                "lower_is_better": false,
-                "a": {
-                  "team": "BOS",
-                  "value": 0.5,
-                  "label": "5-5"
-                },
-                "b": {
-                  "team": "DET",
-                  "value": 0.6,
-                  "label": "6-4"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "text": "⚠️ THE RISK\n\nCeltics are hitting 35.9% from three over their last 10, Pistons 39.4%.\n\nTeams priced like Pistons tonight still win about 49 times in 100.",
-          "card": null
-        },
-        {
-          "text": "📈 Our probabilities hit 68.6% of winners over 4 seasons of backtests.\n\nEvery pick is posted before tip-off and graded after the final buzzer. No deleting the misses.\n\n🔔 Follow for the full slate every game day.",
-          "card": null
-        }
-      ]
-    },
     {
       "id": "Chicago_Bulls_vs_Toronto_Raptors_2026-10-21",
       "matchup": "Chicago Bulls @ Toronto Raptors",
       "home_team": "Toronto Raptors",
       "away_team": "Chicago Bulls",
       "predicted_winner": "Toronto Raptors",
-      "predicted_home_prob": 0.7675090838085292,
-      "predicted_away_prob": 0.23249091619147078,
+      "predicted_home_prob": 0.7673403744220093,
+      "predicted_away_prob": 0.2326596255779907,
       "home_odds": 1.24,
       "away_odds": 4.3,
-      "confidence": 0.7675090838085292,
+      "confidence": 0.7673403744220093,
       "date": "2026-10-21",
       "published": false,
       "home_code": "TOR",
@@ -505,11 +24,11 @@
       "model_home_prob": 0.6642,
       "market_home_prob": 0.7768,
       "probability_source": "blend",
-      "own_home_prob": 0.7097,
-      "own_away_prob": 0.2903,
+      "own_home_prob": 0.7084,
+      "own_away_prob": 0.2916,
       "own_model_mode": "full",
       "market_books": 1,
-      "refreshed_at": "2026-10-20T09:11+00:00",
+      "refreshed_at": "2026-10-21T09:12+00:00",
       "key_out": {
         "home": [],
         "away": []
@@ -522,7 +41,7 @@
             "when": "WED OCT 21 · 7:30 PM ET",
             "away": "CHI",
             "home": "TOR",
-            "away_prob": 0.23249091619147078,
+            "away_prob": 0.2326596255779907,
             "away_sub": "away",
             "home_sub": "home",
             "pick_name": "Raptors",
@@ -666,42 +185,42 @@
       "home_team": "Houston Rockets",
       "away_team": "Dallas Mavericks",
       "predicted_winner": "Houston Rockets",
-      "predicted_home_prob": 0.7525554878743053,
-      "predicted_away_prob": 0.24744451212569474,
-      "home_odds": 1.27,
-      "away_odds": 3.95,
-      "confidence": 0.7525554878743053,
+      "predicted_home_prob": 0.746903785688072,
+      "predicted_away_prob": 0.25309621431192797,
+      "home_odds": 1.28,
+      "away_odds": 3.85,
+      "confidence": 0.746903785688072,
       "date": "2026-10-21",
       "published": false,
       "home_code": "HOU",
       "away_code": "DAL",
       "start_utc": "2026-10-22T00:30:00+00:00",
       "model_home_prob": 0.6684,
-      "market_home_prob": 0.7572,
+      "market_home_prob": 0.7508,
       "probability_source": "blend",
-      "own_home_prob": 0.7252,
-      "own_away_prob": 0.2748,
+      "own_home_prob": 0.724,
+      "own_away_prob": 0.276,
       "own_model_mode": "full",
       "market_books": 1,
-      "refreshed_at": "2026-10-20T09:11+00:00",
+      "refreshed_at": "2026-10-21T09:12+00:00",
       "key_out": {
         "home": [],
         "away": []
       },
       "thread": [
         {
-          "text": "🏀 Dallas Mavericks at Houston Rockets\n🕗 Wed Oct 21, 8:30 PM ET\n\n🎯 Pick: Houston Rockets (75%)\n📊 Our model 73% · books 76%\n💰 Odds 1.27 · books’ consensus\n\nThe case, and the risk 🧵",
+          "text": "🏀 Dallas Mavericks at Houston Rockets\n🕗 Wed Oct 21, 8:30 PM ET\n\n🎯 Pick: Houston Rockets (75%)\n📊 Our model 72% · books 75%\n💰 Odds 1.28 · books’ consensus\n\nThe case, and the risk 🧵",
           "card": {
             "type": "match",
             "when": "WED OCT 21 · 8:30 PM ET",
             "away": "DAL",
             "home": "HOU",
-            "away_prob": 0.24744451212569474,
+            "away_prob": 0.25309621431192797,
             "away_sub": "away",
             "home_sub": "home",
             "pick_name": "Rockets",
-            "odds": "1.27",
-            "source": "Our model 73% + books 76%",
+            "odds": "1.28",
+            "source": "Our model 72% + books 75%",
             "tape": [
               {
                 "label": "Last 10",
@@ -821,207 +340,47 @@
       ]
     },
     {
-      "id": "Golden_State_Warriors_vs_Los_Angeles_Lakers_2026-10-21",
-      "matchup": "Golden State Warriors @ Los Angeles Lakers",
-      "home_team": "Los Angeles Lakers",
-      "away_team": "Golden State Warriors",
-      "predicted_winner": "Los Angeles Lakers",
-      "predicted_home_prob": 0.6544368882039929,
-      "predicted_away_prob": 0.34556311179600707,
-      "home_odds": 1.44,
-      "away_odds": 2.85,
-      "confidence": 0.6544368882039929,
-      "date": "2026-10-21",
-      "published": false,
-      "home_code": "LAL",
-      "away_code": "GSW",
-      "start_utc": "2026-10-22T02:00:00+00:00",
-      "model_home_prob": 0.652,
-      "market_home_prob": 0.6636,
-      "probability_source": "blend",
-      "own_home_prob": 0.6002,
-      "own_away_prob": 0.3998,
-      "own_model_mode": "full",
-      "market_books": 1,
-      "refreshed_at": "2026-10-20T09:11+00:00",
-      "key_out": {
-        "home": [],
-        "away": []
-      },
-      "thread": [
-        {
-          "text": "🏀 Golden State Warriors at Los Angeles Lakers\n🕗 Wed Oct 21, 10:00 PM ET\n\n🎯 Pick: Los Angeles Lakers (65%)\n📊 Our model 60% · books 66%\n💰 Odds 1.44 · books’ consensus\n\nThe case, and the risk 🧵",
-          "card": {
-            "type": "match",
-            "when": "WED OCT 21 · 10:00 PM ET",
-            "away": "GSW",
-            "home": "LAL",
-            "away_prob": 0.34556311179600707,
-            "away_sub": "away",
-            "home_sub": "home",
-            "pick_name": "Lakers",
-            "odds": "1.44",
-            "source": "Our model 60% + books 66%",
-            "tape": [
-              {
-                "label": "Last 10",
-                "away": "2-8",
-                "home": "4-6"
-              },
-              {
-                "label": "Net rtg L10",
-                "away": "-8.1",
-                "home": "-5.1"
-              },
-              {
-                "label": "Rest",
-                "away": "6d",
-                "home": "6d"
-              },
-              {
-                "label": "Elo",
-                "away": "1405",
-                "home": "1580"
-              }
-            ]
-          }
-        },
-        {
-          "text": "🏟️ HOME AND AWAY\n\nLakers have won 70% at home lately; Warriors 35% on the road.",
-          "card": {
-            "type": "edge",
-            "away": "GSW",
-            "home": "LAL",
-            "matchup": "Warriors at Lakers · WED OCT 21 · 10:00 PM ET",
-            "eyebrow": "Reason 1 of 3 · Lakers",
-            "title": "Home and away",
-            "sub": "Lakers have won 70% at home lately; Warriors 35% on the road.",
-            "rows": [
-              {
-                "label": "Win % (home vs road)",
-                "lower_is_better": false,
-                "a": {
-                  "team": "LAL",
-                  "value": 0.7,
-                  "label": "70%"
-                },
-                "b": {
-                  "team": "GSW",
-                  "value": 0.35,
-                  "label": "35%"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "text": "🛡️ DEFENSE\n\nLakers allow 112.1 per 100 possessions lately, Warriors 120.7.",
-          "card": {
-            "type": "edge",
-            "away": "GSW",
-            "home": "LAL",
-            "matchup": "Warriors at Lakers · WED OCT 21 · 10:00 PM ET",
-            "eyebrow": "Reason 2 of 3 · Lakers",
-            "title": "Defense",
-            "sub": "Lakers allow 112.1 per 100 possessions lately, Warriors 120.7.",
-            "rows": [
-              {
-                "label": "Defensive rating (lower is better)",
-                "lower_is_better": true,
-                "a": {
-                  "team": "LAL",
-                  "value": 112.1271,
-                  "label": "112.1"
-                },
-                "b": {
-                  "team": "GSW",
-                  "value": 120.6542,
-                  "label": "120.7"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "text": "📊 POWER RATING\n\nElo has Lakers at 1580, Warriors at 1405. A real gap in team strength.",
-          "card": {
-            "type": "edge",
-            "away": "GSW",
-            "home": "LAL",
-            "matchup": "Warriors at Lakers · WED OCT 21 · 10:00 PM ET",
-            "eyebrow": "Reason 3 of 3 · Lakers",
-            "title": "Power rating",
-            "sub": "Elo has Lakers at 1580, Warriors at 1405. A real gap in team strength.",
-            "rows": [
-              {
-                "label": "Elo rating",
-                "lower_is_better": false,
-                "a": {
-                  "team": "LAL",
-                  "value": 1580.1878,
-                  "label": "1580"
-                },
-                "b": {
-                  "team": "GSW",
-                  "value": 1404.5909,
-                  "label": "1405"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "text": "⚠️ THE RISK\n\nLakers score 107.0 points per 100 possessions over their last 10, Warriors 112.6.\n\nTeams priced like Warriors tonight still win about 35 times in 100.",
-          "card": null
-        },
-        {
-          "text": "📈 Our probabilities hit 68.6% of winners over 4 seasons of backtests.\n\nEvery pick is posted before tip-off and graded after the final buzzer. No deleting the misses.\n\n🔔 Follow for the full slate every game day.",
-          "card": null
-        }
-      ]
-    },
-    {
       "id": "Sacramento_Kings_vs_LA_Clippers_2026-10-21",
       "matchup": "Sacramento Kings @ LA Clippers",
       "home_team": "LA Clippers",
       "away_team": "Sacramento Kings",
       "predicted_winner": "LA Clippers",
-      "predicted_home_prob": 0.6349587941883075,
-      "predicted_away_prob": 0.3650412058116925,
-      "home_odds": 1.56,
-      "away_odds": 2.5,
-      "confidence": 0.6349587941883075,
+      "predicted_home_prob": 0.6517237406142182,
+      "predicted_away_prob": 0.3482762593857818,
+      "home_odds": 1.51,
+      "away_odds": 2.64,
+      "confidence": 0.6517237406142182,
       "date": "2026-10-21",
       "published": false,
       "home_code": "LAC",
       "away_code": "SAC",
       "start_utc": "2026-10-22T02:30:00+00:00",
       "model_home_prob": 0.628,
-      "market_home_prob": 0.6164,
+      "market_home_prob": 0.6369,
       "probability_source": "blend",
-      "own_home_prob": 0.7314,
-      "own_away_prob": 0.2686,
+      "own_home_prob": 0.7297,
+      "own_away_prob": 0.2703,
       "own_model_mode": "full",
       "market_books": 1,
-      "refreshed_at": "2026-10-20T09:11+00:00",
+      "refreshed_at": "2026-10-21T09:12+00:00",
       "key_out": {
         "home": [],
         "away": []
       },
       "thread": [
         {
-          "text": "🏀 Sacramento Kings at LA Clippers\n🕗 Wed Oct 21, 10:30 PM ET\n\n🎯 Pick: LA Clippers (63%)\n📊 Our model 73% · books 62%\n💰 Odds 1.56 · books’ consensus\n\nThe case, and the risk 🧵",
+          "text": "🏀 Sacramento Kings at LA Clippers\n🕗 Wed Oct 21, 10:30 PM ET\n\n🎯 Pick: LA Clippers (65%)\n📊 Our model 73% · books 64%\n💰 Odds 1.51 · books’ consensus\n\nThe case, and the risk 🧵",
           "card": {
             "type": "match",
             "when": "WED OCT 21 · 10:30 PM ET",
             "away": "SAC",
             "home": "LAC",
-            "away_prob": 0.3650412058116925,
+            "away_prob": 0.3482762593857818,
             "away_sub": "away",
             "home_sub": "home",
             "pick_name": "Clippers",
-            "odds": "1.56",
-            "source": "Our model 73% + books 62%",
+            "odds": "1.51",
+            "source": "Our model 73% + books 64%",
             "tape": [
               {
                 "label": "Last 10",
@@ -1145,7 +504,167 @@
           }
         },
         {
-          "text": "⚠️ THE RISK\n\nNothing big flags against the Clippers. But 63% is not 100%: priced like this, Kings win about 37 times in 100.",
+          "text": "⚠️ THE RISK\n\nNothing big flags against the Clippers. But 65% is not 100%: priced like this, Kings win about 35 times in 100.",
+          "card": null
+        },
+        {
+          "text": "📈 Our probabilities hit 68.6% of winners over 4 seasons of backtests.\n\nEvery pick is posted before tip-off and graded after the final buzzer. No deleting the misses.\n\n🔔 Follow for the full slate every game day.",
+          "card": null
+        }
+      ]
+    },
+    {
+      "id": "Golden_State_Warriors_vs_Los_Angeles_Lakers_2026-10-21",
+      "matchup": "Golden State Warriors @ Los Angeles Lakers",
+      "home_team": "Los Angeles Lakers",
+      "away_team": "Golden State Warriors",
+      "predicted_winner": "Los Angeles Lakers",
+      "predicted_home_prob": 0.6487416362748805,
+      "predicted_away_prob": 0.35125836372511954,
+      "home_odds": 1.46,
+      "away_odds": 2.8,
+      "confidence": 0.6487416362748805,
+      "date": "2026-10-21",
+      "published": false,
+      "home_code": "LAL",
+      "away_code": "GSW",
+      "start_utc": "2026-10-22T02:00:00+00:00",
+      "model_home_prob": 0.652,
+      "market_home_prob": 0.6575,
+      "probability_source": "blend",
+      "own_home_prob": 0.5975,
+      "own_away_prob": 0.4025,
+      "own_model_mode": "full",
+      "market_books": 1,
+      "refreshed_at": "2026-10-21T09:12+00:00",
+      "key_out": {
+        "home": [],
+        "away": []
+      },
+      "thread": [
+        {
+          "text": "🏀 Golden State Warriors at Los Angeles Lakers\n🕗 Wed Oct 21, 10:00 PM ET\n\n🎯 Pick: Los Angeles Lakers (65%)\n📊 Our model 60% · books 66%\n💰 Odds 1.46 · books’ consensus\n\nThe case, and the risk 🧵",
+          "card": {
+            "type": "match",
+            "when": "WED OCT 21 · 10:00 PM ET",
+            "away": "GSW",
+            "home": "LAL",
+            "away_prob": 0.35125836372511954,
+            "away_sub": "away",
+            "home_sub": "home",
+            "pick_name": "Lakers",
+            "odds": "1.46",
+            "source": "Our model 60% + books 66%",
+            "tape": [
+              {
+                "label": "Last 10",
+                "away": "2-8",
+                "home": "4-6"
+              },
+              {
+                "label": "Net rtg L10",
+                "away": "-8.1",
+                "home": "-5.1"
+              },
+              {
+                "label": "Rest",
+                "away": "6d",
+                "home": "6d"
+              },
+              {
+                "label": "Elo",
+                "away": "1405",
+                "home": "1580"
+              }
+            ]
+          }
+        },
+        {
+          "text": "🏟️ HOME AND AWAY\n\nLakers have won 70% at home lately; Warriors 35% on the road.",
+          "card": {
+            "type": "edge",
+            "away": "GSW",
+            "home": "LAL",
+            "matchup": "Warriors at Lakers · WED OCT 21 · 10:00 PM ET",
+            "eyebrow": "Reason 1 of 3 · Lakers",
+            "title": "Home and away",
+            "sub": "Lakers have won 70% at home lately; Warriors 35% on the road.",
+            "rows": [
+              {
+                "label": "Win % (home vs road)",
+                "lower_is_better": false,
+                "a": {
+                  "team": "LAL",
+                  "value": 0.7,
+                  "label": "70%"
+                },
+                "b": {
+                  "team": "GSW",
+                  "value": 0.35,
+                  "label": "35%"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "text": "🛡️ DEFENSE\n\nLakers allow 112.1 per 100 possessions lately, Warriors 120.7.",
+          "card": {
+            "type": "edge",
+            "away": "GSW",
+            "home": "LAL",
+            "matchup": "Warriors at Lakers · WED OCT 21 · 10:00 PM ET",
+            "eyebrow": "Reason 2 of 3 · Lakers",
+            "title": "Defense",
+            "sub": "Lakers allow 112.1 per 100 possessions lately, Warriors 120.7.",
+            "rows": [
+              {
+                "label": "Defensive rating (lower is better)",
+                "lower_is_better": true,
+                "a": {
+                  "team": "LAL",
+                  "value": 112.1271,
+                  "label": "112.1"
+                },
+                "b": {
+                  "team": "GSW",
+                  "value": 120.6542,
+                  "label": "120.7"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "text": "📊 POWER RATING\n\nElo has Lakers at 1580, Warriors at 1405. A real gap in team strength.",
+          "card": {
+            "type": "edge",
+            "away": "GSW",
+            "home": "LAL",
+            "matchup": "Warriors at Lakers · WED OCT 21 · 10:00 PM ET",
+            "eyebrow": "Reason 3 of 3 · Lakers",
+            "title": "Power rating",
+            "sub": "Elo has Lakers at 1580, Warriors at 1405. A real gap in team strength.",
+            "rows": [
+              {
+                "label": "Elo rating",
+                "lower_is_better": false,
+                "a": {
+                  "team": "LAL",
+                  "value": 1580.1878,
+                  "label": "1580"
+                },
+                "b": {
+                  "team": "GSW",
+                  "value": 1404.5909,
+                  "label": "1405"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "text": "⚠️ THE RISK\n\nLakers score 107.0 points per 100 possessions over their last 10, Warriors 112.6.\n\nTeams priced like Warriors tonight still win about 35 times in 100.",
           "card": null
         },
         {
@@ -1160,42 +679,42 @@
       "home_team": "Washington Wizards",
       "away_team": "Milwaukee Bucks",
       "predicted_winner": "Washington Wizards",
-      "predicted_home_prob": 0.6167838794406699,
-      "predicted_away_prob": 0.3832161205593301,
-      "home_odds": 1.51,
-      "away_odds": 2.64,
-      "confidence": 0.6167838794406699,
+      "predicted_home_prob": 0.5988292158516987,
+      "predicted_away_prob": 0.4011707841483013,
+      "home_odds": 1.56,
+      "away_odds": 2.5,
+      "confidence": 0.5988292158516987,
       "date": "2026-10-21",
       "published": false,
       "home_code": "WAS",
       "away_code": "MIL",
       "start_utc": "2026-10-21T23:00:00+00:00",
       "model_home_prob": 0.4824,
-      "market_home_prob": 0.6369,
+      "market_home_prob": 0.6164,
       "probability_source": "blend",
-      "own_home_prob": 0.4971,
-      "own_away_prob": 0.5029,
+      "own_home_prob": 0.4955,
+      "own_away_prob": 0.5045,
       "own_model_mode": "full",
       "market_books": 1,
-      "refreshed_at": "2026-10-20T09:11+00:00",
+      "refreshed_at": "2026-10-21T09:12+00:00",
       "key_out": {
         "home": [],
         "away": []
       },
       "thread": [
         {
-          "text": "🏀 Milwaukee Bucks at Washington Wizards\n🕗 Wed Oct 21, 7:00 PM ET\n\n🎯 Pick: Washington Wizards (62%)\n📊 Our model 50% · books 64%\n💰 Odds 1.51 · books’ consensus\n\nThe case, and the risk 🧵",
+          "text": "🏀 Milwaukee Bucks at Washington Wizards\n🕗 Wed Oct 21, 7:00 PM ET\n\n🎯 Pick: Washington Wizards (60%)\n📊 Our model 50% · books 62%\n💰 Odds 1.56 · books’ consensus\n\nThe case, and the risk 🧵",
           "card": {
             "type": "match",
             "when": "WED OCT 21 · 7:00 PM ET",
             "away": "MIL",
             "home": "WAS",
-            "away_prob": 0.3832161205593301,
+            "away_prob": 0.4011707841483013,
             "away_sub": "away",
             "home_sub": "home",
             "pick_name": "Wizards",
-            "odds": "1.51",
-            "source": "Our model 50% + books 64%",
+            "odds": "1.56",
+            "source": "Our model 50% + books 62%",
             "tape": [
               {
                 "label": "Last 10",
@@ -1221,331 +740,7 @@
           }
         },
         {
-          "text": "⚠️ THE RISK\n\nWizards are hitting 34.8% from three over their last 10, Bucks 39.5%.\n\nTeams priced like Bucks tonight still win about 38 times in 100.",
-          "card": null
-        },
-        {
-          "text": "📈 Our probabilities hit 68.6% of winners over 4 seasons of backtests.\n\nEvery pick is posted before tip-off and graded after the final buzzer. No deleting the misses.\n\n🔔 Follow for the full slate every game day.",
-          "card": null
-        }
-      ]
-    },
-    {
-      "id": "Phoenix_Suns_vs_Portland_Trail_Blazers_2026-10-21",
-      "matchup": "Phoenix Suns @ Portland Trail Blazers",
-      "home_team": "Portland Trail Blazers",
-      "away_team": "Phoenix Suns",
-      "predicted_winner": "Portland Trail Blazers",
-      "predicted_home_prob": 0.5935567481911374,
-      "predicted_away_prob": 0.40644325180886265,
-      "home_odds": 1.6,
-      "away_odds": 2.4,
-      "confidence": 0.5935567481911374,
-      "date": "2026-10-21",
-      "published": false,
-      "home_code": "POR",
-      "away_code": "PHX",
-      "start_utc": "2026-10-22T02:00:00+00:00",
-      "model_home_prob": 0.5825,
-      "market_home_prob": 0.5996,
-      "probability_source": "blend",
-      "own_home_prob": 0.5586,
-      "own_away_prob": 0.4414,
-      "own_model_mode": "full",
-      "market_books": 1,
-      "refreshed_at": "2026-10-20T09:11+00:00",
-      "key_out": {
-        "home": [],
-        "away": []
-      },
-      "thread": [
-        {
-          "text": "🏀 Phoenix Suns at Portland Trail Blazers\n🕗 Wed Oct 21, 10:00 PM ET\n\n🎯 Pick: Portland Trail Blazers (59%)\n📊 Our model 56% · books 60%\n💰 Odds 1.60 · books’ consensus\n\nThe case, and the risk 🧵",
-          "card": {
-            "type": "match",
-            "when": "WED OCT 21 · 10:00 PM ET",
-            "away": "PHX",
-            "home": "POR",
-            "away_prob": 0.40644325180886265,
-            "away_sub": "away",
-            "home_sub": "home",
-            "pick_name": "Trail Blazers",
-            "odds": "1.60",
-            "source": "Our model 56% + books 60%",
-            "tape": [
-              {
-                "label": "Last 10",
-                "away": "3-7",
-                "home": "4-6"
-              },
-              {
-                "label": "Net rtg L10",
-                "away": "-6.8",
-                "home": "-4.3"
-              },
-              {
-                "label": "Rest",
-                "away": "6d",
-                "home": "6d"
-              },
-              {
-                "label": "Elo",
-                "away": "1500",
-                "home": "1543"
-              }
-            ]
-          }
-        },
-        {
-          "text": "🛡️ DEFENSE\n\nTrail Blazers allow 113.6 per 100 possessions lately, Suns 116.8.",
-          "card": {
-            "type": "edge",
-            "away": "PHX",
-            "home": "POR",
-            "matchup": "Suns at Trail Blazers · WED OCT 21 · 10:00 PM ET",
-            "eyebrow": "Reason 1 of 3 · Trail Blazers",
-            "title": "Defense",
-            "sub": "Trail Blazers allow 113.6 per 100 possessions lately, Suns 116.8.",
-            "rows": [
-              {
-                "label": "Defensive rating (lower is better)",
-                "lower_is_better": true,
-                "a": {
-                  "team": "POR",
-                  "value": 113.5919,
-                  "label": "113.6"
-                },
-                "b": {
-                  "team": "PHX",
-                  "value": 116.8245,
-                  "label": "116.8"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "text": "🤖 MODEL CHECK\n\nOur stats model (Elo, form, rest) gives Trail Blazers 58%, in line with the books.",
-          "card": null
-        },
-        {
-          "text": "🔥 RECENT FORM\n\nLast 10 games: Trail Blazers 4-6, net rating -4.3. Suns 3-7, -6.8.",
-          "card": {
-            "type": "edge",
-            "away": "PHX",
-            "home": "POR",
-            "matchup": "Suns at Trail Blazers · WED OCT 21 · 10:00 PM ET",
-            "eyebrow": "Reason 3 of 3 · Trail Blazers",
-            "title": "Recent form",
-            "sub": "Last 10 games: Trail Blazers 4-6, net rating -4.3. Suns 3-7, -6.8.",
-            "rows": [
-              {
-                "label": "Net rating, last 10",
-                "lower_is_better": false,
-                "a": {
-                  "team": "POR",
-                  "value": -4.3211,
-                  "label": "-4.3"
-                },
-                "b": {
-                  "team": "PHX",
-                  "value": -6.7953,
-                  "label": "-6.8"
-                }
-              },
-              {
-                "label": "Record, last 10",
-                "lower_is_better": false,
-                "a": {
-                  "team": "POR",
-                  "value": 0.4,
-                  "label": "4-6"
-                },
-                "b": {
-                  "team": "PHX",
-                  "value": 0.3,
-                  "label": "3-7"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "text": "⚠️ THE RISK\n\nNothing big flags against the Trail Blazers. But 59% is not 100%: priced like this, Suns win about 41 times in 100.",
-          "card": null
-        },
-        {
-          "text": "📈 Our probabilities hit 68.6% of winners over 4 seasons of backtests.\n\nEvery pick is posted before tip-off and graded after the final buzzer. No deleting the misses.\n\n🔔 Follow for the full slate every game day.",
-          "card": null
-        }
-      ]
-    },
-    {
-      "id": "Indiana_Pacers_vs_New_Orleans_Pelicans_2026-10-21",
-      "matchup": "Indiana Pacers @ New Orleans Pelicans",
-      "home_team": "New Orleans Pelicans",
-      "away_team": "Indiana Pacers",
-      "predicted_winner": "Indiana Pacers",
-      "predicted_home_prob": 0.42881324382892205,
-      "predicted_away_prob": 0.571186756171078,
-      "home_odds": 2.36,
-      "away_odds": 1.62,
-      "confidence": 0.571186756171078,
-      "date": "2026-10-21",
-      "published": false,
-      "home_code": "NOP",
-      "away_code": "IND",
-      "start_utc": "2026-10-22T00:00:00+00:00",
-      "model_home_prob": 0.5931,
-      "market_home_prob": 0.4066,
-      "probability_source": "blend",
-      "own_home_prob": 0.5573,
-      "own_away_prob": 0.4427,
-      "own_model_mode": "full",
-      "market_books": 1,
-      "refreshed_at": "2026-10-20T09:11+00:00",
-      "key_out": {
-        "home": [],
-        "away": []
-      },
-      "thread": [
-        {
-          "text": "🏀 Indiana Pacers at New Orleans Pelicans\n🕗 Wed Oct 21, 8:00 PM ET\n\n🎯 Pick: Indiana Pacers (57%)\n📊 Our model 44% · books 59%\n💰 Odds 1.62 · books’ consensus\n\nThe case, and the risk 🧵",
-          "card": {
-            "type": "match",
-            "when": "WED OCT 21 · 8:00 PM ET",
-            "away": "IND",
-            "home": "NOP",
-            "away_prob": 0.571186756171078,
-            "away_sub": "away",
-            "home_sub": "home",
-            "pick_name": "Pacers",
-            "odds": "1.62",
-            "source": "Our model 44% + books 59%",
-            "tape": [
-              {
-                "label": "Last 10",
-                "away": "3-7",
-                "home": "1-9"
-              },
-              {
-                "label": "Net rtg L10",
-                "away": "-1.8",
-                "home": "-10.4"
-              },
-              {
-                "label": "Rest",
-                "away": "6d",
-                "home": "6d"
-              },
-              {
-                "label": "Elo",
-                "away": "1351",
-                "home": "1414"
-              }
-            ]
-          }
-        },
-        {
-          "text": "🏹 FROM DEEP\n\nPacers are hitting 38.5% from three over their last 10, Pelicans 34.2%.",
-          "card": {
-            "type": "edge",
-            "away": "IND",
-            "home": "NOP",
-            "matchup": "Pacers at Pelicans · WED OCT 21 · 8:00 PM ET",
-            "eyebrow": "Reason 1 of 3 · Pacers",
-            "title": "From deep",
-            "sub": "Pacers are hitting 38.5% from three over their last 10, Pelicans 34.2%.",
-            "rows": [
-              {
-                "label": "3P%, last 10",
-                "lower_is_better": false,
-                "a": {
-                  "team": "IND",
-                  "value": 0.3846,
-                  "label": "38.5%"
-                },
-                "b": {
-                  "team": "NOP",
-                  "value": 0.3418,
-                  "label": "34.2%"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "text": "🛡️ DEFENSE\n\nPacers allow 114.4 per 100 possessions lately, Pelicans 121.1.",
-          "card": {
-            "type": "edge",
-            "away": "IND",
-            "home": "NOP",
-            "matchup": "Pacers at Pelicans · WED OCT 21 · 8:00 PM ET",
-            "eyebrow": "Reason 2 of 3 · Pacers",
-            "title": "Defense",
-            "sub": "Pacers allow 114.4 per 100 possessions lately, Pelicans 121.1.",
-            "rows": [
-              {
-                "label": "Defensive rating (lower is better)",
-                "lower_is_better": true,
-                "a": {
-                  "team": "IND",
-                  "value": 114.4402,
-                  "label": "114.4"
-                },
-                "b": {
-                  "team": "NOP",
-                  "value": 121.0846,
-                  "label": "121.1"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "text": "🔥 RECENT FORM\n\nLast 10 games: Pacers 3-7, net rating -1.8. Pelicans 1-9, -10.4.",
-          "card": {
-            "type": "edge",
-            "away": "IND",
-            "home": "NOP",
-            "matchup": "Pacers at Pelicans · WED OCT 21 · 8:00 PM ET",
-            "eyebrow": "Reason 3 of 3 · Pacers",
-            "title": "Recent form",
-            "sub": "Last 10 games: Pacers 3-7, net rating -1.8. Pelicans 1-9, -10.4.",
-            "rows": [
-              {
-                "label": "Net rating, last 10",
-                "lower_is_better": false,
-                "a": {
-                  "team": "IND",
-                  "value": -1.8359,
-                  "label": "-1.8"
-                },
-                "b": {
-                  "team": "NOP",
-                  "value": -10.4162,
-                  "label": "-10.4"
-                }
-              },
-              {
-                "label": "Record, last 10",
-                "lower_is_better": false,
-                "a": {
-                  "team": "IND",
-                  "value": 0.3,
-                  "label": "3-7"
-                },
-                "b": {
-                  "team": "NOP",
-                  "value": 0.1,
-                  "label": "1-9"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "text": "⚠️ THE RISK\n\nPacers have won 30% of recent road games; Pelicans 55% at home.\n\nTeams priced like Pelicans tonight still win about 43 times in 100.",
+          "text": "⚠️ THE RISK\n\nWizards are hitting 34.8% from three over their last 10, Bucks 39.5%.\n\nTeams priced like Bucks tonight still win about 40 times in 100.",
           "card": null
         },
         {
@@ -1560,42 +755,42 @@
       "home_team": "Orlando Magic",
       "away_team": "Atlanta Hawks",
       "predicted_winner": "Orlando Magic",
-      "predicted_home_prob": 0.5432923114193857,
-      "predicted_away_prob": 0.4567076885806143,
-      "home_odds": 1.77,
-      "away_odds": 2.1,
-      "confidence": 0.5432923114193857,
+      "predicted_home_prob": 0.5680685543307131,
+      "predicted_away_prob": 0.4319314456692869,
+      "home_odds": 1.68,
+      "away_odds": 2.24,
+      "confidence": 0.5680685543307131,
       "date": "2026-10-21",
       "published": false,
       "home_code": "ORL",
       "away_code": "ATL",
       "start_utc": "2026-10-21T23:00:00+00:00",
       "model_home_prob": 0.5858,
-      "market_home_prob": 0.5427,
+      "market_home_prob": 0.5721,
       "probability_source": "blend",
-      "own_home_prob": 0.5464,
-      "own_away_prob": 0.4536,
+      "own_home_prob": 0.5453,
+      "own_away_prob": 0.4547,
       "own_model_mode": "full",
       "market_books": 1,
-      "refreshed_at": "2026-10-20T09:11+00:00",
+      "refreshed_at": "2026-10-21T09:12+00:00",
       "key_out": {
         "home": [],
         "away": []
       },
       "thread": [
         {
-          "text": "🏀 Atlanta Hawks at Orlando Magic\n🕗 Wed Oct 21, 7:00 PM ET\n\n🎯 Pick: Orlando Magic (54%)\n📊 Our model 55% · books 54%\n💰 Odds 1.77 · books’ consensus\n\nThe case, and the risk 🧵",
+          "text": "🏀 Atlanta Hawks at Orlando Magic\n🕗 Wed Oct 21, 7:00 PM ET\n\n🎯 Pick: Orlando Magic (57%)\n📊 Our model 55% · books 57%\n💰 Odds 1.68 · books’ consensus\n\nThe case, and the risk 🧵",
           "card": {
             "type": "match",
             "when": "WED OCT 21 · 7:00 PM ET",
             "away": "ATL",
             "home": "ORL",
-            "away_prob": 0.4567076885806143,
+            "away_prob": 0.4319314456692869,
             "away_sub": "away",
             "home_sub": "home",
             "pick_name": "Magic",
-            "odds": "1.77",
-            "source": "Our model 55% + books 54%",
+            "odds": "1.68",
+            "source": "Our model 55% + books 57%",
             "tape": [
               {
                 "label": "Last 10",
@@ -1719,7 +914,331 @@
           }
         },
         {
-          "text": "⚠️ THE RISK\n\nMagic score 101.5 points per 100 possessions over their last 10, Hawks 106.4.\n\nTeams priced like Hawks tonight still win about 46 times in 100.",
+          "text": "⚠️ THE RISK\n\nMagic score 101.5 points per 100 possessions over their last 10, Hawks 106.4.\n\nTeams priced like Hawks tonight still win about 43 times in 100.",
+          "card": null
+        },
+        {
+          "text": "📈 Our probabilities hit 68.6% of winners over 4 seasons of backtests.\n\nEvery pick is posted before tip-off and graded after the final buzzer. No deleting the misses.\n\n🔔 Follow for the full slate every game day.",
+          "card": null
+        }
+      ]
+    },
+    {
+      "id": "Indiana_Pacers_vs_New_Orleans_Pelicans_2026-10-21",
+      "matchup": "Indiana Pacers @ New Orleans Pelicans",
+      "home_team": "New Orleans Pelicans",
+      "away_team": "Indiana Pacers",
+      "predicted_winner": "Indiana Pacers",
+      "predicted_home_prob": 0.4375156573688229,
+      "predicted_away_prob": 0.5624843426311771,
+      "home_odds": 2.3,
+      "away_odds": 1.65,
+      "confidence": 0.5624843426311771,
+      "date": "2026-10-21",
+      "published": false,
+      "home_code": "NOP",
+      "away_code": "IND",
+      "start_utc": "2026-10-22T00:00:00+00:00",
+      "model_home_prob": 0.5931,
+      "market_home_prob": 0.417,
+      "probability_source": "blend",
+      "own_home_prob": 0.5557,
+      "own_away_prob": 0.4443,
+      "own_model_mode": "full",
+      "market_books": 1,
+      "refreshed_at": "2026-10-21T09:12+00:00",
+      "key_out": {
+        "home": [],
+        "away": []
+      },
+      "thread": [
+        {
+          "text": "🏀 Indiana Pacers at New Orleans Pelicans\n🕗 Wed Oct 21, 8:00 PM ET\n\n🎯 Pick: Indiana Pacers (56%)\n📊 Our model 44% · books 58%\n💰 Odds 1.65 · books’ consensus\n\nThe case, and the risk 🧵",
+          "card": {
+            "type": "match",
+            "when": "WED OCT 21 · 8:00 PM ET",
+            "away": "IND",
+            "home": "NOP",
+            "away_prob": 0.5624843426311771,
+            "away_sub": "away",
+            "home_sub": "home",
+            "pick_name": "Pacers",
+            "odds": "1.65",
+            "source": "Our model 44% + books 58%",
+            "tape": [
+              {
+                "label": "Last 10",
+                "away": "3-7",
+                "home": "1-9"
+              },
+              {
+                "label": "Net rtg L10",
+                "away": "-1.8",
+                "home": "-10.4"
+              },
+              {
+                "label": "Rest",
+                "away": "6d",
+                "home": "6d"
+              },
+              {
+                "label": "Elo",
+                "away": "1351",
+                "home": "1414"
+              }
+            ]
+          }
+        },
+        {
+          "text": "🏹 FROM DEEP\n\nPacers are hitting 38.5% from three over their last 10, Pelicans 34.2%.",
+          "card": {
+            "type": "edge",
+            "away": "IND",
+            "home": "NOP",
+            "matchup": "Pacers at Pelicans · WED OCT 21 · 8:00 PM ET",
+            "eyebrow": "Reason 1 of 3 · Pacers",
+            "title": "From deep",
+            "sub": "Pacers are hitting 38.5% from three over their last 10, Pelicans 34.2%.",
+            "rows": [
+              {
+                "label": "3P%, last 10",
+                "lower_is_better": false,
+                "a": {
+                  "team": "IND",
+                  "value": 0.3846,
+                  "label": "38.5%"
+                },
+                "b": {
+                  "team": "NOP",
+                  "value": 0.3418,
+                  "label": "34.2%"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "text": "🛡️ DEFENSE\n\nPacers allow 114.4 per 100 possessions lately, Pelicans 121.1.",
+          "card": {
+            "type": "edge",
+            "away": "IND",
+            "home": "NOP",
+            "matchup": "Pacers at Pelicans · WED OCT 21 · 8:00 PM ET",
+            "eyebrow": "Reason 2 of 3 · Pacers",
+            "title": "Defense",
+            "sub": "Pacers allow 114.4 per 100 possessions lately, Pelicans 121.1.",
+            "rows": [
+              {
+                "label": "Defensive rating (lower is better)",
+                "lower_is_better": true,
+                "a": {
+                  "team": "IND",
+                  "value": 114.4402,
+                  "label": "114.4"
+                },
+                "b": {
+                  "team": "NOP",
+                  "value": 121.0846,
+                  "label": "121.1"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "text": "🔥 RECENT FORM\n\nLast 10 games: Pacers 3-7, net rating -1.8. Pelicans 1-9, -10.4.",
+          "card": {
+            "type": "edge",
+            "away": "IND",
+            "home": "NOP",
+            "matchup": "Pacers at Pelicans · WED OCT 21 · 8:00 PM ET",
+            "eyebrow": "Reason 3 of 3 · Pacers",
+            "title": "Recent form",
+            "sub": "Last 10 games: Pacers 3-7, net rating -1.8. Pelicans 1-9, -10.4.",
+            "rows": [
+              {
+                "label": "Net rating, last 10",
+                "lower_is_better": false,
+                "a": {
+                  "team": "IND",
+                  "value": -1.8359,
+                  "label": "-1.8"
+                },
+                "b": {
+                  "team": "NOP",
+                  "value": -10.4162,
+                  "label": "-10.4"
+                }
+              },
+              {
+                "label": "Record, last 10",
+                "lower_is_better": false,
+                "a": {
+                  "team": "IND",
+                  "value": 0.3,
+                  "label": "3-7"
+                },
+                "b": {
+                  "team": "NOP",
+                  "value": 0.1,
+                  "label": "1-9"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "text": "⚠️ THE RISK\n\nPacers have won 30% of recent road games; Pelicans 55% at home.\n\nTeams priced like Pelicans tonight still win about 44 times in 100.",
+          "card": null
+        },
+        {
+          "text": "📈 Our probabilities hit 68.6% of winners over 4 seasons of backtests.\n\nEvery pick is posted before tip-off and graded after the final buzzer. No deleting the misses.\n\n🔔 Follow for the full slate every game day.",
+          "card": null
+        }
+      ]
+    },
+    {
+      "id": "Phoenix_Suns_vs_Portland_Trail_Blazers_2026-10-21",
+      "matchup": "Phoenix Suns @ Portland Trail Blazers",
+      "home_team": "Portland Trail Blazers",
+      "away_team": "Phoenix Suns",
+      "predicted_winner": "Portland Trail Blazers",
+      "predicted_home_prob": 0.5623849682662466,
+      "predicted_away_prob": 0.4376150317337534,
+      "home_odds": 1.7,
+      "away_odds": 2.2,
+      "confidence": 0.5623849682662466,
+      "date": "2026-10-21",
+      "published": false,
+      "home_code": "POR",
+      "away_code": "PHX",
+      "start_utc": "2026-10-22T02:00:00+00:00",
+      "model_home_prob": 0.5825,
+      "market_home_prob": 0.5635,
+      "probability_source": "blend",
+      "own_home_prob": 0.5561,
+      "own_away_prob": 0.4439,
+      "own_model_mode": "full",
+      "market_books": 1,
+      "refreshed_at": "2026-10-21T09:12+00:00",
+      "key_out": {
+        "home": [],
+        "away": []
+      },
+      "thread": [
+        {
+          "text": "🏀 Phoenix Suns at Portland Trail Blazers\n🕗 Wed Oct 21, 10:00 PM ET\n\n🎯 Pick: Portland Trail Blazers (56%)\n📊 Our model 56% · books 56%\n💰 Odds 1.70 · books’ consensus\n\nThe case, and the risk 🧵",
+          "card": {
+            "type": "match",
+            "when": "WED OCT 21 · 10:00 PM ET",
+            "away": "PHX",
+            "home": "POR",
+            "away_prob": 0.4376150317337534,
+            "away_sub": "away",
+            "home_sub": "home",
+            "pick_name": "Trail Blazers",
+            "odds": "1.70",
+            "source": "Our model 56% + books 56%",
+            "tape": [
+              {
+                "label": "Last 10",
+                "away": "3-7",
+                "home": "4-6"
+              },
+              {
+                "label": "Net rtg L10",
+                "away": "-6.8",
+                "home": "-4.3"
+              },
+              {
+                "label": "Rest",
+                "away": "6d",
+                "home": "6d"
+              },
+              {
+                "label": "Elo",
+                "away": "1500",
+                "home": "1543"
+              }
+            ]
+          }
+        },
+        {
+          "text": "🛡️ DEFENSE\n\nTrail Blazers allow 113.6 per 100 possessions lately, Suns 116.8.",
+          "card": {
+            "type": "edge",
+            "away": "PHX",
+            "home": "POR",
+            "matchup": "Suns at Trail Blazers · WED OCT 21 · 10:00 PM ET",
+            "eyebrow": "Reason 1 of 3 · Trail Blazers",
+            "title": "Defense",
+            "sub": "Trail Blazers allow 113.6 per 100 possessions lately, Suns 116.8.",
+            "rows": [
+              {
+                "label": "Defensive rating (lower is better)",
+                "lower_is_better": true,
+                "a": {
+                  "team": "POR",
+                  "value": 113.5919,
+                  "label": "113.6"
+                },
+                "b": {
+                  "team": "PHX",
+                  "value": 116.8245,
+                  "label": "116.8"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "text": "🤖 MODEL CHECK\n\nOur stats model (Elo, form, rest) gives Trail Blazers 58%, in line with the books.",
+          "card": null
+        },
+        {
+          "text": "🔥 RECENT FORM\n\nLast 10 games: Trail Blazers 4-6, net rating -4.3. Suns 3-7, -6.8.",
+          "card": {
+            "type": "edge",
+            "away": "PHX",
+            "home": "POR",
+            "matchup": "Suns at Trail Blazers · WED OCT 21 · 10:00 PM ET",
+            "eyebrow": "Reason 3 of 3 · Trail Blazers",
+            "title": "Recent form",
+            "sub": "Last 10 games: Trail Blazers 4-6, net rating -4.3. Suns 3-7, -6.8.",
+            "rows": [
+              {
+                "label": "Net rating, last 10",
+                "lower_is_better": false,
+                "a": {
+                  "team": "POR",
+                  "value": -4.3211,
+                  "label": "-4.3"
+                },
+                "b": {
+                  "team": "PHX",
+                  "value": -6.7953,
+                  "label": "-6.8"
+                }
+              },
+              {
+                "label": "Record, last 10",
+                "lower_is_better": false,
+                "a": {
+                  "team": "POR",
+                  "value": 0.4,
+                  "label": "4-6"
+                },
+                "b": {
+                  "team": "PHX",
+                  "value": 0.3,
+                  "label": "3-7"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "text": "⚠️ THE RISK\n\nNothing big flags against the Trail Blazers. But 56% is not 100%: priced like this, Suns win about 44 times in 100.",
           "card": null
         },
         {
@@ -1734,42 +1253,42 @@
       "home_team": "Miami Heat",
       "away_team": "Minnesota Timberwolves",
       "predicted_winner": "Miami Heat",
-      "predicted_home_prob": 0.5165327459179594,
-      "predicted_away_prob": 0.4834672540820406,
-      "home_odds": 1.87,
-      "away_odds": 1.95,
-      "confidence": 0.5165327459179594,
+      "predicted_home_prob": 0.5255687387810442,
+      "predicted_away_prob": 0.47443126121895585,
+      "home_odds": 1.83,
+      "away_odds": 2.0,
+      "confidence": 0.5255687387810442,
       "date": "2026-10-21",
       "published": false,
       "home_code": "MIA",
       "away_code": "MIN",
       "start_utc": "2026-10-21T23:30:00+00:00",
       "model_home_prob": 0.5165,
-      "market_home_prob": 0.5108,
+      "market_home_prob": 0.5217,
       "probability_source": "blend",
-      "own_home_prob": 0.5487,
-      "own_away_prob": 0.4513,
+      "own_home_prob": 0.5472,
+      "own_away_prob": 0.4528,
       "own_model_mode": "full",
       "market_books": 1,
-      "refreshed_at": "2026-10-20T09:11+00:00",
+      "refreshed_at": "2026-10-21T09:12+00:00",
       "key_out": {
         "home": [],
         "away": []
       },
       "thread": [
         {
-          "text": "🏀 Minnesota Timberwolves at Miami Heat\n🕗 Wed Oct 21, 7:30 PM ET\n\n🎯 Pick: Miami Heat (52%)\n📊 Our model 55% · books 51%\n💰 Odds 1.87 · books’ consensus\n\nThe case, and the risk 🧵",
+          "text": "🏀 Minnesota Timberwolves at Miami Heat\n🕗 Wed Oct 21, 7:30 PM ET\n\n🎯 Pick: Miami Heat (53%)\n📊 Our model 55% · books 52%\n💰 Odds 1.83 · books’ consensus\n\nThe case, and the risk 🧵",
           "card": {
             "type": "match",
             "when": "WED OCT 21 · 7:30 PM ET",
             "away": "MIN",
             "home": "MIA",
-            "away_prob": 0.4834672540820406,
+            "away_prob": 0.47443126121895585,
             "away_sub": "away",
             "home_sub": "home",
             "pick_name": "Heat",
-            "odds": "1.87",
-            "source": "Our model 55% + books 51%",
+            "odds": "1.83",
+            "source": "Our model 55% + books 52%",
             "tape": [
               {
                 "label": "Last 10",
@@ -1893,7 +1412,7 @@
           }
         },
         {
-          "text": "⚠️ THE RISK\n\nHeat allow 123.5 per 100 possessions lately, Timberwolves 111.7.\n\nTeams priced like Timberwolves tonight still win about 48 times in 100.",
+          "text": "⚠️ THE RISK\n\nHeat allow 123.5 per 100 possessions lately, Timberwolves 111.7.\n\nTeams priced like Timberwolves tonight still win about 47 times in 100.",
           "card": null
         },
         {
@@ -1908,41 +1427,41 @@
       "home_team": "Memphis Grizzlies",
       "away_team": "Utah Jazz",
       "predicted_winner": "Memphis Grizzlies",
-      "predicted_home_prob": 0.5161699701047978,
-      "predicted_away_prob": 0.4838300298952022,
-      "home_odds": 1.85,
-      "away_odds": 1.98,
-      "confidence": 0.5161699701047978,
+      "predicted_home_prob": 0.5196049457355998,
+      "predicted_away_prob": 0.4803950542644002,
+      "home_odds": 1.83,
+      "away_odds": 2.0,
+      "confidence": 0.5196049457355998,
       "date": "2026-10-21",
       "published": false,
       "home_code": "MEM",
       "away_code": "UTA",
       "start_utc": "2026-10-22T00:00:00+00:00",
       "model_home_prob": 0.5415,
-      "market_home_prob": 0.5174,
+      "market_home_prob": 0.5217,
       "probability_source": "blend",
-      "own_home_prob": 0.5094,
-      "own_away_prob": 0.4906,
+      "own_home_prob": 0.5075,
+      "own_away_prob": 0.4925,
       "own_model_mode": "full",
       "market_books": 1,
-      "refreshed_at": "2026-10-20T09:11+00:00",
+      "refreshed_at": "2026-10-21T09:12+00:00",
       "key_out": {
         "home": [],
         "away": []
       },
       "thread": [
         {
-          "text": "🏀 Utah Jazz at Memphis Grizzlies\n🕗 Wed Oct 21, 8:00 PM ET\n\n🎯 Pick: Memphis Grizzlies (52%)\n📊 Our model 51% · books 52%\n💰 Odds 1.85 · books’ consensus\n\nThe case, and the risk 🧵",
+          "text": "🏀 Utah Jazz at Memphis Grizzlies\n🕗 Wed Oct 21, 8:00 PM ET\n\n🎯 Pick: Memphis Grizzlies (52%)\n📊 Our model 51% · books 52%\n💰 Odds 1.83 · books’ consensus\n\nThe case, and the risk 🧵",
           "card": {
             "type": "match",
             "when": "WED OCT 21 · 8:00 PM ET",
             "away": "UTA",
             "home": "MEM",
-            "away_prob": 0.4838300298952022,
+            "away_prob": 0.4803950542644002,
             "away_sub": "away",
             "home_sub": "home",
             "pick_name": "Grizzlies",
-            "odds": "1.85",
+            "odds": "1.83",
             "source": "Our model 51% + books 52%",
             "tape": [
               {
@@ -2015,43 +1534,43 @@
       "matchup": "Charlotte Hornets @ Brooklyn Nets",
       "home_team": "Brooklyn Nets",
       "away_team": "Charlotte Hornets",
-      "predicted_winner": "Charlotte Hornets",
-      "predicted_home_prob": 0.4879956365735322,
-      "predicted_away_prob": 0.5120043634264678,
-      "home_odds": 1.83,
-      "away_odds": 2.0,
-      "confidence": 0.5120043634264678,
+      "predicted_winner": "Brooklyn Nets",
+      "predicted_home_prob": 0.505677078982129,
+      "predicted_away_prob": 0.494322921017871,
+      "home_odds": 1.77,
+      "away_odds": 2.1,
+      "confidence": 0.505677078982129,
       "date": "2026-10-21",
       "published": false,
       "home_code": "BKN",
       "away_code": "CHA",
       "start_utc": "2026-10-21T23:30:00+00:00",
       "model_home_prob": 0.3825,
-      "market_home_prob": 0.5217,
+      "market_home_prob": 0.5427,
       "probability_source": "blend",
-      "own_home_prob": 0.3072,
-      "own_away_prob": 0.6928,
+      "own_home_prob": 0.3058,
+      "own_away_prob": 0.6942,
       "own_model_mode": "full",
       "market_books": 1,
-      "refreshed_at": "2026-10-20T09:11+00:00",
+      "refreshed_at": "2026-10-21T09:12+00:00",
       "key_out": {
         "home": [],
         "away": []
       },
       "thread": [
         {
-          "text": "🏀 Charlotte Hornets at Brooklyn Nets\n🕗 Wed Oct 21, 7:30 PM ET\n\n🎯 Pick: Charlotte Hornets (51%)\n📊 Our model 69% · books 48%\n💰 Odds 2.00 · books’ consensus\n\nThe case, and the risk 🧵",
+          "text": "🏀 Charlotte Hornets at Brooklyn Nets\n🕗 Wed Oct 21, 7:30 PM ET\n\n🎯 Pick: Brooklyn Nets (51%)\n📊 Our model 31% · books 54%\n💰 Odds 1.77 · books’ consensus\n\nThe case, and the risk 🧵",
           "card": {
             "type": "match",
             "when": "WED OCT 21 · 7:30 PM ET",
             "away": "CHA",
             "home": "BKN",
-            "away_prob": 0.5120043634264678,
+            "away_prob": 0.494322921017871,
             "away_sub": "away",
             "home_sub": "home",
-            "pick_name": "Hornets",
-            "odds": "2.00",
-            "source": "Our model 69% + books 48%",
+            "pick_name": "Nets",
+            "odds": "1.77",
+            "source": "Our model 31% + books 54%",
             "tape": [
               {
                 "label": "Last 10",
@@ -2077,91 +1596,303 @@
           }
         },
         {
-          "text": "🏟️ HOME AND AWAY\n\nHornets have won 75% of recent road games; Nets 30% at home.",
+          "text": "⚠️ THE RISK\n\nNets have won 30% at home lately; Hornets 75% on the road.\n\nTeams priced like Hornets tonight still win about 49 times in 100.",
+          "card": null
+        },
+        {
+          "text": "📈 Our probabilities hit 68.6% of winners over 4 seasons of backtests.\n\nEvery pick is posted before tip-off and graded after the final buzzer. No deleting the misses.\n\n🔔 Follow for the full slate every game day.",
+          "card": null
+        }
+      ]
+    },
+    {
+      "id": "Denver_Nuggets_vs_Oklahoma_City_Thunder_2026-10-22",
+      "matchup": "Denver Nuggets @ Oklahoma City Thunder",
+      "home_team": "Oklahoma City Thunder",
+      "away_team": "Denver Nuggets",
+      "predicted_winner": "Oklahoma City Thunder",
+      "predicted_home_prob": 0.7121501619982673,
+      "predicted_away_prob": 0.2878498380017327,
+      "home_odds": 1.34,
+      "away_odds": 3.5,
+      "confidence": 0.7121501619982673,
+      "date": "2026-10-22",
+      "published": false,
+      "home_code": "OKC",
+      "away_code": "DEN",
+      "start_utc": "2026-10-23T01:30:00+00:00",
+      "model_home_prob": 0.6381,
+      "market_home_prob": 0.7238,
+      "probability_source": "blend",
+      "own_home_prob": 0.641,
+      "own_away_prob": 0.359,
+      "own_model_mode": "full",
+      "market_books": 1,
+      "refreshed_at": "2026-10-21T09:12+00:00",
+      "key_out": {
+        "home": [],
+        "away": []
+      },
+      "thread": [
+        {
+          "text": "🏀 Denver Nuggets at Oklahoma City Thunder\n🕗 Thu Oct 22, 9:30 PM ET\n\n🎯 Pick: Oklahoma City Thunder (71%)\n📊 Our model 64% · books 72%\n💰 Odds 1.34 · books’ consensus\n\nThe case, and the risk 🧵",
+          "card": {
+            "type": "match",
+            "when": "THU OCT 22 · 9:30 PM ET",
+            "away": "DEN",
+            "home": "OKC",
+            "away_prob": 0.2878498380017327,
+            "away_sub": "away",
+            "home_sub": "home",
+            "pick_name": "Thunder",
+            "odds": "1.34",
+            "source": "Our model 64% + books 72%",
+            "tape": [
+              {
+                "label": "Last 10",
+                "away": "6-4",
+                "home": "6-4"
+              },
+              {
+                "label": "Net rtg L10",
+                "away": "+2.2",
+                "home": "+1.6"
+              },
+              {
+                "label": "Rest",
+                "away": "6d",
+                "home": "1d"
+              },
+              {
+                "label": "Elo",
+                "away": "1613",
+                "home": "1758"
+              }
+            ]
+          }
+        },
+        {
+          "text": "🏟️ HOME AND AWAY\n\nThunder have won 85% at home lately; Nuggets 45% on the road.",
           "card": {
             "type": "edge",
-            "away": "CHA",
-            "home": "BKN",
-            "matchup": "Hornets at Nets · WED OCT 21 · 7:30 PM ET",
-            "eyebrow": "Reason 1 of 3 · Hornets",
+            "away": "DEN",
+            "home": "OKC",
+            "matchup": "Nuggets at Thunder · THU OCT 22 · 9:30 PM ET",
+            "eyebrow": "Reason 1 of 3 · Thunder",
             "title": "Home and away",
-            "sub": "Hornets have won 75% of recent road games; Nets 30% at home.",
+            "sub": "Thunder have won 85% at home lately; Nuggets 45% on the road.",
             "rows": [
               {
-                "label": "Win % (road vs home)",
+                "label": "Win % (home vs road)",
                 "lower_is_better": false,
                 "a": {
-                  "team": "CHA",
-                  "value": 0.75,
-                  "label": "75%"
+                  "team": "OKC",
+                  "value": 0.85,
+                  "label": "85%"
                 },
                 "b": {
-                  "team": "BKN",
-                  "value": 0.3,
-                  "label": "30%"
+                  "team": "DEN",
+                  "value": 0.45,
+                  "label": "45%"
                 }
               }
             ]
           }
         },
         {
-          "text": "📊 POWER RATING\n\nElo has Hornets at 1605, Nets at 1284. A real gap in team strength.",
+          "text": "📊 POWER RATING\n\nElo has Thunder at 1758, Nuggets at 1613. A real gap in team strength.",
           "card": {
             "type": "edge",
-            "away": "CHA",
-            "home": "BKN",
-            "matchup": "Hornets at Nets · WED OCT 21 · 7:30 PM ET",
-            "eyebrow": "Reason 2 of 3 · Hornets",
+            "away": "DEN",
+            "home": "OKC",
+            "matchup": "Nuggets at Thunder · THU OCT 22 · 9:30 PM ET",
+            "eyebrow": "Reason 2 of 3 · Thunder",
             "title": "Power rating",
-            "sub": "Elo has Hornets at 1605, Nets at 1284. A real gap in team strength.",
+            "sub": "Elo has Thunder at 1758, Nuggets at 1613. A real gap in team strength.",
             "rows": [
               {
                 "label": "Elo rating",
                 "lower_is_better": false,
                 "a": {
-                  "team": "CHA",
-                  "value": 1605.0811,
-                  "label": "1605"
+                  "team": "OKC",
+                  "value": 1758.3175,
+                  "label": "1758"
                 },
                 "b": {
-                  "team": "BKN",
-                  "value": 1284.278,
-                  "label": "1284"
+                  "team": "DEN",
+                  "value": 1612.6965,
+                  "label": "1613"
                 }
               }
             ]
           }
         },
         {
-          "text": "🎯 OFFENSE\n\nHornets score 115.5 points per 100 possessions over their last 10, Nets 104.5.",
+          "text": "🏹 FROM DEEP\n\nThunder are hitting 36.5% from three over their last 10, Nuggets 34.2%.",
           "card": {
             "type": "edge",
-            "away": "CHA",
-            "home": "BKN",
-            "matchup": "Hornets at Nets · WED OCT 21 · 7:30 PM ET",
-            "eyebrow": "Reason 3 of 3 · Hornets",
-            "title": "Offense",
-            "sub": "Hornets score 115.5 points per 100 possessions over their last 10, Nets 104.5.",
+            "away": "DEN",
+            "home": "OKC",
+            "matchup": "Nuggets at Thunder · THU OCT 22 · 9:30 PM ET",
+            "eyebrow": "Reason 3 of 3 · Thunder",
+            "title": "From deep",
+            "sub": "Thunder are hitting 36.5% from three over their last 10, Nuggets 34.2%.",
             "rows": [
               {
-                "label": "Offensive rating",
+                "label": "3P%, last 10",
                 "lower_is_better": false,
                 "a": {
-                  "team": "CHA",
-                  "value": 115.4981,
-                  "label": "115.5"
+                  "team": "OKC",
+                  "value": 0.3652,
+                  "label": "36.5%"
                 },
                 "b": {
-                  "team": "BKN",
-                  "value": 104.5238,
-                  "label": "104.5"
+                  "team": "DEN",
+                  "value": 0.3417,
+                  "label": "34.2%"
                 }
               }
             ]
           }
         },
         {
-          "text": "⚠️ THE RISK\n\nNothing big flags against the Hornets. But 51% is not 100%: priced like this, Nets win about 49 times in 100.",
+          "text": "⚠️ THE RISK\n\nRest: Thunder 1 day, Nuggets 6.\n\nTeams priced like Nuggets tonight still win about 29 times in 100.",
+          "card": null
+        },
+        {
+          "text": "📈 Our probabilities hit 68.6% of winners over 4 seasons of backtests.\n\nEvery pick is posted before tip-off and graded after the final buzzer. No deleting the misses.\n\n🔔 Follow for the full slate every game day.",
+          "card": null
+        }
+      ]
+    },
+    {
+      "id": "Cleveland_Cavaliers_vs_Philadelphia_76ers_2026-10-22",
+      "matchup": "Cleveland Cavaliers @ Philadelphia 76ers",
+      "home_team": "Philadelphia 76ers",
+      "away_team": "Cleveland Cavaliers",
+      "predicted_winner": "Philadelphia 76ers",
+      "predicted_home_prob": 0.5328042033543734,
+      "predicted_away_prob": 0.4671957966456266,
+      "home_odds": 1.74,
+      "away_odds": 2.14,
+      "confidence": 0.5328042033543734,
+      "date": "2026-10-22",
+      "published": false,
+      "home_code": "PHI",
+      "away_code": "CLE",
+      "start_utc": "2026-10-22T23:00:00+00:00",
+      "model_home_prob": 0.5588,
+      "market_home_prob": 0.5514,
+      "probability_source": "blend",
+      "own_home_prob": 0.427,
+      "own_away_prob": 0.573,
+      "own_model_mode": "full",
+      "market_books": 1,
+      "refreshed_at": "2026-10-21T09:12+00:00",
+      "key_out": {
+        "home": [],
+        "away": []
+      },
+      "thread": [
+        {
+          "text": "🏀 Cleveland Cavaliers at Philadelphia 76ers\n🕗 Thu Oct 22, 7:00 PM ET\n\n🎯 Pick: Philadelphia 76ers (53%)\n📊 Our model 43% · books 55%\n💰 Odds 1.74 · books’ consensus\n\nThe case, and the risk 🧵",
+          "card": {
+            "type": "match",
+            "when": "THU OCT 22 · 7:00 PM ET",
+            "away": "CLE",
+            "home": "PHI",
+            "away_prob": 0.4671957966456266,
+            "away_sub": "away",
+            "home_sub": "home",
+            "pick_name": "76ers",
+            "odds": "1.74",
+            "source": "Our model 43% + books 55%",
+            "tape": [
+              {
+                "label": "Last 10",
+                "away": "4-6",
+                "home": "4-6"
+              },
+              {
+                "label": "Net rtg L10",
+                "away": "-6.0",
+                "home": "-8.9"
+              },
+              {
+                "label": "Rest",
+                "away": "6d",
+                "home": "1d"
+              },
+              {
+                "label": "Elo",
+                "away": "1593",
+                "home": "1608"
+              }
+            ]
+          }
+        },
+        {
+          "text": "🏹 FROM DEEP\n\n76ers are hitting 32.6% from three over their last 10, Cavaliers 31.5%.",
+          "card": {
+            "type": "edge",
+            "away": "CLE",
+            "home": "PHI",
+            "matchup": "Cavaliers at 76ers · THU OCT 22 · 7:00 PM ET",
+            "eyebrow": "Reason 1 of 3 · 76ers",
+            "title": "From deep",
+            "sub": "76ers are hitting 32.6% from three over their last 10, Cavaliers 31.5%.",
+            "rows": [
+              {
+                "label": "3P%, last 10",
+                "lower_is_better": false,
+                "a": {
+                  "team": "PHI",
+                  "value": 0.326,
+                  "label": "32.6%"
+                },
+                "b": {
+                  "team": "CLE",
+                  "value": 0.3146,
+                  "label": "31.5%"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "text": "🤖 MODEL CHECK\n\nOur stats model (Elo, form, rest) gives 76ers 56%, in line with the books.",
+          "card": null
+        },
+        {
+          "text": "📊 POWER RATING\n\nElo has 76ers at 1608, Cavaliers at 1593. Closer than the record says.",
+          "card": {
+            "type": "edge",
+            "away": "CLE",
+            "home": "PHI",
+            "matchup": "Cavaliers at 76ers · THU OCT 22 · 7:00 PM ET",
+            "eyebrow": "Reason 3 of 3 · 76ers",
+            "title": "Power rating",
+            "sub": "Elo has 76ers at 1608, Cavaliers at 1593. Closer than the record says.",
+            "rows": [
+              {
+                "label": "Elo rating",
+                "lower_is_better": false,
+                "a": {
+                  "team": "PHI",
+                  "value": 1608.1139,
+                  "label": "1608"
+                },
+                "b": {
+                  "team": "CLE",
+                  "value": 1592.8753,
+                  "label": "1593"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "text": "⚠️ THE RISK\n\nRest: 76ers 1 day, Cavaliers 6.\n\nTeams priced like Cavaliers tonight still win about 47 times in 100.",
           "card": null
         },
         {
@@ -2173,499 +1904,16 @@
   ],
   "games_today": [
     {
-      "id": "Philadelphia_76ers_vs_New_York_Knicks_2026-10-20",
-      "matchup": "Philadelphia 76ers @ New York Knicks",
-      "home_team": "New York Knicks",
-      "away_team": "Philadelphia 76ers",
-      "predicted_winner": "New York Knicks",
-      "predicted_home_prob": 0.6290907748322478,
-      "predicted_away_prob": 0.37090922516775215,
-      "home_odds": 1.56,
-      "away_odds": 2.5,
-      "confidence": 0.6290907748322478,
-      "date": "2026-10-20",
-      "published": true,
-      "published_at": "2026-10-20T21:21:45.769392",
-      "home_code": "NYK",
-      "away_code": "PHI",
-      "start_utc": "2026-10-20T23:00:00+00:00",
-      "model_home_prob": 0.6822,
-      "market_home_prob": 0.6164,
-      "probability_source": "blend",
-      "own_home_prob": 0.6971,
-      "own_away_prob": 0.3029,
-      "own_model_mode": "full",
-      "market_books": 1,
-      "refreshed_at": "2026-10-20T21:17+00:00",
-      "key_out": {
-        "home": [],
-        "away": []
-      },
-      "thread": [
-        {
-          "text": "🏀 Philadelphia 76ers at New York Knicks\n🕗 Tue Oct 20, 7:00 PM ET\n\n🎯 Pick: New York Knicks (63%)\n📊 Our model 70% · books 62%\n💰 Odds 1.56 · books’ consensus\n\nThe case, and the risk 🧵",
-          "card": {
-            "type": "match",
-            "when": "TUE OCT 20 · 7:00 PM ET",
-            "away": "PHI",
-            "home": "NYK",
-            "away_prob": 0.37090922516775215,
-            "away_sub": "away",
-            "home_sub": "home",
-            "pick_name": "Knicks",
-            "odds": "1.56",
-            "source": "Our model 70% + books 62%",
-            "tape": [
-              {
-                "label": "Last 10",
-                "away": "4-6",
-                "home": "9-1"
-              },
-              {
-                "label": "Net rtg L10",
-                "away": "-7.9",
-                "home": "+12.0"
-              },
-              {
-                "label": "Rest",
-                "away": "6d",
-                "home": "6d"
-              },
-              {
-                "label": "Elo",
-                "away": "1570",
-                "home": "1806"
-              }
-            ]
-          }
-        },
-        {
-          "text": "🛡️ DEFENSE\n\nKnicks allow 103.8 per 100 possessions lately, 76ers 117.9.",
-          "card": {
-            "type": "edge",
-            "away": "PHI",
-            "home": "NYK",
-            "matchup": "76ers at Knicks · TUE OCT 20 · 7:00 PM ET",
-            "eyebrow": "Reason 1 of 3 · Knicks",
-            "title": "Defense",
-            "sub": "Knicks allow 103.8 per 100 possessions lately, 76ers 117.9.",
-            "rows": [
-              {
-                "label": "Defensive rating (lower is better)",
-                "lower_is_better": true,
-                "a": {
-                  "team": "NYK",
-                  "value": 103.7703,
-                  "label": "103.8"
-                },
-                "b": {
-                  "team": "PHI",
-                  "value": 117.8805,
-                  "label": "117.9"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "text": "🔥 RECENT FORM\n\nLast 10 games: Knicks 9-1, net rating +12.0. 76ers 4-6, -7.9.",
-          "card": {
-            "type": "edge",
-            "away": "PHI",
-            "home": "NYK",
-            "matchup": "76ers at Knicks · TUE OCT 20 · 7:00 PM ET",
-            "eyebrow": "Reason 2 of 3 · Knicks",
-            "title": "Recent form",
-            "sub": "Last 10 games: Knicks 9-1, net rating +12.0. 76ers 4-6, -7.9.",
-            "rows": [
-              {
-                "label": "Net rating, last 10",
-                "lower_is_better": false,
-                "a": {
-                  "team": "NYK",
-                  "value": 12.0214,
-                  "label": "+12.0"
-                },
-                "b": {
-                  "team": "PHI",
-                  "value": -7.8983,
-                  "label": "-7.9"
-                }
-              },
-              {
-                "label": "Record, last 10",
-                "lower_is_better": false,
-                "a": {
-                  "team": "NYK",
-                  "value": 0.9,
-                  "label": "9-1"
-                },
-                "b": {
-                  "team": "PHI",
-                  "value": 0.4,
-                  "label": "4-6"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "text": "🏟️ HOME AND AWAY\n\nKnicks have won 80% at home lately; 76ers 45% on the road.",
-          "card": {
-            "type": "edge",
-            "away": "PHI",
-            "home": "NYK",
-            "matchup": "76ers at Knicks · TUE OCT 20 · 7:00 PM ET",
-            "eyebrow": "Reason 3 of 3 · Knicks",
-            "title": "Home and away",
-            "sub": "Knicks have won 80% at home lately; 76ers 45% on the road.",
-            "rows": [
-              {
-                "label": "Win % (home vs road)",
-                "lower_is_better": false,
-                "a": {
-                  "team": "NYK",
-                  "value": 0.8,
-                  "label": "80%"
-                },
-                "b": {
-                  "team": "PHI",
-                  "value": 0.45,
-                  "label": "45%"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "text": "⚠️ THE RISK\n\nNothing big flags against the Knicks. But 63% is not 100%: priced like this, 76ers win about 37 times in 100.",
-          "card": null
-        },
-        {
-          "text": "📈 Our probabilities hit 68.6% of winners over 4 seasons of backtests.\n\nEvery pick is posted before tip-off and graded after the final buzzer. No deleting the misses.\n\n🔔 Follow for the full slate every game day.",
-          "card": null
-        }
-      ]
-    },
-    {
-      "id": "Oklahoma_City_Thunder_vs_San_Antonio_Spurs_2026-10-20",
-      "matchup": "Oklahoma City Thunder @ San Antonio Spurs",
-      "home_team": "San Antonio Spurs",
-      "away_team": "Oklahoma City Thunder",
-      "predicted_winner": "Oklahoma City Thunder",
-      "predicted_home_prob": 0.4906600805576132,
-      "predicted_away_prob": 0.5093399194423869,
-      "home_odds": 1.98,
-      "away_odds": 1.85,
-      "confidence": 0.5093399194423869,
-      "date": "2026-10-20",
-      "published": false,
-      "home_code": "SAS",
-      "away_code": "OKC",
-      "start_utc": "2026-10-21T01:30:00+00:00",
-      "model_home_prob": 0.5743,
-      "market_home_prob": 0.4826,
-      "probability_source": "blend",
-      "own_home_prob": 0.5361,
-      "own_away_prob": 0.4639,
-      "own_model_mode": "full",
-      "market_books": 1,
-      "refreshed_at": "2026-10-20T23:07+00:00",
-      "key_out": {
-        "home": [],
-        "away": []
-      },
-      "thread": [
-        {
-          "text": "🏀 Oklahoma City Thunder at San Antonio Spurs\n🕗 Tue Oct 20, 9:30 PM ET\n\n🎯 Pick: Oklahoma City Thunder (51%)\n📊 Our model 46% · books 52%\n💰 Odds 1.85 · books’ consensus\n\nThe case, and the risk 🧵",
-          "card": {
-            "type": "match",
-            "when": "TUE OCT 20 · 9:30 PM ET",
-            "away": "OKC",
-            "home": "SAS",
-            "away_prob": 0.5093399194423869,
-            "away_sub": "away",
-            "home_sub": "home",
-            "pick_name": "Thunder",
-            "odds": "1.85",
-            "source": "Our model 46% + books 52%",
-            "tape": [
-              {
-                "label": "Last 10",
-                "away": "6-4",
-                "home": "4-6"
-              },
-              {
-                "label": "Net rtg L10",
-                "away": "+2.3",
-                "home": "+1.6"
-              },
-              {
-                "label": "Rest",
-                "away": "6d",
-                "home": "6d"
-              },
-              {
-                "label": "Elo",
-                "away": "1724",
-                "home": "1752"
-              }
-            ]
-          }
-        },
-        {
-          "text": "🏟️ HOME AND AWAY\n\nThunder have won 75% of recent road games; Spurs 65% at home.",
-          "card": {
-            "type": "edge",
-            "away": "OKC",
-            "home": "SAS",
-            "matchup": "Thunder at Spurs · TUE OCT 20 · 9:30 PM ET",
-            "eyebrow": "Reason 1 of 3 · Thunder",
-            "title": "Home and away",
-            "sub": "Thunder have won 75% of recent road games; Spurs 65% at home.",
-            "rows": [
-              {
-                "label": "Win % (road vs home)",
-                "lower_is_better": false,
-                "a": {
-                  "team": "OKC",
-                  "value": 0.75,
-                  "label": "75%"
-                },
-                "b": {
-                  "team": "SAS",
-                  "value": 0.65,
-                  "label": "65%"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "text": "🎯 OFFENSE\n\nThunder score 113.8 points per 100 possessions over their last 10, Spurs 107.6.",
-          "card": {
-            "type": "edge",
-            "away": "OKC",
-            "home": "SAS",
-            "matchup": "Thunder at Spurs · TUE OCT 20 · 9:30 PM ET",
-            "eyebrow": "Reason 2 of 3 · Thunder",
-            "title": "Offense",
-            "sub": "Thunder score 113.8 points per 100 possessions over their last 10, Spurs 107.6.",
-            "rows": [
-              {
-                "label": "Offensive rating",
-                "lower_is_better": false,
-                "a": {
-                  "team": "OKC",
-                  "value": 113.79,
-                  "label": "113.8"
-                },
-                "b": {
-                  "team": "SAS",
-                  "value": 107.5772,
-                  "label": "107.6"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "text": "🏹 FROM DEEP\n\nThunder are hitting 35.9% from three over their last 10, Spurs 33.8%.",
-          "card": {
-            "type": "edge",
-            "away": "OKC",
-            "home": "SAS",
-            "matchup": "Thunder at Spurs · TUE OCT 20 · 9:30 PM ET",
-            "eyebrow": "Reason 3 of 3 · Thunder",
-            "title": "From deep",
-            "sub": "Thunder are hitting 35.9% from three over their last 10, Spurs 33.8%.",
-            "rows": [
-              {
-                "label": "3P%, last 10",
-                "lower_is_better": false,
-                "a": {
-                  "team": "OKC",
-                  "value": 0.359,
-                  "label": "35.9%"
-                },
-                "b": {
-                  "team": "SAS",
-                  "value": 0.3381,
-                  "label": "33.8%"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "text": "⚠️ THE RISK\n\nThunder allow 111.5 per 100 possessions lately, Spurs 106.0.\n\nTeams priced like Spurs tonight still win about 49 times in 100.",
-          "card": null
-        },
-        {
-          "text": "📈 Our probabilities hit 68.6% of winners over 4 seasons of backtests.\n\nEvery pick is posted before tip-off and graded after the final buzzer. No deleting the misses.\n\n🔔 Follow for the full slate every game day.",
-          "card": null
-        }
-      ]
-    },
-    {
-      "id": "Boston_Celtics_vs_Detroit_Pistons_2026-10-20",
-      "matchup": "Boston Celtics @ Detroit Pistons",
-      "home_team": "Detroit Pistons",
-      "away_team": "Boston Celtics",
-      "predicted_winner": "Boston Celtics",
-      "predicted_home_prob": 0.4942120895204795,
-      "predicted_away_prob": 0.5057879104795204,
-      "home_odds": 1.95,
-      "away_odds": 1.87,
-      "confidence": 0.5057879104795204,
-      "date": "2026-10-20",
-      "published": false,
-      "home_code": "DET",
-      "away_code": "BOS",
-      "start_utc": "2026-10-20T19:00:00+00:00",
-      "model_home_prob": 0.5685,
-      "market_home_prob": 0.4892,
-      "probability_source": "blend",
-      "own_home_prob": 0.5228,
-      "own_away_prob": 0.4772,
-      "own_model_mode": "full",
-      "market_books": 1,
-      "refreshed_at": "2026-10-20T09:11+00:00",
-      "key_out": {
-        "home": [],
-        "away": []
-      },
-      "thread": [
-        {
-          "text": "🏀 Boston Celtics at Detroit Pistons\n🕗 Tue Oct 20, 3:00 PM ET\n\n🎯 Pick: Boston Celtics (51%)\n📊 Our model 48% · books 51%\n💰 Odds 1.87 · books’ consensus\n\nThe case, and the risk 🧵",
-          "card": {
-            "type": "match",
-            "when": "TUE OCT 20 · 3:00 PM ET",
-            "away": "BOS",
-            "home": "DET",
-            "away_prob": 0.5057879104795204,
-            "away_sub": "away",
-            "home_sub": "home",
-            "pick_name": "Celtics",
-            "odds": "1.87",
-            "source": "Our model 48% + books 51%",
-            "tape": [
-              {
-                "label": "Last 10",
-                "away": "5-5",
-                "home": "6-4"
-              },
-              {
-                "label": "Net rtg L10",
-                "away": "+4.1",
-                "home": "+3.9"
-              },
-              {
-                "label": "Rest",
-                "away": "6d",
-                "home": "6d"
-              },
-              {
-                "label": "Elo",
-                "away": "1604",
-                "home": "1622"
-              }
-            ]
-          }
-        },
-        {
-          "text": "🎯 OFFENSE\n\nCeltics score 114.1 points per 100 possessions over their last 10, Pistons 113.3.",
-          "card": {
-            "type": "edge",
-            "away": "BOS",
-            "home": "DET",
-            "matchup": "Celtics at Pistons · TUE OCT 20 · 3:00 PM ET",
-            "eyebrow": "Reason 1 of 2 · Celtics",
-            "title": "Offense",
-            "sub": "Celtics score 114.1 points per 100 possessions over their last 10, Pistons 113.3.",
-            "rows": [
-              {
-                "label": "Offensive rating",
-                "lower_is_better": false,
-                "a": {
-                  "team": "BOS",
-                  "value": 114.0718,
-                  "label": "114.1"
-                },
-                "b": {
-                  "team": "DET",
-                  "value": 113.2857,
-                  "label": "113.3"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "text": "🔥 RECENT FORM\n\nLast 10 games: Celtics 5-5, net rating +4.1. Pistons 6-4, +3.9.",
-          "card": {
-            "type": "edge",
-            "away": "BOS",
-            "home": "DET",
-            "matchup": "Celtics at Pistons · TUE OCT 20 · 3:00 PM ET",
-            "eyebrow": "Reason 2 of 2 · Celtics",
-            "title": "Recent form",
-            "sub": "Last 10 games: Celtics 5-5, net rating +4.1. Pistons 6-4, +3.9.",
-            "rows": [
-              {
-                "label": "Net rating, last 10",
-                "lower_is_better": false,
-                "a": {
-                  "team": "BOS",
-                  "value": 4.0573,
-                  "label": "+4.1"
-                },
-                "b": {
-                  "team": "DET",
-                  "value": 3.9457,
-                  "label": "+3.9"
-                }
-              },
-              {
-                "label": "Record, last 10",
-                "lower_is_better": false,
-                "a": {
-                  "team": "BOS",
-                  "value": 0.5,
-                  "label": "5-5"
-                },
-                "b": {
-                  "team": "DET",
-                  "value": 0.6,
-                  "label": "6-4"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "text": "⚠️ THE RISK\n\nCeltics are hitting 35.9% from three over their last 10, Pistons 39.4%.\n\nTeams priced like Pistons tonight still win about 49 times in 100.",
-          "card": null
-        },
-        {
-          "text": "📈 Our probabilities hit 68.6% of winners over 4 seasons of backtests.\n\nEvery pick is posted before tip-off and graded after the final buzzer. No deleting the misses.\n\n🔔 Follow for the full slate every game day.",
-          "card": null
-        }
-      ]
-    }
-  ],
-  "games_tomorrow": [
-    {
       "id": "Chicago_Bulls_vs_Toronto_Raptors_2026-10-21",
       "matchup": "Chicago Bulls @ Toronto Raptors",
       "home_team": "Toronto Raptors",
       "away_team": "Chicago Bulls",
       "predicted_winner": "Toronto Raptors",
-      "predicted_home_prob": 0.7675090838085292,
-      "predicted_away_prob": 0.23249091619147078,
+      "predicted_home_prob": 0.7673403744220093,
+      "predicted_away_prob": 0.2326596255779907,
       "home_odds": 1.24,
       "away_odds": 4.3,
-      "confidence": 0.7675090838085292,
+      "confidence": 0.7673403744220093,
       "date": "2026-10-21",
       "published": false,
       "home_code": "TOR",
@@ -2674,11 +1922,11 @@
       "model_home_prob": 0.6642,
       "market_home_prob": 0.7768,
       "probability_source": "blend",
-      "own_home_prob": 0.7097,
-      "own_away_prob": 0.2903,
+      "own_home_prob": 0.7084,
+      "own_away_prob": 0.2916,
       "own_model_mode": "full",
       "market_books": 1,
-      "refreshed_at": "2026-10-20T09:11+00:00",
+      "refreshed_at": "2026-10-21T09:12+00:00",
       "key_out": {
         "home": [],
         "away": []
@@ -2691,7 +1939,7 @@
             "when": "WED OCT 21 · 7:30 PM ET",
             "away": "CHI",
             "home": "TOR",
-            "away_prob": 0.23249091619147078,
+            "away_prob": 0.2326596255779907,
             "away_sub": "away",
             "home_sub": "home",
             "pick_name": "Raptors",
@@ -2835,42 +2083,42 @@
       "home_team": "Houston Rockets",
       "away_team": "Dallas Mavericks",
       "predicted_winner": "Houston Rockets",
-      "predicted_home_prob": 0.7525554878743053,
-      "predicted_away_prob": 0.24744451212569474,
-      "home_odds": 1.27,
-      "away_odds": 3.95,
-      "confidence": 0.7525554878743053,
+      "predicted_home_prob": 0.746903785688072,
+      "predicted_away_prob": 0.25309621431192797,
+      "home_odds": 1.28,
+      "away_odds": 3.85,
+      "confidence": 0.746903785688072,
       "date": "2026-10-21",
       "published": false,
       "home_code": "HOU",
       "away_code": "DAL",
       "start_utc": "2026-10-22T00:30:00+00:00",
       "model_home_prob": 0.6684,
-      "market_home_prob": 0.7572,
+      "market_home_prob": 0.7508,
       "probability_source": "blend",
-      "own_home_prob": 0.7252,
-      "own_away_prob": 0.2748,
+      "own_home_prob": 0.724,
+      "own_away_prob": 0.276,
       "own_model_mode": "full",
       "market_books": 1,
-      "refreshed_at": "2026-10-20T09:11+00:00",
+      "refreshed_at": "2026-10-21T09:12+00:00",
       "key_out": {
         "home": [],
         "away": []
       },
       "thread": [
         {
-          "text": "🏀 Dallas Mavericks at Houston Rockets\n🕗 Wed Oct 21, 8:30 PM ET\n\n🎯 Pick: Houston Rockets (75%)\n📊 Our model 73% · books 76%\n💰 Odds 1.27 · books’ consensus\n\nThe case, and the risk 🧵",
+          "text": "🏀 Dallas Mavericks at Houston Rockets\n🕗 Wed Oct 21, 8:30 PM ET\n\n🎯 Pick: Houston Rockets (75%)\n📊 Our model 72% · books 75%\n💰 Odds 1.28 · books’ consensus\n\nThe case, and the risk 🧵",
           "card": {
             "type": "match",
             "when": "WED OCT 21 · 8:30 PM ET",
             "away": "DAL",
             "home": "HOU",
-            "away_prob": 0.24744451212569474,
+            "away_prob": 0.25309621431192797,
             "away_sub": "away",
             "home_sub": "home",
             "pick_name": "Rockets",
-            "odds": "1.27",
-            "source": "Our model 73% + books 76%",
+            "odds": "1.28",
+            "source": "Our model 72% + books 75%",
             "tape": [
               {
                 "label": "Last 10",
@@ -2990,207 +2238,47 @@
       ]
     },
     {
-      "id": "Golden_State_Warriors_vs_Los_Angeles_Lakers_2026-10-21",
-      "matchup": "Golden State Warriors @ Los Angeles Lakers",
-      "home_team": "Los Angeles Lakers",
-      "away_team": "Golden State Warriors",
-      "predicted_winner": "Los Angeles Lakers",
-      "predicted_home_prob": 0.6544368882039929,
-      "predicted_away_prob": 0.34556311179600707,
-      "home_odds": 1.44,
-      "away_odds": 2.85,
-      "confidence": 0.6544368882039929,
-      "date": "2026-10-21",
-      "published": false,
-      "home_code": "LAL",
-      "away_code": "GSW",
-      "start_utc": "2026-10-22T02:00:00+00:00",
-      "model_home_prob": 0.652,
-      "market_home_prob": 0.6636,
-      "probability_source": "blend",
-      "own_home_prob": 0.6002,
-      "own_away_prob": 0.3998,
-      "own_model_mode": "full",
-      "market_books": 1,
-      "refreshed_at": "2026-10-20T09:11+00:00",
-      "key_out": {
-        "home": [],
-        "away": []
-      },
-      "thread": [
-        {
-          "text": "🏀 Golden State Warriors at Los Angeles Lakers\n🕗 Wed Oct 21, 10:00 PM ET\n\n🎯 Pick: Los Angeles Lakers (65%)\n📊 Our model 60% · books 66%\n💰 Odds 1.44 · books’ consensus\n\nThe case, and the risk 🧵",
-          "card": {
-            "type": "match",
-            "when": "WED OCT 21 · 10:00 PM ET",
-            "away": "GSW",
-            "home": "LAL",
-            "away_prob": 0.34556311179600707,
-            "away_sub": "away",
-            "home_sub": "home",
-            "pick_name": "Lakers",
-            "odds": "1.44",
-            "source": "Our model 60% + books 66%",
-            "tape": [
-              {
-                "label": "Last 10",
-                "away": "2-8",
-                "home": "4-6"
-              },
-              {
-                "label": "Net rtg L10",
-                "away": "-8.1",
-                "home": "-5.1"
-              },
-              {
-                "label": "Rest",
-                "away": "6d",
-                "home": "6d"
-              },
-              {
-                "label": "Elo",
-                "away": "1405",
-                "home": "1580"
-              }
-            ]
-          }
-        },
-        {
-          "text": "🏟️ HOME AND AWAY\n\nLakers have won 70% at home lately; Warriors 35% on the road.",
-          "card": {
-            "type": "edge",
-            "away": "GSW",
-            "home": "LAL",
-            "matchup": "Warriors at Lakers · WED OCT 21 · 10:00 PM ET",
-            "eyebrow": "Reason 1 of 3 · Lakers",
-            "title": "Home and away",
-            "sub": "Lakers have won 70% at home lately; Warriors 35% on the road.",
-            "rows": [
-              {
-                "label": "Win % (home vs road)",
-                "lower_is_better": false,
-                "a": {
-                  "team": "LAL",
-                  "value": 0.7,
-                  "label": "70%"
-                },
-                "b": {
-                  "team": "GSW",
-                  "value": 0.35,
-                  "label": "35%"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "text": "🛡️ DEFENSE\n\nLakers allow 112.1 per 100 possessions lately, Warriors 120.7.",
-          "card": {
-            "type": "edge",
-            "away": "GSW",
-            "home": "LAL",
-            "matchup": "Warriors at Lakers · WED OCT 21 · 10:00 PM ET",
-            "eyebrow": "Reason 2 of 3 · Lakers",
-            "title": "Defense",
-            "sub": "Lakers allow 112.1 per 100 possessions lately, Warriors 120.7.",
-            "rows": [
-              {
-                "label": "Defensive rating (lower is better)",
-                "lower_is_better": true,
-                "a": {
-                  "team": "LAL",
-                  "value": 112.1271,
-                  "label": "112.1"
-                },
-                "b": {
-                  "team": "GSW",
-                  "value": 120.6542,
-                  "label": "120.7"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "text": "📊 POWER RATING\n\nElo has Lakers at 1580, Warriors at 1405. A real gap in team strength.",
-          "card": {
-            "type": "edge",
-            "away": "GSW",
-            "home": "LAL",
-            "matchup": "Warriors at Lakers · WED OCT 21 · 10:00 PM ET",
-            "eyebrow": "Reason 3 of 3 · Lakers",
-            "title": "Power rating",
-            "sub": "Elo has Lakers at 1580, Warriors at 1405. A real gap in team strength.",
-            "rows": [
-              {
-                "label": "Elo rating",
-                "lower_is_better": false,
-                "a": {
-                  "team": "LAL",
-                  "value": 1580.1878,
-                  "label": "1580"
-                },
-                "b": {
-                  "team": "GSW",
-                  "value": 1404.5909,
-                  "label": "1405"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "text": "⚠️ THE RISK\n\nLakers score 107.0 points per 100 possessions over their last 10, Warriors 112.6.\n\nTeams priced like Warriors tonight still win about 35 times in 100.",
-          "card": null
-        },
-        {
-          "text": "📈 Our probabilities hit 68.6% of winners over 4 seasons of backtests.\n\nEvery pick is posted before tip-off and graded after the final buzzer. No deleting the misses.\n\n🔔 Follow for the full slate every game day.",
-          "card": null
-        }
-      ]
-    },
-    {
       "id": "Sacramento_Kings_vs_LA_Clippers_2026-10-21",
       "matchup": "Sacramento Kings @ LA Clippers",
       "home_team": "LA Clippers",
       "away_team": "Sacramento Kings",
       "predicted_winner": "LA Clippers",
-      "predicted_home_prob": 0.6349587941883075,
-      "predicted_away_prob": 0.3650412058116925,
-      "home_odds": 1.56,
-      "away_odds": 2.5,
-      "confidence": 0.6349587941883075,
+      "predicted_home_prob": 0.6517237406142182,
+      "predicted_away_prob": 0.3482762593857818,
+      "home_odds": 1.51,
+      "away_odds": 2.64,
+      "confidence": 0.6517237406142182,
       "date": "2026-10-21",
       "published": false,
       "home_code": "LAC",
       "away_code": "SAC",
       "start_utc": "2026-10-22T02:30:00+00:00",
       "model_home_prob": 0.628,
-      "market_home_prob": 0.6164,
+      "market_home_prob": 0.6369,
       "probability_source": "blend",
-      "own_home_prob": 0.7314,
-      "own_away_prob": 0.2686,
+      "own_home_prob": 0.7297,
+      "own_away_prob": 0.2703,
       "own_model_mode": "full",
       "market_books": 1,
-      "refreshed_at": "2026-10-20T09:11+00:00",
+      "refreshed_at": "2026-10-21T09:12+00:00",
       "key_out": {
         "home": [],
         "away": []
       },
       "thread": [
         {
-          "text": "🏀 Sacramento Kings at LA Clippers\n🕗 Wed Oct 21, 10:30 PM ET\n\n🎯 Pick: LA Clippers (63%)\n📊 Our model 73% · books 62%\n💰 Odds 1.56 · books’ consensus\n\nThe case, and the risk 🧵",
+          "text": "🏀 Sacramento Kings at LA Clippers\n🕗 Wed Oct 21, 10:30 PM ET\n\n🎯 Pick: LA Clippers (65%)\n📊 Our model 73% · books 64%\n💰 Odds 1.51 · books’ consensus\n\nThe case, and the risk 🧵",
           "card": {
             "type": "match",
             "when": "WED OCT 21 · 10:30 PM ET",
             "away": "SAC",
             "home": "LAC",
-            "away_prob": 0.3650412058116925,
+            "away_prob": 0.3482762593857818,
             "away_sub": "away",
             "home_sub": "home",
             "pick_name": "Clippers",
-            "odds": "1.56",
-            "source": "Our model 73% + books 62%",
+            "odds": "1.51",
+            "source": "Our model 73% + books 64%",
             "tape": [
               {
                 "label": "Last 10",
@@ -3314,7 +2402,167 @@
           }
         },
         {
-          "text": "⚠️ THE RISK\n\nNothing big flags against the Clippers. But 63% is not 100%: priced like this, Kings win about 37 times in 100.",
+          "text": "⚠️ THE RISK\n\nNothing big flags against the Clippers. But 65% is not 100%: priced like this, Kings win about 35 times in 100.",
+          "card": null
+        },
+        {
+          "text": "📈 Our probabilities hit 68.6% of winners over 4 seasons of backtests.\n\nEvery pick is posted before tip-off and graded after the final buzzer. No deleting the misses.\n\n🔔 Follow for the full slate every game day.",
+          "card": null
+        }
+      ]
+    },
+    {
+      "id": "Golden_State_Warriors_vs_Los_Angeles_Lakers_2026-10-21",
+      "matchup": "Golden State Warriors @ Los Angeles Lakers",
+      "home_team": "Los Angeles Lakers",
+      "away_team": "Golden State Warriors",
+      "predicted_winner": "Los Angeles Lakers",
+      "predicted_home_prob": 0.6487416362748805,
+      "predicted_away_prob": 0.35125836372511954,
+      "home_odds": 1.46,
+      "away_odds": 2.8,
+      "confidence": 0.6487416362748805,
+      "date": "2026-10-21",
+      "published": false,
+      "home_code": "LAL",
+      "away_code": "GSW",
+      "start_utc": "2026-10-22T02:00:00+00:00",
+      "model_home_prob": 0.652,
+      "market_home_prob": 0.6575,
+      "probability_source": "blend",
+      "own_home_prob": 0.5975,
+      "own_away_prob": 0.4025,
+      "own_model_mode": "full",
+      "market_books": 1,
+      "refreshed_at": "2026-10-21T09:12+00:00",
+      "key_out": {
+        "home": [],
+        "away": []
+      },
+      "thread": [
+        {
+          "text": "🏀 Golden State Warriors at Los Angeles Lakers\n🕗 Wed Oct 21, 10:00 PM ET\n\n🎯 Pick: Los Angeles Lakers (65%)\n📊 Our model 60% · books 66%\n💰 Odds 1.46 · books’ consensus\n\nThe case, and the risk 🧵",
+          "card": {
+            "type": "match",
+            "when": "WED OCT 21 · 10:00 PM ET",
+            "away": "GSW",
+            "home": "LAL",
+            "away_prob": 0.35125836372511954,
+            "away_sub": "away",
+            "home_sub": "home",
+            "pick_name": "Lakers",
+            "odds": "1.46",
+            "source": "Our model 60% + books 66%",
+            "tape": [
+              {
+                "label": "Last 10",
+                "away": "2-8",
+                "home": "4-6"
+              },
+              {
+                "label": "Net rtg L10",
+                "away": "-8.1",
+                "home": "-5.1"
+              },
+              {
+                "label": "Rest",
+                "away": "6d",
+                "home": "6d"
+              },
+              {
+                "label": "Elo",
+                "away": "1405",
+                "home": "1580"
+              }
+            ]
+          }
+        },
+        {
+          "text": "🏟️ HOME AND AWAY\n\nLakers have won 70% at home lately; Warriors 35% on the road.",
+          "card": {
+            "type": "edge",
+            "away": "GSW",
+            "home": "LAL",
+            "matchup": "Warriors at Lakers · WED OCT 21 · 10:00 PM ET",
+            "eyebrow": "Reason 1 of 3 · Lakers",
+            "title": "Home and away",
+            "sub": "Lakers have won 70% at home lately; Warriors 35% on the road.",
+            "rows": [
+              {
+                "label": "Win % (home vs road)",
+                "lower_is_better": false,
+                "a": {
+                  "team": "LAL",
+                  "value": 0.7,
+                  "label": "70%"
+                },
+                "b": {
+                  "team": "GSW",
+                  "value": 0.35,
+                  "label": "35%"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "text": "🛡️ DEFENSE\n\nLakers allow 112.1 per 100 possessions lately, Warriors 120.7.",
+          "card": {
+            "type": "edge",
+            "away": "GSW",
+            "home": "LAL",
+            "matchup": "Warriors at Lakers · WED OCT 21 · 10:00 PM ET",
+            "eyebrow": "Reason 2 of 3 · Lakers",
+            "title": "Defense",
+            "sub": "Lakers allow 112.1 per 100 possessions lately, Warriors 120.7.",
+            "rows": [
+              {
+                "label": "Defensive rating (lower is better)",
+                "lower_is_better": true,
+                "a": {
+                  "team": "LAL",
+                  "value": 112.1271,
+                  "label": "112.1"
+                },
+                "b": {
+                  "team": "GSW",
+                  "value": 120.6542,
+                  "label": "120.7"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "text": "📊 POWER RATING\n\nElo has Lakers at 1580, Warriors at 1405. A real gap in team strength.",
+          "card": {
+            "type": "edge",
+            "away": "GSW",
+            "home": "LAL",
+            "matchup": "Warriors at Lakers · WED OCT 21 · 10:00 PM ET",
+            "eyebrow": "Reason 3 of 3 · Lakers",
+            "title": "Power rating",
+            "sub": "Elo has Lakers at 1580, Warriors at 1405. A real gap in team strength.",
+            "rows": [
+              {
+                "label": "Elo rating",
+                "lower_is_better": false,
+                "a": {
+                  "team": "LAL",
+                  "value": 1580.1878,
+                  "label": "1580"
+                },
+                "b": {
+                  "team": "GSW",
+                  "value": 1404.5909,
+                  "label": "1405"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "text": "⚠️ THE RISK\n\nLakers score 107.0 points per 100 possessions over their last 10, Warriors 112.6.\n\nTeams priced like Warriors tonight still win about 35 times in 100.",
           "card": null
         },
         {
@@ -3329,42 +2577,42 @@
       "home_team": "Washington Wizards",
       "away_team": "Milwaukee Bucks",
       "predicted_winner": "Washington Wizards",
-      "predicted_home_prob": 0.6167838794406699,
-      "predicted_away_prob": 0.3832161205593301,
-      "home_odds": 1.51,
-      "away_odds": 2.64,
-      "confidence": 0.6167838794406699,
+      "predicted_home_prob": 0.5988292158516987,
+      "predicted_away_prob": 0.4011707841483013,
+      "home_odds": 1.56,
+      "away_odds": 2.5,
+      "confidence": 0.5988292158516987,
       "date": "2026-10-21",
       "published": false,
       "home_code": "WAS",
       "away_code": "MIL",
       "start_utc": "2026-10-21T23:00:00+00:00",
       "model_home_prob": 0.4824,
-      "market_home_prob": 0.6369,
+      "market_home_prob": 0.6164,
       "probability_source": "blend",
-      "own_home_prob": 0.4971,
-      "own_away_prob": 0.5029,
+      "own_home_prob": 0.4955,
+      "own_away_prob": 0.5045,
       "own_model_mode": "full",
       "market_books": 1,
-      "refreshed_at": "2026-10-20T09:11+00:00",
+      "refreshed_at": "2026-10-21T09:12+00:00",
       "key_out": {
         "home": [],
         "away": []
       },
       "thread": [
         {
-          "text": "🏀 Milwaukee Bucks at Washington Wizards\n🕗 Wed Oct 21, 7:00 PM ET\n\n🎯 Pick: Washington Wizards (62%)\n📊 Our model 50% · books 64%\n💰 Odds 1.51 · books’ consensus\n\nThe case, and the risk 🧵",
+          "text": "🏀 Milwaukee Bucks at Washington Wizards\n🕗 Wed Oct 21, 7:00 PM ET\n\n🎯 Pick: Washington Wizards (60%)\n📊 Our model 50% · books 62%\n💰 Odds 1.56 · books’ consensus\n\nThe case, and the risk 🧵",
           "card": {
             "type": "match",
             "when": "WED OCT 21 · 7:00 PM ET",
             "away": "MIL",
             "home": "WAS",
-            "away_prob": 0.3832161205593301,
+            "away_prob": 0.4011707841483013,
             "away_sub": "away",
             "home_sub": "home",
             "pick_name": "Wizards",
-            "odds": "1.51",
-            "source": "Our model 50% + books 64%",
+            "odds": "1.56",
+            "source": "Our model 50% + books 62%",
             "tape": [
               {
                 "label": "Last 10",
@@ -3390,331 +2638,7 @@
           }
         },
         {
-          "text": "⚠️ THE RISK\n\nWizards are hitting 34.8% from three over their last 10, Bucks 39.5%.\n\nTeams priced like Bucks tonight still win about 38 times in 100.",
-          "card": null
-        },
-        {
-          "text": "📈 Our probabilities hit 68.6% of winners over 4 seasons of backtests.\n\nEvery pick is posted before tip-off and graded after the final buzzer. No deleting the misses.\n\n🔔 Follow for the full slate every game day.",
-          "card": null
-        }
-      ]
-    },
-    {
-      "id": "Phoenix_Suns_vs_Portland_Trail_Blazers_2026-10-21",
-      "matchup": "Phoenix Suns @ Portland Trail Blazers",
-      "home_team": "Portland Trail Blazers",
-      "away_team": "Phoenix Suns",
-      "predicted_winner": "Portland Trail Blazers",
-      "predicted_home_prob": 0.5935567481911374,
-      "predicted_away_prob": 0.40644325180886265,
-      "home_odds": 1.6,
-      "away_odds": 2.4,
-      "confidence": 0.5935567481911374,
-      "date": "2026-10-21",
-      "published": false,
-      "home_code": "POR",
-      "away_code": "PHX",
-      "start_utc": "2026-10-22T02:00:00+00:00",
-      "model_home_prob": 0.5825,
-      "market_home_prob": 0.5996,
-      "probability_source": "blend",
-      "own_home_prob": 0.5586,
-      "own_away_prob": 0.4414,
-      "own_model_mode": "full",
-      "market_books": 1,
-      "refreshed_at": "2026-10-20T09:11+00:00",
-      "key_out": {
-        "home": [],
-        "away": []
-      },
-      "thread": [
-        {
-          "text": "🏀 Phoenix Suns at Portland Trail Blazers\n🕗 Wed Oct 21, 10:00 PM ET\n\n🎯 Pick: Portland Trail Blazers (59%)\n📊 Our model 56% · books 60%\n💰 Odds 1.60 · books’ consensus\n\nThe case, and the risk 🧵",
-          "card": {
-            "type": "match",
-            "when": "WED OCT 21 · 10:00 PM ET",
-            "away": "PHX",
-            "home": "POR",
-            "away_prob": 0.40644325180886265,
-            "away_sub": "away",
-            "home_sub": "home",
-            "pick_name": "Trail Blazers",
-            "odds": "1.60",
-            "source": "Our model 56% + books 60%",
-            "tape": [
-              {
-                "label": "Last 10",
-                "away": "3-7",
-                "home": "4-6"
-              },
-              {
-                "label": "Net rtg L10",
-                "away": "-6.8",
-                "home": "-4.3"
-              },
-              {
-                "label": "Rest",
-                "away": "6d",
-                "home": "6d"
-              },
-              {
-                "label": "Elo",
-                "away": "1500",
-                "home": "1543"
-              }
-            ]
-          }
-        },
-        {
-          "text": "🛡️ DEFENSE\n\nTrail Blazers allow 113.6 per 100 possessions lately, Suns 116.8.",
-          "card": {
-            "type": "edge",
-            "away": "PHX",
-            "home": "POR",
-            "matchup": "Suns at Trail Blazers · WED OCT 21 · 10:00 PM ET",
-            "eyebrow": "Reason 1 of 3 · Trail Blazers",
-            "title": "Defense",
-            "sub": "Trail Blazers allow 113.6 per 100 possessions lately, Suns 116.8.",
-            "rows": [
-              {
-                "label": "Defensive rating (lower is better)",
-                "lower_is_better": true,
-                "a": {
-                  "team": "POR",
-                  "value": 113.5919,
-                  "label": "113.6"
-                },
-                "b": {
-                  "team": "PHX",
-                  "value": 116.8245,
-                  "label": "116.8"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "text": "🤖 MODEL CHECK\n\nOur stats model (Elo, form, rest) gives Trail Blazers 58%, in line with the books.",
-          "card": null
-        },
-        {
-          "text": "🔥 RECENT FORM\n\nLast 10 games: Trail Blazers 4-6, net rating -4.3. Suns 3-7, -6.8.",
-          "card": {
-            "type": "edge",
-            "away": "PHX",
-            "home": "POR",
-            "matchup": "Suns at Trail Blazers · WED OCT 21 · 10:00 PM ET",
-            "eyebrow": "Reason 3 of 3 · Trail Blazers",
-            "title": "Recent form",
-            "sub": "Last 10 games: Trail Blazers 4-6, net rating -4.3. Suns 3-7, -6.8.",
-            "rows": [
-              {
-                "label": "Net rating, last 10",
-                "lower_is_better": false,
-                "a": {
-                  "team": "POR",
-                  "value": -4.3211,
-                  "label": "-4.3"
-                },
-                "b": {
-                  "team": "PHX",
-                  "value": -6.7953,
-                  "label": "-6.8"
-                }
-              },
-              {
-                "label": "Record, last 10",
-                "lower_is_better": false,
-                "a": {
-                  "team": "POR",
-                  "value": 0.4,
-                  "label": "4-6"
-                },
-                "b": {
-                  "team": "PHX",
-                  "value": 0.3,
-                  "label": "3-7"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "text": "⚠️ THE RISK\n\nNothing big flags against the Trail Blazers. But 59% is not 100%: priced like this, Suns win about 41 times in 100.",
-          "card": null
-        },
-        {
-          "text": "📈 Our probabilities hit 68.6% of winners over 4 seasons of backtests.\n\nEvery pick is posted before tip-off and graded after the final buzzer. No deleting the misses.\n\n🔔 Follow for the full slate every game day.",
-          "card": null
-        }
-      ]
-    },
-    {
-      "id": "Indiana_Pacers_vs_New_Orleans_Pelicans_2026-10-21",
-      "matchup": "Indiana Pacers @ New Orleans Pelicans",
-      "home_team": "New Orleans Pelicans",
-      "away_team": "Indiana Pacers",
-      "predicted_winner": "Indiana Pacers",
-      "predicted_home_prob": 0.42881324382892205,
-      "predicted_away_prob": 0.571186756171078,
-      "home_odds": 2.36,
-      "away_odds": 1.62,
-      "confidence": 0.571186756171078,
-      "date": "2026-10-21",
-      "published": false,
-      "home_code": "NOP",
-      "away_code": "IND",
-      "start_utc": "2026-10-22T00:00:00+00:00",
-      "model_home_prob": 0.5931,
-      "market_home_prob": 0.4066,
-      "probability_source": "blend",
-      "own_home_prob": 0.5573,
-      "own_away_prob": 0.4427,
-      "own_model_mode": "full",
-      "market_books": 1,
-      "refreshed_at": "2026-10-20T09:11+00:00",
-      "key_out": {
-        "home": [],
-        "away": []
-      },
-      "thread": [
-        {
-          "text": "🏀 Indiana Pacers at New Orleans Pelicans\n🕗 Wed Oct 21, 8:00 PM ET\n\n🎯 Pick: Indiana Pacers (57%)\n📊 Our model 44% · books 59%\n💰 Odds 1.62 · books’ consensus\n\nThe case, and the risk 🧵",
-          "card": {
-            "type": "match",
-            "when": "WED OCT 21 · 8:00 PM ET",
-            "away": "IND",
-            "home": "NOP",
-            "away_prob": 0.571186756171078,
-            "away_sub": "away",
-            "home_sub": "home",
-            "pick_name": "Pacers",
-            "odds": "1.62",
-            "source": "Our model 44% + books 59%",
-            "tape": [
-              {
-                "label": "Last 10",
-                "away": "3-7",
-                "home": "1-9"
-              },
-              {
-                "label": "Net rtg L10",
-                "away": "-1.8",
-                "home": "-10.4"
-              },
-              {
-                "label": "Rest",
-                "away": "6d",
-                "home": "6d"
-              },
-              {
-                "label": "Elo",
-                "away": "1351",
-                "home": "1414"
-              }
-            ]
-          }
-        },
-        {
-          "text": "🏹 FROM DEEP\n\nPacers are hitting 38.5% from three over their last 10, Pelicans 34.2%.",
-          "card": {
-            "type": "edge",
-            "away": "IND",
-            "home": "NOP",
-            "matchup": "Pacers at Pelicans · WED OCT 21 · 8:00 PM ET",
-            "eyebrow": "Reason 1 of 3 · Pacers",
-            "title": "From deep",
-            "sub": "Pacers are hitting 38.5% from three over their last 10, Pelicans 34.2%.",
-            "rows": [
-              {
-                "label": "3P%, last 10",
-                "lower_is_better": false,
-                "a": {
-                  "team": "IND",
-                  "value": 0.3846,
-                  "label": "38.5%"
-                },
-                "b": {
-                  "team": "NOP",
-                  "value": 0.3418,
-                  "label": "34.2%"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "text": "🛡️ DEFENSE\n\nPacers allow 114.4 per 100 possessions lately, Pelicans 121.1.",
-          "card": {
-            "type": "edge",
-            "away": "IND",
-            "home": "NOP",
-            "matchup": "Pacers at Pelicans · WED OCT 21 · 8:00 PM ET",
-            "eyebrow": "Reason 2 of 3 · Pacers",
-            "title": "Defense",
-            "sub": "Pacers allow 114.4 per 100 possessions lately, Pelicans 121.1.",
-            "rows": [
-              {
-                "label": "Defensive rating (lower is better)",
-                "lower_is_better": true,
-                "a": {
-                  "team": "IND",
-                  "value": 114.4402,
-                  "label": "114.4"
-                },
-                "b": {
-                  "team": "NOP",
-                  "value": 121.0846,
-                  "label": "121.1"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "text": "🔥 RECENT FORM\n\nLast 10 games: Pacers 3-7, net rating -1.8. Pelicans 1-9, -10.4.",
-          "card": {
-            "type": "edge",
-            "away": "IND",
-            "home": "NOP",
-            "matchup": "Pacers at Pelicans · WED OCT 21 · 8:00 PM ET",
-            "eyebrow": "Reason 3 of 3 · Pacers",
-            "title": "Recent form",
-            "sub": "Last 10 games: Pacers 3-7, net rating -1.8. Pelicans 1-9, -10.4.",
-            "rows": [
-              {
-                "label": "Net rating, last 10",
-                "lower_is_better": false,
-                "a": {
-                  "team": "IND",
-                  "value": -1.8359,
-                  "label": "-1.8"
-                },
-                "b": {
-                  "team": "NOP",
-                  "value": -10.4162,
-                  "label": "-10.4"
-                }
-              },
-              {
-                "label": "Record, last 10",
-                "lower_is_better": false,
-                "a": {
-                  "team": "IND",
-                  "value": 0.3,
-                  "label": "3-7"
-                },
-                "b": {
-                  "team": "NOP",
-                  "value": 0.1,
-                  "label": "1-9"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "text": "⚠️ THE RISK\n\nPacers have won 30% of recent road games; Pelicans 55% at home.\n\nTeams priced like Pelicans tonight still win about 43 times in 100.",
+          "text": "⚠️ THE RISK\n\nWizards are hitting 34.8% from three over their last 10, Bucks 39.5%.\n\nTeams priced like Bucks tonight still win about 40 times in 100.",
           "card": null
         },
         {
@@ -3729,42 +2653,42 @@
       "home_team": "Orlando Magic",
       "away_team": "Atlanta Hawks",
       "predicted_winner": "Orlando Magic",
-      "predicted_home_prob": 0.5432923114193857,
-      "predicted_away_prob": 0.4567076885806143,
-      "home_odds": 1.77,
-      "away_odds": 2.1,
-      "confidence": 0.5432923114193857,
+      "predicted_home_prob": 0.5680685543307131,
+      "predicted_away_prob": 0.4319314456692869,
+      "home_odds": 1.68,
+      "away_odds": 2.24,
+      "confidence": 0.5680685543307131,
       "date": "2026-10-21",
       "published": false,
       "home_code": "ORL",
       "away_code": "ATL",
       "start_utc": "2026-10-21T23:00:00+00:00",
       "model_home_prob": 0.5858,
-      "market_home_prob": 0.5427,
+      "market_home_prob": 0.5721,
       "probability_source": "blend",
-      "own_home_prob": 0.5464,
-      "own_away_prob": 0.4536,
+      "own_home_prob": 0.5453,
+      "own_away_prob": 0.4547,
       "own_model_mode": "full",
       "market_books": 1,
-      "refreshed_at": "2026-10-20T09:11+00:00",
+      "refreshed_at": "2026-10-21T09:12+00:00",
       "key_out": {
         "home": [],
         "away": []
       },
       "thread": [
         {
-          "text": "🏀 Atlanta Hawks at Orlando Magic\n🕗 Wed Oct 21, 7:00 PM ET\n\n🎯 Pick: Orlando Magic (54%)\n📊 Our model 55% · books 54%\n💰 Odds 1.77 · books’ consensus\n\nThe case, and the risk 🧵",
+          "text": "🏀 Atlanta Hawks at Orlando Magic\n🕗 Wed Oct 21, 7:00 PM ET\n\n🎯 Pick: Orlando Magic (57%)\n📊 Our model 55% · books 57%\n💰 Odds 1.68 · books’ consensus\n\nThe case, and the risk 🧵",
           "card": {
             "type": "match",
             "when": "WED OCT 21 · 7:00 PM ET",
             "away": "ATL",
             "home": "ORL",
-            "away_prob": 0.4567076885806143,
+            "away_prob": 0.4319314456692869,
             "away_sub": "away",
             "home_sub": "home",
             "pick_name": "Magic",
-            "odds": "1.77",
-            "source": "Our model 55% + books 54%",
+            "odds": "1.68",
+            "source": "Our model 55% + books 57%",
             "tape": [
               {
                 "label": "Last 10",
@@ -3888,7 +2812,331 @@
           }
         },
         {
-          "text": "⚠️ THE RISK\n\nMagic score 101.5 points per 100 possessions over their last 10, Hawks 106.4.\n\nTeams priced like Hawks tonight still win about 46 times in 100.",
+          "text": "⚠️ THE RISK\n\nMagic score 101.5 points per 100 possessions over their last 10, Hawks 106.4.\n\nTeams priced like Hawks tonight still win about 43 times in 100.",
+          "card": null
+        },
+        {
+          "text": "📈 Our probabilities hit 68.6% of winners over 4 seasons of backtests.\n\nEvery pick is posted before tip-off and graded after the final buzzer. No deleting the misses.\n\n🔔 Follow for the full slate every game day.",
+          "card": null
+        }
+      ]
+    },
+    {
+      "id": "Indiana_Pacers_vs_New_Orleans_Pelicans_2026-10-21",
+      "matchup": "Indiana Pacers @ New Orleans Pelicans",
+      "home_team": "New Orleans Pelicans",
+      "away_team": "Indiana Pacers",
+      "predicted_winner": "Indiana Pacers",
+      "predicted_home_prob": 0.4375156573688229,
+      "predicted_away_prob": 0.5624843426311771,
+      "home_odds": 2.3,
+      "away_odds": 1.65,
+      "confidence": 0.5624843426311771,
+      "date": "2026-10-21",
+      "published": false,
+      "home_code": "NOP",
+      "away_code": "IND",
+      "start_utc": "2026-10-22T00:00:00+00:00",
+      "model_home_prob": 0.5931,
+      "market_home_prob": 0.417,
+      "probability_source": "blend",
+      "own_home_prob": 0.5557,
+      "own_away_prob": 0.4443,
+      "own_model_mode": "full",
+      "market_books": 1,
+      "refreshed_at": "2026-10-21T09:12+00:00",
+      "key_out": {
+        "home": [],
+        "away": []
+      },
+      "thread": [
+        {
+          "text": "🏀 Indiana Pacers at New Orleans Pelicans\n🕗 Wed Oct 21, 8:00 PM ET\n\n🎯 Pick: Indiana Pacers (56%)\n📊 Our model 44% · books 58%\n💰 Odds 1.65 · books’ consensus\n\nThe case, and the risk 🧵",
+          "card": {
+            "type": "match",
+            "when": "WED OCT 21 · 8:00 PM ET",
+            "away": "IND",
+            "home": "NOP",
+            "away_prob": 0.5624843426311771,
+            "away_sub": "away",
+            "home_sub": "home",
+            "pick_name": "Pacers",
+            "odds": "1.65",
+            "source": "Our model 44% + books 58%",
+            "tape": [
+              {
+                "label": "Last 10",
+                "away": "3-7",
+                "home": "1-9"
+              },
+              {
+                "label": "Net rtg L10",
+                "away": "-1.8",
+                "home": "-10.4"
+              },
+              {
+                "label": "Rest",
+                "away": "6d",
+                "home": "6d"
+              },
+              {
+                "label": "Elo",
+                "away": "1351",
+                "home": "1414"
+              }
+            ]
+          }
+        },
+        {
+          "text": "🏹 FROM DEEP\n\nPacers are hitting 38.5% from three over their last 10, Pelicans 34.2%.",
+          "card": {
+            "type": "edge",
+            "away": "IND",
+            "home": "NOP",
+            "matchup": "Pacers at Pelicans · WED OCT 21 · 8:00 PM ET",
+            "eyebrow": "Reason 1 of 3 · Pacers",
+            "title": "From deep",
+            "sub": "Pacers are hitting 38.5% from three over their last 10, Pelicans 34.2%.",
+            "rows": [
+              {
+                "label": "3P%, last 10",
+                "lower_is_better": false,
+                "a": {
+                  "team": "IND",
+                  "value": 0.3846,
+                  "label": "38.5%"
+                },
+                "b": {
+                  "team": "NOP",
+                  "value": 0.3418,
+                  "label": "34.2%"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "text": "🛡️ DEFENSE\n\nPacers allow 114.4 per 100 possessions lately, Pelicans 121.1.",
+          "card": {
+            "type": "edge",
+            "away": "IND",
+            "home": "NOP",
+            "matchup": "Pacers at Pelicans · WED OCT 21 · 8:00 PM ET",
+            "eyebrow": "Reason 2 of 3 · Pacers",
+            "title": "Defense",
+            "sub": "Pacers allow 114.4 per 100 possessions lately, Pelicans 121.1.",
+            "rows": [
+              {
+                "label": "Defensive rating (lower is better)",
+                "lower_is_better": true,
+                "a": {
+                  "team": "IND",
+                  "value": 114.4402,
+                  "label": "114.4"
+                },
+                "b": {
+                  "team": "NOP",
+                  "value": 121.0846,
+                  "label": "121.1"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "text": "🔥 RECENT FORM\n\nLast 10 games: Pacers 3-7, net rating -1.8. Pelicans 1-9, -10.4.",
+          "card": {
+            "type": "edge",
+            "away": "IND",
+            "home": "NOP",
+            "matchup": "Pacers at Pelicans · WED OCT 21 · 8:00 PM ET",
+            "eyebrow": "Reason 3 of 3 · Pacers",
+            "title": "Recent form",
+            "sub": "Last 10 games: Pacers 3-7, net rating -1.8. Pelicans 1-9, -10.4.",
+            "rows": [
+              {
+                "label": "Net rating, last 10",
+                "lower_is_better": false,
+                "a": {
+                  "team": "IND",
+                  "value": -1.8359,
+                  "label": "-1.8"
+                },
+                "b": {
+                  "team": "NOP",
+                  "value": -10.4162,
+                  "label": "-10.4"
+                }
+              },
+              {
+                "label": "Record, last 10",
+                "lower_is_better": false,
+                "a": {
+                  "team": "IND",
+                  "value": 0.3,
+                  "label": "3-7"
+                },
+                "b": {
+                  "team": "NOP",
+                  "value": 0.1,
+                  "label": "1-9"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "text": "⚠️ THE RISK\n\nPacers have won 30% of recent road games; Pelicans 55% at home.\n\nTeams priced like Pelicans tonight still win about 44 times in 100.",
+          "card": null
+        },
+        {
+          "text": "📈 Our probabilities hit 68.6% of winners over 4 seasons of backtests.\n\nEvery pick is posted before tip-off and graded after the final buzzer. No deleting the misses.\n\n🔔 Follow for the full slate every game day.",
+          "card": null
+        }
+      ]
+    },
+    {
+      "id": "Phoenix_Suns_vs_Portland_Trail_Blazers_2026-10-21",
+      "matchup": "Phoenix Suns @ Portland Trail Blazers",
+      "home_team": "Portland Trail Blazers",
+      "away_team": "Phoenix Suns",
+      "predicted_winner": "Portland Trail Blazers",
+      "predicted_home_prob": 0.5623849682662466,
+      "predicted_away_prob": 0.4376150317337534,
+      "home_odds": 1.7,
+      "away_odds": 2.2,
+      "confidence": 0.5623849682662466,
+      "date": "2026-10-21",
+      "published": false,
+      "home_code": "POR",
+      "away_code": "PHX",
+      "start_utc": "2026-10-22T02:00:00+00:00",
+      "model_home_prob": 0.5825,
+      "market_home_prob": 0.5635,
+      "probability_source": "blend",
+      "own_home_prob": 0.5561,
+      "own_away_prob": 0.4439,
+      "own_model_mode": "full",
+      "market_books": 1,
+      "refreshed_at": "2026-10-21T09:12+00:00",
+      "key_out": {
+        "home": [],
+        "away": []
+      },
+      "thread": [
+        {
+          "text": "🏀 Phoenix Suns at Portland Trail Blazers\n🕗 Wed Oct 21, 10:00 PM ET\n\n🎯 Pick: Portland Trail Blazers (56%)\n📊 Our model 56% · books 56%\n💰 Odds 1.70 · books’ consensus\n\nThe case, and the risk 🧵",
+          "card": {
+            "type": "match",
+            "when": "WED OCT 21 · 10:00 PM ET",
+            "away": "PHX",
+            "home": "POR",
+            "away_prob": 0.4376150317337534,
+            "away_sub": "away",
+            "home_sub": "home",
+            "pick_name": "Trail Blazers",
+            "odds": "1.70",
+            "source": "Our model 56% + books 56%",
+            "tape": [
+              {
+                "label": "Last 10",
+                "away": "3-7",
+                "home": "4-6"
+              },
+              {
+                "label": "Net rtg L10",
+                "away": "-6.8",
+                "home": "-4.3"
+              },
+              {
+                "label": "Rest",
+                "away": "6d",
+                "home": "6d"
+              },
+              {
+                "label": "Elo",
+                "away": "1500",
+                "home": "1543"
+              }
+            ]
+          }
+        },
+        {
+          "text": "🛡️ DEFENSE\n\nTrail Blazers allow 113.6 per 100 possessions lately, Suns 116.8.",
+          "card": {
+            "type": "edge",
+            "away": "PHX",
+            "home": "POR",
+            "matchup": "Suns at Trail Blazers · WED OCT 21 · 10:00 PM ET",
+            "eyebrow": "Reason 1 of 3 · Trail Blazers",
+            "title": "Defense",
+            "sub": "Trail Blazers allow 113.6 per 100 possessions lately, Suns 116.8.",
+            "rows": [
+              {
+                "label": "Defensive rating (lower is better)",
+                "lower_is_better": true,
+                "a": {
+                  "team": "POR",
+                  "value": 113.5919,
+                  "label": "113.6"
+                },
+                "b": {
+                  "team": "PHX",
+                  "value": 116.8245,
+                  "label": "116.8"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "text": "🤖 MODEL CHECK\n\nOur stats model (Elo, form, rest) gives Trail Blazers 58%, in line with the books.",
+          "card": null
+        },
+        {
+          "text": "🔥 RECENT FORM\n\nLast 10 games: Trail Blazers 4-6, net rating -4.3. Suns 3-7, -6.8.",
+          "card": {
+            "type": "edge",
+            "away": "PHX",
+            "home": "POR",
+            "matchup": "Suns at Trail Blazers · WED OCT 21 · 10:00 PM ET",
+            "eyebrow": "Reason 3 of 3 · Trail Blazers",
+            "title": "Recent form",
+            "sub": "Last 10 games: Trail Blazers 4-6, net rating -4.3. Suns 3-7, -6.8.",
+            "rows": [
+              {
+                "label": "Net rating, last 10",
+                "lower_is_better": false,
+                "a": {
+                  "team": "POR",
+                  "value": -4.3211,
+                  "label": "-4.3"
+                },
+                "b": {
+                  "team": "PHX",
+                  "value": -6.7953,
+                  "label": "-6.8"
+                }
+              },
+              {
+                "label": "Record, last 10",
+                "lower_is_better": false,
+                "a": {
+                  "team": "POR",
+                  "value": 0.4,
+                  "label": "4-6"
+                },
+                "b": {
+                  "team": "PHX",
+                  "value": 0.3,
+                  "label": "3-7"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "text": "⚠️ THE RISK\n\nNothing big flags against the Trail Blazers. But 56% is not 100%: priced like this, Suns win about 44 times in 100.",
           "card": null
         },
         {
@@ -3903,42 +3151,42 @@
       "home_team": "Miami Heat",
       "away_team": "Minnesota Timberwolves",
       "predicted_winner": "Miami Heat",
-      "predicted_home_prob": 0.5165327459179594,
-      "predicted_away_prob": 0.4834672540820406,
-      "home_odds": 1.87,
-      "away_odds": 1.95,
-      "confidence": 0.5165327459179594,
+      "predicted_home_prob": 0.5255687387810442,
+      "predicted_away_prob": 0.47443126121895585,
+      "home_odds": 1.83,
+      "away_odds": 2.0,
+      "confidence": 0.5255687387810442,
       "date": "2026-10-21",
       "published": false,
       "home_code": "MIA",
       "away_code": "MIN",
       "start_utc": "2026-10-21T23:30:00+00:00",
       "model_home_prob": 0.5165,
-      "market_home_prob": 0.5108,
+      "market_home_prob": 0.5217,
       "probability_source": "blend",
-      "own_home_prob": 0.5487,
-      "own_away_prob": 0.4513,
+      "own_home_prob": 0.5472,
+      "own_away_prob": 0.4528,
       "own_model_mode": "full",
       "market_books": 1,
-      "refreshed_at": "2026-10-20T09:11+00:00",
+      "refreshed_at": "2026-10-21T09:12+00:00",
       "key_out": {
         "home": [],
         "away": []
       },
       "thread": [
         {
-          "text": "🏀 Minnesota Timberwolves at Miami Heat\n🕗 Wed Oct 21, 7:30 PM ET\n\n🎯 Pick: Miami Heat (52%)\n📊 Our model 55% · books 51%\n💰 Odds 1.87 · books’ consensus\n\nThe case, and the risk 🧵",
+          "text": "🏀 Minnesota Timberwolves at Miami Heat\n🕗 Wed Oct 21, 7:30 PM ET\n\n🎯 Pick: Miami Heat (53%)\n📊 Our model 55% · books 52%\n💰 Odds 1.83 · books’ consensus\n\nThe case, and the risk 🧵",
           "card": {
             "type": "match",
             "when": "WED OCT 21 · 7:30 PM ET",
             "away": "MIN",
             "home": "MIA",
-            "away_prob": 0.4834672540820406,
+            "away_prob": 0.47443126121895585,
             "away_sub": "away",
             "home_sub": "home",
             "pick_name": "Heat",
-            "odds": "1.87",
-            "source": "Our model 55% + books 51%",
+            "odds": "1.83",
+            "source": "Our model 55% + books 52%",
             "tape": [
               {
                 "label": "Last 10",
@@ -4062,7 +3310,7 @@
           }
         },
         {
-          "text": "⚠️ THE RISK\n\nHeat allow 123.5 per 100 possessions lately, Timberwolves 111.7.\n\nTeams priced like Timberwolves tonight still win about 48 times in 100.",
+          "text": "⚠️ THE RISK\n\nHeat allow 123.5 per 100 possessions lately, Timberwolves 111.7.\n\nTeams priced like Timberwolves tonight still win about 47 times in 100.",
           "card": null
         },
         {
@@ -4077,41 +3325,41 @@
       "home_team": "Memphis Grizzlies",
       "away_team": "Utah Jazz",
       "predicted_winner": "Memphis Grizzlies",
-      "predicted_home_prob": 0.5161699701047978,
-      "predicted_away_prob": 0.4838300298952022,
-      "home_odds": 1.85,
-      "away_odds": 1.98,
-      "confidence": 0.5161699701047978,
+      "predicted_home_prob": 0.5196049457355998,
+      "predicted_away_prob": 0.4803950542644002,
+      "home_odds": 1.83,
+      "away_odds": 2.0,
+      "confidence": 0.5196049457355998,
       "date": "2026-10-21",
       "published": false,
       "home_code": "MEM",
       "away_code": "UTA",
       "start_utc": "2026-10-22T00:00:00+00:00",
       "model_home_prob": 0.5415,
-      "market_home_prob": 0.5174,
+      "market_home_prob": 0.5217,
       "probability_source": "blend",
-      "own_home_prob": 0.5094,
-      "own_away_prob": 0.4906,
+      "own_home_prob": 0.5075,
+      "own_away_prob": 0.4925,
       "own_model_mode": "full",
       "market_books": 1,
-      "refreshed_at": "2026-10-20T09:11+00:00",
+      "refreshed_at": "2026-10-21T09:12+00:00",
       "key_out": {
         "home": [],
         "away": []
       },
       "thread": [
         {
-          "text": "🏀 Utah Jazz at Memphis Grizzlies\n🕗 Wed Oct 21, 8:00 PM ET\n\n🎯 Pick: Memphis Grizzlies (52%)\n📊 Our model 51% · books 52%\n💰 Odds 1.85 · books’ consensus\n\nThe case, and the risk 🧵",
+          "text": "🏀 Utah Jazz at Memphis Grizzlies\n🕗 Wed Oct 21, 8:00 PM ET\n\n🎯 Pick: Memphis Grizzlies (52%)\n📊 Our model 51% · books 52%\n💰 Odds 1.83 · books’ consensus\n\nThe case, and the risk 🧵",
           "card": {
             "type": "match",
             "when": "WED OCT 21 · 8:00 PM ET",
             "away": "UTA",
             "home": "MEM",
-            "away_prob": 0.4838300298952022,
+            "away_prob": 0.4803950542644002,
             "away_sub": "away",
             "home_sub": "home",
             "pick_name": "Grizzlies",
-            "odds": "1.85",
+            "odds": "1.83",
             "source": "Our model 51% + books 52%",
             "tape": [
               {
@@ -4184,43 +3432,43 @@
       "matchup": "Charlotte Hornets @ Brooklyn Nets",
       "home_team": "Brooklyn Nets",
       "away_team": "Charlotte Hornets",
-      "predicted_winner": "Charlotte Hornets",
-      "predicted_home_prob": 0.4879956365735322,
-      "predicted_away_prob": 0.5120043634264678,
-      "home_odds": 1.83,
-      "away_odds": 2.0,
-      "confidence": 0.5120043634264678,
+      "predicted_winner": "Brooklyn Nets",
+      "predicted_home_prob": 0.505677078982129,
+      "predicted_away_prob": 0.494322921017871,
+      "home_odds": 1.77,
+      "away_odds": 2.1,
+      "confidence": 0.505677078982129,
       "date": "2026-10-21",
       "published": false,
       "home_code": "BKN",
       "away_code": "CHA",
       "start_utc": "2026-10-21T23:30:00+00:00",
       "model_home_prob": 0.3825,
-      "market_home_prob": 0.5217,
+      "market_home_prob": 0.5427,
       "probability_source": "blend",
-      "own_home_prob": 0.3072,
-      "own_away_prob": 0.6928,
+      "own_home_prob": 0.3058,
+      "own_away_prob": 0.6942,
       "own_model_mode": "full",
       "market_books": 1,
-      "refreshed_at": "2026-10-20T09:11+00:00",
+      "refreshed_at": "2026-10-21T09:12+00:00",
       "key_out": {
         "home": [],
         "away": []
       },
       "thread": [
         {
-          "text": "🏀 Charlotte Hornets at Brooklyn Nets\n🕗 Wed Oct 21, 7:30 PM ET\n\n🎯 Pick: Charlotte Hornets (51%)\n📊 Our model 69% · books 48%\n💰 Odds 2.00 · books’ consensus\n\nThe case, and the risk 🧵",
+          "text": "🏀 Charlotte Hornets at Brooklyn Nets\n🕗 Wed Oct 21, 7:30 PM ET\n\n🎯 Pick: Brooklyn Nets (51%)\n📊 Our model 31% · books 54%\n💰 Odds 1.77 · books’ consensus\n\nThe case, and the risk 🧵",
           "card": {
             "type": "match",
             "when": "WED OCT 21 · 7:30 PM ET",
             "away": "CHA",
             "home": "BKN",
-            "away_prob": 0.5120043634264678,
+            "away_prob": 0.494322921017871,
             "away_sub": "away",
             "home_sub": "home",
-            "pick_name": "Hornets",
-            "odds": "2.00",
-            "source": "Our model 69% + books 48%",
+            "pick_name": "Nets",
+            "odds": "1.77",
+            "source": "Our model 31% + books 54%",
             "tape": [
               {
                 "label": "Last 10",
@@ -4246,91 +3494,305 @@
           }
         },
         {
-          "text": "🏟️ HOME AND AWAY\n\nHornets have won 75% of recent road games; Nets 30% at home.",
+          "text": "⚠️ THE RISK\n\nNets have won 30% at home lately; Hornets 75% on the road.\n\nTeams priced like Hornets tonight still win about 49 times in 100.",
+          "card": null
+        },
+        {
+          "text": "📈 Our probabilities hit 68.6% of winners over 4 seasons of backtests.\n\nEvery pick is posted before tip-off and graded after the final buzzer. No deleting the misses.\n\n🔔 Follow for the full slate every game day.",
+          "card": null
+        }
+      ]
+    }
+  ],
+  "games_tomorrow": [
+    {
+      "id": "Denver_Nuggets_vs_Oklahoma_City_Thunder_2026-10-22",
+      "matchup": "Denver Nuggets @ Oklahoma City Thunder",
+      "home_team": "Oklahoma City Thunder",
+      "away_team": "Denver Nuggets",
+      "predicted_winner": "Oklahoma City Thunder",
+      "predicted_home_prob": 0.7121501619982673,
+      "predicted_away_prob": 0.2878498380017327,
+      "home_odds": 1.34,
+      "away_odds": 3.5,
+      "confidence": 0.7121501619982673,
+      "date": "2026-10-22",
+      "published": false,
+      "home_code": "OKC",
+      "away_code": "DEN",
+      "start_utc": "2026-10-23T01:30:00+00:00",
+      "model_home_prob": 0.6381,
+      "market_home_prob": 0.7238,
+      "probability_source": "blend",
+      "own_home_prob": 0.641,
+      "own_away_prob": 0.359,
+      "own_model_mode": "full",
+      "market_books": 1,
+      "refreshed_at": "2026-10-21T09:12+00:00",
+      "key_out": {
+        "home": [],
+        "away": []
+      },
+      "thread": [
+        {
+          "text": "🏀 Denver Nuggets at Oklahoma City Thunder\n🕗 Thu Oct 22, 9:30 PM ET\n\n🎯 Pick: Oklahoma City Thunder (71%)\n📊 Our model 64% · books 72%\n💰 Odds 1.34 · books’ consensus\n\nThe case, and the risk 🧵",
+          "card": {
+            "type": "match",
+            "when": "THU OCT 22 · 9:30 PM ET",
+            "away": "DEN",
+            "home": "OKC",
+            "away_prob": 0.2878498380017327,
+            "away_sub": "away",
+            "home_sub": "home",
+            "pick_name": "Thunder",
+            "odds": "1.34",
+            "source": "Our model 64% + books 72%",
+            "tape": [
+              {
+                "label": "Last 10",
+                "away": "6-4",
+                "home": "6-4"
+              },
+              {
+                "label": "Net rtg L10",
+                "away": "+2.2",
+                "home": "+1.6"
+              },
+              {
+                "label": "Rest",
+                "away": "6d",
+                "home": "1d"
+              },
+              {
+                "label": "Elo",
+                "away": "1613",
+                "home": "1758"
+              }
+            ]
+          }
+        },
+        {
+          "text": "🏟️ HOME AND AWAY\n\nThunder have won 85% at home lately; Nuggets 45% on the road.",
           "card": {
             "type": "edge",
-            "away": "CHA",
-            "home": "BKN",
-            "matchup": "Hornets at Nets · WED OCT 21 · 7:30 PM ET",
-            "eyebrow": "Reason 1 of 3 · Hornets",
+            "away": "DEN",
+            "home": "OKC",
+            "matchup": "Nuggets at Thunder · THU OCT 22 · 9:30 PM ET",
+            "eyebrow": "Reason 1 of 3 · Thunder",
             "title": "Home and away",
-            "sub": "Hornets have won 75% of recent road games; Nets 30% at home.",
+            "sub": "Thunder have won 85% at home lately; Nuggets 45% on the road.",
             "rows": [
               {
-                "label": "Win % (road vs home)",
+                "label": "Win % (home vs road)",
                 "lower_is_better": false,
                 "a": {
-                  "team": "CHA",
-                  "value": 0.75,
-                  "label": "75%"
+                  "team": "OKC",
+                  "value": 0.85,
+                  "label": "85%"
                 },
                 "b": {
-                  "team": "BKN",
-                  "value": 0.3,
-                  "label": "30%"
+                  "team": "DEN",
+                  "value": 0.45,
+                  "label": "45%"
                 }
               }
             ]
           }
         },
         {
-          "text": "📊 POWER RATING\n\nElo has Hornets at 1605, Nets at 1284. A real gap in team strength.",
+          "text": "📊 POWER RATING\n\nElo has Thunder at 1758, Nuggets at 1613. A real gap in team strength.",
           "card": {
             "type": "edge",
-            "away": "CHA",
-            "home": "BKN",
-            "matchup": "Hornets at Nets · WED OCT 21 · 7:30 PM ET",
-            "eyebrow": "Reason 2 of 3 · Hornets",
+            "away": "DEN",
+            "home": "OKC",
+            "matchup": "Nuggets at Thunder · THU OCT 22 · 9:30 PM ET",
+            "eyebrow": "Reason 2 of 3 · Thunder",
             "title": "Power rating",
-            "sub": "Elo has Hornets at 1605, Nets at 1284. A real gap in team strength.",
+            "sub": "Elo has Thunder at 1758, Nuggets at 1613. A real gap in team strength.",
             "rows": [
               {
                 "label": "Elo rating",
                 "lower_is_better": false,
                 "a": {
-                  "team": "CHA",
-                  "value": 1605.0811,
-                  "label": "1605"
+                  "team": "OKC",
+                  "value": 1758.3175,
+                  "label": "1758"
                 },
                 "b": {
-                  "team": "BKN",
-                  "value": 1284.278,
-                  "label": "1284"
+                  "team": "DEN",
+                  "value": 1612.6965,
+                  "label": "1613"
                 }
               }
             ]
           }
         },
         {
-          "text": "🎯 OFFENSE\n\nHornets score 115.5 points per 100 possessions over their last 10, Nets 104.5.",
+          "text": "🏹 FROM DEEP\n\nThunder are hitting 36.5% from three over their last 10, Nuggets 34.2%.",
           "card": {
             "type": "edge",
-            "away": "CHA",
-            "home": "BKN",
-            "matchup": "Hornets at Nets · WED OCT 21 · 7:30 PM ET",
-            "eyebrow": "Reason 3 of 3 · Hornets",
-            "title": "Offense",
-            "sub": "Hornets score 115.5 points per 100 possessions over their last 10, Nets 104.5.",
+            "away": "DEN",
+            "home": "OKC",
+            "matchup": "Nuggets at Thunder · THU OCT 22 · 9:30 PM ET",
+            "eyebrow": "Reason 3 of 3 · Thunder",
+            "title": "From deep",
+            "sub": "Thunder are hitting 36.5% from three over their last 10, Nuggets 34.2%.",
             "rows": [
               {
-                "label": "Offensive rating",
+                "label": "3P%, last 10",
                 "lower_is_better": false,
                 "a": {
-                  "team": "CHA",
-                  "value": 115.4981,
-                  "label": "115.5"
+                  "team": "OKC",
+                  "value": 0.3652,
+                  "label": "36.5%"
                 },
                 "b": {
-                  "team": "BKN",
-                  "value": 104.5238,
-                  "label": "104.5"
+                  "team": "DEN",
+                  "value": 0.3417,
+                  "label": "34.2%"
                 }
               }
             ]
           }
         },
         {
-          "text": "⚠️ THE RISK\n\nNothing big flags against the Hornets. But 51% is not 100%: priced like this, Nets win about 49 times in 100.",
+          "text": "⚠️ THE RISK\n\nRest: Thunder 1 day, Nuggets 6.\n\nTeams priced like Nuggets tonight still win about 29 times in 100.",
+          "card": null
+        },
+        {
+          "text": "📈 Our probabilities hit 68.6% of winners over 4 seasons of backtests.\n\nEvery pick is posted before tip-off and graded after the final buzzer. No deleting the misses.\n\n🔔 Follow for the full slate every game day.",
+          "card": null
+        }
+      ]
+    },
+    {
+      "id": "Cleveland_Cavaliers_vs_Philadelphia_76ers_2026-10-22",
+      "matchup": "Cleveland Cavaliers @ Philadelphia 76ers",
+      "home_team": "Philadelphia 76ers",
+      "away_team": "Cleveland Cavaliers",
+      "predicted_winner": "Philadelphia 76ers",
+      "predicted_home_prob": 0.5328042033543734,
+      "predicted_away_prob": 0.4671957966456266,
+      "home_odds": 1.74,
+      "away_odds": 2.14,
+      "confidence": 0.5328042033543734,
+      "date": "2026-10-22",
+      "published": false,
+      "home_code": "PHI",
+      "away_code": "CLE",
+      "start_utc": "2026-10-22T23:00:00+00:00",
+      "model_home_prob": 0.5588,
+      "market_home_prob": 0.5514,
+      "probability_source": "blend",
+      "own_home_prob": 0.427,
+      "own_away_prob": 0.573,
+      "own_model_mode": "full",
+      "market_books": 1,
+      "refreshed_at": "2026-10-21T09:12+00:00",
+      "key_out": {
+        "home": [],
+        "away": []
+      },
+      "thread": [
+        {
+          "text": "🏀 Cleveland Cavaliers at Philadelphia 76ers\n🕗 Thu Oct 22, 7:00 PM ET\n\n🎯 Pick: Philadelphia 76ers (53%)\n📊 Our model 43% · books 55%\n💰 Odds 1.74 · books’ consensus\n\nThe case, and the risk 🧵",
+          "card": {
+            "type": "match",
+            "when": "THU OCT 22 · 7:00 PM ET",
+            "away": "CLE",
+            "home": "PHI",
+            "away_prob": 0.4671957966456266,
+            "away_sub": "away",
+            "home_sub": "home",
+            "pick_name": "76ers",
+            "odds": "1.74",
+            "source": "Our model 43% + books 55%",
+            "tape": [
+              {
+                "label": "Last 10",
+                "away": "4-6",
+                "home": "4-6"
+              },
+              {
+                "label": "Net rtg L10",
+                "away": "-6.0",
+                "home": "-8.9"
+              },
+              {
+                "label": "Rest",
+                "away": "6d",
+                "home": "1d"
+              },
+              {
+                "label": "Elo",
+                "away": "1593",
+                "home": "1608"
+              }
+            ]
+          }
+        },
+        {
+          "text": "🏹 FROM DEEP\n\n76ers are hitting 32.6% from three over their last 10, Cavaliers 31.5%.",
+          "card": {
+            "type": "edge",
+            "away": "CLE",
+            "home": "PHI",
+            "matchup": "Cavaliers at 76ers · THU OCT 22 · 7:00 PM ET",
+            "eyebrow": "Reason 1 of 3 · 76ers",
+            "title": "From deep",
+            "sub": "76ers are hitting 32.6% from three over their last 10, Cavaliers 31.5%.",
+            "rows": [
+              {
+                "label": "3P%, last 10",
+                "lower_is_better": false,
+                "a": {
+                  "team": "PHI",
+                  "value": 0.326,
+                  "label": "32.6%"
+                },
+                "b": {
+                  "team": "CLE",
+                  "value": 0.3146,
+                  "label": "31.5%"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "text": "🤖 MODEL CHECK\n\nOur stats model (Elo, form, rest) gives 76ers 56%, in line with the books.",
+          "card": null
+        },
+        {
+          "text": "📊 POWER RATING\n\nElo has 76ers at 1608, Cavaliers at 1593. Closer than the record says.",
+          "card": {
+            "type": "edge",
+            "away": "CLE",
+            "home": "PHI",
+            "matchup": "Cavaliers at 76ers · THU OCT 22 · 7:00 PM ET",
+            "eyebrow": "Reason 3 of 3 · 76ers",
+            "title": "Power rating",
+            "sub": "Elo has 76ers at 1608, Cavaliers at 1593. Closer than the record says.",
+            "rows": [
+              {
+                "label": "Elo rating",
+                "lower_is_better": false,
+                "a": {
+                  "team": "PHI",
+                  "value": 1608.1139,
+                  "label": "1608"
+                },
+                "b": {
+                  "team": "CLE",
+                  "value": 1592.8753,
+                  "label": "1593"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "text": "⚠️ THE RISK\n\nRest: 76ers 1 day, Cavaliers 6.\n\nTeams priced like Cavaliers tonight still win about 47 times in 100.",
           "card": null
         },
         {
