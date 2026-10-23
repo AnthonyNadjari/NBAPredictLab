@@ -1,25 +1,25 @@
 {
-  "generated_at": "2026-10-22T23:07:43+00:00",
-  "us_date": "2026-10-22",
+  "generated_at": "2026-10-23T09:12:16+00:00",
+  "us_date": "2026-10-23",
   "season": {
     "label": "2026-27",
     "since": "2026-10-01",
-    "n": 14,
-    "correct": 10,
-    "accuracy": 0.7142857142857143,
-    "brier": 0.200345439267659,
-    "expected": 0.5959287707525311,
+    "n": 16,
+    "correct": 12,
+    "accuracy": 0.75,
+    "brier": 0.19370477665240285,
+    "expected": 0.5999283896453664,
     "flat_bets": {
-      "bets": 14,
-      "units": 1.87,
-      "roi": 0.1335714285714286
+      "bets": 16,
+      "units": 2.92,
+      "roi": 0.1825
     },
     "buckets": [
       {
         "label": "50–55%",
-        "n": 6,
-        "expected": 0.5267547105496752,
-        "actual": 0.6666666666666666
+        "n": 7,
+        "expected": 0.5278210984497989,
+        "actual": 0.7142857142857143
       },
       {
         "label": "55–60%",
@@ -41,8 +41,8 @@
       },
       {
         "label": "70–80%",
-        "n": 2,
-        "expected": 0.7747512576287829,
+        "n": 3,
+        "expected": 0.7570448443991507,
         "actual": 1.0
       },
       {
@@ -62,6 +62,11 @@
         "date": "2026-10-21",
         "n": 11,
         "correct": 9
+      },
+      {
+        "date": "2026-10-22",
+        "n": 2,
+        "correct": 2
       }
     ]
   },
@@ -112,6 +117,30 @@
     ]
   },
   "recent": [
+    {
+      "date": "2026-10-22",
+      "home": "OKC",
+      "away": "DEN",
+      "pick": "OKC",
+      "p": 0.722,
+      "correct": 1,
+      "own_home_prob": 0.6484,
+      "own_away_prob": 0.3516,
+      "own_model_mode": "full",
+      "score": "84–96"
+    },
+    {
+      "date": "2026-10-22",
+      "home": "PHI",
+      "away": "CLE",
+      "pick": "PHI",
+      "p": 0.534,
+      "correct": 1,
+      "own_home_prob": 0.4363,
+      "own_away_prob": 0.5637,
+      "own_model_mode": "full",
+      "score": "106–114"
+    },
     {
       "date": "2026-10-21",
       "home": "LAL",
@@ -282,8 +311,8 @@
     }
   ],
   "data": {
-    "games_in_history": 10238,
-    "last_game_date": "2026-10-21",
+    "games_in_history": 10240,
+    "last_game_date": "2026-10-22",
     "model_trained_at": "2026-10-03T17:23:27Z",
     "model_seasons": [
       "2019-20",
@@ -295,9 +324,9 @@
       "2025-26"
     ],
     "player_games": {
-      "rows": 59235,
-      "games": 2723,
-      "last_game_date": "2026-10-21"
+      "rows": 59280,
+      "games": 2725,
+      "last_game_date": "2026-10-22"
     },
     "own_model_params": {
       "fitted_through": "2025-26",
@@ -305,11 +334,11 @@
     }
   },
   "own_model": {
-    "n": 14,
-    "correct": 8,
-    "accuracy": 0.5714285714285714,
-    "brier": 0.22075472357142858,
-    "published_brier_same_games": 0.200345439267659,
+    "n": 16,
+    "correct": 9,
+    "accuracy": 0.5625,
+    "brier": 0.22074664875,
+    "published_brier_same_games": 0.19370477665240285,
     "team_only_share": 0.0,
     "backtest": {
       "seasons": "2022-23 → 2025-26",
@@ -327,8 +356,8 @@
     "model_brier": 0.214
   },
   "next_slate": {
-    "date": "2026-10-22",
-    "games": 2,
-    "first_tipoff_utc": "2026-10-22T23:00:00+00:00"
+    "date": "2026-10-23",
+    "games": 12,
+    "first_tipoff_utc": "2026-10-23T20:00:00+00:00"
   }
 }
