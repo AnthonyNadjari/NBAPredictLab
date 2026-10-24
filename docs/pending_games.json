@@ -1,52 +1,214 @@
 {
   "specials": [],
   "date": "2026-10-24",
-  "generated_at": "2026-10-24T09:10:14.229661",
+  "generated_at": "2026-10-24T21:15:15.658190",
   "today": "2026-10-24",
   "tomorrow": "2026-10-25",
   "games": [
     {
-      "id": "Milwaukee_Bucks_vs_Philadelphia_76ers_2026-10-24",
-      "matchup": "Milwaukee Bucks @ Philadelphia 76ers",
-      "home_team": "Philadelphia 76ers",
-      "away_team": "Milwaukee Bucks",
-      "predicted_winner": "Philadelphia 76ers",
-      "predicted_home_prob": 0.8408657398270873,
-      "predicted_away_prob": 0.15913426017291266,
-      "home_odds": 1.14,
-      "away_odds": 6.0,
-      "confidence": 0.8408657398270873,
+      "id": "San_Antonio_Spurs_vs_Dallas_Mavericks_2026-10-24",
+      "matchup": "San Antonio Spurs @ Dallas Mavericks",
+      "home_team": "Dallas Mavericks",
+      "away_team": "San Antonio Spurs",
+      "predicted_winner": "San Antonio Spurs",
+      "predicted_home_prob": 0.1560567277710654,
+      "predicted_away_prob": 0.8439432722289346,
+      "home_odds": 7.0,
+      "away_odds": 1.11,
+      "confidence": 0.8439432722289346,
       "date": "2026-10-24",
       "published": false,
-      "home_code": "PHI",
-      "away_code": "MIL",
-      "start_utc": "2026-10-24T23:30:00+00:00",
-      "model_home_prob": 0.8062,
-      "market_home_prob": 0.84,
+      "home_code": "DAL",
+      "away_code": "SAS",
+      "start_utc": "2026-10-25T00:00:00+00:00",
+      "model_home_prob": 0.4176,
+      "market_home_prob": 0.137,
       "probability_source": "blend",
-      "own_home_prob": 0.8457,
-      "own_away_prob": 0.1543,
+      "own_home_prob": 0.3052,
+      "own_away_prob": 0.6948,
       "own_model_mode": "full",
       "market_books": 1,
-      "refreshed_at": "2026-10-24T09:10+00:00",
+      "refreshed_at": "2026-10-24T21:15+00:00",
       "key_out": {
         "home": [],
         "away": []
       },
       "thread": [
         {
-          "text": "🏀 Milwaukee Bucks at Philadelphia 76ers\n🕗 Sat Oct 24, 7:30 PM ET\n\n🎯 Pick: Philadelphia 76ers (84%)\n📊 Our model 85% · books 84%\n💰 Odds 1.14 · books’ consensus\n\nThe case, and the risk 🧵",
+          "text": "🏀 San Antonio Spurs at Dallas Mavericks\n🕗 Sat Oct 24, 8:00 PM ET\n\n🎯 Pick: San Antonio Spurs (84%)\n📊 Our model 69% · books 86%\n💰 Odds 1.11 · books’ consensus\n\nThe case, and the risk 🧵",
+          "card": {
+            "type": "match",
+            "when": "SAT OCT 24 · 8:00 PM ET",
+            "away": "SAS",
+            "home": "DAL",
+            "away_prob": 0.8439432722289346,
+            "away_sub": "away",
+            "home_sub": "home",
+            "pick_name": "Spurs",
+            "odds": "1.11",
+            "source": "Our model 69% + books 86%",
+            "tape": [
+              {
+                "label": "Last 10",
+                "away": "3-7",
+                "home": "3-7"
+              },
+              {
+                "label": "Net rtg L10",
+                "away": "-0.5",
+                "home": "-7.6"
+              },
+              {
+                "label": "Rest",
+                "away": "B2B",
+                "home": "B2B"
+              },
+              {
+                "label": "Elo",
+                "away": "1691",
+                "home": "1397"
+              }
+            ]
+          }
+        },
+        {
+          "text": "🏟️ HOME AND AWAY\n\nSpurs have won 75% of recent road games; Mavericks 25% at home.",
+          "card": {
+            "type": "edge",
+            "away": "SAS",
+            "home": "DAL",
+            "matchup": "Spurs at Mavericks · SAT OCT 24 · 8:00 PM ET",
+            "eyebrow": "Reason 1 of 3 · Spurs",
+            "title": "Home and away",
+            "sub": "Spurs have won 75% of recent road games; Mavericks 25% at home.",
+            "rows": [
+              {
+                "label": "Win % (road vs home)",
+                "lower_is_better": false,
+                "a": {
+                  "team": "SAS",
+                  "value": 0.75,
+                  "label": "75%"
+                },
+                "b": {
+                  "team": "DAL",
+                  "value": 0.25,
+                  "label": "25%"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "text": "🛡️ DEFENSE\n\nSpurs allow 107.9 per 100 possessions lately, Mavericks 118.5.",
+          "card": {
+            "type": "edge",
+            "away": "SAS",
+            "home": "DAL",
+            "matchup": "Spurs at Mavericks · SAT OCT 24 · 8:00 PM ET",
+            "eyebrow": "Reason 2 of 3 · Spurs",
+            "title": "Defense",
+            "sub": "Spurs allow 107.9 per 100 possessions lately, Mavericks 118.5.",
+            "rows": [
+              {
+                "label": "Defensive rating (lower is better)",
+                "lower_is_better": true,
+                "a": {
+                  "team": "SAS",
+                  "value": 107.9059,
+                  "label": "107.9"
+                },
+                "b": {
+                  "team": "DAL",
+                  "value": 118.5289,
+                  "label": "118.5"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "text": "📊 POWER RATING\n\nElo has Spurs at 1691, Mavericks at 1397. A real gap in team strength.",
+          "card": {
+            "type": "edge",
+            "away": "SAS",
+            "home": "DAL",
+            "matchup": "Spurs at Mavericks · SAT OCT 24 · 8:00 PM ET",
+            "eyebrow": "Reason 3 of 3 · Spurs",
+            "title": "Power rating",
+            "sub": "Elo has Spurs at 1691, Mavericks at 1397. A real gap in team strength.",
+            "rows": [
+              {
+                "label": "Elo rating",
+                "lower_is_better": false,
+                "a": {
+                  "team": "SAS",
+                  "value": 1691.0381,
+                  "label": "1691"
+                },
+                "b": {
+                  "team": "DAL",
+                  "value": 1396.7931,
+                  "label": "1397"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "text": "⚠️ THE RISK\n\nSpurs score 107.5 points per 100 possessions over their last 10, Mavericks 111.0.\n\nTeams priced like Mavericks tonight still win about 16 times in 100.",
+          "card": null
+        },
+        {
+          "text": "📈 Our probabilities hit 68.6% of winners over 4 seasons of backtests.\n\nEvery pick is posted before tip-off and graded after the final buzzer. No deleting the misses.\n\n🔔 Follow for the full slate every game day.",
+          "card": null
+        }
+      ]
+    },
+    {
+      "id": "Milwaukee_Bucks_vs_Philadelphia_76ers_2026-10-24",
+      "matchup": "Milwaukee Bucks @ Philadelphia 76ers",
+      "home_team": "Philadelphia 76ers",
+      "away_team": "Milwaukee Bucks",
+      "predicted_winner": "Philadelphia 76ers",
+      "predicted_home_prob": 0.8300188867575676,
+      "predicted_away_prob": 0.16998111324243237,
+      "home_odds": 1.16,
+      "away_odds": 5.55,
+      "confidence": 0.8300188867575676,
+      "date": "2026-10-24",
+      "published": false,
+      "home_code": "PHI",
+      "away_code": "MIL",
+      "start_utc": "2026-10-24T23:30:00+00:00",
+      "model_home_prob": 0.8062,
+      "market_home_prob": 0.8271,
+      "probability_source": "blend",
+      "own_home_prob": 0.8457,
+      "own_away_prob": 0.1543,
+      "own_model_mode": "full",
+      "market_books": 1,
+      "refreshed_at": "2026-10-24T21:15+00:00",
+      "key_out": {
+        "home": [
+          "LeBron James"
+        ],
+        "away": []
+      },
+      "thread": [
+        {
+          "text": "🏀 Milwaukee Bucks at Philadelphia 76ers\n🕗 Sat Oct 24, 7:30 PM ET\n\n🎯 Pick: Philadelphia 76ers (83%)\n📊 Our model 85% · books 83%\n💰 Odds 1.16 · books’ consensus\n\nThe case, and the risk 🧵",
           "card": {
             "type": "match",
             "when": "SAT OCT 24 · 7:30 PM ET",
             "away": "MIL",
             "home": "PHI",
-            "away_prob": 0.15913426017291266,
+            "away_prob": 0.16998111324243237,
             "away_sub": "away",
             "home_sub": "home",
             "pick_name": "76ers",
-            "odds": "1.14",
-            "source": "Our model 85% + books 84%",
+            "odds": "1.16",
+            "source": "Our model 85% + books 83%",
             "tape": [
               {
                 "label": "Last 10",
@@ -156,7 +318,7 @@
           }
         },
         {
-          "text": "⚠️ THE RISK\n\n76ers are hitting 31.7% from three over their last 10, Bucks 39.7%.\n\nTeams priced like Bucks tonight still win about 16 times in 100.",
+          "text": "⚠️ THE RISK\n\n76ers are hitting 31.7% from three over their last 10, Bucks 39.7%.\n\nTeams priced like Bucks tonight still win about 17 times in 100.",
           "card": null
         },
         {
@@ -171,42 +333,42 @@
       "home_team": "Cleveland Cavaliers",
       "away_team": "Brooklyn Nets",
       "predicted_winner": "Cleveland Cavaliers",
-      "predicted_home_prob": 0.8020507272270981,
-      "predicted_away_prob": 0.19794927277290186,
-      "home_odds": 1.19,
-      "away_odds": 5.0,
-      "confidence": 0.8020507272270981,
+      "predicted_home_prob": 0.794969263989372,
+      "predicted_away_prob": 0.20503073601062805,
+      "home_odds": 1.2,
+      "away_odds": 4.8,
+      "confidence": 0.794969263989372,
       "date": "2026-10-24",
       "published": false,
       "home_code": "CLE",
       "away_code": "BKN",
       "start_utc": "2026-10-24T23:30:00+00:00",
       "model_home_prob": 0.7091,
-      "market_home_prob": 0.8082,
+      "market_home_prob": 0.8,
       "probability_source": "blend",
       "own_home_prob": 0.7647,
       "own_away_prob": 0.2353,
       "own_model_mode": "full",
       "market_books": 1,
-      "refreshed_at": "2026-10-24T09:10+00:00",
+      "refreshed_at": "2026-10-24T21:15+00:00",
       "key_out": {
         "home": [],
         "away": []
       },
       "thread": [
         {
-          "text": "🏀 Brooklyn Nets at Cleveland Cavaliers\n🕗 Sat Oct 24, 7:30 PM ET\n\n🎯 Pick: Cleveland Cavaliers (80%)\n📊 Our model 76% · books 81%\n💰 Odds 1.19 · books’ consensus\n\nThe case, and the risk 🧵",
+          "text": "🏀 Brooklyn Nets at Cleveland Cavaliers\n🕗 Sat Oct 24, 7:30 PM ET\n\n🎯 Pick: Cleveland Cavaliers (79%)\n📊 Our model 76% · books 80%\n💰 Odds 1.20 · books’ consensus\n\nThe case, and the risk 🧵",
           "card": {
             "type": "match",
             "when": "SAT OCT 24 · 7:30 PM ET",
             "away": "BKN",
             "home": "CLE",
-            "away_prob": 0.19794927277290186,
+            "away_prob": 0.20503073601062805,
             "away_sub": "away",
             "home_sub": "home",
             "pick_name": "Cavaliers",
-            "odds": "1.19",
-            "source": "Our model 76% + books 81%",
+            "odds": "1.20",
+            "source": "Our model 76% + books 80%",
             "tape": [
               {
                 "label": "Last 10",
@@ -330,7 +492,7 @@
           }
         },
         {
-          "text": "⚠️ THE RISK\n\nRest: Cavaliers 1 day, Nets 2.\n\nTeams priced like Nets tonight still win about 20 times in 100.",
+          "text": "⚠️ THE RISK\n\nRest: Cavaliers 1 day, Nets 2.\n\nTeams priced like Nets tonight still win about 21 times in 100.",
           "card": null
         },
         {
@@ -362,7 +524,7 @@
       "own_away_prob": 0.2184,
       "own_model_mode": "full",
       "market_books": 1,
-      "refreshed_at": "2026-10-24T09:10+00:00",
+      "refreshed_at": "2026-10-24T21:15+00:00",
       "key_out": {
         "home": [],
         "away": []
@@ -500,209 +662,49 @@
       ]
     },
     {
-      "id": "San_Antonio_Spurs_vs_Dallas_Mavericks_2026-10-24",
-      "matchup": "San Antonio Spurs @ Dallas Mavericks",
-      "home_team": "Dallas Mavericks",
-      "away_team": "San Antonio Spurs",
-      "predicted_winner": "San Antonio Spurs",
-      "predicted_home_prob": 0.20656340473769538,
-      "predicted_away_prob": 0.7934365952623046,
-      "home_odds": 5.0,
-      "away_odds": 1.19,
-      "confidence": 0.7934365952623046,
-      "date": "2026-10-24",
-      "published": false,
-      "home_code": "DAL",
-      "away_code": "SAS",
-      "start_utc": "2026-10-25T00:00:00+00:00",
-      "model_home_prob": 0.4176,
-      "market_home_prob": 0.1918,
-      "probability_source": "blend",
-      "own_home_prob": 0.3052,
-      "own_away_prob": 0.6948,
-      "own_model_mode": "full",
-      "market_books": 1,
-      "refreshed_at": "2026-10-24T09:10+00:00",
-      "key_out": {
-        "home": [
-          "Cooper Flagg"
-        ],
-        "away": []
-      },
-      "thread": [
-        {
-          "text": "🏀 San Antonio Spurs at Dallas Mavericks\n🕗 Sat Oct 24, 8:00 PM ET\n\n🎯 Pick: San Antonio Spurs (79%)\n📊 Our model 69% · books 81%\n💰 Odds 1.19 · books’ consensus\n\nThe case, and the risk 🧵",
-          "card": {
-            "type": "match",
-            "when": "SAT OCT 24 · 8:00 PM ET",
-            "away": "SAS",
-            "home": "DAL",
-            "away_prob": 0.7934365952623046,
-            "away_sub": "away",
-            "home_sub": "home",
-            "pick_name": "Spurs",
-            "odds": "1.19",
-            "source": "Our model 69% + books 81%",
-            "tape": [
-              {
-                "label": "Last 10",
-                "away": "3-7",
-                "home": "3-7"
-              },
-              {
-                "label": "Net rtg L10",
-                "away": "-0.5",
-                "home": "-7.6"
-              },
-              {
-                "label": "Rest",
-                "away": "B2B",
-                "home": "B2B"
-              },
-              {
-                "label": "Elo",
-                "away": "1691",
-                "home": "1397"
-              }
-            ]
-          }
-        },
-        {
-          "text": "🏟️ HOME AND AWAY\n\nSpurs have won 75% of recent road games; Mavericks 25% at home.",
-          "card": {
-            "type": "edge",
-            "away": "SAS",
-            "home": "DAL",
-            "matchup": "Spurs at Mavericks · SAT OCT 24 · 8:00 PM ET",
-            "eyebrow": "Reason 1 of 3 · Spurs",
-            "title": "Home and away",
-            "sub": "Spurs have won 75% of recent road games; Mavericks 25% at home.",
-            "rows": [
-              {
-                "label": "Win % (road vs home)",
-                "lower_is_better": false,
-                "a": {
-                  "team": "SAS",
-                  "value": 0.75,
-                  "label": "75%"
-                },
-                "b": {
-                  "team": "DAL",
-                  "value": 0.25,
-                  "label": "25%"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "text": "🛡️ DEFENSE\n\nSpurs allow 107.9 per 100 possessions lately, Mavericks 118.5.",
-          "card": {
-            "type": "edge",
-            "away": "SAS",
-            "home": "DAL",
-            "matchup": "Spurs at Mavericks · SAT OCT 24 · 8:00 PM ET",
-            "eyebrow": "Reason 2 of 3 · Spurs",
-            "title": "Defense",
-            "sub": "Spurs allow 107.9 per 100 possessions lately, Mavericks 118.5.",
-            "rows": [
-              {
-                "label": "Defensive rating (lower is better)",
-                "lower_is_better": true,
-                "a": {
-                  "team": "SAS",
-                  "value": 107.9059,
-                  "label": "107.9"
-                },
-                "b": {
-                  "team": "DAL",
-                  "value": 118.5289,
-                  "label": "118.5"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "text": "📊 POWER RATING\n\nElo has Spurs at 1691, Mavericks at 1397. A real gap in team strength.",
-          "card": {
-            "type": "edge",
-            "away": "SAS",
-            "home": "DAL",
-            "matchup": "Spurs at Mavericks · SAT OCT 24 · 8:00 PM ET",
-            "eyebrow": "Reason 3 of 3 · Spurs",
-            "title": "Power rating",
-            "sub": "Elo has Spurs at 1691, Mavericks at 1397. A real gap in team strength.",
-            "rows": [
-              {
-                "label": "Elo rating",
-                "lower_is_better": false,
-                "a": {
-                  "team": "SAS",
-                  "value": 1691.0381,
-                  "label": "1691"
-                },
-                "b": {
-                  "team": "DAL",
-                  "value": 1396.7931,
-                  "label": "1397"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "text": "⚠️ THE RISK\n\nSpurs score 107.5 points per 100 possessions over their last 10, Mavericks 111.0.\n\nTeams priced like Mavericks tonight still win about 21 times in 100.",
-          "card": null
-        },
-        {
-          "text": "📈 Our probabilities hit 68.6% of winners over 4 seasons of backtests.\n\nEvery pick is posted before tip-off and graded after the final buzzer. No deleting the misses.\n\n🔔 Follow for the full slate every game day.",
-          "card": null
-        }
-      ]
-    },
-    {
       "id": "Golden_State_Warriors_vs_Phoenix_Suns_2026-10-24",
       "matchup": "Golden State Warriors @ Phoenix Suns",
       "home_team": "Phoenix Suns",
       "away_team": "Golden State Warriors",
       "predicted_winner": "Phoenix Suns",
-      "predicted_home_prob": 0.7447972169639114,
-      "predicted_away_prob": 0.25520278303608857,
-      "home_odds": 1.26,
-      "away_odds": 4.0,
-      "confidence": 0.7447972169639114,
+      "predicted_home_prob": 0.7500340091069398,
+      "predicted_away_prob": 0.24996599089306015,
+      "home_odds": 1.25,
+      "away_odds": 4.1,
+      "confidence": 0.7500340091069398,
       "date": "2026-10-24",
       "published": false,
       "home_code": "PHX",
       "away_code": "GSW",
       "start_utc": "2026-10-25T02:00:00+00:00",
       "model_home_prob": 0.6596,
-      "market_home_prob": 0.76,
+      "market_home_prob": 0.7659,
       "probability_source": "blend",
       "own_home_prob": 0.6476,
       "own_away_prob": 0.3524,
       "own_model_mode": "full",
       "market_books": 1,
-      "refreshed_at": "2026-10-24T09:10+00:00",
+      "refreshed_at": "2026-10-24T21:15+00:00",
       "key_out": {
         "home": [],
-        "away": []
+        "away": [
+          "Stephen Curry"
+        ]
       },
       "thread": [
         {
-          "text": "🏀 Golden State Warriors at Phoenix Suns\n🕗 Sat Oct 24, 10:00 PM ET\n\n🎯 Pick: Phoenix Suns (74%)\n📊 Our model 65% · books 76%\n💰 Odds 1.26 · books’ consensus\n\nThe case, and the risk 🧵",
+          "text": "🏀 Golden State Warriors at Phoenix Suns\n🕗 Sat Oct 24, 10:00 PM ET\n\n🎯 Pick: Phoenix Suns (75%)\n📊 Our model 65% · books 77%\n💰 Odds 1.25 · books’ consensus\n\nThe case, and the risk 🧵",
           "card": {
             "type": "match",
             "when": "SAT OCT 24 · 10:00 PM ET",
             "away": "GSW",
             "home": "PHX",
-            "away_prob": 0.25520278303608857,
+            "away_prob": 0.24996599089306015,
             "away_sub": "away",
             "home_sub": "home",
             "pick_name": "Suns",
-            "odds": "1.26",
-            "source": "Our model 65% + books 76%",
+            "odds": "1.25",
+            "source": "Our model 65% + books 77%",
             "tape": [
               {
                 "label": "Last 10",
@@ -784,35 +786,11 @@
           }
         },
         {
-          "text": "📊 POWER RATING\n\nElo has Suns at 1475, Warriors at 1371. A real gap in team strength.",
-          "card": {
-            "type": "edge",
-            "away": "GSW",
-            "home": "PHX",
-            "matchup": "Warriors at Suns · SAT OCT 24 · 10:00 PM ET",
-            "eyebrow": "Reason 3 of 3 · Suns",
-            "title": "Power rating",
-            "sub": "Elo has Suns at 1475, Warriors at 1371. A real gap in team strength.",
-            "rows": [
-              {
-                "label": "Elo rating",
-                "lower_is_better": false,
-                "a": {
-                  "team": "PHX",
-                  "value": 1475.2968,
-                  "label": "1475"
-                },
-                "b": {
-                  "team": "GSW",
-                  "value": 1371.2785,
-                  "label": "1371"
-                }
-              }
-            ]
-          }
+          "text": "🩹 MISSING PIECES\n\nWarriors are listed without Stephen Curry. Suns have no key absence on the report.",
+          "card": null
         },
         {
-          "text": "⚠️ THE RISK\n\nSuns score 107.9 points per 100 possessions over their last 10, Warriors 112.9.\n\nTeams priced like Warriors tonight still win about 26 times in 100.",
+          "text": "⚠️ THE RISK\n\nSuns score 107.9 points per 100 possessions over their last 10, Warriors 112.9.\n\nTeams priced like Warriors tonight still win about 25 times in 100.",
           "card": null
         },
         {
@@ -827,42 +805,42 @@
       "home_team": "Charlotte Hornets",
       "away_team": "Miami Heat",
       "predicted_winner": "Miami Heat",
-      "predicted_home_prob": 0.4356524966804538,
-      "predicted_away_prob": 0.5643475033195462,
-      "home_odds": 2.3,
-      "away_odds": 1.65,
-      "confidence": 0.5643475033195462,
+      "predicted_home_prob": 0.42672111254743106,
+      "predicted_away_prob": 0.5732788874525689,
+      "home_odds": 2.36,
+      "away_odds": 1.62,
+      "confidence": 0.5732788874525689,
       "date": "2026-10-24",
       "published": false,
       "home_code": "CHA",
       "away_code": "MIA",
       "start_utc": "2026-10-24T22:00:00+00:00",
       "model_home_prob": 0.6117,
-      "market_home_prob": 0.417,
+      "market_home_prob": 0.4066,
       "probability_source": "blend",
       "own_home_prob": 0.5432,
       "own_away_prob": 0.4568,
       "own_model_mode": "full",
       "market_books": 1,
-      "refreshed_at": "2026-10-24T09:10+00:00",
+      "refreshed_at": "2026-10-24T21:15+00:00",
       "key_out": {
         "home": [],
         "away": []
       },
       "thread": [
         {
-          "text": "🏀 Miami Heat at Charlotte Hornets\n🕗 Sat Oct 24, 6:00 PM ET\n\n🎯 Pick: Miami Heat (56%)\n📊 Our model 46% · books 58%\n💰 Odds 1.65 · books’ consensus\n\nThe case, and the risk 🧵",
+          "text": "🏀 Miami Heat at Charlotte Hornets\n🕗 Sat Oct 24, 6:00 PM ET\n\n🎯 Pick: Miami Heat (57%)\n📊 Our model 46% · books 59%\n💰 Odds 1.62 · books’ consensus\n\nThe case, and the risk 🧵",
           "card": {
             "type": "match",
             "when": "SAT OCT 24 · 6:00 PM ET",
             "away": "MIA",
             "home": "CHA",
-            "away_prob": 0.5643475033195462,
+            "away_prob": 0.5732788874525689,
             "away_sub": "away",
             "home_sub": "home",
             "pick_name": "Heat",
-            "odds": "1.65",
-            "source": "Our model 46% + books 58%",
+            "odds": "1.62",
+            "source": "Our model 46% + books 59%",
             "tape": [
               {
                 "label": "Last 10",
@@ -986,143 +964,7 @@
           }
         },
         {
-          "text": "⚠️ THE RISK\n\nHeat allow 121.5 per 100 possessions lately, Hornets 113.7.\n\nTeams priced like Hornets tonight still win about 44 times in 100.",
-          "card": null
-        },
-        {
-          "text": "📈 Our probabilities hit 68.6% of winners over 4 seasons of backtests.\n\nEvery pick is posted before tip-off and graded after the final buzzer. No deleting the misses.\n\n🔔 Follow for the full slate every game day.",
-          "card": null
-        }
-      ]
-    },
-    {
-      "id": "Houston_Rockets_vs_Atlanta_Hawks_2026-10-24",
-      "matchup": "Houston Rockets @ Atlanta Hawks",
-      "home_team": "Atlanta Hawks",
-      "away_team": "Houston Rockets",
-      "predicted_winner": "Atlanta Hawks",
-      "predicted_home_prob": 0.5235051188631764,
-      "predicted_away_prob": 0.4764948811368236,
-      "home_odds": 1.83,
-      "away_odds": 2.0,
-      "confidence": 0.5235051188631764,
-      "date": "2026-10-24",
-      "published": false,
-      "home_code": "ATL",
-      "away_code": "HOU",
-      "start_utc": "2026-10-25T00:30:00+00:00",
-      "model_home_prob": 0.6058,
-      "market_home_prob": 0.5217,
-      "probability_source": "blend",
-      "own_home_prob": 0.5335,
-      "own_away_prob": 0.4665,
-      "own_model_mode": "full",
-      "market_books": 1,
-      "refreshed_at": "2026-10-24T09:10+00:00",
-      "key_out": {
-        "home": [],
-        "away": []
-      },
-      "thread": [
-        {
-          "text": "🏀 Houston Rockets at Atlanta Hawks\n🕗 Sat Oct 24, 8:30 PM ET\n\n🎯 Pick: Atlanta Hawks (52%)\n📊 Our model 53% · books 52%\n💰 Odds 1.83 · books’ consensus\n\nThe case, and the risk 🧵",
-          "card": {
-            "type": "match",
-            "when": "SAT OCT 24 · 8:30 PM ET",
-            "away": "HOU",
-            "home": "ATL",
-            "away_prob": 0.4764948811368236,
-            "away_sub": "away",
-            "home_sub": "home",
-            "pick_name": "Hawks",
-            "odds": "1.83",
-            "source": "Our model 53% + books 52%",
-            "tape": [
-              {
-                "label": "Last 10",
-                "away": "5-5",
-                "home": "5-5"
-              },
-              {
-                "label": "Net rtg L10",
-                "away": "+3.1",
-                "home": "-5.8"
-              },
-              {
-                "label": "Rest",
-                "away": "B2B",
-                "home": "B2B"
-              },
-              {
-                "label": "Elo",
-                "away": "1613",
-                "home": "1611"
-              }
-            ]
-          }
-        },
-        {
-          "text": "🏹 FROM DEEP\n\nHawks are hitting 34.2% from three over their last 10, Rockets 31.3%.",
-          "card": {
-            "type": "edge",
-            "away": "HOU",
-            "home": "ATL",
-            "matchup": "Rockets at Hawks · SAT OCT 24 · 8:30 PM ET",
-            "eyebrow": "Reason 1 of 3 · Hawks",
-            "title": "From deep",
-            "sub": "Hawks are hitting 34.2% from three over their last 10, Rockets 31.3%.",
-            "rows": [
-              {
-                "label": "3P%, last 10",
-                "lower_is_better": false,
-                "a": {
-                  "team": "ATL",
-                  "value": 0.3422,
-                  "label": "34.2%"
-                },
-                "b": {
-                  "team": "HOU",
-                  "value": 0.3126,
-                  "label": "31.3%"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "text": "🏟️ HOME AND AWAY\n\nHawks have won 75% at home lately; Rockets 60% on the road.",
-          "card": {
-            "type": "edge",
-            "away": "HOU",
-            "home": "ATL",
-            "matchup": "Rockets at Hawks · SAT OCT 24 · 8:30 PM ET",
-            "eyebrow": "Reason 2 of 3 · Hawks",
-            "title": "Home and away",
-            "sub": "Hawks have won 75% at home lately; Rockets 60% on the road.",
-            "rows": [
-              {
-                "label": "Win % (home vs road)",
-                "lower_is_better": false,
-                "a": {
-                  "team": "ATL",
-                  "value": 0.75,
-                  "label": "75%"
-                },
-                "b": {
-                  "team": "HOU",
-                  "value": 0.6,
-                  "label": "60%"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "text": "🤖 MODEL CHECK\n\nOur stats model (Elo, form, rest) gives Hawks 61%, in line with the books.",
-          "card": null
-        },
-        {
-          "text": "⚠️ THE RISK\n\nHawks allow 114.6 per 100 possessions lately, Rockets 108.7.\n\nTeams priced like Rockets tonight still win about 48 times in 100.",
+          "text": "⚠️ THE RISK\n\nHeat allow 121.5 per 100 possessions lately, Hornets 113.7.\n\nTeams priced like Hornets tonight still win about 43 times in 100.",
           "card": null
         },
         {
@@ -1137,42 +979,42 @@
       "home_team": "Chicago Bulls",
       "away_team": "Washington Wizards",
       "predicted_winner": "Chicago Bulls",
-      "predicted_home_prob": 0.5090121641627878,
-      "predicted_away_prob": 0.49098783583721217,
-      "home_odds": 1.91,
-      "away_odds": 1.91,
-      "confidence": 0.5090121641627878,
+      "predicted_home_prob": 0.5453094054959946,
+      "predicted_away_prob": 0.4546905945040054,
+      "home_odds": 1.77,
+      "away_odds": 2.1,
+      "confidence": 0.5453094054959946,
       "date": "2026-10-24",
       "published": false,
       "home_code": "CHI",
       "away_code": "WAS",
       "start_utc": "2026-10-25T00:00:00+00:00",
       "model_home_prob": 0.5616,
-      "market_home_prob": 0.5,
+      "market_home_prob": 0.5427,
       "probability_source": "blend",
       "own_home_prob": 0.5598,
       "own_away_prob": 0.4402,
       "own_model_mode": "full",
       "market_books": 1,
-      "refreshed_at": "2026-10-24T09:10+00:00",
+      "refreshed_at": "2026-10-24T21:15+00:00",
       "key_out": {
         "home": [],
         "away": []
       },
       "thread": [
         {
-          "text": "🏀 Washington Wizards at Chicago Bulls\n🕗 Sat Oct 24, 8:00 PM ET\n\n🎯 Pick: Chicago Bulls (51%)\n📊 Our model 56% · books 50%\n💰 Odds 1.91 · books’ consensus\n\nThe case, and the risk 🧵",
+          "text": "🏀 Washington Wizards at Chicago Bulls\n🕗 Sat Oct 24, 8:00 PM ET\n\n🎯 Pick: Chicago Bulls (55%)\n📊 Our model 56% · books 54%\n💰 Odds 1.77 · books’ consensus\n\nThe case, and the risk 🧵",
           "card": {
             "type": "match",
             "when": "SAT OCT 24 · 8:00 PM ET",
             "away": "WAS",
             "home": "CHI",
-            "away_prob": 0.49098783583721217,
+            "away_prob": 0.4546905945040054,
             "away_sub": "away",
             "home_sub": "home",
             "pick_name": "Bulls",
-            "odds": "1.91",
-            "source": "Our model 56% + books 50%",
+            "odds": "1.77",
+            "source": "Our model 56% + books 54%",
             "tape": [
               {
                 "label": "Last 10",
@@ -1282,7 +1124,145 @@
           }
         },
         {
-          "text": "⚠️ THE RISK\n\nBulls are hitting 27.3% from three over their last 10, Wizards 33.7%.\n\nTeams priced like Wizards tonight still win about 49 times in 100.",
+          "text": "⚠️ THE RISK\n\nBulls are hitting 27.3% from three over their last 10, Wizards 33.7%.\n\nTeams priced like Wizards tonight still win about 45 times in 100.",
+          "card": null
+        },
+        {
+          "text": "📈 Our probabilities hit 68.6% of winners over 4 seasons of backtests.\n\nEvery pick is posted before tip-off and graded after the final buzzer. No deleting the misses.\n\n🔔 Follow for the full slate every game day.",
+          "card": null
+        }
+      ]
+    },
+    {
+      "id": "Houston_Rockets_vs_Atlanta_Hawks_2026-10-24",
+      "matchup": "Houston Rockets @ Atlanta Hawks",
+      "home_team": "Atlanta Hawks",
+      "away_team": "Houston Rockets",
+      "predicted_winner": "Atlanta Hawks",
+      "predicted_home_prob": 0.5013521531407661,
+      "predicted_away_prob": 0.4986478468592339,
+      "home_odds": 1.93,
+      "away_odds": 1.89,
+      "confidence": 0.5013521531407661,
+      "date": "2026-10-24",
+      "published": false,
+      "home_code": "ATL",
+      "away_code": "HOU",
+      "start_utc": "2026-10-25T00:30:00+00:00",
+      "model_home_prob": 0.6058,
+      "market_home_prob": 0.4957,
+      "probability_source": "blend",
+      "own_home_prob": 0.5335,
+      "own_away_prob": 0.4665,
+      "own_model_mode": "full",
+      "market_books": 1,
+      "refreshed_at": "2026-10-24T21:15+00:00",
+      "key_out": {
+        "home": [],
+        "away": [
+          "Fred VanVleet"
+        ]
+      },
+      "thread": [
+        {
+          "text": "🏀 Houston Rockets at Atlanta Hawks\n🕗 Sat Oct 24, 8:30 PM ET\n\n🎯 Pick: Atlanta Hawks (50%)\n📊 Our model 53% · books 50%\n💰 Odds 1.93 · books’ consensus\n\nThe case, and the risk 🧵",
+          "card": {
+            "type": "match",
+            "when": "SAT OCT 24 · 8:30 PM ET",
+            "away": "HOU",
+            "home": "ATL",
+            "away_prob": 0.4986478468592339,
+            "away_sub": "away",
+            "home_sub": "home",
+            "pick_name": "Hawks",
+            "odds": "1.93",
+            "source": "Our model 53% + books 50%",
+            "tape": [
+              {
+                "label": "Last 10",
+                "away": "5-5",
+                "home": "5-5"
+              },
+              {
+                "label": "Net rtg L10",
+                "away": "+3.1",
+                "home": "-5.8"
+              },
+              {
+                "label": "Rest",
+                "away": "B2B",
+                "home": "B2B"
+              },
+              {
+                "label": "Elo",
+                "away": "1613",
+                "home": "1611"
+              }
+            ]
+          }
+        },
+        {
+          "text": "🩹 MISSING PIECES\n\nRockets are listed without Fred VanVleet. Hawks have no key absence on the report.",
+          "card": null
+        },
+        {
+          "text": "🏹 FROM DEEP\n\nHawks are hitting 34.2% from three over their last 10, Rockets 31.3%.",
+          "card": {
+            "type": "edge",
+            "away": "HOU",
+            "home": "ATL",
+            "matchup": "Rockets at Hawks · SAT OCT 24 · 8:30 PM ET",
+            "eyebrow": "Reason 2 of 3 · Hawks",
+            "title": "From deep",
+            "sub": "Hawks are hitting 34.2% from three over their last 10, Rockets 31.3%.",
+            "rows": [
+              {
+                "label": "3P%, last 10",
+                "lower_is_better": false,
+                "a": {
+                  "team": "ATL",
+                  "value": 0.3422,
+                  "label": "34.2%"
+                },
+                "b": {
+                  "team": "HOU",
+                  "value": 0.3126,
+                  "label": "31.3%"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "text": "🏟️ HOME AND AWAY\n\nHawks have won 75% at home lately; Rockets 60% on the road.",
+          "card": {
+            "type": "edge",
+            "away": "HOU",
+            "home": "ATL",
+            "matchup": "Rockets at Hawks · SAT OCT 24 · 8:30 PM ET",
+            "eyebrow": "Reason 3 of 3 · Hawks",
+            "title": "Home and away",
+            "sub": "Hawks have won 75% at home lately; Rockets 60% on the road.",
+            "rows": [
+              {
+                "label": "Win % (home vs road)",
+                "lower_is_better": false,
+                "a": {
+                  "team": "ATL",
+                  "value": 0.75,
+                  "label": "75%"
+                },
+                "b": {
+                  "team": "HOU",
+                  "value": 0.6,
+                  "label": "60%"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "text": "⚠️ THE RISK\n\nHawks allow 114.6 per 100 possessions lately, Rockets 108.7.\n\nTeams priced like Rockets tonight still win about 50 times in 100.",
           "card": null
         },
         {
@@ -2358,47 +2338,209 @@
   ],
   "games_today": [
     {
-      "id": "Milwaukee_Bucks_vs_Philadelphia_76ers_2026-10-24",
-      "matchup": "Milwaukee Bucks @ Philadelphia 76ers",
-      "home_team": "Philadelphia 76ers",
-      "away_team": "Milwaukee Bucks",
-      "predicted_winner": "Philadelphia 76ers",
-      "predicted_home_prob": 0.8408657398270873,
-      "predicted_away_prob": 0.15913426017291266,
-      "home_odds": 1.14,
-      "away_odds": 6.0,
-      "confidence": 0.8408657398270873,
+      "id": "San_Antonio_Spurs_vs_Dallas_Mavericks_2026-10-24",
+      "matchup": "San Antonio Spurs @ Dallas Mavericks",
+      "home_team": "Dallas Mavericks",
+      "away_team": "San Antonio Spurs",
+      "predicted_winner": "San Antonio Spurs",
+      "predicted_home_prob": 0.1560567277710654,
+      "predicted_away_prob": 0.8439432722289346,
+      "home_odds": 7.0,
+      "away_odds": 1.11,
+      "confidence": 0.8439432722289346,
       "date": "2026-10-24",
       "published": false,
-      "home_code": "PHI",
-      "away_code": "MIL",
-      "start_utc": "2026-10-24T23:30:00+00:00",
-      "model_home_prob": 0.8062,
-      "market_home_prob": 0.84,
+      "home_code": "DAL",
+      "away_code": "SAS",
+      "start_utc": "2026-10-25T00:00:00+00:00",
+      "model_home_prob": 0.4176,
+      "market_home_prob": 0.137,
       "probability_source": "blend",
-      "own_home_prob": 0.8457,
-      "own_away_prob": 0.1543,
+      "own_home_prob": 0.3052,
+      "own_away_prob": 0.6948,
       "own_model_mode": "full",
       "market_books": 1,
-      "refreshed_at": "2026-10-24T09:10+00:00",
+      "refreshed_at": "2026-10-24T21:15+00:00",
       "key_out": {
         "home": [],
         "away": []
       },
       "thread": [
         {
-          "text": "🏀 Milwaukee Bucks at Philadelphia 76ers\n🕗 Sat Oct 24, 7:30 PM ET\n\n🎯 Pick: Philadelphia 76ers (84%)\n📊 Our model 85% · books 84%\n💰 Odds 1.14 · books’ consensus\n\nThe case, and the risk 🧵",
+          "text": "🏀 San Antonio Spurs at Dallas Mavericks\n🕗 Sat Oct 24, 8:00 PM ET\n\n🎯 Pick: San Antonio Spurs (84%)\n📊 Our model 69% · books 86%\n💰 Odds 1.11 · books’ consensus\n\nThe case, and the risk 🧵",
+          "card": {
+            "type": "match",
+            "when": "SAT OCT 24 · 8:00 PM ET",
+            "away": "SAS",
+            "home": "DAL",
+            "away_prob": 0.8439432722289346,
+            "away_sub": "away",
+            "home_sub": "home",
+            "pick_name": "Spurs",
+            "odds": "1.11",
+            "source": "Our model 69% + books 86%",
+            "tape": [
+              {
+                "label": "Last 10",
+                "away": "3-7",
+                "home": "3-7"
+              },
+              {
+                "label": "Net rtg L10",
+                "away": "-0.5",
+                "home": "-7.6"
+              },
+              {
+                "label": "Rest",
+                "away": "B2B",
+                "home": "B2B"
+              },
+              {
+                "label": "Elo",
+                "away": "1691",
+                "home": "1397"
+              }
+            ]
+          }
+        },
+        {
+          "text": "🏟️ HOME AND AWAY\n\nSpurs have won 75% of recent road games; Mavericks 25% at home.",
+          "card": {
+            "type": "edge",
+            "away": "SAS",
+            "home": "DAL",
+            "matchup": "Spurs at Mavericks · SAT OCT 24 · 8:00 PM ET",
+            "eyebrow": "Reason 1 of 3 · Spurs",
+            "title": "Home and away",
+            "sub": "Spurs have won 75% of recent road games; Mavericks 25% at home.",
+            "rows": [
+              {
+                "label": "Win % (road vs home)",
+                "lower_is_better": false,
+                "a": {
+                  "team": "SAS",
+                  "value": 0.75,
+                  "label": "75%"
+                },
+                "b": {
+                  "team": "DAL",
+                  "value": 0.25,
+                  "label": "25%"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "text": "🛡️ DEFENSE\n\nSpurs allow 107.9 per 100 possessions lately, Mavericks 118.5.",
+          "card": {
+            "type": "edge",
+            "away": "SAS",
+            "home": "DAL",
+            "matchup": "Spurs at Mavericks · SAT OCT 24 · 8:00 PM ET",
+            "eyebrow": "Reason 2 of 3 · Spurs",
+            "title": "Defense",
+            "sub": "Spurs allow 107.9 per 100 possessions lately, Mavericks 118.5.",
+            "rows": [
+              {
+                "label": "Defensive rating (lower is better)",
+                "lower_is_better": true,
+                "a": {
+                  "team": "SAS",
+                  "value": 107.9059,
+                  "label": "107.9"
+                },
+                "b": {
+                  "team": "DAL",
+                  "value": 118.5289,
+                  "label": "118.5"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "text": "📊 POWER RATING\n\nElo has Spurs at 1691, Mavericks at 1397. A real gap in team strength.",
+          "card": {
+            "type": "edge",
+            "away": "SAS",
+            "home": "DAL",
+            "matchup": "Spurs at Mavericks · SAT OCT 24 · 8:00 PM ET",
+            "eyebrow": "Reason 3 of 3 · Spurs",
+            "title": "Power rating",
+            "sub": "Elo has Spurs at 1691, Mavericks at 1397. A real gap in team strength.",
+            "rows": [
+              {
+                "label": "Elo rating",
+                "lower_is_better": false,
+                "a": {
+                  "team": "SAS",
+                  "value": 1691.0381,
+                  "label": "1691"
+                },
+                "b": {
+                  "team": "DAL",
+                  "value": 1396.7931,
+                  "label": "1397"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "text": "⚠️ THE RISK\n\nSpurs score 107.5 points per 100 possessions over their last 10, Mavericks 111.0.\n\nTeams priced like Mavericks tonight still win about 16 times in 100.",
+          "card": null
+        },
+        {
+          "text": "📈 Our probabilities hit 68.6% of winners over 4 seasons of backtests.\n\nEvery pick is posted before tip-off and graded after the final buzzer. No deleting the misses.\n\n🔔 Follow for the full slate every game day.",
+          "card": null
+        }
+      ]
+    },
+    {
+      "id": "Milwaukee_Bucks_vs_Philadelphia_76ers_2026-10-24",
+      "matchup": "Milwaukee Bucks @ Philadelphia 76ers",
+      "home_team": "Philadelphia 76ers",
+      "away_team": "Milwaukee Bucks",
+      "predicted_winner": "Philadelphia 76ers",
+      "predicted_home_prob": 0.8300188867575676,
+      "predicted_away_prob": 0.16998111324243237,
+      "home_odds": 1.16,
+      "away_odds": 5.55,
+      "confidence": 0.8300188867575676,
+      "date": "2026-10-24",
+      "published": false,
+      "home_code": "PHI",
+      "away_code": "MIL",
+      "start_utc": "2026-10-24T23:30:00+00:00",
+      "model_home_prob": 0.8062,
+      "market_home_prob": 0.8271,
+      "probability_source": "blend",
+      "own_home_prob": 0.8457,
+      "own_away_prob": 0.1543,
+      "own_model_mode": "full",
+      "market_books": 1,
+      "refreshed_at": "2026-10-24T21:15+00:00",
+      "key_out": {
+        "home": [
+          "LeBron James"
+        ],
+        "away": []
+      },
+      "thread": [
+        {
+          "text": "🏀 Milwaukee Bucks at Philadelphia 76ers\n🕗 Sat Oct 24, 7:30 PM ET\n\n🎯 Pick: Philadelphia 76ers (83%)\n📊 Our model 85% · books 83%\n💰 Odds 1.16 · books’ consensus\n\nThe case, and the risk 🧵",
           "card": {
             "type": "match",
             "when": "SAT OCT 24 · 7:30 PM ET",
             "away": "MIL",
             "home": "PHI",
-            "away_prob": 0.15913426017291266,
+            "away_prob": 0.16998111324243237,
             "away_sub": "away",
             "home_sub": "home",
             "pick_name": "76ers",
-            "odds": "1.14",
-            "source": "Our model 85% + books 84%",
+            "odds": "1.16",
+            "source": "Our model 85% + books 83%",
             "tape": [
               {
                 "label": "Last 10",
@@ -2508,7 +2650,7 @@
           }
         },
         {
-          "text": "⚠️ THE RISK\n\n76ers are hitting 31.7% from three over their last 10, Bucks 39.7%.\n\nTeams priced like Bucks tonight still win about 16 times in 100.",
+          "text": "⚠️ THE RISK\n\n76ers are hitting 31.7% from three over their last 10, Bucks 39.7%.\n\nTeams priced like Bucks tonight still win about 17 times in 100.",
           "card": null
         },
         {
@@ -2523,42 +2665,42 @@
       "home_team": "Cleveland Cavaliers",
       "away_team": "Brooklyn Nets",
       "predicted_winner": "Cleveland Cavaliers",
-      "predicted_home_prob": 0.8020507272270981,
-      "predicted_away_prob": 0.19794927277290186,
-      "home_odds": 1.19,
-      "away_odds": 5.0,
-      "confidence": 0.8020507272270981,
+      "predicted_home_prob": 0.794969263989372,
+      "predicted_away_prob": 0.20503073601062805,
+      "home_odds": 1.2,
+      "away_odds": 4.8,
+      "confidence": 0.794969263989372,
       "date": "2026-10-24",
       "published": false,
       "home_code": "CLE",
       "away_code": "BKN",
       "start_utc": "2026-10-24T23:30:00+00:00",
       "model_home_prob": 0.7091,
-      "market_home_prob": 0.8082,
+      "market_home_prob": 0.8,
       "probability_source": "blend",
       "own_home_prob": 0.7647,
       "own_away_prob": 0.2353,
       "own_model_mode": "full",
       "market_books": 1,
-      "refreshed_at": "2026-10-24T09:10+00:00",
+      "refreshed_at": "2026-10-24T21:15+00:00",
       "key_out": {
         "home": [],
         "away": []
       },
       "thread": [
         {
-          "text": "🏀 Brooklyn Nets at Cleveland Cavaliers\n🕗 Sat Oct 24, 7:30 PM ET\n\n🎯 Pick: Cleveland Cavaliers (80%)\n📊 Our model 76% · books 81%\n💰 Odds 1.19 · books’ consensus\n\nThe case, and the risk 🧵",
+          "text": "🏀 Brooklyn Nets at Cleveland Cavaliers\n🕗 Sat Oct 24, 7:30 PM ET\n\n🎯 Pick: Cleveland Cavaliers (79%)\n📊 Our model 76% · books 80%\n💰 Odds 1.20 · books’ consensus\n\nThe case, and the risk 🧵",
           "card": {
             "type": "match",
             "when": "SAT OCT 24 · 7:30 PM ET",
             "away": "BKN",
             "home": "CLE",
-            "away_prob": 0.19794927277290186,
+            "away_prob": 0.20503073601062805,
             "away_sub": "away",
             "home_sub": "home",
             "pick_name": "Cavaliers",
-            "odds": "1.19",
-            "source": "Our model 76% + books 81%",
+            "odds": "1.20",
+            "source": "Our model 76% + books 80%",
             "tape": [
               {
                 "label": "Last 10",
@@ -2682,7 +2824,7 @@
           }
         },
         {
-          "text": "⚠️ THE RISK\n\nRest: Cavaliers 1 day, Nets 2.\n\nTeams priced like Nets tonight still win about 20 times in 100.",
+          "text": "⚠️ THE RISK\n\nRest: Cavaliers 1 day, Nets 2.\n\nTeams priced like Nets tonight still win about 21 times in 100.",
           "card": null
         },
         {
@@ -2714,7 +2856,7 @@
       "own_away_prob": 0.2184,
       "own_model_mode": "full",
       "market_books": 1,
-      "refreshed_at": "2026-10-24T09:10+00:00",
+      "refreshed_at": "2026-10-24T21:15+00:00",
       "key_out": {
         "home": [],
         "away": []
@@ -2852,209 +2994,49 @@
       ]
     },
     {
-      "id": "San_Antonio_Spurs_vs_Dallas_Mavericks_2026-10-24",
-      "matchup": "San Antonio Spurs @ Dallas Mavericks",
-      "home_team": "Dallas Mavericks",
-      "away_team": "San Antonio Spurs",
-      "predicted_winner": "San Antonio Spurs",
-      "predicted_home_prob": 0.20656340473769538,
-      "predicted_away_prob": 0.7934365952623046,
-      "home_odds": 5.0,
-      "away_odds": 1.19,
-      "confidence": 0.7934365952623046,
-      "date": "2026-10-24",
-      "published": false,
-      "home_code": "DAL",
-      "away_code": "SAS",
-      "start_utc": "2026-10-25T00:00:00+00:00",
-      "model_home_prob": 0.4176,
-      "market_home_prob": 0.1918,
-      "probability_source": "blend",
-      "own_home_prob": 0.3052,
-      "own_away_prob": 0.6948,
-      "own_model_mode": "full",
-      "market_books": 1,
-      "refreshed_at": "2026-10-24T09:10+00:00",
-      "key_out": {
-        "home": [
-          "Cooper Flagg"
-        ],
-        "away": []
-      },
-      "thread": [
-        {
-          "text": "🏀 San Antonio Spurs at Dallas Mavericks\n🕗 Sat Oct 24, 8:00 PM ET\n\n🎯 Pick: San Antonio Spurs (79%)\n📊 Our model 69% · books 81%\n💰 Odds 1.19 · books’ consensus\n\nThe case, and the risk 🧵",
-          "card": {
-            "type": "match",
-            "when": "SAT OCT 24 · 8:00 PM ET",
-            "away": "SAS",
-            "home": "DAL",
-            "away_prob": 0.7934365952623046,
-            "away_sub": "away",
-            "home_sub": "home",
-            "pick_name": "Spurs",
-            "odds": "1.19",
-            "source": "Our model 69% + books 81%",
-            "tape": [
-              {
-                "label": "Last 10",
-                "away": "3-7",
-                "home": "3-7"
-              },
-              {
-                "label": "Net rtg L10",
-                "away": "-0.5",
-                "home": "-7.6"
-              },
-              {
-                "label": "Rest",
-                "away": "B2B",
-                "home": "B2B"
-              },
-              {
-                "label": "Elo",
-                "away": "1691",
-                "home": "1397"
-              }
-            ]
-          }
-        },
-        {
-          "text": "🏟️ HOME AND AWAY\n\nSpurs have won 75% of recent road games; Mavericks 25% at home.",
-          "card": {
-            "type": "edge",
-            "away": "SAS",
-            "home": "DAL",
-            "matchup": "Spurs at Mavericks · SAT OCT 24 · 8:00 PM ET",
-            "eyebrow": "Reason 1 of 3 · Spurs",
-            "title": "Home and away",
-            "sub": "Spurs have won 75% of recent road games; Mavericks 25% at home.",
-            "rows": [
-              {
-                "label": "Win % (road vs home)",
-                "lower_is_better": false,
-                "a": {
-                  "team": "SAS",
-                  "value": 0.75,
-                  "label": "75%"
-                },
-                "b": {
-                  "team": "DAL",
-                  "value": 0.25,
-                  "label": "25%"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "text": "🛡️ DEFENSE\n\nSpurs allow 107.9 per 100 possessions lately, Mavericks 118.5.",
-          "card": {
-            "type": "edge",
-            "away": "SAS",
-            "home": "DAL",
-            "matchup": "Spurs at Mavericks · SAT OCT 24 · 8:00 PM ET",
-            "eyebrow": "Reason 2 of 3 · Spurs",
-            "title": "Defense",
-            "sub": "Spurs allow 107.9 per 100 possessions lately, Mavericks 118.5.",
-            "rows": [
-              {
-                "label": "Defensive rating (lower is better)",
-                "lower_is_better": true,
-                "a": {
-                  "team": "SAS",
-                  "value": 107.9059,
-                  "label": "107.9"
-                },
-                "b": {
-                  "team": "DAL",
-                  "value": 118.5289,
-                  "label": "118.5"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "text": "📊 POWER RATING\n\nElo has Spurs at 1691, Mavericks at 1397. A real gap in team strength.",
-          "card": {
-            "type": "edge",
-            "away": "SAS",
-            "home": "DAL",
-            "matchup": "Spurs at Mavericks · SAT OCT 24 · 8:00 PM ET",
-            "eyebrow": "Reason 3 of 3 · Spurs",
-            "title": "Power rating",
-            "sub": "Elo has Spurs at 1691, Mavericks at 1397. A real gap in team strength.",
-            "rows": [
-              {
-                "label": "Elo rating",
-                "lower_is_better": false,
-                "a": {
-                  "team": "SAS",
-                  "value": 1691.0381,
-                  "label": "1691"
-                },
-                "b": {
-                  "team": "DAL",
-                  "value": 1396.7931,
-                  "label": "1397"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "text": "⚠️ THE RISK\n\nSpurs score 107.5 points per 100 possessions over their last 10, Mavericks 111.0.\n\nTeams priced like Mavericks tonight still win about 21 times in 100.",
-          "card": null
-        },
-        {
-          "text": "📈 Our probabilities hit 68.6% of winners over 4 seasons of backtests.\n\nEvery pick is posted before tip-off and graded after the final buzzer. No deleting the misses.\n\n🔔 Follow for the full slate every game day.",
-          "card": null
-        }
-      ]
-    },
-    {
       "id": "Golden_State_Warriors_vs_Phoenix_Suns_2026-10-24",
       "matchup": "Golden State Warriors @ Phoenix Suns",
       "home_team": "Phoenix Suns",
       "away_team": "Golden State Warriors",
       "predicted_winner": "Phoenix Suns",
-      "predicted_home_prob": 0.7447972169639114,
-      "predicted_away_prob": 0.25520278303608857,
-      "home_odds": 1.26,
-      "away_odds": 4.0,
-      "confidence": 0.7447972169639114,
+      "predicted_home_prob": 0.7500340091069398,
+      "predicted_away_prob": 0.24996599089306015,
+      "home_odds": 1.25,
+      "away_odds": 4.1,
+      "confidence": 0.7500340091069398,
       "date": "2026-10-24",
       "published": false,
       "home_code": "PHX",
       "away_code": "GSW",
       "start_utc": "2026-10-25T02:00:00+00:00",
       "model_home_prob": 0.6596,
-      "market_home_prob": 0.76,
+      "market_home_prob": 0.7659,
       "probability_source": "blend",
       "own_home_prob": 0.6476,
       "own_away_prob": 0.3524,
       "own_model_mode": "full",
       "market_books": 1,
-      "refreshed_at": "2026-10-24T09:10+00:00",
+      "refreshed_at": "2026-10-24T21:15+00:00",
       "key_out": {
         "home": [],
-        "away": []
+        "away": [
+          "Stephen Curry"
+        ]
       },
       "thread": [
         {
-          "text": "🏀 Golden State Warriors at Phoenix Suns\n🕗 Sat Oct 24, 10:00 PM ET\n\n🎯 Pick: Phoenix Suns (74%)\n📊 Our model 65% · books 76%\n💰 Odds 1.26 · books’ consensus\n\nThe case, and the risk 🧵",
+          "text": "🏀 Golden State Warriors at Phoenix Suns\n🕗 Sat Oct 24, 10:00 PM ET\n\n🎯 Pick: Phoenix Suns (75%)\n📊 Our model 65% · books 77%\n💰 Odds 1.25 · books’ consensus\n\nThe case, and the risk 🧵",
           "card": {
             "type": "match",
             "when": "SAT OCT 24 · 10:00 PM ET",
             "away": "GSW",
             "home": "PHX",
-            "away_prob": 0.25520278303608857,
+            "away_prob": 0.24996599089306015,
             "away_sub": "away",
             "home_sub": "home",
             "pick_name": "Suns",
-            "odds": "1.26",
-            "source": "Our model 65% + books 76%",
+            "odds": "1.25",
+            "source": "Our model 65% + books 77%",
             "tape": [
               {
                 "label": "Last 10",
@@ -3136,35 +3118,11 @@
           }
         },
         {
-          "text": "📊 POWER RATING\n\nElo has Suns at 1475, Warriors at 1371. A real gap in team strength.",
-          "card": {
-            "type": "edge",
-            "away": "GSW",
-            "home": "PHX",
-            "matchup": "Warriors at Suns · SAT OCT 24 · 10:00 PM ET",
-            "eyebrow": "Reason 3 of 3 · Suns",
-            "title": "Power rating",
-            "sub": "Elo has Suns at 1475, Warriors at 1371. A real gap in team strength.",
-            "rows": [
-              {
-                "label": "Elo rating",
-                "lower_is_better": false,
-                "a": {
-                  "team": "PHX",
-                  "value": 1475.2968,
-                  "label": "1475"
-                },
-                "b": {
-                  "team": "GSW",
-                  "value": 1371.2785,
-                  "label": "1371"
-                }
-              }
-            ]
-          }
+          "text": "🩹 MISSING PIECES\n\nWarriors are listed without Stephen Curry. Suns have no key absence on the report.",
+          "card": null
         },
         {
-          "text": "⚠️ THE RISK\n\nSuns score 107.9 points per 100 possessions over their last 10, Warriors 112.9.\n\nTeams priced like Warriors tonight still win about 26 times in 100.",
+          "text": "⚠️ THE RISK\n\nSuns score 107.9 points per 100 possessions over their last 10, Warriors 112.9.\n\nTeams priced like Warriors tonight still win about 25 times in 100.",
           "card": null
         },
         {
@@ -3179,42 +3137,42 @@
       "home_team": "Charlotte Hornets",
       "away_team": "Miami Heat",
       "predicted_winner": "Miami Heat",
-      "predicted_home_prob": 0.4356524966804538,
-      "predicted_away_prob": 0.5643475033195462,
-      "home_odds": 2.3,
-      "away_odds": 1.65,
-      "confidence": 0.5643475033195462,
+      "predicted_home_prob": 0.42672111254743106,
+      "predicted_away_prob": 0.5732788874525689,
+      "home_odds": 2.36,
+      "away_odds": 1.62,
+      "confidence": 0.5732788874525689,
       "date": "2026-10-24",
       "published": false,
       "home_code": "CHA",
       "away_code": "MIA",
       "start_utc": "2026-10-24T22:00:00+00:00",
       "model_home_prob": 0.6117,
-      "market_home_prob": 0.417,
+      "market_home_prob": 0.4066,
       "probability_source": "blend",
       "own_home_prob": 0.5432,
       "own_away_prob": 0.4568,
       "own_model_mode": "full",
       "market_books": 1,
-      "refreshed_at": "2026-10-24T09:10+00:00",
+      "refreshed_at": "2026-10-24T21:15+00:00",
       "key_out": {
         "home": [],
         "away": []
       },
       "thread": [
         {
-          "text": "🏀 Miami Heat at Charlotte Hornets\n🕗 Sat Oct 24, 6:00 PM ET\n\n🎯 Pick: Miami Heat (56%)\n📊 Our model 46% · books 58%\n💰 Odds 1.65 · books’ consensus\n\nThe case, and the risk 🧵",
+          "text": "🏀 Miami Heat at Charlotte Hornets\n🕗 Sat Oct 24, 6:00 PM ET\n\n🎯 Pick: Miami Heat (57%)\n📊 Our model 46% · books 59%\n💰 Odds 1.62 · books’ consensus\n\nThe case, and the risk 🧵",
           "card": {
             "type": "match",
             "when": "SAT OCT 24 · 6:00 PM ET",
             "away": "MIA",
             "home": "CHA",
-            "away_prob": 0.5643475033195462,
+            "away_prob": 0.5732788874525689,
             "away_sub": "away",
             "home_sub": "home",
             "pick_name": "Heat",
-            "odds": "1.65",
-            "source": "Our model 46% + books 58%",
+            "odds": "1.62",
+            "source": "Our model 46% + books 59%",
             "tape": [
               {
                 "label": "Last 10",
@@ -3338,143 +3296,7 @@
           }
         },
         {
-          "text": "⚠️ THE RISK\n\nHeat allow 121.5 per 100 possessions lately, Hornets 113.7.\n\nTeams priced like Hornets tonight still win about 44 times in 100.",
-          "card": null
-        },
-        {
-          "text": "📈 Our probabilities hit 68.6% of winners over 4 seasons of backtests.\n\nEvery pick is posted before tip-off and graded after the final buzzer. No deleting the misses.\n\n🔔 Follow for the full slate every game day.",
-          "card": null
-        }
-      ]
-    },
-    {
-      "id": "Houston_Rockets_vs_Atlanta_Hawks_2026-10-24",
-      "matchup": "Houston Rockets @ Atlanta Hawks",
-      "home_team": "Atlanta Hawks",
-      "away_team": "Houston Rockets",
-      "predicted_winner": "Atlanta Hawks",
-      "predicted_home_prob": 0.5235051188631764,
-      "predicted_away_prob": 0.4764948811368236,
-      "home_odds": 1.83,
-      "away_odds": 2.0,
-      "confidence": 0.5235051188631764,
-      "date": "2026-10-24",
-      "published": false,
-      "home_code": "ATL",
-      "away_code": "HOU",
-      "start_utc": "2026-10-25T00:30:00+00:00",
-      "model_home_prob": 0.6058,
-      "market_home_prob": 0.5217,
-      "probability_source": "blend",
-      "own_home_prob": 0.5335,
-      "own_away_prob": 0.4665,
-      "own_model_mode": "full",
-      "market_books": 1,
-      "refreshed_at": "2026-10-24T09:10+00:00",
-      "key_out": {
-        "home": [],
-        "away": []
-      },
-      "thread": [
-        {
-          "text": "🏀 Houston Rockets at Atlanta Hawks\n🕗 Sat Oct 24, 8:30 PM ET\n\n🎯 Pick: Atlanta Hawks (52%)\n📊 Our model 53% · books 52%\n💰 Odds 1.83 · books’ consensus\n\nThe case, and the risk 🧵",
-          "card": {
-            "type": "match",
-            "when": "SAT OCT 24 · 8:30 PM ET",
-            "away": "HOU",
-            "home": "ATL",
-            "away_prob": 0.4764948811368236,
-            "away_sub": "away",
-            "home_sub": "home",
-            "pick_name": "Hawks",
-            "odds": "1.83",
-            "source": "Our model 53% + books 52%",
-            "tape": [
-              {
-                "label": "Last 10",
-                "away": "5-5",
-                "home": "5-5"
-              },
-              {
-                "label": "Net rtg L10",
-                "away": "+3.1",
-                "home": "-5.8"
-              },
-              {
-                "label": "Rest",
-                "away": "B2B",
-                "home": "B2B"
-              },
-              {
-                "label": "Elo",
-                "away": "1613",
-                "home": "1611"
-              }
-            ]
-          }
-        },
-        {
-          "text": "🏹 FROM DEEP\n\nHawks are hitting 34.2% from three over their last 10, Rockets 31.3%.",
-          "card": {
-            "type": "edge",
-            "away": "HOU",
-            "home": "ATL",
-            "matchup": "Rockets at Hawks · SAT OCT 24 · 8:30 PM ET",
-            "eyebrow": "Reason 1 of 3 · Hawks",
-            "title": "From deep",
-            "sub": "Hawks are hitting 34.2% from three over their last 10, Rockets 31.3%.",
-            "rows": [
-              {
-                "label": "3P%, last 10",
-                "lower_is_better": false,
-                "a": {
-                  "team": "ATL",
-                  "value": 0.3422,
-                  "label": "34.2%"
-                },
-                "b": {
-                  "team": "HOU",
-                  "value": 0.3126,
-                  "label": "31.3%"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "text": "🏟️ HOME AND AWAY\n\nHawks have won 75% at home lately; Rockets 60% on the road.",
-          "card": {
-            "type": "edge",
-            "away": "HOU",
-            "home": "ATL",
-            "matchup": "Rockets at Hawks · SAT OCT 24 · 8:30 PM ET",
-            "eyebrow": "Reason 2 of 3 · Hawks",
-            "title": "Home and away",
-            "sub": "Hawks have won 75% at home lately; Rockets 60% on the road.",
-            "rows": [
-              {
-                "label": "Win % (home vs road)",
-                "lower_is_better": false,
-                "a": {
-                  "team": "ATL",
-                  "value": 0.75,
-                  "label": "75%"
-                },
-                "b": {
-                  "team": "HOU",
-                  "value": 0.6,
-                  "label": "60%"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "text": "🤖 MODEL CHECK\n\nOur stats model (Elo, form, rest) gives Hawks 61%, in line with the books.",
-          "card": null
-        },
-        {
-          "text": "⚠️ THE RISK\n\nHawks allow 114.6 per 100 possessions lately, Rockets 108.7.\n\nTeams priced like Rockets tonight still win about 48 times in 100.",
+          "text": "⚠️ THE RISK\n\nHeat allow 121.5 per 100 possessions lately, Hornets 113.7.\n\nTeams priced like Hornets tonight still win about 43 times in 100.",
           "card": null
         },
         {
@@ -3489,42 +3311,42 @@
       "home_team": "Chicago Bulls",
       "away_team": "Washington Wizards",
       "predicted_winner": "Chicago Bulls",
-      "predicted_home_prob": 0.5090121641627878,
-      "predicted_away_prob": 0.49098783583721217,
-      "home_odds": 1.91,
-      "away_odds": 1.91,
-      "confidence": 0.5090121641627878,
+      "predicted_home_prob": 0.5453094054959946,
+      "predicted_away_prob": 0.4546905945040054,
+      "home_odds": 1.77,
+      "away_odds": 2.1,
+      "confidence": 0.5453094054959946,
       "date": "2026-10-24",
       "published": false,
       "home_code": "CHI",
       "away_code": "WAS",
       "start_utc": "2026-10-25T00:00:00+00:00",
       "model_home_prob": 0.5616,
-      "market_home_prob": 0.5,
+      "market_home_prob": 0.5427,
       "probability_source": "blend",
       "own_home_prob": 0.5598,
       "own_away_prob": 0.4402,
       "own_model_mode": "full",
       "market_books": 1,
-      "refreshed_at": "2026-10-24T09:10+00:00",
+      "refreshed_at": "2026-10-24T21:15+00:00",
       "key_out": {
         "home": [],
         "away": []
       },
       "thread": [
         {
-          "text": "🏀 Washington Wizards at Chicago Bulls\n🕗 Sat Oct 24, 8:00 PM ET\n\n🎯 Pick: Chicago Bulls (51%)\n📊 Our model 56% · books 50%\n💰 Odds 1.91 · books’ consensus\n\nThe case, and the risk 🧵",
+          "text": "🏀 Washington Wizards at Chicago Bulls\n🕗 Sat Oct 24, 8:00 PM ET\n\n🎯 Pick: Chicago Bulls (55%)\n📊 Our model 56% · books 54%\n💰 Odds 1.77 · books’ consensus\n\nThe case, and the risk 🧵",
           "card": {
             "type": "match",
             "when": "SAT OCT 24 · 8:00 PM ET",
             "away": "WAS",
             "home": "CHI",
-            "away_prob": 0.49098783583721217,
+            "away_prob": 0.4546905945040054,
             "away_sub": "away",
             "home_sub": "home",
             "pick_name": "Bulls",
-            "odds": "1.91",
-            "source": "Our model 56% + books 50%",
+            "odds": "1.77",
+            "source": "Our model 56% + books 54%",
             "tape": [
               {
                 "label": "Last 10",
@@ -3634,7 +3456,145 @@
           }
         },
         {
-          "text": "⚠️ THE RISK\n\nBulls are hitting 27.3% from three over their last 10, Wizards 33.7%.\n\nTeams priced like Wizards tonight still win about 49 times in 100.",
+          "text": "⚠️ THE RISK\n\nBulls are hitting 27.3% from three over their last 10, Wizards 33.7%.\n\nTeams priced like Wizards tonight still win about 45 times in 100.",
+          "card": null
+        },
+        {
+          "text": "📈 Our probabilities hit 68.6% of winners over 4 seasons of backtests.\n\nEvery pick is posted before tip-off and graded after the final buzzer. No deleting the misses.\n\n🔔 Follow for the full slate every game day.",
+          "card": null
+        }
+      ]
+    },
+    {
+      "id": "Houston_Rockets_vs_Atlanta_Hawks_2026-10-24",
+      "matchup": "Houston Rockets @ Atlanta Hawks",
+      "home_team": "Atlanta Hawks",
+      "away_team": "Houston Rockets",
+      "predicted_winner": "Atlanta Hawks",
+      "predicted_home_prob": 0.5013521531407661,
+      "predicted_away_prob": 0.4986478468592339,
+      "home_odds": 1.93,
+      "away_odds": 1.89,
+      "confidence": 0.5013521531407661,
+      "date": "2026-10-24",
+      "published": false,
+      "home_code": "ATL",
+      "away_code": "HOU",
+      "start_utc": "2026-10-25T00:30:00+00:00",
+      "model_home_prob": 0.6058,
+      "market_home_prob": 0.4957,
+      "probability_source": "blend",
+      "own_home_prob": 0.5335,
+      "own_away_prob": 0.4665,
+      "own_model_mode": "full",
+      "market_books": 1,
+      "refreshed_at": "2026-10-24T21:15+00:00",
+      "key_out": {
+        "home": [],
+        "away": [
+          "Fred VanVleet"
+        ]
+      },
+      "thread": [
+        {
+          "text": "🏀 Houston Rockets at Atlanta Hawks\n🕗 Sat Oct 24, 8:30 PM ET\n\n🎯 Pick: Atlanta Hawks (50%)\n📊 Our model 53% · books 50%\n💰 Odds 1.93 · books’ consensus\n\nThe case, and the risk 🧵",
+          "card": {
+            "type": "match",
+            "when": "SAT OCT 24 · 8:30 PM ET",
+            "away": "HOU",
+            "home": "ATL",
+            "away_prob": 0.4986478468592339,
+            "away_sub": "away",
+            "home_sub": "home",
+            "pick_name": "Hawks",
+            "odds": "1.93",
+            "source": "Our model 53% + books 50%",
+            "tape": [
+              {
+                "label": "Last 10",
+                "away": "5-5",
+                "home": "5-5"
+              },
+              {
+                "label": "Net rtg L10",
+                "away": "+3.1",
+                "home": "-5.8"
+              },
+              {
+                "label": "Rest",
+                "away": "B2B",
+                "home": "B2B"
+              },
+              {
+                "label": "Elo",
+                "away": "1613",
+                "home": "1611"
+              }
+            ]
+          }
+        },
+        {
+          "text": "🩹 MISSING PIECES\n\nRockets are listed without Fred VanVleet. Hawks have no key absence on the report.",
+          "card": null
+        },
+        {
+          "text": "🏹 FROM DEEP\n\nHawks are hitting 34.2% from three over their last 10, Rockets 31.3%.",
+          "card": {
+            "type": "edge",
+            "away": "HOU",
+            "home": "ATL",
+            "matchup": "Rockets at Hawks · SAT OCT 24 · 8:30 PM ET",
+            "eyebrow": "Reason 2 of 3 · Hawks",
+            "title": "From deep",
+            "sub": "Hawks are hitting 34.2% from three over their last 10, Rockets 31.3%.",
+            "rows": [
+              {
+                "label": "3P%, last 10",
+                "lower_is_better": false,
+                "a": {
+                  "team": "ATL",
+                  "value": 0.3422,
+                  "label": "34.2%"
+                },
+                "b": {
+                  "team": "HOU",
+                  "value": 0.3126,
+                  "label": "31.3%"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "text": "🏟️ HOME AND AWAY\n\nHawks have won 75% at home lately; Rockets 60% on the road.",
+          "card": {
+            "type": "edge",
+            "away": "HOU",
+            "home": "ATL",
+            "matchup": "Rockets at Hawks · SAT OCT 24 · 8:30 PM ET",
+            "eyebrow": "Reason 3 of 3 · Hawks",
+            "title": "Home and away",
+            "sub": "Hawks have won 75% at home lately; Rockets 60% on the road.",
+            "rows": [
+              {
+                "label": "Win % (home vs road)",
+                "lower_is_better": false,
+                "a": {
+                  "team": "ATL",
+                  "value": 0.75,
+                  "label": "75%"
+                },
+                "b": {
+                  "team": "HOU",
+                  "value": 0.6,
+                  "label": "60%"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "text": "⚠️ THE RISK\n\nHawks allow 114.6 per 100 possessions lately, Rockets 108.7.\n\nTeams priced like Rockets tonight still win about 50 times in 100.",
           "card": null
         },
         {
