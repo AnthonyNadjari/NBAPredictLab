@@ -1,31 +1,31 @@
 {
-  "generated_at": "2026-10-24T23:06:41+00:00",
-  "us_date": "2026-10-24",
+  "generated_at": "2026-10-25T09:10:19+00:00",
+  "us_date": "2026-10-25",
   "season": {
     "label": "2026-27",
     "since": "2026-10-01",
-    "n": 28,
-    "correct": 19,
-    "accuracy": 0.6785714285714286,
-    "brier": 0.21010631008145506,
-    "expected": 0.6054365699619264,
+    "n": 36,
+    "correct": 24,
+    "accuracy": 0.6666666666666666,
+    "brier": 0.19301245386740107,
+    "expected": 0.62734702724849,
     "flat_bets": {
-      "bets": 28,
-      "units": 1.77,
-      "roi": 0.0632142857142857
+      "bets": 36,
+      "units": -0.31,
+      "roi": -0.008611111111111106
     },
     "buckets": [
       {
         "label": "50–55%",
-        "n": 12,
-        "expected": 0.5277714484357189,
-        "actual": 0.6666666666666666
+        "n": 14,
+        "expected": 0.5265138192449108,
+        "actual": 0.5714285714285714
       },
       {
         "label": "55–60%",
-        "n": 5,
-        "expected": 0.572223402028319,
-        "actual": 0.6
+        "n": 6,
+        "expected": 0.5723993162656941,
+        "actual": 0.5
       },
       {
         "label": "60–65%",
@@ -41,15 +41,15 @@
       },
       {
         "label": "70–80%",
-        "n": 6,
-        "expected": 0.7525893926941833,
+        "n": 9,
+        "expected": 0.7615815026285456,
         "actual": 1.0
       },
       {
         "label": "80–100%",
-        "n": 0,
-        "expected": 0.9,
-        "actual": null
+        "n": 2,
+        "expected": 0.8411784394335987,
+        "actual": 1.0
       }
     ],
     "daily": [
@@ -72,6 +72,11 @@
         "date": "2026-10-23",
         "n": 12,
         "correct": 7
+      },
+      {
+        "date": "2026-10-24",
+        "n": 8,
+        "correct": 5
       }
     ]
   },
@@ -122,6 +127,114 @@
     ]
   },
   "recent": [
+    {
+      "date": "2026-10-24",
+      "home": "DEN",
+      "away": "NOP",
+      "pick": "DEN",
+      "p": 0.794,
+      "correct": 1,
+      "own_home_prob": 0.7816,
+      "own_away_prob": 0.2184,
+      "own_model_mode": "full",
+      "score": "135–141"
+    },
+    {
+      "date": "2026-10-24",
+      "home": "PHI",
+      "away": "MIL",
+      "pick": "PHI",
+      "p": 0.838,
+      "correct": 1,
+      "own_home_prob": 0.8457,
+      "own_away_prob": 0.1543,
+      "own_model_mode": "full",
+      "score": "116–127"
+    },
+    {
+      "date": "2026-10-24",
+      "home": "PHX",
+      "away": "GSW",
+      "pick": "PHX",
+      "p": 0.75,
+      "correct": 1,
+      "own_home_prob": 0.6476,
+      "own_away_prob": 0.3524,
+      "own_model_mode": "full",
+      "score": "122–131"
+    },
+    {
+      "date": "2026-10-24",
+      "home": "CLE",
+      "away": "BKN",
+      "pick": "CLE",
+      "p": 0.795,
+      "correct": 1,
+      "own_home_prob": 0.7647,
+      "own_away_prob": 0.2353,
+      "own_model_mode": "full",
+      "score": "121–125"
+    },
+    {
+      "date": "2026-10-24",
+      "home": "CHA",
+      "away": "MIA",
+      "pick": "MIA",
+      "p": 0.573,
+      "correct": 0,
+      "own_home_prob": 0.5432,
+      "own_away_prob": 0.4568,
+      "own_model_mode": "full",
+      "score": "110–115"
+    },
+    {
+      "date": "2026-10-24",
+      "home": "CHI",
+      "away": "WAS",
+      "pick": "CHI",
+      "p": 0.537,
+      "correct": 0,
+      "own_home_prob": 0.5598,
+      "own_away_prob": 0.4402,
+      "own_model_mode": "full",
+      "score": "124–120"
+    },
+    {
+      "date": "2026-10-24",
+      "home": "DAL",
+      "away": "SAS",
+      "pick": "SAS",
+      "p": 0.844,
+      "correct": 1,
+      "own_home_prob": 0.3052,
+      "own_away_prob": 0.6948,
+      "own_model_mode": "full",
+      "score": "122–106"
+    },
+    {
+      "date": "2026-10-24",
+      "home": "ATL",
+      "away": "HOU",
+      "pick": "ATL",
+      "p": 0.501,
+      "correct": 0,
+      "own_home_prob": 0.5335,
+      "own_away_prob": 0.4665,
+      "own_model_mode": "full",
+      "score": "121–114"
+    },
+    {
+      "date": "2026-10-23",
+      "home": "CHA",
+      "away": "ATL",
+      "pick": "ATL",
+      "p": 0.546,
+      "correct": 1,
+      "own_home_prob": 0.5526,
+      "own_away_prob": 0.4474,
+      "own_model_mode": "full",
+      "score": "128–81"
+    },
     {
       "date": "2026-10-23",
       "home": "SAC",
@@ -220,18 +333,6 @@
     },
     {
       "date": "2026-10-23",
-      "home": "CHA",
-      "away": "ATL",
-      "pick": "ATL",
-      "p": 0.546,
-      "correct": 1,
-      "own_home_prob": 0.5526,
-      "own_away_prob": 0.4474,
-      "own_model_mode": "full",
-      "score": "128–81"
-    },
-    {
-      "date": "2026-10-23",
       "home": "BOS",
       "away": "NYK",
       "pick": "BOS",
@@ -244,18 +345,6 @@
     },
     {
       "date": "2026-10-23",
-      "home": "LAL",
-      "away": "LAC",
-      "pick": "LAL",
-      "p": 0.734,
-      "correct": 1,
-      "own_home_prob": 0.6241,
-      "own_away_prob": 0.3759,
-      "own_model_mode": "full",
-      "score": "117–125"
-    },
-    {
-      "date": "2026-10-23",
       "home": "MIL",
       "away": "CHI",
       "pick": "MIL",
@@ -265,6 +354,18 @@
       "own_away_prob": 0.447,
       "own_model_mode": "full",
       "score": "132–125"
+    },
+    {
+      "date": "2026-10-23",
+      "home": "LAL",
+      "away": "LAC",
+      "pick": "LAL",
+      "p": 0.734,
+      "correct": 1,
+      "own_home_prob": 0.6241,
+      "own_away_prob": 0.3759,
+      "own_model_mode": "full",
+      "score": "117–125"
     },
     {
       "date": "2026-10-22",
@@ -289,6 +390,18 @@
       "own_away_prob": 0.3516,
       "own_model_mode": "full",
       "score": "84–96"
+    },
+    {
+      "date": "2026-10-21",
+      "home": "MEM",
+      "away": "UTA",
+      "pick": "MEM",
+      "p": 0.529,
+      "correct": 1,
+      "own_home_prob": 0.5075,
+      "own_away_prob": 0.4925,
+      "own_model_mode": "full",
+      "score": "103–123"
     },
     {
       "date": "2026-10-21",
@@ -337,18 +450,6 @@
       "own_away_prob": 0.4443,
       "own_model_mode": "full",
       "score": "123–120"
-    },
-    {
-      "date": "2026-10-21",
-      "home": "MEM",
-      "away": "UTA",
-      "pick": "MEM",
-      "p": 0.529,
-      "correct": 1,
-      "own_home_prob": 0.5075,
-      "own_away_prob": 0.4925,
-      "own_model_mode": "full",
-      "score": "103–123"
     },
     {
       "date": "2026-10-21",
@@ -424,18 +525,6 @@
     },
     {
       "date": "2026-10-20",
-      "home": "NYK",
-      "away": "PHI",
-      "pick": "NYK",
-      "p": 0.629,
-      "correct": 0,
-      "own_home_prob": 0.6971,
-      "own_away_prob": 0.3029,
-      "own_model_mode": "full",
-      "score": "106–100"
-    },
-    {
-      "date": "2026-10-20",
       "home": "SAS",
       "away": "OKC",
       "pick": "OKC",
@@ -445,6 +534,18 @@
       "own_away_prob": 0.4639,
       "own_model_mode": "full",
       "score": "116–104"
+    },
+    {
+      "date": "2026-10-20",
+      "home": "NYK",
+      "away": "PHI",
+      "pick": "NYK",
+      "p": 0.629,
+      "correct": 0,
+      "own_home_prob": 0.6971,
+      "own_away_prob": 0.3029,
+      "own_model_mode": "full",
+      "score": "106–100"
     },
     {
       "date": "2026-10-20",
@@ -460,8 +561,8 @@
     }
   ],
   "data": {
-    "games_in_history": 10252,
-    "last_game_date": "2026-10-23",
+    "games_in_history": 10260,
+    "last_game_date": "2026-10-24",
     "model_trained_at": "2026-10-03T17:23:27Z",
     "model_seasons": [
       "2019-20",
@@ -473,9 +574,9 @@
       "2025-26"
     ],
     "player_games": {
-      "rows": 59555,
-      "games": 2737,
-      "last_game_date": "2026-10-23"
+      "rows": 59725,
+      "games": 2745,
+      "last_game_date": "2026-10-24"
     },
     "own_model_params": {
       "fitted_through": "2025-26",
@@ -483,11 +584,11 @@
     }
   },
   "own_model": {
-    "n": 28,
-    "correct": 16,
-    "accuracy": 0.5714285714285714,
-    "brier": 0.2301676117857143,
-    "published_brier_same_games": 0.21010631008145506,
+    "n": 36,
+    "correct": 22,
+    "accuracy": 0.6111111111111112,
+    "brier": 0.21098787777777775,
+    "published_brier_same_games": 0.19301245386740107,
     "team_only_share": 0.0,
     "backtest": {
       "seasons": "2022-23 → 2025-26",
@@ -505,8 +606,8 @@
     "model_brier": 0.214
   },
   "next_slate": {
-    "date": "2026-10-24",
+    "date": "2026-10-25",
     "games": 7,
-    "first_tipoff_utc": "2026-10-24T23:30:00+00:00"
+    "first_tipoff_utc": "2026-10-25T21:00:00+00:00"
   }
 }
