@@ -31,7 +31,7 @@
     }
   ],
   "date": "2026-10-26",
-  "generated_at": "2026-10-26T21:16:23.043480",
+  "generated_at": "2026-10-26T23:06:58.141220",
   "today": "2026-10-26",
   "tomorrow": "2026-10-27",
   "games": [
@@ -58,7 +58,7 @@
       "own_away_prob": 0.1906,
       "own_model_mode": "full",
       "market_books": 1,
-      "refreshed_at": "2026-10-26T21:16+00:00",
+      "refreshed_at": "2026-10-26T23:06+00:00",
       "key_out": {
         "home": [],
         "away": []
@@ -218,7 +218,7 @@
       "own_away_prob": 0.2365,
       "own_model_mode": "full",
       "market_books": 1,
-      "refreshed_at": "2026-10-26T21:16+00:00",
+      "refreshed_at": "2026-10-26T23:06+00:00",
       "key_out": {
         "home": [
           "Chet Holmgren"
@@ -380,7 +380,7 @@
       "own_away_prob": 0.223,
       "own_model_mode": "full",
       "market_books": 1,
-      "refreshed_at": "2026-10-26T21:16+00:00",
+      "refreshed_at": "2026-10-26T23:06+00:00",
       "key_out": {
         "home": [],
         "away": []
@@ -540,7 +540,7 @@
       "own_away_prob": 0.3698,
       "own_model_mode": "full",
       "market_books": 1,
-      "refreshed_at": "2026-10-26T21:16+00:00",
+      "refreshed_at": "2026-10-26T23:06+00:00",
       "key_out": {
         "home": [],
         "away": [
@@ -678,7 +678,7 @@
       "own_away_prob": 0.4284,
       "own_model_mode": "full",
       "market_books": 1,
-      "refreshed_at": "2026-10-26T21:16+00:00",
+      "refreshed_at": "2026-10-26T23:06+00:00",
       "key_out": {
         "home": [],
         "away": []
@@ -830,166 +830,6 @@
       ]
     },
     {
-      "id": "Minnesota_Timberwolves_vs_Cleveland_Cavaliers_2026-10-26",
-      "matchup": "Minnesota Timberwolves @ Cleveland Cavaliers",
-      "home_team": "Cleveland Cavaliers",
-      "away_team": "Minnesota Timberwolves",
-      "predicted_winner": "Cleveland Cavaliers",
-      "predicted_home_prob": 0.6004512487340943,
-      "predicted_away_prob": 0.3995487512659057,
-      "home_odds": 1.57,
-      "away_odds": 2.45,
-      "confidence": 0.6004512487340943,
-      "date": "2026-10-26",
-      "published": false,
-      "home_code": "CLE",
-      "away_code": "MIN",
-      "start_utc": "2026-10-26T23:00:00+00:00",
-      "model_home_prob": 0.4789,
-      "market_home_prob": 0.6092,
-      "probability_source": "blend",
-      "own_home_prob": 0.5496,
-      "own_away_prob": 0.4504,
-      "own_model_mode": "full",
-      "market_books": 1,
-      "refreshed_at": "2026-10-26T21:16+00:00",
-      "key_out": {
-        "home": [],
-        "away": []
-      },
-      "thread": [
-        {
-          "text": "🏀 Minnesota Timberwolves at Cleveland Cavaliers\n🕗 Mon Oct 26, 7:00 PM ET\n\n🎯 Pick: Cleveland Cavaliers (60%)\n📊 Our model 55% · books 61%\n💰 Odds 1.57 · books’ consensus\n\nThe case, and the risk 🧵",
-          "card": {
-            "type": "match",
-            "when": "MON OCT 26 · 7:00 PM ET",
-            "away": "MIN",
-            "home": "CLE",
-            "away_prob": 0.3995487512659057,
-            "away_sub": "3-0",
-            "home_sub": "home",
-            "pick_name": "Cavaliers",
-            "odds": "1.57",
-            "source": "Our model 55% + books 61%",
-            "tape": [
-              {
-                "label": "Last 10",
-                "away": "6-4",
-                "home": "4-6"
-              },
-              {
-                "label": "Net rtg L10",
-                "away": "-1.0",
-                "home": "-5.9"
-              },
-              {
-                "label": "Rest",
-                "away": "B2B",
-                "home": "1d"
-              },
-              {
-                "label": "Elo",
-                "away": "1672",
-                "home": "1580"
-              }
-            ]
-          }
-        },
-        {
-          "text": "😴 FRESH LEGS\n\nTimberwolves are on the second night of a back-to-back. Cavaliers come in with 1 day of rest.",
-          "card": {
-            "type": "edge",
-            "away": "MIN",
-            "home": "CLE",
-            "matchup": "Timberwolves at Cavaliers · MON OCT 26 · 7:00 PM ET",
-            "eyebrow": "Reason 1 of 3 · Cavaliers",
-            "title": "Fresh legs",
-            "sub": "Timberwolves are on the second night of a back-to-back. Cavaliers come in with 1 day of rest.",
-            "rows": [
-              {
-                "label": "Days of rest",
-                "lower_is_better": false,
-                "a": {
-                  "team": "CLE",
-                  "value": 1.0,
-                  "label": "1"
-                },
-                "b": {
-                  "team": "MIN",
-                  "value": 0.0,
-                  "label": "0"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "text": "🗓️ SCHEDULE LOAD\n\nGames in the last 5 days: Cavaliers 2, Timberwolves 3.",
-          "card": {
-            "type": "edge",
-            "away": "MIN",
-            "home": "CLE",
-            "matchup": "Timberwolves at Cavaliers · MON OCT 26 · 7:00 PM ET",
-            "eyebrow": "Reason 2 of 3 · Cavaliers",
-            "title": "Schedule load",
-            "sub": "Games in the last 5 days: Cavaliers 2, Timberwolves 3.",
-            "rows": [
-              {
-                "label": "Games in last 5 days",
-                "lower_is_better": true,
-                "a": {
-                  "team": "CLE",
-                  "value": 2.0,
-                  "label": "2"
-                },
-                "b": {
-                  "team": "MIN",
-                  "value": 3.0,
-                  "label": "3"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "text": "🏟️ HOME AND AWAY\n\nCavaliers have won 70% at home lately; Timberwolves 50% on the road.",
-          "card": {
-            "type": "edge",
-            "away": "MIN",
-            "home": "CLE",
-            "matchup": "Timberwolves at Cavaliers · MON OCT 26 · 7:00 PM ET",
-            "eyebrow": "Reason 3 of 3 · Cavaliers",
-            "title": "Home and away",
-            "sub": "Cavaliers have won 70% at home lately; Timberwolves 50% on the road.",
-            "rows": [
-              {
-                "label": "Win % (home vs road)",
-                "lower_is_better": false,
-                "a": {
-                  "team": "CLE",
-                  "value": 0.7,
-                  "label": "70%"
-                },
-                "b": {
-                  "team": "MIN",
-                  "value": 0.5,
-                  "label": "50%"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "text": "⚠️ THE RISK\n\nCavaliers are hitting 32.1% from three over their last 10, Timberwolves 35.5%.\n\nTeams priced like Timberwolves tonight still win about 40 times in 100.",
-          "card": null
-        },
-        {
-          "text": "📈 This season: 30-13 on picks (69.8%).\n\nEvery pick is posted before tip-off and graded after the final buzzer. No deleting the misses.\n\n🔔 Follow for the full slate every game day.",
-          "card": null
-        }
-      ]
-    },
-    {
       "id": "Indiana_Pacers_vs_Milwaukee_Bucks_2026-10-26",
       "matchup": "Indiana Pacers @ Milwaukee Bucks",
       "home_team": "Milwaukee Bucks",
@@ -1012,7 +852,7 @@
       "own_away_prob": 0.5421,
       "own_model_mode": "full",
       "market_books": 1,
-      "refreshed_at": "2026-10-26T21:16+00:00",
+      "refreshed_at": "2026-10-26T23:06+00:00",
       "key_out": {
         "home": [],
         "away": [
@@ -1152,6 +992,166 @@
       ]
     },
     {
+      "id": "Minnesota_Timberwolves_vs_Cleveland_Cavaliers_2026-10-26",
+      "matchup": "Minnesota Timberwolves @ Cleveland Cavaliers",
+      "home_team": "Cleveland Cavaliers",
+      "away_team": "Minnesota Timberwolves",
+      "predicted_winner": "Cleveland Cavaliers",
+      "predicted_home_prob": 0.5780243268870395,
+      "predicted_away_prob": 0.42197567311296047,
+      "home_odds": 1.65,
+      "away_odds": 2.3,
+      "confidence": 0.5780243268870395,
+      "date": "2026-10-26",
+      "published": false,
+      "home_code": "CLE",
+      "away_code": "MIN",
+      "start_utc": "2026-10-26T23:00:00+00:00",
+      "model_home_prob": 0.4789,
+      "market_home_prob": 0.583,
+      "probability_source": "blend",
+      "own_home_prob": 0.5496,
+      "own_away_prob": 0.4504,
+      "own_model_mode": "full",
+      "market_books": 1,
+      "refreshed_at": "2026-10-26T23:06+00:00",
+      "key_out": {
+        "home": [],
+        "away": []
+      },
+      "thread": [
+        {
+          "text": "🏀 Minnesota Timberwolves at Cleveland Cavaliers\n🕗 Mon Oct 26, 7:00 PM ET\n\n🎯 Pick: Cleveland Cavaliers (58%)\n📊 Our model 55% · books 58%\n💰 Odds 1.65 · books’ consensus\n\nThe case, and the risk 🧵",
+          "card": {
+            "type": "match",
+            "when": "MON OCT 26 · 7:00 PM ET",
+            "away": "MIN",
+            "home": "CLE",
+            "away_prob": 0.42197567311296047,
+            "away_sub": "3-0",
+            "home_sub": "home",
+            "pick_name": "Cavaliers",
+            "odds": "1.65",
+            "source": "Our model 55% + books 58%",
+            "tape": [
+              {
+                "label": "Last 10",
+                "away": "6-4",
+                "home": "4-6"
+              },
+              {
+                "label": "Net rtg L10",
+                "away": "-1.0",
+                "home": "-5.9"
+              },
+              {
+                "label": "Rest",
+                "away": "B2B",
+                "home": "1d"
+              },
+              {
+                "label": "Elo",
+                "away": "1672",
+                "home": "1580"
+              }
+            ]
+          }
+        },
+        {
+          "text": "😴 FRESH LEGS\n\nTimberwolves are on the second night of a back-to-back. Cavaliers come in with 1 day of rest.",
+          "card": {
+            "type": "edge",
+            "away": "MIN",
+            "home": "CLE",
+            "matchup": "Timberwolves at Cavaliers · MON OCT 26 · 7:00 PM ET",
+            "eyebrow": "Reason 1 of 3 · Cavaliers",
+            "title": "Fresh legs",
+            "sub": "Timberwolves are on the second night of a back-to-back. Cavaliers come in with 1 day of rest.",
+            "rows": [
+              {
+                "label": "Days of rest",
+                "lower_is_better": false,
+                "a": {
+                  "team": "CLE",
+                  "value": 1.0,
+                  "label": "1"
+                },
+                "b": {
+                  "team": "MIN",
+                  "value": 0.0,
+                  "label": "0"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "text": "🗓️ SCHEDULE LOAD\n\nGames in the last 5 days: Cavaliers 2, Timberwolves 3.",
+          "card": {
+            "type": "edge",
+            "away": "MIN",
+            "home": "CLE",
+            "matchup": "Timberwolves at Cavaliers · MON OCT 26 · 7:00 PM ET",
+            "eyebrow": "Reason 2 of 3 · Cavaliers",
+            "title": "Schedule load",
+            "sub": "Games in the last 5 days: Cavaliers 2, Timberwolves 3.",
+            "rows": [
+              {
+                "label": "Games in last 5 days",
+                "lower_is_better": true,
+                "a": {
+                  "team": "CLE",
+                  "value": 2.0,
+                  "label": "2"
+                },
+                "b": {
+                  "team": "MIN",
+                  "value": 3.0,
+                  "label": "3"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "text": "🏟️ HOME AND AWAY\n\nCavaliers have won 70% at home lately; Timberwolves 50% on the road.",
+          "card": {
+            "type": "edge",
+            "away": "MIN",
+            "home": "CLE",
+            "matchup": "Timberwolves at Cavaliers · MON OCT 26 · 7:00 PM ET",
+            "eyebrow": "Reason 3 of 3 · Cavaliers",
+            "title": "Home and away",
+            "sub": "Cavaliers have won 70% at home lately; Timberwolves 50% on the road.",
+            "rows": [
+              {
+                "label": "Win % (home vs road)",
+                "lower_is_better": false,
+                "a": {
+                  "team": "CLE",
+                  "value": 0.7,
+                  "label": "70%"
+                },
+                "b": {
+                  "team": "MIN",
+                  "value": 0.5,
+                  "label": "50%"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "text": "⚠️ THE RISK\n\nCavaliers are hitting 32.1% from three over their last 10, Timberwolves 35.5%.\n\nTeams priced like Timberwolves tonight still win about 42 times in 100.",
+          "card": null
+        },
+        {
+          "text": "📈 This season: 30-13 on picks (69.8%).\n\nEvery pick is posted before tip-off and graded after the final buzzer. No deleting the misses.\n\n🔔 Follow for the full slate every game day.",
+          "card": null
+        }
+      ]
+    },
+    {
       "id": "Washington_Wizards_vs_Charlotte_Hornets_2026-10-26",
       "matchup": "Washington Wizards @ Charlotte Hornets",
       "home_team": "Charlotte Hornets",
@@ -1174,7 +1174,7 @@
       "own_away_prob": 0.3739,
       "own_model_mode": "full",
       "market_books": 1,
-      "refreshed_at": "2026-10-26T21:16+00:00",
+      "refreshed_at": "2026-10-26T23:06+00:00",
       "key_out": {
         "home": [],
         "away": []
@@ -1334,7 +1334,7 @@
       "own_away_prob": 0.5272,
       "own_model_mode": "full",
       "market_books": 1,
-      "refreshed_at": "2026-10-26T21:16+00:00",
+      "refreshed_at": "2026-10-26T23:06+00:00",
       "key_out": {
         "home": [],
         "away": []
@@ -2150,7 +2150,7 @@
       "own_away_prob": 0.1906,
       "own_model_mode": "full",
       "market_books": 1,
-      "refreshed_at": "2026-10-26T21:16+00:00",
+      "refreshed_at": "2026-10-26T23:06+00:00",
       "key_out": {
         "home": [],
         "away": []
@@ -2310,7 +2310,7 @@
       "own_away_prob": 0.2365,
       "own_model_mode": "full",
       "market_books": 1,
-      "refreshed_at": "2026-10-26T21:16+00:00",
+      "refreshed_at": "2026-10-26T23:06+00:00",
       "key_out": {
         "home": [
           "Chet Holmgren"
@@ -2472,7 +2472,7 @@
       "own_away_prob": 0.223,
       "own_model_mode": "full",
       "market_books": 1,
-      "refreshed_at": "2026-10-26T21:16+00:00",
+      "refreshed_at": "2026-10-26T23:06+00:00",
       "key_out": {
         "home": [],
         "away": []
@@ -2632,7 +2632,7 @@
       "own_away_prob": 0.3698,
       "own_model_mode": "full",
       "market_books": 1,
-      "refreshed_at": "2026-10-26T21:16+00:00",
+      "refreshed_at": "2026-10-26T23:06+00:00",
       "key_out": {
         "home": [],
         "away": [
@@ -2770,7 +2770,7 @@
       "own_away_prob": 0.4284,
       "own_model_mode": "full",
       "market_books": 1,
-      "refreshed_at": "2026-10-26T21:16+00:00",
+      "refreshed_at": "2026-10-26T23:06+00:00",
       "key_out": {
         "home": [],
         "away": []
@@ -2922,166 +2922,6 @@
       ]
     },
     {
-      "id": "Minnesota_Timberwolves_vs_Cleveland_Cavaliers_2026-10-26",
-      "matchup": "Minnesota Timberwolves @ Cleveland Cavaliers",
-      "home_team": "Cleveland Cavaliers",
-      "away_team": "Minnesota Timberwolves",
-      "predicted_winner": "Cleveland Cavaliers",
-      "predicted_home_prob": 0.6004512487340943,
-      "predicted_away_prob": 0.3995487512659057,
-      "home_odds": 1.57,
-      "away_odds": 2.45,
-      "confidence": 0.6004512487340943,
-      "date": "2026-10-26",
-      "published": false,
-      "home_code": "CLE",
-      "away_code": "MIN",
-      "start_utc": "2026-10-26T23:00:00+00:00",
-      "model_home_prob": 0.4789,
-      "market_home_prob": 0.6092,
-      "probability_source": "blend",
-      "own_home_prob": 0.5496,
-      "own_away_prob": 0.4504,
-      "own_model_mode": "full",
-      "market_books": 1,
-      "refreshed_at": "2026-10-26T21:16+00:00",
-      "key_out": {
-        "home": [],
-        "away": []
-      },
-      "thread": [
-        {
-          "text": "🏀 Minnesota Timberwolves at Cleveland Cavaliers\n🕗 Mon Oct 26, 7:00 PM ET\n\n🎯 Pick: Cleveland Cavaliers (60%)\n📊 Our model 55% · books 61%\n💰 Odds 1.57 · books’ consensus\n\nThe case, and the risk 🧵",
-          "card": {
-            "type": "match",
-            "when": "MON OCT 26 · 7:00 PM ET",
-            "away": "MIN",
-            "home": "CLE",
-            "away_prob": 0.3995487512659057,
-            "away_sub": "3-0",
-            "home_sub": "home",
-            "pick_name": "Cavaliers",
-            "odds": "1.57",
-            "source": "Our model 55% + books 61%",
-            "tape": [
-              {
-                "label": "Last 10",
-                "away": "6-4",
-                "home": "4-6"
-              },
-              {
-                "label": "Net rtg L10",
-                "away": "-1.0",
-                "home": "-5.9"
-              },
-              {
-                "label": "Rest",
-                "away": "B2B",
-                "home": "1d"
-              },
-              {
-                "label": "Elo",
-                "away": "1672",
-                "home": "1580"
-              }
-            ]
-          }
-        },
-        {
-          "text": "😴 FRESH LEGS\n\nTimberwolves are on the second night of a back-to-back. Cavaliers come in with 1 day of rest.",
-          "card": {
-            "type": "edge",
-            "away": "MIN",
-            "home": "CLE",
-            "matchup": "Timberwolves at Cavaliers · MON OCT 26 · 7:00 PM ET",
-            "eyebrow": "Reason 1 of 3 · Cavaliers",
-            "title": "Fresh legs",
-            "sub": "Timberwolves are on the second night of a back-to-back. Cavaliers come in with 1 day of rest.",
-            "rows": [
-              {
-                "label": "Days of rest",
-                "lower_is_better": false,
-                "a": {
-                  "team": "CLE",
-                  "value": 1.0,
-                  "label": "1"
-                },
-                "b": {
-                  "team": "MIN",
-                  "value": 0.0,
-                  "label": "0"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "text": "🗓️ SCHEDULE LOAD\n\nGames in the last 5 days: Cavaliers 2, Timberwolves 3.",
-          "card": {
-            "type": "edge",
-            "away": "MIN",
-            "home": "CLE",
-            "matchup": "Timberwolves at Cavaliers · MON OCT 26 · 7:00 PM ET",
-            "eyebrow": "Reason 2 of 3 · Cavaliers",
-            "title": "Schedule load",
-            "sub": "Games in the last 5 days: Cavaliers 2, Timberwolves 3.",
-            "rows": [
-              {
-                "label": "Games in last 5 days",
-                "lower_is_better": true,
-                "a": {
-                  "team": "CLE",
-                  "value": 2.0,
-                  "label": "2"
-                },
-                "b": {
-                  "team": "MIN",
-                  "value": 3.0,
-                  "label": "3"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "text": "🏟️ HOME AND AWAY\n\nCavaliers have won 70% at home lately; Timberwolves 50% on the road.",
-          "card": {
-            "type": "edge",
-            "away": "MIN",
-            "home": "CLE",
-            "matchup": "Timberwolves at Cavaliers · MON OCT 26 · 7:00 PM ET",
-            "eyebrow": "Reason 3 of 3 · Cavaliers",
-            "title": "Home and away",
-            "sub": "Cavaliers have won 70% at home lately; Timberwolves 50% on the road.",
-            "rows": [
-              {
-                "label": "Win % (home vs road)",
-                "lower_is_better": false,
-                "a": {
-                  "team": "CLE",
-                  "value": 0.7,
-                  "label": "70%"
-                },
-                "b": {
-                  "team": "MIN",
-                  "value": 0.5,
-                  "label": "50%"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "text": "⚠️ THE RISK\n\nCavaliers are hitting 32.1% from three over their last 10, Timberwolves 35.5%.\n\nTeams priced like Timberwolves tonight still win about 40 times in 100.",
-          "card": null
-        },
-        {
-          "text": "📈 This season: 30-13 on picks (69.8%).\n\nEvery pick is posted before tip-off and graded after the final buzzer. No deleting the misses.\n\n🔔 Follow for the full slate every game day.",
-          "card": null
-        }
-      ]
-    },
-    {
       "id": "Indiana_Pacers_vs_Milwaukee_Bucks_2026-10-26",
       "matchup": "Indiana Pacers @ Milwaukee Bucks",
       "home_team": "Milwaukee Bucks",
@@ -3104,7 +2944,7 @@
       "own_away_prob": 0.5421,
       "own_model_mode": "full",
       "market_books": 1,
-      "refreshed_at": "2026-10-26T21:16+00:00",
+      "refreshed_at": "2026-10-26T23:06+00:00",
       "key_out": {
         "home": [],
         "away": [
@@ -3244,6 +3084,166 @@
       ]
     },
     {
+      "id": "Minnesota_Timberwolves_vs_Cleveland_Cavaliers_2026-10-26",
+      "matchup": "Minnesota Timberwolves @ Cleveland Cavaliers",
+      "home_team": "Cleveland Cavaliers",
+      "away_team": "Minnesota Timberwolves",
+      "predicted_winner": "Cleveland Cavaliers",
+      "predicted_home_prob": 0.5780243268870395,
+      "predicted_away_prob": 0.42197567311296047,
+      "home_odds": 1.65,
+      "away_odds": 2.3,
+      "confidence": 0.5780243268870395,
+      "date": "2026-10-26",
+      "published": false,
+      "home_code": "CLE",
+      "away_code": "MIN",
+      "start_utc": "2026-10-26T23:00:00+00:00",
+      "model_home_prob": 0.4789,
+      "market_home_prob": 0.583,
+      "probability_source": "blend",
+      "own_home_prob": 0.5496,
+      "own_away_prob": 0.4504,
+      "own_model_mode": "full",
+      "market_books": 1,
+      "refreshed_at": "2026-10-26T23:06+00:00",
+      "key_out": {
+        "home": [],
+        "away": []
+      },
+      "thread": [
+        {
+          "text": "🏀 Minnesota Timberwolves at Cleveland Cavaliers\n🕗 Mon Oct 26, 7:00 PM ET\n\n🎯 Pick: Cleveland Cavaliers (58%)\n📊 Our model 55% · books 58%\n💰 Odds 1.65 · books’ consensus\n\nThe case, and the risk 🧵",
+          "card": {
+            "type": "match",
+            "when": "MON OCT 26 · 7:00 PM ET",
+            "away": "MIN",
+            "home": "CLE",
+            "away_prob": 0.42197567311296047,
+            "away_sub": "3-0",
+            "home_sub": "home",
+            "pick_name": "Cavaliers",
+            "odds": "1.65",
+            "source": "Our model 55% + books 58%",
+            "tape": [
+              {
+                "label": "Last 10",
+                "away": "6-4",
+                "home": "4-6"
+              },
+              {
+                "label": "Net rtg L10",
+                "away": "-1.0",
+                "home": "-5.9"
+              },
+              {
+                "label": "Rest",
+                "away": "B2B",
+                "home": "1d"
+              },
+              {
+                "label": "Elo",
+                "away": "1672",
+                "home": "1580"
+              }
+            ]
+          }
+        },
+        {
+          "text": "😴 FRESH LEGS\n\nTimberwolves are on the second night of a back-to-back. Cavaliers come in with 1 day of rest.",
+          "card": {
+            "type": "edge",
+            "away": "MIN",
+            "home": "CLE",
+            "matchup": "Timberwolves at Cavaliers · MON OCT 26 · 7:00 PM ET",
+            "eyebrow": "Reason 1 of 3 · Cavaliers",
+            "title": "Fresh legs",
+            "sub": "Timberwolves are on the second night of a back-to-back. Cavaliers come in with 1 day of rest.",
+            "rows": [
+              {
+                "label": "Days of rest",
+                "lower_is_better": false,
+                "a": {
+                  "team": "CLE",
+                  "value": 1.0,
+                  "label": "1"
+                },
+                "b": {
+                  "team": "MIN",
+                  "value": 0.0,
+                  "label": "0"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "text": "🗓️ SCHEDULE LOAD\n\nGames in the last 5 days: Cavaliers 2, Timberwolves 3.",
+          "card": {
+            "type": "edge",
+            "away": "MIN",
+            "home": "CLE",
+            "matchup": "Timberwolves at Cavaliers · MON OCT 26 · 7:00 PM ET",
+            "eyebrow": "Reason 2 of 3 · Cavaliers",
+            "title": "Schedule load",
+            "sub": "Games in the last 5 days: Cavaliers 2, Timberwolves 3.",
+            "rows": [
+              {
+                "label": "Games in last 5 days",
+                "lower_is_better": true,
+                "a": {
+                  "team": "CLE",
+                  "value": 2.0,
+                  "label": "2"
+                },
+                "b": {
+                  "team": "MIN",
+                  "value": 3.0,
+                  "label": "3"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "text": "🏟️ HOME AND AWAY\n\nCavaliers have won 70% at home lately; Timberwolves 50% on the road.",
+          "card": {
+            "type": "edge",
+            "away": "MIN",
+            "home": "CLE",
+            "matchup": "Timberwolves at Cavaliers · MON OCT 26 · 7:00 PM ET",
+            "eyebrow": "Reason 3 of 3 · Cavaliers",
+            "title": "Home and away",
+            "sub": "Cavaliers have won 70% at home lately; Timberwolves 50% on the road.",
+            "rows": [
+              {
+                "label": "Win % (home vs road)",
+                "lower_is_better": false,
+                "a": {
+                  "team": "CLE",
+                  "value": 0.7,
+                  "label": "70%"
+                },
+                "b": {
+                  "team": "MIN",
+                  "value": 0.5,
+                  "label": "50%"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "text": "⚠️ THE RISK\n\nCavaliers are hitting 32.1% from three over their last 10, Timberwolves 35.5%.\n\nTeams priced like Timberwolves tonight still win about 42 times in 100.",
+          "card": null
+        },
+        {
+          "text": "📈 This season: 30-13 on picks (69.8%).\n\nEvery pick is posted before tip-off and graded after the final buzzer. No deleting the misses.\n\n🔔 Follow for the full slate every game day.",
+          "card": null
+        }
+      ]
+    },
+    {
       "id": "Washington_Wizards_vs_Charlotte_Hornets_2026-10-26",
       "matchup": "Washington Wizards @ Charlotte Hornets",
       "home_team": "Charlotte Hornets",
@@ -3266,7 +3266,7 @@
       "own_away_prob": 0.3739,
       "own_model_mode": "full",
       "market_books": 1,
-      "refreshed_at": "2026-10-26T21:16+00:00",
+      "refreshed_at": "2026-10-26T23:06+00:00",
       "key_out": {
         "home": [],
         "away": []
@@ -3426,7 +3426,7 @@
       "own_away_prob": 0.5272,
       "own_model_mode": "full",
       "market_books": 1,
-      "refreshed_at": "2026-10-26T21:16+00:00",
+      "refreshed_at": "2026-10-26T23:06+00:00",
       "key_out": {
         "home": [],
         "away": []
