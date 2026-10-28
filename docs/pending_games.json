@@ -31,7 +31,7 @@
     }
   ],
   "date": "2026-10-28",
-  "generated_at": "2026-10-28T21:11:39.262175",
+  "generated_at": "2026-10-28T23:05:47.850355",
   "today": "2026-10-28",
   "tomorrow": "2026-10-29",
   "games": [
@@ -58,7 +58,7 @@
       "own_away_prob": 0.7139,
       "own_model_mode": "full",
       "market_books": 1,
-      "refreshed_at": "2026-10-28T21:11+00:00",
+      "refreshed_at": "2026-10-28T23:05+00:00",
       "key_out": {
         "home": [],
         "away": []
@@ -208,6 +208,7 @@
       "confidence": 0.7622043618031206,
       "date": "2026-10-28",
       "published": true,
+      "published_at": "2026-10-28T21:15:31.493268",
       "home_code": "CLE",
       "away_code": "WAS",
       "start_utc": "2026-10-28T23:00:00+00:00",
@@ -353,9 +354,7 @@
           "text": "📈 This season: 39-17 on picks (69.6%).\n\nEvery pick is posted before tip-off and graded after the final buzzer. No deleting the misses.\n\n🔔 Follow for the full slate every game day.",
           "card": null
         }
-      ],
-      "published_at": "2026-10-28T21:15:31.493268",
-      "tweet_url": "https://x.com/NBAPredictLab/status/2115552503077183861"
+      ]
     },
     {
       "id": "Houston_Rockets_vs_Milwaukee_Bucks_2026-10-28",
@@ -370,6 +369,7 @@
       "confidence": 0.7411765339980732,
       "date": "2026-10-28",
       "published": true,
+      "published_at": "2026-10-28T21:18:32.595512",
       "home_code": "MIL",
       "away_code": "HOU",
       "start_utc": "2026-10-29T00:00:00+00:00",
@@ -517,9 +517,7 @@
           "text": "📈 This season: 39-17 on picks (69.6%).\n\nEvery pick is posted before tip-off and graded after the final buzzer. No deleting the misses.\n\n🔔 Follow for the full slate every game day.",
           "card": null
         }
-      ],
-      "published_at": "2026-10-28T21:18:32.595512",
-      "tweet_url": "https://x.com/NBAPredictLab/status/2115553388322587061"
+      ]
     },
     {
       "id": "Charlotte_Hornets_vs_Detroit_Pistons_2026-10-28",
@@ -544,7 +542,7 @@
       "own_away_prob": 0.3559,
       "own_model_mode": "full",
       "market_books": 1,
-      "refreshed_at": "2026-10-28T21:11+00:00",
+      "refreshed_at": "2026-10-28T23:05+00:00",
       "key_out": {
         "home": [],
         "away": []
@@ -718,7 +716,7 @@
       "own_away_prob": 0.6768,
       "own_model_mode": "full",
       "market_books": 1,
-      "refreshed_at": "2026-10-28T21:11+00:00",
+      "refreshed_at": "2026-10-28T23:05+00:00",
       "key_out": {
         "home": [],
         "away": []
@@ -878,10 +876,11 @@
       "own_away_prob": 0.5443,
       "own_model_mode": "full",
       "market_books": 1,
-      "refreshed_at": "2026-10-28T21:11+00:00",
+      "refreshed_at": "2026-10-28T23:05+00:00",
       "key_out": {
         "home": [
-          "Tyrese Haliburton"
+          "Tyrese Haliburton",
+          "Ivica Zubac"
         ],
         "away": []
       },
@@ -924,13 +923,17 @@
           }
         },
         {
+          "text": "🩹 MISSING PIECES\n\nPacers are listed without Tyrese Haliburton, Ivica Zubac. 76ers have no key absence on the report.",
+          "card": null
+        },
+        {
           "text": "🏟️ HOME AND AWAY\n\n76ers have won 45% of recent road games; Pacers 20% at home.",
           "card": {
             "type": "edge",
             "away": "PHI",
             "home": "IND",
             "matchup": "76ers at Pacers · WED OCT 28 · 7:00 PM ET",
-            "eyebrow": "Reason 1 of 3 · 76ers",
+            "eyebrow": "Reason 2 of 3 · 76ers",
             "title": "Home and away",
             "sub": "76ers have won 45% of recent road games; Pacers 20% at home.",
             "rows": [
@@ -958,7 +961,7 @@
             "away": "PHI",
             "home": "IND",
             "matchup": "76ers at Pacers · WED OCT 28 · 7:00 PM ET",
-            "eyebrow": "Reason 2 of 3 · 76ers",
+            "eyebrow": "Reason 3 of 3 · 76ers",
             "title": "Schedule load",
             "sub": "Games in the last 5 days: 76ers 2, Pacers 3.",
             "rows": [
@@ -974,34 +977,6 @@
                   "team": "IND",
                   "value": 3.0,
                   "label": "3"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "text": "📊 POWER RATING\n\nElo has 76ers at 1598, Pacers at 1347. A real gap in team strength.",
-          "card": {
-            "type": "edge",
-            "away": "PHI",
-            "home": "IND",
-            "matchup": "76ers at Pacers · WED OCT 28 · 7:00 PM ET",
-            "eyebrow": "Reason 3 of 3 · 76ers",
-            "title": "Power rating",
-            "sub": "Elo has 76ers at 1598, Pacers at 1347. A real gap in team strength.",
-            "rows": [
-              {
-                "label": "Elo rating",
-                "lower_is_better": false,
-                "a": {
-                  "team": "PHI",
-                  "value": 1598.2893,
-                  "label": "1598"
-                },
-                "b": {
-                  "team": "IND",
-                  "value": 1347.4275,
-                  "label": "1347"
                 }
               }
             ]
@@ -1040,7 +1015,7 @@
       "own_away_prob": 0.7364,
       "own_model_mode": "full",
       "market_books": 1,
-      "refreshed_at": "2026-10-28T21:11+00:00",
+      "refreshed_at": "2026-10-28T23:05+00:00",
       "key_out": {
         "home": [],
         "away": [
@@ -1203,7 +1178,7 @@
       "own_away_prob": 0.399,
       "own_model_mode": "full",
       "market_books": 1,
-      "refreshed_at": "2026-10-28T21:11+00:00",
+      "refreshed_at": "2026-10-28T23:05+00:00",
       "key_out": {
         "home": [],
         "away": [
@@ -1341,7 +1316,7 @@
       "own_away_prob": 0.2883,
       "own_model_mode": "full",
       "market_books": 1,
-      "refreshed_at": "2026-10-28T21:11+00:00",
+      "refreshed_at": "2026-10-28T23:05+00:00",
       "key_out": {
         "home": [
           "Anthony Edwards"
@@ -1503,7 +1478,7 @@
       "own_away_prob": 0.5619,
       "own_model_mode": "full",
       "market_books": 1,
-      "refreshed_at": "2026-10-28T21:11+00:00",
+      "refreshed_at": "2026-10-28T23:05+00:00",
       "key_out": {
         "home": [],
         "away": []
@@ -1646,42 +1621,42 @@
       "home_team": "Atlanta Hawks",
       "away_team": "Miami Heat",
       "predicted_winner": "Atlanta Hawks",
-      "predicted_home_prob": 0.5740400545168798,
-      "predicted_away_prob": 0.4259599454831202,
-      "home_odds": 1.74,
-      "away_odds": 2.14,
-      "confidence": 0.5740400545168798,
+      "predicted_home_prob": 0.5841608185833799,
+      "predicted_away_prob": 0.41583918141662013,
+      "home_odds": 1.7,
+      "away_odds": 2.2,
+      "confidence": 0.5841608185833799,
       "date": "2026-10-28",
       "published": false,
       "home_code": "ATL",
       "away_code": "MIA",
       "start_utc": "2026-10-28T23:00:00+00:00",
       "model_home_prob": 0.733,
-      "market_home_prob": 0.5514,
+      "market_home_prob": 0.5635,
       "probability_source": "blend",
       "own_home_prob": 0.694,
       "own_away_prob": 0.306,
       "own_model_mode": "full",
       "market_books": 1,
-      "refreshed_at": "2026-10-28T21:11+00:00",
+      "refreshed_at": "2026-10-28T23:05+00:00",
       "key_out": {
         "home": [],
         "away": []
       },
       "thread": [
         {
-          "text": "🏀 Miami Heat at Atlanta Hawks\n🕗 Wed Oct 28, 7:00 PM ET\n\n🎯 Pick: Atlanta Hawks (57%)\n📊 Our model 69% · books 55%\n💰 Odds 1.74 · books’ consensus\n\nThe case, and the risk 🧵",
+          "text": "🏀 Miami Heat at Atlanta Hawks\n🕗 Wed Oct 28, 7:00 PM ET\n\n🎯 Pick: Atlanta Hawks (58%)\n📊 Our model 69% · books 56%\n💰 Odds 1.70 · books’ consensus\n\nThe case, and the risk 🧵",
           "card": {
             "type": "match",
             "when": "WED OCT 28 · 7:00 PM ET",
             "away": "MIA",
             "home": "ATL",
-            "away_prob": 0.4259599454831202,
+            "away_prob": 0.41583918141662013,
             "away_sub": "0-4",
             "home_sub": "2-2",
             "pick_name": "Hawks",
-            "odds": "1.74",
-            "source": "Our model 69% + books 55%",
+            "odds": "1.70",
+            "source": "Our model 69% + books 56%",
             "tape": [
               {
                 "label": "Last 10",
@@ -1791,7 +1766,7 @@
           }
         },
         {
-          "text": "⚠️ THE RISK\n\nHawks score 107.1 points per 100 possessions over their last 10, Heat 115.6.\n\nTeams priced like Heat tonight still win about 43 times in 100.",
+          "text": "⚠️ THE RISK\n\nHawks score 107.1 points per 100 possessions over their last 10, Heat 115.6.\n\nTeams priced like Heat tonight still win about 42 times in 100.",
           "card": null
         },
         {
@@ -1823,7 +1798,7 @@
       "own_away_prob": 0.4658,
       "own_model_mode": "full",
       "market_books": 1,
-      "refreshed_at": "2026-10-28T21:11+00:00",
+      "refreshed_at": "2026-10-28T23:05+00:00",
       "key_out": {
         "home": [
           "Rui Hachimura"
@@ -2469,7 +2444,7 @@
       "own_away_prob": 0.7139,
       "own_model_mode": "full",
       "market_books": 1,
-      "refreshed_at": "2026-10-28T21:11+00:00",
+      "refreshed_at": "2026-10-28T23:05+00:00",
       "key_out": {
         "home": [],
         "away": []
@@ -2619,6 +2594,7 @@
       "confidence": 0.7622043618031206,
       "date": "2026-10-28",
       "published": true,
+      "published_at": "2026-10-28T21:15:31.493268",
       "home_code": "CLE",
       "away_code": "WAS",
       "start_utc": "2026-10-28T23:00:00+00:00",
@@ -2764,9 +2740,7 @@
           "text": "📈 This season: 39-17 on picks (69.6%).\n\nEvery pick is posted before tip-off and graded after the final buzzer. No deleting the misses.\n\n🔔 Follow for the full slate every game day.",
           "card": null
         }
-      ],
-      "published_at": "2026-10-28T21:15:31.493268",
-      "tweet_url": "https://x.com/NBAPredictLab/status/2115552503077183861"
+      ]
     },
     {
       "id": "Houston_Rockets_vs_Milwaukee_Bucks_2026-10-28",
@@ -2781,6 +2755,7 @@
       "confidence": 0.7411765339980732,
       "date": "2026-10-28",
       "published": true,
+      "published_at": "2026-10-28T21:18:32.595512",
       "home_code": "MIL",
       "away_code": "HOU",
       "start_utc": "2026-10-29T00:00:00+00:00",
@@ -2928,9 +2903,7 @@
           "text": "📈 This season: 39-17 on picks (69.6%).\n\nEvery pick is posted before tip-off and graded after the final buzzer. No deleting the misses.\n\n🔔 Follow for the full slate every game day.",
           "card": null
         }
-      ],
-      "published_at": "2026-10-28T21:18:32.595512",
-      "tweet_url": "https://x.com/NBAPredictLab/status/2115553388322587061"
+      ]
     },
     {
       "id": "Charlotte_Hornets_vs_Detroit_Pistons_2026-10-28",
@@ -2955,7 +2928,7 @@
       "own_away_prob": 0.3559,
       "own_model_mode": "full",
       "market_books": 1,
-      "refreshed_at": "2026-10-28T21:11+00:00",
+      "refreshed_at": "2026-10-28T23:05+00:00",
       "key_out": {
         "home": [],
         "away": []
@@ -3129,7 +3102,7 @@
       "own_away_prob": 0.6768,
       "own_model_mode": "full",
       "market_books": 1,
-      "refreshed_at": "2026-10-28T21:11+00:00",
+      "refreshed_at": "2026-10-28T23:05+00:00",
       "key_out": {
         "home": [],
         "away": []
@@ -3289,10 +3262,11 @@
       "own_away_prob": 0.5443,
       "own_model_mode": "full",
       "market_books": 1,
-      "refreshed_at": "2026-10-28T21:11+00:00",
+      "refreshed_at": "2026-10-28T23:05+00:00",
       "key_out": {
         "home": [
-          "Tyrese Haliburton"
+          "Tyrese Haliburton",
+          "Ivica Zubac"
         ],
         "away": []
       },
@@ -3335,13 +3309,17 @@
           }
         },
         {
+          "text": "🩹 MISSING PIECES\n\nPacers are listed without Tyrese Haliburton, Ivica Zubac. 76ers have no key absence on the report.",
+          "card": null
+        },
+        {
           "text": "🏟️ HOME AND AWAY\n\n76ers have won 45% of recent road games; Pacers 20% at home.",
           "card": {
             "type": "edge",
             "away": "PHI",
             "home": "IND",
             "matchup": "76ers at Pacers · WED OCT 28 · 7:00 PM ET",
-            "eyebrow": "Reason 1 of 3 · 76ers",
+            "eyebrow": "Reason 2 of 3 · 76ers",
             "title": "Home and away",
             "sub": "76ers have won 45% of recent road games; Pacers 20% at home.",
             "rows": [
@@ -3369,7 +3347,7 @@
             "away": "PHI",
             "home": "IND",
             "matchup": "76ers at Pacers · WED OCT 28 · 7:00 PM ET",
-            "eyebrow": "Reason 2 of 3 · 76ers",
+            "eyebrow": "Reason 3 of 3 · 76ers",
             "title": "Schedule load",
             "sub": "Games in the last 5 days: 76ers 2, Pacers 3.",
             "rows": [
@@ -3385,34 +3363,6 @@
                   "team": "IND",
                   "value": 3.0,
                   "label": "3"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "text": "📊 POWER RATING\n\nElo has 76ers at 1598, Pacers at 1347. A real gap in team strength.",
-          "card": {
-            "type": "edge",
-            "away": "PHI",
-            "home": "IND",
-            "matchup": "76ers at Pacers · WED OCT 28 · 7:00 PM ET",
-            "eyebrow": "Reason 3 of 3 · 76ers",
-            "title": "Power rating",
-            "sub": "Elo has 76ers at 1598, Pacers at 1347. A real gap in team strength.",
-            "rows": [
-              {
-                "label": "Elo rating",
-                "lower_is_better": false,
-                "a": {
-                  "team": "PHI",
-                  "value": 1598.2893,
-                  "label": "1598"
-                },
-                "b": {
-                  "team": "IND",
-                  "value": 1347.4275,
-                  "label": "1347"
                 }
               }
             ]
@@ -3451,7 +3401,7 @@
       "own_away_prob": 0.7364,
       "own_model_mode": "full",
       "market_books": 1,
-      "refreshed_at": "2026-10-28T21:11+00:00",
+      "refreshed_at": "2026-10-28T23:05+00:00",
       "key_out": {
         "home": [],
         "away": [
@@ -3614,7 +3564,7 @@
       "own_away_prob": 0.399,
       "own_model_mode": "full",
       "market_books": 1,
-      "refreshed_at": "2026-10-28T21:11+00:00",
+      "refreshed_at": "2026-10-28T23:05+00:00",
       "key_out": {
         "home": [],
         "away": [
@@ -3752,7 +3702,7 @@
       "own_away_prob": 0.2883,
       "own_model_mode": "full",
       "market_books": 1,
-      "refreshed_at": "2026-10-28T21:11+00:00",
+      "refreshed_at": "2026-10-28T23:05+00:00",
       "key_out": {
         "home": [
           "Anthony Edwards"
@@ -3914,7 +3864,7 @@
       "own_away_prob": 0.5619,
       "own_model_mode": "full",
       "market_books": 1,
-      "refreshed_at": "2026-10-28T21:11+00:00",
+      "refreshed_at": "2026-10-28T23:05+00:00",
       "key_out": {
         "home": [],
         "away": []
@@ -4057,42 +4007,42 @@
       "home_team": "Atlanta Hawks",
       "away_team": "Miami Heat",
       "predicted_winner": "Atlanta Hawks",
-      "predicted_home_prob": 0.5740400545168798,
-      "predicted_away_prob": 0.4259599454831202,
-      "home_odds": 1.74,
-      "away_odds": 2.14,
-      "confidence": 0.5740400545168798,
+      "predicted_home_prob": 0.5841608185833799,
+      "predicted_away_prob": 0.41583918141662013,
+      "home_odds": 1.7,
+      "away_odds": 2.2,
+      "confidence": 0.5841608185833799,
       "date": "2026-10-28",
       "published": false,
       "home_code": "ATL",
       "away_code": "MIA",
       "start_utc": "2026-10-28T23:00:00+00:00",
       "model_home_prob": 0.733,
-      "market_home_prob": 0.5514,
+      "market_home_prob": 0.5635,
       "probability_source": "blend",
       "own_home_prob": 0.694,
       "own_away_prob": 0.306,
       "own_model_mode": "full",
       "market_books": 1,
-      "refreshed_at": "2026-10-28T21:11+00:00",
+      "refreshed_at": "2026-10-28T23:05+00:00",
       "key_out": {
         "home": [],
         "away": []
       },
       "thread": [
         {
-          "text": "🏀 Miami Heat at Atlanta Hawks\n🕗 Wed Oct 28, 7:00 PM ET\n\n🎯 Pick: Atlanta Hawks (57%)\n📊 Our model 69% · books 55%\n💰 Odds 1.74 · books’ consensus\n\nThe case, and the risk 🧵",
+          "text": "🏀 Miami Heat at Atlanta Hawks\n🕗 Wed Oct 28, 7:00 PM ET\n\n🎯 Pick: Atlanta Hawks (58%)\n📊 Our model 69% · books 56%\n💰 Odds 1.70 · books’ consensus\n\nThe case, and the risk 🧵",
           "card": {
             "type": "match",
             "when": "WED OCT 28 · 7:00 PM ET",
             "away": "MIA",
             "home": "ATL",
-            "away_prob": 0.4259599454831202,
+            "away_prob": 0.41583918141662013,
             "away_sub": "0-4",
             "home_sub": "2-2",
             "pick_name": "Hawks",
-            "odds": "1.74",
-            "source": "Our model 69% + books 55%",
+            "odds": "1.70",
+            "source": "Our model 69% + books 56%",
             "tape": [
               {
                 "label": "Last 10",
@@ -4202,7 +4152,7 @@
           }
         },
         {
-          "text": "⚠️ THE RISK\n\nHawks score 107.1 points per 100 possessions over their last 10, Heat 115.6.\n\nTeams priced like Heat tonight still win about 43 times in 100.",
+          "text": "⚠️ THE RISK\n\nHawks score 107.1 points per 100 possessions over their last 10, Heat 115.6.\n\nTeams priced like Heat tonight still win about 42 times in 100.",
           "card": null
         },
         {
@@ -4234,7 +4184,7 @@
       "own_away_prob": 0.4658,
       "own_model_mode": "full",
       "market_books": 1,
-      "refreshed_at": "2026-10-28T21:11+00:00",
+      "refreshed_at": "2026-10-28T23:05+00:00",
       "key_out": {
         "home": [
           "Rui Hachimura"
