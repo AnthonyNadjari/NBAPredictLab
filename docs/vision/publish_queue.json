@@ -1,30 +1,6 @@
 {
   "requests": [
     {
-      "id": "daily-2026-10-19",
-      "game_id": "daily-2026-10-19",
-      "texts": null,
-      "dry": false,
-      "requested_at": "2026-10-19T21:16:02+00:00",
-      "source": "daily_post"
-    },
-    {
-      "id": "autopilot-20261020-Philadelphia_76ers_vs_New_York_Knicks_2026-10-20",
-      "game_id": "Philadelphia_76ers_vs_New_York_Knicks_2026-10-20",
-      "texts": null,
-      "dry": false,
-      "requested_at": "2026-10-20T21:17:15+00:00",
-      "source": "autopilot"
-    },
-    {
-      "id": "autopilot-20261020-Oklahoma_City_Thunder_vs_San_Antonio_Spurs_2026-10-20",
-      "game_id": "Oklahoma_City_Thunder_vs_San_Antonio_Spurs_2026-10-20",
-      "texts": null,
-      "dry": false,
-      "requested_at": "2026-10-20T21:17:15+00:00",
-      "source": "autopilot"
-    },
-    {
       "id": "autopilot-20261021-Golden_State_Warriors_vs_Los_Angeles_Lakers_2026-10-21",
       "game_id": "Golden_State_Warriors_vs_Los_Angeles_Lakers_2026-10-21",
       "texts": null,
@@ -159,6 +135,33 @@
       "dry": false,
       "requested_at": "2026-10-28T21:11:45+00:00",
       "source": "autopilot"
+    },
+    {
+      "id": "result-Washington_Wizards_vs_Cleveland_Cavaliers_2026-10-28",
+      "game_id": "result-Washington_Wizards_vs_Cleveland_Cavaliers_2026-10-28",
+      "texts": null,
+      "dry": false,
+      "requested_at": "2026-10-29T14:19:52+00:00",
+      "not_before": "2026-10-29T16:00:00+00:00",
+      "source": "results_post"
+    },
+    {
+      "id": "night-2026-10-28",
+      "game_id": "night-2026-10-28",
+      "texts": null,
+      "dry": false,
+      "requested_at": "2026-10-29T14:19:52+00:00",
+      "not_before": "2026-10-29T16:00:00+00:00",
+      "source": "results_post"
+    },
+    {
+      "id": "result-Houston_Rockets_vs_Milwaukee_Bucks_2026-10-28",
+      "game_id": "result-Houston_Rockets_vs_Milwaukee_Bucks_2026-10-28",
+      "texts": null,
+      "dry": false,
+      "requested_at": "2026-10-29T14:19:52+00:00",
+      "not_before": "2026-10-29T16:00:00+00:00",
+      "source": "results_post"
     }
   ]
 }
