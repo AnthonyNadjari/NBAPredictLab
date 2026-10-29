@@ -1,6 +1,41 @@
 {
  "injuries": [
   {
+   "ts": "2026-10-29T21:10:22+00:00",
+   "team": "Indiana Pacers",
+   "player": "Andrew Nembhard",
+   "status": "Day-To-Day",
+   "comment": "Nembhard (neck) is listed as probable for Friday's game against Miami."
+  },
+  {
+   "ts": "2026-10-29T21:10:22+00:00",
+   "team": "Indiana Pacers",
+   "player": "Aaron Nesmith",
+   "status": "Day-To-Day",
+   "comment": "Nesmith (hamstring) is probable for Friday's game against the Heat."
+  },
+  {
+   "ts": "2026-10-29T21:10:22+00:00",
+   "team": "Indiana Pacers",
+   "player": "Ivica Zubac",
+   "status": "Out",
+   "comment": "Zubac (ankle) is out for Friday's game against the Heat."
+  },
+  {
+   "ts": "2026-10-29T21:01:02+00:00",
+   "team": "Miami Heat",
+   "player": "Simone Fontecchio",
+   "status": "Day-To-Day",
+   "comment": "Fontecchio (illness) is listed as questionable for Friday's game against Indiana."
+  },
+  {
+   "ts": "2026-10-29T20:54:57+00:00",
+   "team": "Detroit Pistons",
+   "player": "Isaiah Joe",
+   "status": "Day-To-Day",
+   "comment": "Joe (hip) is listed as questionable for Friday's game against Brooklyn."
+  },
+  {
    "ts": "2026-10-29T20:41:22+00:00",
    "team": "Houston Rockets",
    "player": "Reed Sheppard",
@@ -1014,44 +1049,27 @@
    "player": "Kon Knueppel",
    "status": "Out",
    "comment": "Knueppel (hamstring) is without a timetable for a return, Rod Boone of The Charlotte Observer reports."
-  },
-  {
-   "ts": "2026-10-27T10:05:53+00:00",
-   "team": "Charlotte Hornets",
-   "player": "Grant Williams",
-   "status": "Out",
-   "comment": "Williams (hamstring) will be re-evaluated following Charlotte's upcoming two-game road trip, Rod Boone reports."
-  },
-  {
-   "ts": "2026-10-27T10:05:53+00:00",
-   "team": "Chicago Bulls",
-   "player": "Patrick Williams",
-   "status": "Day-To-Day",
-   "comment": "Williams (groin) has been ruled out for Monday's game against the Celtics."
-  },
-  {
-   "ts": "2026-10-27T10:05:53+00:00",
-   "team": "Chicago Bulls",
-   "player": "Nic Claxton",
-   "status": "Out",
-   "comment": "Claxton (hamstring) participated in individual drills Monday morning and hopes to join the team for practice next week, Joe Cowley of the Chicago Sun-Times reports."
-  },
-  {
-   "ts": "2026-10-27T10:05:53+00:00",
-   "team": "Dallas Mavericks",
-   "player": "Naji Marshall",
-   "status": "Day-To-Day",
-   "comment": "Marshall (illness) has been ruled out for Monday's game against the Heat."
-  },
-  {
-   "ts": "2026-10-27T10:05:53+00:00",
-   "team": "Dallas Mavericks",
-   "player": "Sergio de Larrea",
-   "status": "Day-To-Day",
-   "comment": "De Larrea (knee) won't return to Monday's game against the Heat. He'll finish with zero points (0-1 FG) and one rebound across six minutes."
   }
  ],
  "alerts": [
+  {
+   "news_at": "2026-10-29T20:41:22+00:00",
+   "player": "Marcus Smart",
+   "team": "HOU",
+   "opp": "DAL",
+   "before": 0.62,
+   "after": 0.62,
+   "text": "🚨 INJURY ALERT\n\n❌ Marcus Smart is OUT tomorrow vs the Mavericks\n\n📊 10.4 PTS · 32.3 MIN per game (last 10)\n\n📈 Rockets win chance: 62% → 62% \n⏱️ market moved 0 pts in 13 min\n\n#Rockets #NBA"
+  },
+  {
+   "news_at": "2026-10-29T20:41:22+00:00",
+   "player": "Reed Sheppard",
+   "team": "HOU",
+   "opp": "DAL",
+   "before": 0.62,
+   "after": 0.62,
+   "text": "🚨 INJURY ALERT\n\n❌ Reed Sheppard is OUT tomorrow vs the Mavericks\n\n📊 11.5 PTS · 28.6 MIN per game (last 10)\n\n📈 Rockets win chance: 62% → 62% \n⏱️ market moved 0 pts in 13 min\n\n#Rockets #NBA"
+  },
   {
    "news_at": "2026-10-29T18:41:01+00:00",
    "player": "Anthony Edwards",
@@ -1303,24 +1321,6 @@
    "before": 0.405,
    "after": 0.405,
    "text": "🚨 INJURY ALERT\n\n❌ Keegan Murray is OUT tonight vs the Grizzlies\n\n📊 11.1 PTS · 29.3 MIN per game (last 10)\n\n📈 Kings win chance: 40% → 40% \n⏱️ market moved 0 pts in 12 min\n\n#Kings #NBA"
-  },
-  {
-   "news_at": "2026-10-25T23:03:03+00:00",
-   "player": "VJ Edgecombe",
-   "team": "PHI",
-   "opp": "DET",
-   "before": 0.465,
-   "after": 0.465,
-   "text": "🚨 INJURY ALERT\n\n❌ VJ Edgecombe is OUT tonight vs the Pistons\n\n📊 13.2 PTS · 35.8 MIN per game (last 10)\n\n📈 76ers win chance: 46% → 46% \n⏱️ market moved 0 pts in 12 min\n\n#Sixers #NBA"
-  },
-  {
-   "news_at": "2026-10-25T22:19:01+00:00",
-   "player": "Kawhi Leonard",
-   "team": "TOR",
-   "opp": "MIN",
-   "before": 0.405,
-   "after": 0.405,
-   "text": "🚨 INJURY ALERT\n\n❌ Kawhi Leonard is OUT tonight vs the Timberwolves\n\n📊 23.8 PTS · 30.5 MIN per game (last 10)\n\n📈 Raptors win chance: 40% → 40% \n⏱️ market moved 0 pts in 12 min\n\n#Raptors #NBA"
   }
  ],
  "tipsters": [
