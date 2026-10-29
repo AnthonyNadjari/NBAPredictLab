@@ -49,6 +49,8 @@ def _when(value) -> datetime | None:
 def _fresh(req: dict, now: datetime) -> bool:
     """Requested less than 12 h ago, and (for a game) before tip-off: a pick is never posted late."""
     t = _when(req.get("requested_at"))
+    if t and req.get("not_before"):        # a post meant for later in the day: its 12 h count from then
+        t = max(t, _when(req["not_before"]) or t)
     if t is None or now - t > MAX_AGE:
         return False
     games = _read_json(PENDING, {}).get("games", [])
@@ -65,6 +67,8 @@ def next_request(texts_out: Path, now: datetime | None = None) -> str:
             continue
         rid, game = str(req.get("id") or ""), str(req.get("game_id") or "")
         if not rid or rid in done or not GAME_ID_RE.match(game) or not _fresh(req, now):
+            continue
+        if (_when(req.get("not_before")) or now) > now:      # not yet: left in the queue, not marked handled
             continue
         DONE.parent.mkdir(parents=True, exist_ok=True)
         DONE.write_text("\n".join(sorted(done | {rid})[-500:]))

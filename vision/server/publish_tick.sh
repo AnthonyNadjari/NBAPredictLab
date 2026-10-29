@@ -49,6 +49,12 @@ if NBA_TAPE_DIR=$BASE/tape python vision/tools/post_alerts.py --check 2>/dev/nul
     timeout 300 python vision/tools/post_alerts.py 2>&1 | tee -a "$BASE/logs/alerts.log" )
 fi
 
+# Two posts back to back fail on X (the second composer never opens, 6 nights out of 10 from 20 Oct):
+# 4 minutes between a post and the next one
+LAST_POST=$NBAVISION_STATE_DIR/last_post_at
+if [ $(( $(date +%s) - $(cat "$LAST_POST" 2>/dev/null || echo 0) )) -lt 240 ]; then
+  exit 0
+fi
 REQ=$(python vision/tools/publish_queue.py next "$TEXTS") || { echo "queue read failed"; exit 1; }
 [ "$REQ" = "none" ] && exit 0
 read -r RID GAME DRY <<<"$REQ"
@@ -92,6 +98,7 @@ PY
   if [ "$DRY" != "true" ] && python -c "import json,sys; r=json.load(open('$RESULT')); sys.exit(0 if r.get('posted') or r.get('uncertain') else 1)"; then
     echo "$GAME" >> "$LEDGER"
   fi
+  [ "$DRY" != "true" ] && date +%s > "$LAST_POST"
 fi
 
 # Mark published (also when uncertain: never re-post blindly) + log the outcome for the panel,

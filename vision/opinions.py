@@ -14,7 +14,7 @@ from datetime import datetime, timedelta
 
 from config import LOCAL_STATE_DIR, TZ
 
-MAX_PER_DAY = 2
+MAX_PER_DAY = 1   # 1 since the spam label (Oct 2026)
 MIN_GAP = timedelta(hours=4)
 HOURS = set(range(17, 24)) | {0, 1}      # Paris: US afternoon and evening
 MIN_LIKES = 500

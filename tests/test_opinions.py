@@ -11,9 +11,9 @@ def test_due_window_quota_and_gap():
     evening = datetime(2026, 10, 12, 21, 0, tzinfo=TZ)
     assert opinions.due(evening, {"count": 0, "topics": []})
     assert not opinions.due(evening.replace(hour=10), {"count": 0, "topics": []})
-    assert not opinions.due(evening, {"count": 2, "topics": []})
+    assert not opinions.due(evening, {"count": opinions.MAX_PER_DAY, "topics": []})
     assert not opinions.due(evening, {"count": 1, "topics": [], "last": (evening - timedelta(hours=2)).isoformat()})
-    assert opinions.due(evening, {"count": 1, "topics": [], "last": (evening - timedelta(hours=5)).isoformat()})
+    assert opinions.due(evening, {"count": 0, "topics": [], "last": (evening - timedelta(hours=5)).isoformat()})
 
 
 def test_prompts_build():

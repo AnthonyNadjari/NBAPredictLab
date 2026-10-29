@@ -65,3 +65,21 @@ def test_game_request_expires_at_tip_off(tmp_path, monkeypatch):
     pending.write_text(json.dumps({"games": [{"id": "DAL_at_HOU", "start_utc": (NOW - timedelta(minutes=1)).isoformat()}]}))
     monkeypatch.setattr(pq, "PENDING", pending)
     assert pq.next_request(tmp_path / "t.json", NOW) == "none"      # game already started
+
+
+def test_not_before_waits_without_marking_handled(tmp_path, monkeypatch):
+    import json
+    from datetime import datetime, timezone
+    from tools import publish_queue as pq
+    queue = tmp_path / "publish_queue.json"
+    monkeypatch.setattr(pq, "QUEUE", queue)
+    monkeypatch.setattr(pq, "PENDING", tmp_path / "pending.json")
+    monkeypatch.setattr(pq, "DONE", tmp_path / "done.txt")
+    queue.write_text(json.dumps({"requests": [{"id": "night-1", "game_id": "night-2026-10-28", "dry": False,
+                                               "requested_at": "2026-10-29T09:10:00+00:00",
+                                               "not_before": "2026-10-29T16:00:00+00:00"}]}))
+    out = tmp_path / "texts.json"
+    assert pq.next_request(out, datetime(2026, 10, 29, 12, 0, tzinfo=timezone.utc)) == "none"
+    assert pq.next_request(out, datetime(2026, 10, 29, 16, 5, tzinfo=timezone.utc)) == "night-1 night-2026-10-28 false"
+    # 12 h counted from not_before, not from the request
+    assert pq.next_request(out, datetime(2026, 10, 30, 3, 0, tzinfo=timezone.utc)) == "none"

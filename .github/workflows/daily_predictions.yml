@@ -60,6 +60,14 @@ jobs:
             python scripts/morning_routine.py
           fi
 
+      # Morning run: grade last night's threads in public (quote posts) and, after a good night, the
+      # results card + "DM us" (scripts/results_post.py); the server posts them from 16:00 UTC
+      - name: Results posts
+        if: github.event.schedule == '0 9 * * *'
+        run: |
+          git fetch -q origin main && git reset -q --hard origin/main
+          python scripts/results_post.py || true
+
       # After the 21:00 UTC refresh: queue tonight's best threads for the server (off until
       # switched on in the control panel, docs/autopilot.json)
       - name: Autopilot

@@ -6,12 +6,12 @@ What it decides, from docs/vision/runs.json (when each session ended and how man
   * a quiet stretch each day while the US sleeps (08:30-13:30 Paris, edges moved by up to 40 min
     a day): measured on 450 replies, 09:00-15:00 Paris gets the fewest views, and an account that
     replies at every hour of the day is what bot-spotters look for;
-  * a daily total that changes from day to day (15-20 replies; 60-80 got every reply hidden by X
-    from 12 Oct, 2 views under 100k-view tweets), spread over the waking hours with
+  * a daily total that changes from day to day (5-6 replies; 60-80 got the account X's spam label
+    on 12 Oct, every reply hidden; back from 29 Oct, slowly), spread over the waking hours with
     twice the weight on US prime time (21:00-06:00 Paris, the most views and likes per view), so the
-    budget is not spent by the afternoon; never more than 4 in an hour;
+    budget is not spent by the afternoon; never more than 3 in an hour;
   * a random pause between sessions (shorter during US prime time, 21:00-06:00 Paris) and a random
-    session size (2-4 replies), so the posting pattern never repeats.
+    session size (1-3 replies), so the posting pattern never repeats.
 Random draws are seeded by the date / the previous session, so every 5-min tick sees the same plan.
 """
 from __future__ import annotations
@@ -21,13 +21,13 @@ import random
 from datetime import datetime, timedelta
 from pathlib import Path
 
-DAILY = (15, 20)            # replies per 24 h
-HOURLY_MAX = 4
+DAILY = (5, 6)            # replies per 24 h
+HOURLY_MAX = 3
 QUIET = ((8, 30), (13, 30))   # Paris time, US night
 QUIET_JITTER_MIN = 40
-SESSION_SIZE = (2, 4)
-GAP_PEAK = (30, 60)           # minutes between sessions, 21:00-06:00 Paris
-GAP_DAY = (60, 120)
+SESSION_SIZE = (1, 3)
+GAP_PEAK = (60, 150)           # minutes between sessions, 21:00-06:00 Paris
+GAP_DAY = (120, 240)
 PEAK_HOURS = set(range(21, 24)) | set(range(0, 6))
 
 
@@ -77,7 +77,7 @@ def decide(now: datetime, runs: list[dict]) -> dict:
         return out | {"why": "quiet hours", "next_after": q1.isoformat(timespec="minutes")}
     if done >= target:
         return out | {"why": f"daily total reached ({done}/{target})"}
-    allowed = target * _weight_minutes(start, now) / max(1.0, _weight_minutes(start, stop)) + SESSION_SIZE[1]
+    allowed = target * _weight_minutes(start, now) / max(1.0, _weight_minutes(start, stop)) + max(1, round(target * 0.1))
     if done >= allowed:
         return out | {"why": f"ahead of the day's pace ({done}/{allowed:.0f})"}
     if last_1h >= HOURLY_MAX:
