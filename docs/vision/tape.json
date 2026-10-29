@@ -1,6 +1,13 @@
 {
  "injuries": [
   {
+   "ts": "2026-10-29T15:56:10+00:00",
+   "team": "Toronto Raptors",
+   "player": "Kawhi Leonard",
+   "status": "Out",
+   "comment": "Leonard (knee) is expected to be sidelined for at least three to four weeks, Chris Haynes of NBA TV reports."
+  },
+  {
    "ts": "2026-10-29T05:25:01+00:00",
    "team": "LA Clippers",
    "player": "Rui Hachimura",
@@ -1042,16 +1049,18 @@
    "player": "Cason Wallace",
    "status": "Out",
    "comment": "Wallace has been diagnosed with a torn labrum in his left shoulder and will require surgery, Shams Charania of ESPN reports."
-  },
-  {
-   "ts": "2026-10-27T10:05:53+00:00",
-   "team": "Oklahoma City Thunder",
-   "player": "Nikola Topic",
-   "status": "Out",
-   "comment": "Topic (back) won't play in Monday's game against the Suns, Andrew Schlecht of The Athletic reports."
   }
  ],
  "alerts": [
+  {
+   "news_at": "2026-10-29T15:56:10+00:00",
+   "player": "Kawhi Leonard",
+   "team": "TOR",
+   "opp": "ORL",
+   "before": 0.655,
+   "after": 0.655,
+   "text": "🚨 INJURY ALERT\n\n❌ Kawhi Leonard is OUT tomorrow vs the Magic\n\n📊 23.8 PTS · 30.5 MIN per game (last 10)\n\n📈 Raptors win chance: 66% → 66% \n⏱️ market moved 0 pts in 12 min\n\n#Raptors #NBA"
+  },
   {
    "news_at": "2026-10-29T01:05:37+00:00",
    "player": "Brandon Ingram",
@@ -1312,15 +1321,6 @@
    "before": 0.6,
    "after": 0.6,
    "text": "🚨 INJURY ALERT\n\n❌ Kon Knueppel is OUT tomorrow vs the Wizards\n\n📊 14.6 PTS · 31.9 MIN per game (last 10)\n\n📈 Hornets win chance: 60% → 60% \n⏱️ market moved 0 pts in 12 min\n\n#Hornets #NBA"
-  },
-  {
-   "news_at": "2026-10-25T20:32:22+00:00",
-   "player": "Naji Marshall",
-   "team": "DAL",
-   "opp": "MIA",
-   "before": 0.245,
-   "after": 0.245,
-   "text": "🚨 INJURY ALERT\n\n❌ Naji Marshall is OUT tomorrow vs the Heat\n\n📊 15.4 PTS · 29.4 MIN per game (last 10)\n\n📈 Mavericks win chance: 24% → 24% \n⏱️ market moved 0 pts in 12 min\n\n#Mavericks #NBA"
   }
  ],
  "tipsters": [
