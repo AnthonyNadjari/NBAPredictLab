@@ -1,22 +1,6 @@
 {
   "requests": [
     {
-      "id": "autopilot-20261022-Denver_Nuggets_vs_Oklahoma_City_Thunder_2026-10-22",
-      "game_id": "Denver_Nuggets_vs_Oklahoma_City_Thunder_2026-10-22",
-      "texts": null,
-      "dry": false,
-      "requested_at": "2026-10-22T21:16:56+00:00",
-      "source": "autopilot"
-    },
-    {
-      "id": "autopilot-20261022-Cleveland_Cavaliers_vs_Philadelphia_76ers_2026-10-22",
-      "game_id": "Cleveland_Cavaliers_vs_Philadelphia_76ers_2026-10-22",
-      "texts": null,
-      "dry": false,
-      "requested_at": "2026-10-22T21:16:56+00:00",
-      "source": "autopilot"
-    },
-    {
       "id": "autopilot-20261023-LA_Clippers_vs_Los_Angeles_Lakers_2026-10-23",
       "game_id": "LA_Clippers_vs_Los_Angeles_Lakers_2026-10-23",
       "texts": null,
@@ -162,6 +146,24 @@
       "dry": false,
       "requested_at": "2026-10-29T21:12:32+00:00",
       "source": "autopilot"
+    },
+    {
+      "id": "result-Sacramento_Kings_vs_New_Orleans_Pelicans_2026-10-29",
+      "game_id": "result-Sacramento_Kings_vs_New_Orleans_Pelicans_2026-10-29",
+      "texts": null,
+      "dry": false,
+      "requested_at": "2026-10-30T09:09:24+00:00",
+      "not_before": "2026-10-30T16:00:00+00:00",
+      "source": "results_post"
+    },
+    {
+      "id": "result-Memphis_Grizzlies_vs_Portland_Trail_Blazers_2026-10-29",
+      "game_id": "result-Memphis_Grizzlies_vs_Portland_Trail_Blazers_2026-10-29",
+      "texts": null,
+      "dry": false,
+      "requested_at": "2026-10-30T09:09:24+00:00",
+      "not_before": "2026-10-30T16:00:00+00:00",
+      "source": "results_post"
     }
   ]
 }
