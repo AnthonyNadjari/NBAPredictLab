@@ -1,22 +1,6 @@
 {
   "requests": [
     {
-      "id": "autopilot-20261024-Golden_State_Warriors_vs_Phoenix_Suns_2026-10-24",
-      "game_id": "Golden_State_Warriors_vs_Phoenix_Suns_2026-10-24",
-      "texts": null,
-      "dry": false,
-      "requested_at": "2026-10-24T21:15:20+00:00",
-      "source": "autopilot"
-    },
-    {
-      "id": "autopilot-20261024-Washington_Wizards_vs_Chicago_Bulls_2026-10-24",
-      "game_id": "Washington_Wizards_vs_Chicago_Bulls_2026-10-24",
-      "texts": null,
-      "dry": false,
-      "requested_at": "2026-10-24T21:15:20+00:00",
-      "source": "autopilot"
-    },
-    {
       "id": "autopilot-20261025-Orlando_Magic_vs_New_York_Knicks_2026-10-25",
       "game_id": "Orlando_Magic_vs_New_York_Knicks_2026-10-25",
       "texts": null,
@@ -164,6 +148,24 @@
       "dry": false,
       "requested_at": "2026-10-30T21:10:19+00:00",
       "source": "autopilot"
+    },
+    {
+      "id": "result-Indiana_Pacers_vs_Miami_Heat_2026-10-30",
+      "game_id": "result-Indiana_Pacers_vs_Miami_Heat_2026-10-30",
+      "texts": null,
+      "dry": false,
+      "requested_at": "2026-10-31T09:07:16+00:00",
+      "not_before": "2026-10-31T16:00:00+00:00",
+      "source": "results_post"
+    },
+    {
+      "id": "result-Detroit_Pistons_vs_Brooklyn_Nets_2026-10-30",
+      "game_id": "result-Detroit_Pistons_vs_Brooklyn_Nets_2026-10-30",
+      "texts": null,
+      "dry": false,
+      "requested_at": "2026-10-31T09:07:16+00:00",
+      "not_before": "2026-10-31T16:00:00+00:00",
+      "source": "results_post"
     }
   ]
 }
